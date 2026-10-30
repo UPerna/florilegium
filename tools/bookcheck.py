@@ -32,13 +32,15 @@ def main():
           package=r"\usepackage{titlesec}" if titlesec else ""
           core=r"\usepackage[left=68mm,right=22mm]{geometry}\usepackage[grown,sections,style=quiet]{florilegium}"
           opening=r"\chapter[Short chapter]{Long chapter}" if cls=="scrbook" else ""
+          bookmarks=r"\usepackage{bookmark}" if cls=="scrbook" else ""
           cases[f"headings-{cls}-{titlesec}-{after}"]=(rf"\documentclass{{{cls}}}"+(core+package if after else package+core)
-            +r"\usepackage{hyperref}\begin{document}\tableofcontents"+opening+r"\section[Short]{Long heading\label{inside}}\label{outside}Text.\subsection{Subheading}Text.\section*{Unnumbered}Text.\nameref{inside}, \nameref{outside}.\end{document}")
+            +r"\usepackage{hyperref}"+bookmarks+r"\begin{document}\tableofcontents"+opening+r"\section[Short]{Long heading\label{inside}}\label{outside}Text.\subsection{Subheading}Text.\section*{Unnumbered}Text.\nameref{inside}, \nameref{outside}.\end{document}")
     for name,source in cases.items():
       # Set fonts after the class so incomplete local luaotfload installations can use Computer Modern.
       at=source.index("}")+1
       source=source[:at]+COMMON+source[at:]
       path=BUILD/(name+".tex");path.write_text(source)
+      for extension in (".aux",".out",".toc"):path.with_suffix(extension).unlink(missing_ok=True)
       for run in range(2 if name.startswith("headings") else 1):
         result=subprocess.run(["lualatex","-no-shell-escape","-interaction=nonstopmode","-halt-on-error",
                                f"-output-directory={BUILD}",str(path)],cwd=ROOT,capture_output=True,text=True)
@@ -47,9 +49,13 @@ def main():
       toc=path.with_suffix(".toc")
       if toc.exists(): assert "headmark" not in toc.read_text() and "florilegium" not in toc.read_text()
       if name.startswith("headings"):
-        for extension in (".aux",".out"):
-          data=path.with_suffix(extension).read_text()
-          assert "headmark" not in data and "florilegium" not in data
+        # hyperref writes .out; newer KOMA loads bookmark, which writes BKM
+        # entries into .aux instead. Verify whichever backend is present.
+        metadata=[path.with_suffix(".aux")]
+        if path.with_suffix(".out").exists():metadata.append(path.with_suffix(".out"))
+        data="\n".join(p.read_text() for p in metadata)
+        assert "headmark" not in data and "florilegium" not in data
+        assert r"\BOOKMARK" in data or r"\BKM@entry" in data,"No bookmark records were emitted"
       print("PASS",name)
     text=subprocess.check_output(["pdftotext",str(BUILD/"initial-fallback.pdf"),"-"],text=True)
     assert "Every letter is searchable" in " ".join(text.split())
