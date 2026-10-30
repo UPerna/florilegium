@@ -3,13 +3,26 @@
 
 local ink = require("ink")
 local flora = require("flora")
+local settings = require("layout")
 local M = { ink = ink, flora = flora }
+local frame, recorded = nil, {}
+M.layout = settings.resolve()
+
+-- A setup call persists until the next one. Invalidate animation recordings too:
+-- otherwise a new density or whitespace setting could replay the old garden.
+function M.configure(key, value)
+  local next_layout = {}
+  for k, v in pairs(M.layout) do next_layout[k] = v end
+  next_layout[key] = value
+  M.layout = settings.resolve(next_layout)
+  recorded = {}
+end
 
 local SP_CM = 2.54 / (72.27 * 65536)          -- cm per scaled point
 local function cm(name) return tex.dimen[name] * SP_CM end
 
 -- the page layout, in cm from the lower-left corner of the paper
-function M.geometry()
+function M.geometry(text_gap)
   local inch = 2.54
   local g = {
     pw = cm("paperwidth"), ph = cm("paperheight"),
@@ -18,7 +31,9 @@ function M.geometry()
   g.textright = g.textleft + cm("textwidth")
   g.ytop = g.ph - inch - cm("topmargin") - cm("headheight") - cm("headsep")
   g.ybot = g.ytop - cm("textheight")
-  g.colright = g.textleft - 0.4
+  -- The existing safety clip extends 2.5 mm beyond the growth column. Account
+  -- for that overhang so text-gap is the actual clear space beside the text.
+  g.colright = g.textleft - (text_gap and text_gap + settings.SIDE_OVERHANG or 0.4)
   g.headrule = g.ytop + cm("headsep") - 0.1
   g.footy = g.ybot - cm("footskip")
   return g
@@ -175,7 +190,6 @@ function M.auto_age(page, last) M.age = last > 1 and math.min(1, (page - 1) / (l
 -- the growth animation: after \florilegiumframe[explain]{k}{n}, a grown page
 -- shows frame k of n of its garden's growth (animation.tex, tools/animate.py).
 -- The garden is recorded once and each frame writes the part grown so far.
-local frame, recorded = nil, {}
 function M.frame(k, n, explain) frame = { k = k, n = n, explain = explain == "explain" } end
 
 local function grown_frame(g)
@@ -199,11 +213,17 @@ end
 -- leaves out the butterflies, bees, snails and birds
 M.visitors = true
 function M.grown(seed, spill, spilly, box)
-  local g = M.geometry()
+  local g = M.geometry(M.layout.text_gap)
+  if g.colright < 1.8 then
+    tex.error("florilegium: text-gap leaves less than 18 mm for the garden",
+      { "Reduce text-gap or increase the document's left margin." })
+    return
+  end
   g.seed, g.spill, g.spilly, g.visitors, g.age = seed, spill, spilly, M.visitors, M.age
+  g.layout = M.layout
   g.marks = page_marks(box)
   if frame then grown_frame(g) else require("grow").page(g) end
-  M.head(g)
+  if M.layout.header then M.head(g) end
 end
 
 -- the authored composition for this page

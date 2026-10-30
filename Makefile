@@ -2,11 +2,20 @@ LUALATEX = $(RUN) lualatex -interaction=nonstopmode -halt-on-error
 SEEDS   ?= 1 2 3 4 5 6
 # RUN=tools/in-docker builds inside the florilegium-tex image (see tools/Dockerfile)
 RUN     ?=
-LUA      = ink.lua flora.lua florilegium.lua initial.lua
+LUA      = ink.lua flora.lua florilegium.lua initial.lua layout.lua
 GS      ?= gs
 SEED    ?= 7
+CHECK_SEEDS ?= 1
 
 all: florilegium.pdf florilegium-grow.pdf showcase.pdf
+
+check:
+	$(RUN) texlua tools/layoutcheck.lua
+	$(RUN) python3 tools/layoutsmoke.py
+	$(RUN) texlua tools/animcheck.lua $(CHECK_SEEDS)
+
+layout-preview: layout-demo.tex florilegium.sty grow.lua $(LUA) tools/layoutpreview.py
+	$(RUN) python3 tools/layoutpreview.py
 
 # authored composition (authored.lua), one pass, about a second a page
 florilegium.pdf: florilegium.tex florilegium.sty authored.lua grow.lua $(LUA) text-methods.tex text-sharing.tex
@@ -75,4 +84,4 @@ preview: florilegium.pdf florilegium-grow.pdf showcase.pdf
 clean:
 	rm -rf build *.aux *.log *.out *.synctex.gz
 
-.PHONY: all gallery animation preview postscript clean
+.PHONY: all check layout-preview gallery animation preview postscript clean

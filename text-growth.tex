@@ -36,7 +36,7 @@ the edge of a flower; stems are proxies too, as chains of small discs.
 \end{definition}
 
 \begin{construction}[Growth]
-The region $R$ is the margin column, a band along the bottom of the page, and on the last
+At full density, the region $R$ is the margin column, a band along the bottom of the page, and on the last
 page also the rectangle between the end of the text and the footer. On a grid of candidates
 spaced $2\,$mm apart, each point keeps $f(p)$ and its distance to the nearest stem. Then,
 until the largest free radius falls below $3.6\,$mm:
@@ -64,6 +64,19 @@ records \verb|\pagetotal| and \verb|\pagedepth|, the height of the material alre
 current page, and the background of that page is drawn after it. On the last page, the
 garden therefore spills into the space below the words in a single compilation: branches
 arch out of the main stems into that space and each ends in a flower.
+\end{remark}
+
+\begin{remark}[Density and whitespace]
+The grown layout can leave more room. The key \texttt{density} accepts \texttt{full}
+($1$), \texttt{balanced} ($0.6$), \texttt{airy} ($0.3$), or a number from $0.2$ to $1$.
+Smaller values space the leaves farther apart, limit secondary branches and reduce
+small finishing details; they do not measure the fraction of the page covered by ink.
+The switches \texttt{spill=false}, \texttt{footer=false} and \texttt{header=false}
+preserve the space below the text, omit the footer plant and omit the header ornament,
+respectively. The key \texttt{text-gap} sets the minimum side clearance from the text.
+Set these as package options with \texttt{grown}, or use
+\verb|\florilegiumsetup{density=airy,text-gap=6mm}|. Settings are applied at shipout;
+flush the previous page before changing them. The defaults retain the original garden.
 \end{remark}
 
 \begin{remark}[Visitors, marks and seasons]

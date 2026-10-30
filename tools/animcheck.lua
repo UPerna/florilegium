@@ -15,12 +15,15 @@ local CASES = {
   { name = "summer" },
   { name = "spring", age = 0.05 },
   { name = "autumn, marks", age = 0.95, marks = { { kind = "heading", arg = 1, y = 20 }, { kind = "bloom", arg = "", y = 9 } } },
+  { name = "airy", layout = { density = "airy" } },
+  { name = "balanced, reserved whitespace", layout = { density = "balanced", spill = false, footer = false } },
 }
 local function geometry(seed, spill, case)
   local g = { pw = 21, ph = 29.7, textleft = 6.8, textright = 18.8, ytop = 25.4, ybot = 3.0 }
   g.colright, g.headrule, g.footy = g.textleft - 0.4, g.ytop + 0.7, 1.9
   g.seed, g.spill, g.spilly = seed, spill, spill == 1 and 19.0 or 0
   g.age, g.marks = case.age, case.marks
+  g.layout = case.layout
   return g
 end
 

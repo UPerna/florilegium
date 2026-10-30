@@ -40,6 +40,46 @@ Both PDFs are self-describing: the body text is the write-up of how the margin i
 *300 dpi crop. Mottled washes with white streaks lifted out, lobed leaves with white veins,
 forget-me-not cymes, a pale ghost flower behind the stems.*
 
+## Layout controls in this fork
+
+The grown composition has controls for density and deliberate whitespace. The
+defaults retain the upstream drawing. These additions are for LuaLaTeX; the
+PostScript port still uses the original layout.
+
+```tex
+\usepackage[grown,density=airy,spill=false]{florilegium}
+\florilegiumsetup{footer=false,text-gap=6mm}
+```
+
+| Control | Default | Effect |
+| --- | --- | --- |
+| `density` | `full` (`1`) | `balanced` (`0.6`), `airy` (`0.3`), or a number from `0.2` to `1`. Lower values space leaves farther apart and reduce secondary branches, ghost flowers and finishing details. Main stems and terminal motifs remain. |
+| `text-gap` | `1.5mm` | Minimum side clearance between the text edge and the garden's clipping boundary, including its existing 2.5 mm overhang. Accepts a nonnegative TeX dimension. |
+| `spill` | `true` | `false` preserves the area below the final paragraph even when `\florilegiumtextend` is present. |
+| `footer` | `true` | `false` removes the bottom stem, its leaves and its tail. |
+| `header` | `true` | `false` removes the garden's ivy leaf and header rule; document headers are separate. |
+
+![One seed with full, balanced, airy and reserved-whitespace settings](gallery/layout-controls.png)
+
+The comparison uses identical text, geometry and seed, without visitors. Density
+controls ornament amount, not opacity or a measured percentage of ink; exact
+counts depend on the seed, season and available region. A lower density can
+rearrange secondary motifs.
+
+Use `\florilegiumsetup{...}` to change any subset of controls. Settings persist
+until changed and are read when a page is shipped out. Put `\clearpage` before a
+style change to keep the previous page's appearance. All five controls require
+`grown`; they do not alter text layout or standalone primitives. Leave at least
+18 mm for the growth column in addition to `text-gap` and the 2.5 mm overhang.
+The header rule and the optional under-text/footer regions have their own
+switches; `text-gap` controls only the side garden.
+
+Build the four comparison PDFs in `build/` and this contact sheet with
+`make layout-preview` (Python, Pillow and `pdftoppm`, as for the galleries).
+`make check` checks the upstream path fingerprints, density controls, LaTeX
+options and animation end frames. Use `CHECK_SEEDS="1 6"` for more seeds, or
+`RUN=tools/in-docker` to use the build image.
+
 ## Watch it grow
 
 | as it grows | with the free space it fills |
@@ -170,7 +210,7 @@ docker build -t florilegium-tex tools
 make RUN=tools/in-docker
 ```
 
-Or paste `florilegium.sty`, the six `.lua` files and one of the `.tex` files into an
+Or paste `florilegium.sty`, the seven `.lua` files and one of the `.tex` files into an
 [Overleaf](https://www.overleaf.com) project and set the compiler to LuaLaTeX.
 
 Use it in your own document:

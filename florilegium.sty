@@ -8,6 +8,9 @@
 %% Usage
 %%   \usepackage{florilegium}          authored composition (hand-placed, authored.lua)
 %%   \usepackage[grown]{florilegium}   composition grown to fit the page (grow.lua)
+%%   \usepackage[grown,density=airy,spill=false]{florilegium}
+%%   \florilegiumsetup{density=0.5,text-gap=6mm,footer=false,header=false}
+%%                                      grown only; settings persist until changed
 %%   \usepackage[nomargin]{florilegium} no margin, only \florilegiumdraw
 %%   \usepackage[grown,novisitors]{florilegium}  no butterflies, bees, snails or birds
 %%   \usepackage[grown,sections]{florilegium}    a flower beside every numbered \section
@@ -38,24 +41,41 @@
 %%                                      e.g. \florilegiumdraw{leaf}{2.0, {depth=0.6}}
 %%
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{florilegium}[2026/10/30 v1.1 procedural floral margin, Lua-drawn]
+\ProvidesPackage{florilegium}[2026/10/30 v1.2 procedural floral margin, layout controls]
 \ifdefined\directlua\else
   \PackageError{florilegium}{florilegium needs LuaLaTeX}{Compile with lualatex.}\fi
 \RequirePackage{tikz}
 \RequirePackage{eso-pic}
+\directlua{florilegium = require("florilegium")}
 
 \newif\ifflorilegium@grown
 \newif\ifflorilegium@margin \florilegium@margintrue
 \newif\ifflorilegium@visitors \florilegium@visitorstrue
 \newif\ifflorilegium@sections
 \newif\ifflorilegium@aging
+\newif\ifflorilegium@layoutset
+\def\flo@setlayout#1#2{\florilegium@layoutsettrue
+  \directlua{florilegium.configure("#1", "\luaescapestring{#2}")}}
+\pgfkeys{/florilegium/.is family, /florilegium,
+  density/.code={\flo@setlayout{density}{#1}},
+  text-gap/.code={\florilegium@layoutsettrue
+    \directlua{florilegium.configure("text_gap", \number\dimexpr#1\relax * 2.54 / (72.27 * 65536))}},
+  spill/.code={\flo@setlayout{spill}{#1}}, spill/.default=true,
+  footer/.code={\flo@setlayout{footer}{#1}}, footer/.default=true,
+  header/.code={\flo@setlayout{header}{#1}}, header/.default=true}
+\def\flo@options#1{\pgfkeys{/florilegium/.cd,#1}}
+\def\flo@grownonly{\PackageError{florilegium}{Layout controls require the grown option}
+  {Load the package with \string\usepackage[grown]{florilegium}.}}
 \DeclareOption{authored}{\florilegium@grownfalse}
 \DeclareOption{grown}{\florilegium@growntrue}
 \DeclareOption{nomargin}{\florilegium@marginfalse}
 \DeclareOption{novisitors}{\florilegium@visitorsfalse}
 \DeclareOption{sections}{\florilegium@sectionstrue}
 \DeclareOption{aging}{\florilegium@agingtrue}
+\DeclareOption*{\expandafter\flo@options\expandafter{\CurrentOption}}
 \ProcessOptions\relax
+\ifflorilegium@layoutset\ifflorilegium@grown\else\flo@grownonly\fi\fi
+\newcommand\florilegiumsetup[1]{\ifflorilegium@grown\flo@options{#1}\else\flo@grownonly\fi}
 \ifdefined\florilegiumseed\else\def\florilegiumseed{}\fi
 
 %% ---------------------------------------------------------------- palette
@@ -64,7 +84,6 @@
 \definecolor{ink}{HTML}{2456C4}
 \definecolor{accent}{HTML}{B4662F}
 
-\directlua{florilegium = require("florilegium")}
 \ifflorilegium@visitors\else\directlua{florilegium.visitors = false}\fi
 
 %% pass the current colors to Lua

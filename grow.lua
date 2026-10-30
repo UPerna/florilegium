@@ -22,6 +22,7 @@
 
 local ink = require("ink")
 local flora = require("flora")
+local settings = require("layout")
 local M = {}
 
 local sqrt, cos, sin, atan, pi, floor, max, min, abs = math.sqrt, math.cos, math.sin, math.atan, math.pi, math.floor, math.max, math.min, math.abs
@@ -228,6 +229,8 @@ end
 -- With g.anim set, the page is recorded instead of written, and the
 -- recording is returned with its events timed: { rec, total }.
 function M.page(g)
+  local options = settings.resolve(g.layout)
+  local density = options.density
   local rng = ink.rng(g.seed * 7919 + 13)
   local layout = rng.fork()                 -- decisions; primitives get their own forks
   ink.set_transform({ ink.CM, 0, 0, ink.CM, 0, 0 })
@@ -265,9 +268,10 @@ function M.page(g)
   local col = { 0.3, 0.45, g.colright, g.ph - 0.5 }
   local fx1 = g.textleft + (g.textright - g.textleft) * layout.range(0.42, 0.52)
   local foot = { g.colright - 0.01, 0.4, fx1, min(1.75, g.footy - 0.45) }
-  local rects = { col, foot }
+  local rects = { col }
+  if options.footer then rects[#rects + 1] = foot end
   local spill
-  if g.spill == 1 and (g.spilly - 0.8) - (g.ybot + 0.6) > 2.5 then
+  if options.spill and g.spill == 1 and (g.spilly - 0.8) - (g.ybot + 0.6) > 2.5 then
     spill = { g.colright - 0.01, g.ybot + 0.6, g.textright - 0.2, g.spilly - 0.8 }
     rects[#rects + 1] = spill
   end
@@ -461,9 +465,11 @@ function M.page(g)
       footpts[#footpts + 1] = { x, y }
       x = x + 0.2
     end
-    footev = event({ kind = "stem", phase = "stems", off = 0.5 })
-    stem(footpts, 0.065, 0.01, 0.06)
-    add_stem_points(footpts, 0.065, 0.012)
+    if options.footer then
+      footev = event({ kind = "stem", phase = "stems", off = 0.5 })
+      stem(footpts, 0.065, 0.01, 0.06)
+      add_stem_points(footpts, 0.065, 0.012)
+    end
   end
   -- on the last page, branches arch out of the main stems into the space under
   -- the text, each ending in a flower
@@ -558,6 +564,7 @@ function M.page(g)
   -- ghosts: large pale flowers behind, given a little room so they show
   do
     local ng = layout.int(1, 2)
+    if density < 1 then ng = min(ng, floor(2 * density)) end
     for k = 1, ng do
       local gxp = g.colright * layout.range(0.35, 0.65)
       local gyp = g.ph * (k == 1 and layout.range(0.15, 0.3) or layout.range(0.45, 0.6))
@@ -715,17 +722,17 @@ function M.page(g)
   -- ---------------------------------------------------------- 3. leaves at the nodes
   -- big stems get full leaves, alternating sides, smaller toward the top; the
   -- footer gets leaflets that thin out toward its end
-  leafy[#leafy + 1] = { pts = footpts, big = false, ev = footev }
+  if options.footer then leafy[#leafy + 1] = { pts = footpts, big = false, ev = footev } end
   for _, st in ipairs(leafy) do
     local pts = st.pts
-    local s, acc, side = 0, layout.range(0.6, 1.3), layout.chance(0.5) and 1 or -1
+    local s, acc, side = 0, layout.range(0.6, 1.3) / density, layout.chance(0.5) and 1 or -1
     local total = 0
     for i = 2, #pts do total = total + dist(pts[i][1], pts[i][2], pts[i - 1][1], pts[i - 1][2]) end
     for i = 2, #pts - 4 do
       s = s + dist(pts[i][1], pts[i][2], pts[i - 1][1], pts[i - 1][2])
       if s >= acc then
         local u = s / total
-        acc = acc + (st.big and layout.range(1.4, 2.2) or lerp(0.55, 1.4, u) * layout.range(0.8, 1.2))
+        acc = acc + (st.big and layout.range(1.4, 2.2) or lerp(0.55, 1.4, u) * layout.range(0.8, 1.2)) / density
         side = -side
         local tx, ty = norm(pts[i + 1][1] - pts[i - 1][1], pts[i + 1][2] - pts[i - 1][2])
         local a = deg(tx, ty) + side * layout.range(35, 60)
@@ -766,11 +773,12 @@ function M.page(g)
   for _, r in ipairs(rects) do area = area + (r[3] - r[1]) * (r[4] - r[2]) end
   local af = max(1, area / 175)
   local caps = {}
-  for _, m in ipairs(motifs) do caps[m.name] = m.fly and m.max or floor(m.max * af + 0.5) end   -- visitors stay few
+  for _, m in ipairs(motifs) do caps[m.name] = m.fly and m.max or floor(m.max * af * density + 0.5) end   -- visitors stay few
   local nbranch = 0
-
-
-  for _ = 1, 400 do
+  -- Full density keeps the original stopping rule. Lower settings leave holes
+  -- deliberately, with fewer leaves, branches and small finishing details.
+  local branch_limit = density == 1 and 400 or floor(36 * af * density)
+  for _ = 1, branch_limit do
     local best, bi = -1, nil
     for i = 1, #gx do
       if sdist[i] <= REACH then
@@ -778,7 +786,7 @@ function M.page(g)
         if v > best then best, bi = v, i end
       end
     end
-    if not bi or free[bi] < SMALLEST then break end
+    if not bi or free[bi] < SMALLEST / sqrt(density) then break end
     local f, px, py = free[bi], gx[bi], gy[bi]
     -- statement motifs have a hard cap; the others only lose weight as they repeat
     local elig, wts, wsum = {}, {}, 0
@@ -856,14 +864,15 @@ function M.page(g)
   -- only right next to a stem, and not too many: a pair of leaflets at a node,
   -- a bud, or a few florets. Far from any stem, a copper accent or nothing.
   local accents, fills = 0, 0
-  local maxfill = floor(28 * af)
-  for _ = 1, 600 do
+  local maxfill = density < 0.5 and 0 or floor(28 * af * density * density)
+  local maxaccent = floor(6 * density)
+  for _ = 1, (maxfill > 0 or maxaccent > 0) and 600 or 0 do
     local best, bi = -1, nil
     for i = 1, #gx do
       local v = free[i] * layout.range(0.85, 1.15)
       if v > best then best, bi = v, i end
     end
-    if not bi or free[bi] < FILLMIN then break end
+    if not bi or free[bi] < FILLMIN / sqrt(density) then break end
     local f, px, py = free[bi], gx[bi], gy[bi]
     local S, sd = nearest_stem(px, py)
     if sd < 0.75 and fills < maxfill then
@@ -897,7 +906,7 @@ function M.page(g)
           place(L_BLOOM, qx, qy, 90, function() flora.floret(rng.fork(), min(0.11, f * 0.6) * layout.range(0.8, 1.1)) end)
         end
       end
-    elseif sd >= 0.75 and accents < 6 and f > 0.22 and px < g.colright then
+    elseif sd >= 0.75 and accents < maxaccent and f > 0.22 and px < g.colright then
       accents = accents + 1
       event({ kind = "bloom", phase = "accent", i = accents, size = 0.3 })
       if layout.chance(0.6) then
@@ -910,7 +919,7 @@ function M.page(g)
   end
 
   -- ---------------------------------------------------------- 6. the footer's tail
-  do
+  if options.footer then
     local e = footpts[#footpts]
     local x2 = e[1] + layout.range(1.6, 2.2)
     ink.layer(L_ACCENT)
@@ -935,7 +944,8 @@ function M.page(g)
   ink.tag(nil)
   ink.layer(0)
   for _, r in ipairs(rects) do
-    ink.poly({ { r[1] - 0.25, r[2] - 0.3 }, { r[3] + (r == col and 0.25 or 0.3), r[2] - 0.3 }, { r[3] + (r == col and 0.25 or 0.3), r[4] + 0.3 }, { r[1] - 0.25, r[4] + 0.3 } }, true)
+    local overhang = r == col and settings.SIDE_OVERHANG or 0.3
+    ink.poly({ { r[1] - 0.25, r[2] - 0.3 }, { r[3] + overhang, r[2] - 0.3 }, { r[3] + overhang, r[4] + 0.3 }, { r[1] - 0.25, r[4] + 0.3 } }, true)
   end
   ink.clip()
   ink.layer(99)
@@ -945,16 +955,18 @@ function M.page(g)
   for _, name in ipairs({ "butterfly", "bee", "snail", "bird" }) do
     if (counts[name] or 0) > 0 then seen[#seen + 1] = counts[name] .. " " .. name end
   end
+  local stats = { cells = #gx, motifs = n, branches = nbranch, fills = fills, accents = accents }
   if anim then
     local total = schedule(events)
     if texio then texio.write_nl(string.format("florilegium: recorded %d motifs, %d events, %.1f s of growth", n, #events, total)) end
-    return { rec = ink.take_recording(), total = total }
+    return { rec = ink.take_recording(), total = total, stats = stats }
   end
   local bytes = ink.flush()
   if texio then
     texio.write_nl(string.format("florilegium: grew %d cells, %d motifs, %d stem points, %.0f KB; visitors: %s",
       #gx, n, #spts, bytes / 1024, #seen > 0 and table.concat(seen, ", ") or "none"))
   end
+  return stats
 end
 
 return M

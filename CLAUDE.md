@@ -18,11 +18,14 @@ document), pages get visitors, and paragraphs can open with a decorated initial;
 | `ink.lua` | drawing core: mulberry32 rng, 1-D gradient noise/fbm, OKLCH tone ramp, affine transform stack, path building (`smooth` = Catmull-Rom as Béziers, `taper`, `ribbon`, `blade`, `blob`), fill/stroke/clip with ExtGState opacity + multiply, numbered layers, `flush()` into one `pdf_literal` node. |
 | `flora.lua` | the primitives: `petal flower lily blossom floret bud bell leaf leaflet stem cyme sprig umbel seedhead tendril sparkle rosette hedera ghost`, the visitors `butterfly bee snail bird`, plus `branch_path`. |
 | `grow.lua` | grown composition: regions, grid, stems, marks, visitors on the stems, leaves at nodes, branch loop, falling petals, filler, footer tail; seasons; animation events. Also exports the **motif table** (`M.motifs`) and layer numbers used by `authored.lua`. |
+| `layout.lua` | validated grown-layout settings: density (`full`/`balanced`/`airy` or `0.2..1`), minimum side text clearance in cm, spill/footer/header switches. `florilegium.configure` applies settings and invalidates animation recordings. |
 | `authored.lua` | authored composition: the hand-placed "score" (STEMS, LEAVES, BRANCHES, GHOSTS, VISITORS, SNAIL, ACCENTS, FOOT) for A4 with a 68 mm left margin. |
 | `initial.lua` | decorated initials: glyph outline via `fonts.handlers.otf.readers.loadshapes`, even-odd inside test, clearance grid, the vine over/under the letter, leaflets, flowers in the gaps, tile frame. |
 | `florilegium.tex` / `florilegium-grow.tex` | demo documents (authored / grown). Body text = `text-methods.tex` (+ `text-growth.tex` for grown) + `text-sharing.tex`; it describes the code, so **update it when the method changes**. |
 | `showcase.tex` | "A year in the margin": `[grown,sections,aging]`, an initial, `\florilegiumbloom`; each section describes the feature it shows. Two passes. |
 | `gallery.tex`, `tools/gallery.py` | one short page per variant (`\galleryink`, `\galleryage`) → `gallery/seeds.png` + `seeds.gif`, `inks.png`, `seasons.png`. |
+| `layout-demo.tex`, `tools/layoutpreview.py` | matched full/balanced/airy/whitespace examples → `build/layout-*.pdf`, `gallery/layout-controls.png`. |
+| `tools/layoutcheck.lua`, `tools/layoutsmoke.py` | upstream default path fingerprints, density/region behavior and validation; real LaTeX package options, setup calls and error cases. `make check` also runs `tools/animcheck.lua`. |
 | `animation.tex`, `tools/animate.py` | growth animation: one page per frame (`\florilegiumframe`), parallel LuaLaTeX jobs, pdftoppm, ffmpeg → `build/grow-N.gif` + `.mp4`. `tools/animcheck.lua` checks that the last frame equals the page. |
 | `tools/Dockerfile`, `tools/in-docker` | TeX Live 2023 image; `make RUN=tools/in-docker` when there's no local TeX. |
 | `postscript/florilegium.ps` | the PostScript port: ink + flora + grow (no animation, initials or authored page) and a two-page text that describes itself, with heading marks and the spill. One file, run by Ghostscript (`make postscript`, local `gs`, not the Docker image) or a printer. Not kept in sync automatically: a change to a primitive or to `grow.lua` has to be made there too. |
@@ -39,6 +42,8 @@ make animation RUN=tools/in-docker                     # both, copied to gallery
 tools/in-docker texlua tools/animcheck.lua 1 2 3       # last frame == page, byte for byte
 make preview                              # gallery/preview-*.png from the root PDFs
 make postscript [SEED=7]                  # the PostScript port via local gs -> build/postscript-7.pdf + gallery/preview-postscript.png
+make check [CHECK_SEEDS="1 6"]            # defaults, layout controls, TeX API, animation
+make layout-preview                      # four matched examples and contact sheet
 ```
 
 Fixed seed: `lualatex "\def\florilegiumseed{7}\input{florilegium-grow.tex}"`. Any
@@ -68,6 +73,14 @@ is ~70 KB of path operators, a page ~3 MB uncompressed, ~0.7 MB in the PDF.
   a path used for fill and clip is emitted once (`clip()` then `flood()`); streaks are
   `taper` (2 Béziers); florets below 0.7 mm are a 10-point polygon. Measure before adding
   per-petal detail.
+- **Density and whitespace**: controls apply only to the grown composition. Defaults
+  must retain upstream PDF path bytes (the three fixtures in `tools/layoutcheck.lua`).
+  Lower density keeps the three main stems and terminal motifs, spaces node leaves by
+  `1/density`, caps secondary branches and reduces ghosts and small detail. The number
+  is not a percentage of ink. The side clip overhang is `layout.SIDE_OVERHANG` (2.5 mm);
+  geometry includes it when honoring `text-gap`. Footer, spill and header switches
+  are independent. Setup is persistent and takes effect at shipout; callers should
+  flush the page before changing it. The PostScript port has not acquired these controls.
 - **Level of detail**: primitives check `ink.unit()` (cm per local unit) and
   `ink.get_lift()` (ghost) and skip specks/veins when small or pale.
 - **Determinism**: every primitive takes an rng; layout code draws from `layout` and
@@ -172,4 +185,3 @@ can then place it by name, and `\florilegiumbloom[name]` can ask for it.
   title-page tile.
 - A mirrored right-margin variant for two-sided documents.
 - Form XObjects for repeated sub-shapes (florets) to cut the PDF size further.
-- A density/airiness option (SMALLEST, FILLMIN, caps) exposed in the `.sty`.
