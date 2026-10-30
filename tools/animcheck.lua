@@ -17,6 +17,8 @@ local CASES = {
   { name = "autumn, marks", age = 0.95, marks = { { kind = "heading", arg = 1, y = 20 }, { kind = "bloom", arg = "", y = 9 } } },
   { name = "airy", layout = { density = "airy" } },
   { name = "balanced, reserved whitespace", layout = { density = "balanced", spill = false, footer = false } },
+  { name = "chapter composition", layout = { style = "chapter" } },
+  { name = "protected callout", layout = { density = "airy" }, reserves = { {1.0,10.0,4.0,14.0} } },
 }
 local function geometry(seed, spill, case)
   local g = { pw = 21, ph = 29.7, textleft = 6.8, textright = 18.8, ytop = 25.4, ybot = 3.0 }
@@ -24,6 +26,7 @@ local function geometry(seed, spill, case)
   g.seed, g.spill, g.spilly = seed, spill, spill == 1 and 19.0 or 0
   g.age, g.marks = case.age, case.marks
   g.layout = case.layout
+  g.reserves = case.reserves
   return g
 end
 

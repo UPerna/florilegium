@@ -88,6 +88,19 @@ the page box at shipout and gets its flower before any leaf is hung. An age betw
 and $1$ reweights the motifs from buds in spring to seed heads in autumn.
 \end{remark}
 
+\begin{remark}[Book layouts and protected content]
+The key \texttt{side} selects left, right, outer or inner ornament. Outer and inner
+follow page parity in two-sided documents, using the actual text margins and page
+offsets. The drawing alone is reflected. The styles \texttt{classic}, \texttt{quiet}
+and \texttt{chapter} set density, main focal motifs, scale and stem asymmetry.
+Selected content can be placed inside a \texttt{florilegiumprotect} environment;
+its reserved rectangle travels with the box, including within a float. The growth
+grid excludes reserved areas, feasible branches detour around them, and motifs
+that overlap them are omitted. A final clip protects the content even when a box
+blocks every route. Such a box can interrupt the plant's continuity. Fixed page
+rectangles can instead be declared with \verb|\florilegiumreserve|.
+\end{remark}
+
 \begin{remark}[Cost]
 The layout is cheap: the grid has a few thousand points, a proxy only updates the points
 near it, and the whole loop takes a fraction of a second. This document of four pages

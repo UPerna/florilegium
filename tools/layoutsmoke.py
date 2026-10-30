@@ -30,7 +30,20 @@ CASES = (
        florilegium.grown(6,0,0); florilegium.grown(6,0,0); assert(calls==1)
        florilegium.configure('density','airy'); florilegium.grown(6,0,0); assert(calls==2)
        florilegium.configure('footer',false); florilegium.grown(6,0,0); assert(calls==3)
+       florilegium.colors(0.1,0.2,0.3,0.4,0.5,0.6);florilegium.grown(6,0,0);assert(calls==4)
+       local width=tex.dimen.textwidth;tex.dimen.textwidth=width+100;florilegium.grown(6,0,0);assert(calls==5)
+       tex.dimen.textwidth=width
        grow.page,ink.emit=page,emit}""", None),
+    ("style-override", "grown,style=quiet,density=0.5,focal-count=2,focal-scale=1.1,asymmetry=0.7",
+     r"\directlua{assert(florilegium.layout.density==0.5 and florilegium.layout.focal_count==2);assert(not florilegium.layout.footer)}",None),
+    ("style-name", "grown,style=unknown", "", "style must be"),
+    ("side-name", "grown,side=unknown", "", "side must be"),
+    ("focal-count", "grown,focal-count=1.5", "", "invalid focal_count"),
+    ("focal-scale", "grown,focal-scale=3", "", "invalid focal_scale"),
+    ("asymmetry", "grown,asymmetry=-1", "", "invalid asymmetry"),
+    ("strict-initial", "grown,initial-fallback=error", r"\florilegiuminitialfont{missing-font.otf}\AtBeginDocument{\florilegiuminitial{E}very}","initial font not found"),
+    ("initial-character", "grown", r"\AtBeginDocument{\florilegiuminitial{AB}}","one visible Unicode character"),
+    ("reserve-size", "grown", r"\AtBeginDocument{\florilegiumreserve{0pt}{0pt}{-1cm}{1cm}}","reserve width/height must be positive"),
     ("density-range", "grown,density=1.1", "", "density must be"),
     ("density-name", "grown,density=busy", "", "density must be"),
     ("negative-gap", "grown,text-gap=-1mm", "", "text-gap must be"),

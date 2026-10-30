@@ -17,12 +17,19 @@ jobs:
             florilegium.tex
             florilegium-grow.tex
             showcase.tex
+            book-demo.tex
+            asset-demo.tex
           latexmk_use_lualatex: true
-          extra_system_packages: python3
+          extra_system_packages: python3 py3-pillow poppler-utils inkscape
           post_compile: >-
             texlua tools/layoutcheck.lua &&
+            texlua tools/spacecheck.lua &&
+            texlua tools/initialcheck.lua &&
             python3 tools/layoutsmoke.py &&
-            texlua tools/animcheck.lua 1 6
+            python3 tools/bookcheck.py &&
+            texlua tools/animcheck.lua 1 6 &&
+            python3 tools/exportcheck.py &&
+            python3 tools/visualcheck.py
       - uses: actions/upload-artifact@v4
         with:
           name: florilegium-pdfs
@@ -30,6 +37,8 @@ jobs:
             florilegium.pdf
             florilegium-grow.pdf
             showcase.pdf
+            book-demo.pdf
+            asset-demo.pdf
 
   gallery:
     runs-on: ubuntu-latest

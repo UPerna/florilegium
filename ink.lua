@@ -212,6 +212,30 @@ function M.to_page(x, y) return (T[1] * x + T[3] * y + T[5]) / CM, (T[2] * x + T
 -- only the pieces it wants, in their original order.
 local layers, cur = {}, 5
 local tags, tag, recording = {}, nil, false
+local page_transform
+function M.set_page_transform(t) page_transform = t end
+local page_clip, element_bounds
+function M.set_page_clip(pw,ph,rects) page_clip = rects and #rects>0 and {pw,ph,rects} or nil end
+function M.begin_element()
+  local tx={lengths={},previous=element_bounds}
+  for k,v in pairs(layers) do tx.lengths[k]=#v end
+  return tx
+end
+function M.track_element(tx) element_bounds={minx=math.huge,miny=math.huge,maxx=-math.huge,maxy=-math.huge,pad=0};tx.bounds=element_bounds end
+function M.end_element(tx,rects)
+  local b=tx.bounds
+  element_bounds=tx.previous
+  if b then for _,r in ipairs(rects) do
+    if b.maxx+b.pad>=r[1]*CM and b.minx-b.pad<=r[3]*CM and b.maxy+b.pad>=r[2]*CM and b.miny-b.pad<=r[4]*CM then
+      for k,v in pairs(layers) do
+        local n=tx.lengths[k]
+        if n==nil then layers[k],tags[k]=nil,nil else for i=#v,n+1,-1 do v[i]=nil;tags[k][i]=nil end end
+      end
+      return false
+    end
+  end end
+  return true
+end
 local function put(s)
   local b = layers[cur]
   if not b then b = {} layers[cur] = b tags[cur] = {} end
@@ -237,7 +261,13 @@ end
 
 -- 0.1 bp (0.035 mm) is finer than any printer resolves
 local function P(x, y)
-  return fmt("%.1f %.1f", T[1] * x + T[3] * y + T[5], T[2] * x + T[4] * y + T[6])
+  local px,py=T[1] * x + T[3] * y + T[5], T[2] * x + T[4] * y + T[6]
+  if element_bounds then
+    local b=element_bounds
+    b.minx,b.maxx=math.min(b.minx,px),math.max(b.maxx,px)
+    b.miny,b.maxy=math.min(b.miny,py),math.max(b.maxy,py)
+  end
+  return fmt("%.1f %.1f", px, py)
 end
 
 -- path construction: polyline or smooth (Catmull-Rom as Béziers) through points {{x,y},...}
@@ -287,6 +317,7 @@ function M.fill(c, op, mult)
 end
 -- dash: a PDF dash array, e.g. "[2 2] 0"
 function M.stroke(c, w, op, mult, dash)
+  if element_bounds then element_bounds.pad=math.max(element_bounds.pad,w/2+0.1) end
   local g = gs(op or 1, mult)
   local s = rgb(c, true) .. fmt(" %.2f w ", w) .. (dash and dash .. " d " or "") .. take() .. " S"
   if g then put("q /" .. g .. " gs " .. s .. " Q") else put("q " .. s .. " Q") end
@@ -305,6 +336,14 @@ end
 local function literal(parts)
   if #parts == 0 then return 0 end
   local s = "q 1 J 1 j\n" .. concat(parts, "\n") .. "\nQ"
+  if page_clip then
+    local clips={"q"}
+    for _,r in ipairs(page_clip[3]) do
+      clips[#clips+1]=fmt("0 0 %.3f %.3f re %.3f %.3f %.3f %.3f re W* n",page_clip[1]*CM,page_clip[2]*CM,r[1]*CM,r[2]*CM,(r[3]-r[1])*CM,(r[4]-r[2])*CM)
+    end
+    s=concat(clips,"\n").."\n"..s.."\nQ"
+  end
+  if page_transform then s = "q " .. concat(page_transform, " ") .. " cm\n" .. s .. "\nQ" end
   local n = node.new("whatsit", "pdf_literal")
   n.mode = 0
   n.data = s

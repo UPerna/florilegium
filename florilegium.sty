@@ -41,11 +41,12 @@
 %%                                      e.g. \florilegiumdraw{leaf}{2.0, {depth=0.6}}
 %%
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{florilegium}[2026/10/30 v1.2 procedural floral margin, layout controls]
+\ProvidesPackage{florilegium}[2026/10/30 v1.3 procedural floral margin and assets]
 \ifdefined\directlua\else
   \PackageError{florilegium}{florilegium needs LuaLaTeX}{Compile with lualatex.}\fi
 \RequirePackage{tikz}
 \RequirePackage{eso-pic}
+\RequirePackage{graphicx}
 \directlua{florilegium = require("florilegium")}
 
 \newif\ifflorilegium@grown
@@ -58,6 +59,14 @@
   \directlua{florilegium.configure("#1", "\luaescapestring{#2}")}}
 \pgfkeys{/florilegium/.is family, /florilegium,
   density/.code={\flo@setlayout{density}{#1}},
+  side/.code={\flo@setlayout{side}{#1}},
+  style/.code={\flo@setlayout{style}{#1}},
+  focal-count/.code={\flo@setlayout{focal_count}{#1}},
+  focal-scale/.code={\flo@setlayout{focal_scale}{#1}},
+  asymmetry/.code={\flo@setlayout{asymmetry}{#1}},
+  initial-fallback/.is choice,
+  initial-fallback/plain/.code={\directlua{florilegium.initial_fallback = "plain"}},
+  initial-fallback/error/.code={\directlua{florilegium.initial_fallback = "error"}},
   text-gap/.code={\florilegium@layoutsettrue
     \directlua{florilegium.configure("text_gap", \number\dimexpr#1\relax * 2.54 / (72.27 * 65536))}},
   spill/.code={\flo@setlayout{spill}{#1}}, spill/.default=true,
@@ -85,6 +94,7 @@
 \definecolor{accent}{HTML}{B4662F}
 
 \ifflorilegium@visitors\else\directlua{florilegium.visitors = false}\fi
+\AtBeginDocument{\if@twoside\directlua{florilegium.twoside = true}\fi}
 
 %% pass the current colors to Lua
 \def\florilegium@colors{%
@@ -129,19 +139,34 @@
 %% the margin follows the text (grown only): a whatsit marks the line, and the
 %% shipout hook finds it in the page box (florilegium.lua)
 \newcommand\florilegiumbloom[1][]{\directlua{florilegium.mark("bloom", "\luaescapestring{#1}")}}
+%% Reserved rectangles use physical page coordinates from its lower-left corner.
+\NewDocumentCommand\florilegiumreserve{O{3mm} m m m m}{%
+  \ifflorilegium@grown\directlua{florilegium.reserve_rect(\number\dimexpr#2\relax,\number\dimexpr#3\relax,
+    \number\dimexpr#4\relax,\number\dimexpr#5\relax,\number\dimexpr#1\relax)}\else\flo@grownonly\fi}
+%% An unbreakable protected box travels with a float or a paragraph.
+\NewDocumentEnvironment{florilegiumprotect}{O{3mm} +b}{\par\begingroup
+  \ifflorilegium@grown\else\flo@grownonly\fi
+  \setbox\@tempboxa=\vbox{\hsize=\linewidth #2\par}%
+  \noindent\directlua{florilegium.reserve_box(\number\wd\@tempboxa,\number\ht\@tempboxa,
+    \number\dp\@tempboxa,\number\dimexpr#1\relax)}\box\@tempboxa\par\endgroup}{}
 \protected\def\florilegium@headmark#1{\ifnum#1<3 \directlua{florilegium.mark("heading", #1)}\fi}
 \ifflorilegium@sections
-  % standard classes build every heading with \@sect; its last argument is the
-  % text that is typeset (the TOC and marks get the optional one), so the mark
-  % goes there, after the number
-  \AtBeginDocument{%
-    \let\flo@sect\@sect
-    \def\@sect#1#2#3#4#5#6[#7]#8{\flo@sect{#1}{#2}{#3}{#4}{#5}{#6}[{#7}]{\florilegium@headmark{#2}#8}}}
+  % Wrap the public title argument after class/heading packages have installed
+  % their commands. Explicit short titles keep markers out of TOCs and bookmarks.
+  \newcommand\flo@heading[5]{\IfBooleanTF{#3}{#1*{#5}}{%
+    \IfNoValueTF{#4}{#1[{#5}]{\florilegium@headmark{#2}#5}}{#1[{#4}]{\florilegium@headmark{#2}#5}}}}
+  \AddToHook{begindocument/end}{%
+    \let\flo@section\section \let\flo@subsection\subsection
+    \RenewDocumentCommand\section{s o m}{\flo@heading\flo@section{1}{#1}{#2}{#3}}%
+    \RenewDocumentCommand\subsection{s o m}{\flo@heading\flo@subsection{2}{#1}{#2}{#3}}%
+    \ifdefined\chapter\let\flo@chapter\chapter
+      \RenewDocumentCommand\chapter{s o m}{\flo@heading\flo@chapter{0}{#1}{#2}{#3}}\fi}
 \fi
 \newcommand\florilegiumage[1]{\directlua{florilegium.age = #1}}
 
 %% a decorated initial: a square tile from the cap height of the first line to
 %% the baseline of line #1, the paragraph's first #1 lines indented beside it
+\newcount\flo@initialok
 \newcommand\florilegiuminitial[2][4]{\par
   \begingroup
     \dimen@=\fontcharht\font`\H
@@ -151,9 +176,25 @@
   \hangindent=\dimexpr\dimen1+0.6em\relax \hangafter=-#1\relax
   \noindent\florilegium@colors
   \directlua{florilegium.initial("\luaescapestring{#2}", \number\dimen1, \number\hangindent, \number\dimen3)}%
-  \llap{\directlua{florilegium.hidden(true)}#2\directlua{florilegium.hidden(false)}}%
+  \ifnum\flo@initialok=1
+    \llap{\directlua{florilegium.hidden(true)}#2\directlua{florilegium.hidden(false)}}%
+  \else\ifnum\flo@initialok=0
+    \llap{\directlua{florilegium.empty_text(true)}%
+      \raisebox{\dimexpr\dimen3-\dimen1\relax}[0pt][0pt]{%
+        \makebox[\hangindent][l]{\resizebox{!}{\dimen1}{\bfseries #2}}}%
+      \directlua{florilegium.empty_text(false)}}%
+    \llap{\directlua{florilegium.hidden(true)}#2\directlua{florilegium.hidden(false)}}%
+  \fi\fi
   \ignorespaces}
 \newcommand\florilegiuminitialfont[1]{\directlua{florilegium.initial_font = "\luaescapestring{#1}"}}
+%% Named external vector PDFs are embedded once by graphicx and reused as Forms.
+\newcommand\florilegiumdeclareasset[2]{%
+  \IfFileExists{#2}{\expandafter\gdef\csname flo@asset@#1\endcsname{#2}}{%
+    \PackageError{florilegium}{Asset file not found: #2}{Export it with tools/exportasset.py first.}}}
+\newcommand\florilegiumuseasset[2][]{%
+  \ifcsname flo@asset@#2\endcsname
+    \includegraphics[#1]{\csname flo@asset@#2\endcsname}%
+  \else\PackageError{florilegium}{Unknown asset: #2}{Declare the asset before using it.}\fi}
 \ifflorilegium@aging
   % the page count goes to the .aux; the next run reads it at \begin{document}
   \AtEndDocument{%

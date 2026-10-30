@@ -23,6 +23,7 @@
 local ink = require("ink")
 local flora = require("flora")
 local settings = require("layout")
+local space = require("space")
 local M = {}
 
 local sqrt, cos, sin, atan, pi, floor, max, min, abs = math.sqrt, math.cos, math.sin, math.atan, math.pi, math.floor, math.max, math.min, math.abs
@@ -231,6 +232,8 @@ end
 function M.page(g)
   local options = settings.resolve(g.layout)
   local density = options.density
+  local exclusions=g.reserves or {}
+  local skipped,route_failures=0,0
   local rng = ink.rng(g.seed * 7919 + 13)
   local layout = rng.fork()                 -- decisions; primitives get their own forks
   ink.set_transform({ ink.CM, 0, 0, ink.CM, 0, 0 })
@@ -275,6 +278,11 @@ function M.page(g)
     spill = { g.colright - 0.01, g.ybot + 0.6, g.textright - 0.2, g.spilly - 0.8 }
     rects[#rects + 1] = spill
   end
+  local function route(pts)
+    local routed,ok=space.route(pts,rects,exclusions)
+    if not ok then route_failures=route_failures+1 end
+    return routed
+  end
 
   -- grid on a global lattice, so a disc only has to visit nearby cells
   local gx, gy, free, sdist, lat = {}, {}, {}, {}, {}
@@ -286,6 +294,7 @@ function M.page(g)
         local k = key(ix, iy)
         if not lat[k] then
           local b = border(rects, x, y)
+          if #exclusions>0 then b=min(b,space.clearance(exclusions,x,y)) end
           if b > 0 then
             local i = #gx + 1
             gx[i], gy[i], free[i], sdist[i] = x, y, b, math.huge
@@ -370,6 +379,7 @@ function M.page(g)
   -- In the animation it opens, or with path(e) -> x, y, a it travels to its place
   -- in `steps` positions and fn gets the progress e.
   local function place(layer, x, y, a, fn, path, steps)
+    local transaction=#exclusions>0 and ink.begin_element() or nil
     ink.layer(layer)
     if anim then
       -- a few earlier copies with the same random draws, then the real one
@@ -389,7 +399,9 @@ function M.page(g)
       end
       ink.tag({ now, 1 })
     end
+    if transaction then ink.track_element(transaction) end
     ink.push() ink.translate(x, y) ink.rotate(a - 90) fn() ink.pop()
+    if transaction and not ink.end_element(transaction,exclusions) then skipped=skipped+1 end
     if anim then ink.tag({ now, 0 }) end
   end
   -- a flight path for the animation: from distance d in direction `from` (degrees),
@@ -418,22 +430,24 @@ function M.page(g)
   -- ---------------------------------------------------------- 1. stems
   local root = { layout.range(1.0, 1.6), 0.75 }
   local cx = g.colright * 0.47
-  local amp = g.colright * 0.2
+  local amp = g.colright * 0.2 * options.asymmetry
   local mains, mainev = {}, {}
   local tops = { g.ph - 2.6, g.ph * layout.range(0.6, 0.72), g.ph * layout.range(0.36, 0.48) }
+  tops[1] = min(tops[1], g.ph - 0.8 - min(1.75, g.colright * 0.27) * options.focal_scale)
   for k = 1, 3 do
     local f = ink.fbm1(layout, 2)
     local ph, lam = layout.range(0, 10), layout.range(6, 9)
-    local x0 = root[1] + (k - 2) * 0.25
+    local x0 = root[1] + (k - 2) * 0.25 * options.asymmetry
     local pts = {}
     local y = root[2]
     while y <= tops[k] do
-      local x = cx + amp * f(y / lam + ph) + (k - 2) * 0.35
+      local x = cx + amp * f(y / lam + ph) + (k - 2) * 0.35 * options.asymmetry
       x = lerp(x0, x, smoothstep(0, 4, y - root[2]))
       x = max(0.9, min(g.colright - 0.9, x))
       pts[#pts + 1] = { x, y }
       y = y + 0.25
     end
+    pts=route(pts)
     mains[k] = pts
     mainev[k] = event({ kind = "stem", phase = "stems" })
     local w0 = k == 1 and 0.085 or 0.065
@@ -466,6 +480,7 @@ function M.page(g)
       x = x + 0.2
     end
     if options.footer then
+      footpts=route(footpts)
       footev = event({ kind = "stem", phase = "stems", off = 0.5 })
       stem(footpts, 0.065, 0.01, 0.06)
       add_stem_points(footpts, 0.065, 0.012)
@@ -493,6 +508,7 @@ function M.page(g)
         x3 - w * 0.3, y3 + layout.range(-1.2, -0.3), x3, y3), floor(w / 0.2))
       local f = ink.fbm1(layout, 2)
       for i, p in ipairs(pts) do local u = (i - 1) / (#pts - 1) p[2] = p[2] + 0.35 * f(p[1] / 3) * sin(pi * u) end
+      pts=route(pts)
       local sa, La = ink.arclen(src)
       local e = event({ kind = "stem", parent = mainev[si], at = sa[bi] / La })
       stem(pts, 0.06, 0.025)
@@ -509,23 +525,23 @@ function M.page(g)
   -- ---------------------------------------------------------- 2. terminal flowers and ghosts
   local counts = {}
   for _, m in ipairs(motifs) do counts[m.name] = 0 end
-  do
+  if options.focal_count > 0 then
     local p, q = mains[1][#mains[1]], mains[1][#mains[1] - 2]
     local hx, hy = norm(p[1] - q[1], p[2] - q[2])
-    local s = min(1.75, g.colright * 0.27)
+    local s = min(1.75, g.colright * 0.27) * options.focal_scale
     local fx, fy = p[1] + hx * 0.2, p[2] + hy * 0.2
     event({ kind = "bloom", parent = mainev[1], at = 1, size = s })
     place(L_BLOOM, fx, fy, 90, function() flora.flower(rng.fork(), s) end)
     disc(fx, fy, 1.05 * s, 0.85)
     blooms[#blooms + 1] = { fx, fy, s }
-    for k = 2, 3 do
+    for k = 2, options.focal_count do
       local pts = mains[k]
       local p2, q2 = pts[#pts], pts[#pts - 2]
       local ax, ay = norm(p2[1] - q2[1], p2[2] - q2[2])
       -- the shorter stems end in a lily and a flower; in spring in buds, in autumn gone to seed
       local tip = spring > 0.5 and "bud" or autumn > 0.5 and "seedhead" or nil
       if k == 2 then
-        local s2 = layout.range(1.0, 1.2)
+        local s2 = layout.range(1.0, 1.2) * options.focal_scale
         event({ kind = "bloom", parent = mainev[2], at = 1, size = s2 })
         if tip == "bud" then
           place(L_BLOOM, p2[1], p2[2], deg(ax, ay), function() flora.bud(rng.fork(), 0.95 * s2) end)
@@ -537,7 +553,7 @@ function M.page(g)
         disc(p2[1] + ax * 0.3 * s2, p2[2] + ay * 0.3 * s2, 0.95 * s2, 0.85)
         counts.lily = counts.lily + 1
       else
-        local s3 = layout.range(0.85, 1.0)
+        local s3 = layout.range(0.85, 1.0) * options.focal_scale
         event({ kind = "bloom", parent = mainev[3], at = 1, size = s3 })
         if tip == "bud" then
           place(L_BLOOM, p2[1], p2[2], deg(ax, ay), function() flora.bud(rng.fork(), 0.9 * s3) end)
@@ -578,6 +594,7 @@ function M.page(g)
   -- a branch from stem point S to a motif at (bx,by) whose axis is (ax,ay)
   local function branch_to(S, bx, by, ax, ay, w0, ev)
     local pts = flora.branch_path(layout, S[1], S[2], S[3], S[4], bx, by, ax, ay)
+    pts=route(pts)
     local d = dist(S[1], S[2], bx, by)
     local w = min(S[5] * 0.7, w0)
     stem(pts, w, max(0.012, w * 0.45), 0.07)
@@ -606,7 +623,8 @@ function M.page(g)
   for _, mk in ipairs(g.marks or {}) do
     local m, s
     if mk.kind == "heading" then
-      m, s = M.motifs[mk.arg == 1 and "flower" or "blossoms"], mk.arg == 1 and 0.95 or 0.7
+      local large=mk.arg<=1 and options.style~="quiet"
+      m, s = M.motifs[large and "flower" or "blossoms"], (large and 0.95 or 0.7)*options.focal_scale
     else
       m = M.motifs[mk.arg ~= "" and mk.arg or "flower"]
       s = m and (mk.arg == "" and 0.9 or (m.smin + m.smax) / 2)
@@ -706,6 +724,7 @@ function M.page(g)
       local tx, ty = tangent(pts, c.i)
       local sa, La = ink.arclen(pts)
       local twig = flora.branch_path(vis, p[1], p[2], tx, ty, c.ex, c.ey, c.dir, 0.1)
+      twig=route(twig)
       local tev = event({ kind = "stem", parent = mainev[c.k], at = sa[c.i] / La })
       stem(twig, 0.05, 0.02, 0.07)
       add_stem_points(twig, 0.05, 0.02, 2)
@@ -792,7 +811,7 @@ function M.page(g)
     local elig, wts, wsum = {}, {}, 0
     for _, m in ipairs(motifs) do
       local wt = m.w * season(m.spring or 1, m.summer or 1, m.autumn or 1) / (1 + counts[m.name] / max(1, caps[m.name]))
-      local ok = wt > 0 and m.r(m.smin) <= f * 1.05 and (not m.hard or counts[m.name] < caps[m.name]) and (not m.fly or visiting[m.name])
+      local ok = wt > 0 and not (options.style=="quiet" and m.hard) and m.r(m.smin) <= f * 1.05 and (not m.hard or counts[m.name] < caps[m.name]) and (not m.fly or visiting[m.name])
       if ok then elig[#elig + 1] = m wts[#elig] = wt wsum = wsum + wt end
     end
     if #elig == 0 then free[bi] = 0 else
@@ -955,7 +974,8 @@ function M.page(g)
   for _, name in ipairs({ "butterfly", "bee", "snail", "bird" }) do
     if (counts[name] or 0) > 0 then seen[#seen + 1] = counts[name] .. " " .. name end
   end
-  local stats = { cells = #gx, motifs = n, branches = nbranch, fills = fills, accents = accents }
+  local stats = { cells = #gx, motifs = n, branches = nbranch, fills = fills, accents = accents,
+    skipped=skipped, route_failures=route_failures }
   if anim then
     local total = schedule(events)
     if texio then texio.write_nl(string.format("florilegium: recorded %d motifs, %d events, %.1f s of growth", n, #events, total)) end

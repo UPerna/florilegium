@@ -80,6 +80,123 @@ Build the four comparison PDFs in `build/` and this contact sheet with
 options and animation end frames. Use `CHECK_SEEDS="1 6"` for more seeds, or
 `RUN=tools/in-docker` to use the build image.
 
+## Book sides and protected content
+
+```tex
+\documentclass[twoside]{article}
+\usepackage[inner=22mm,outer=68mm,bindingoffset=3mm]{geometry}
+\usepackage[grown,side=outer,style=chapter,sections]{florilegium}
+```
+
+`side=left` is the default. `right` reflects the ornament onto the physical right
+margin. `outer` and `inner` follow page parity in a two-sided document; in a
+one-sided document they mean right and left. Even-page margins, binding offsets,
+and horizontal/vertical page offsets are included. Only the drawing is reflected.
+Allocate a wide enough margin on the selected side (the same 18 mm minimum growth
+column applies).
+
+![Facing pages with an outer ornament and a protected callout](gallery/book-layouts.png)
+
+To protect a selected figure, table, equation or callout, wrap its content in an
+unbreakable box. Inside a float, put the protection environment **inside** the
+`figure` or `table`, around its contents:
+
+```tex
+\begin{figure}[tbp]
+  \begin{florilegiumprotect}[4mm]
+    \includegraphics[width=\linewidth]{my-figure.pdf}
+    \caption{A figure whose reservation moves with it.}
+  \end{florilegiumprotect}
+\end{figure}
+```
+
+The optional padding defaults to 3 mm. This box cannot break across pages; use
+separate boxes for multi-page material. It does not automatically reserve every
+float in the document. For a fixed physical page region, use:
+
+```tex
+\florilegiumreserve[3mm]{12mm}{112mm}{30mm}{32mm}
+% padding, x, y, width, height; origin is the physical page's lower-left corner
+```
+
+The command reserves space on the page containing its marker. Rectangles remain
+in physical page coordinates on mirrored pages. The layout removes their area
+from the growth grid, routes feasible stem detours and omits motifs whose drawing
+bounds overlap them. Sequential PDF clips provide a final guarantee, including
+overlapping reservations and header ornament. A reservation that cuts off all
+routes can leave a clipped/disconnected stem; enlarge the margin or reduce the
+reservation if continuity is important. Reserved content is typeset normally.
+
+## Composition styles
+
+| Style | Density | Main terminal motifs | Focal scale | Stem asymmetry | Spill / footer / header |
+| --- | --- | --- | --- | --- | --- |
+| `classic` | 1 | 3 | 1 | 1 | on / on / on |
+| `quiet` | 0.3 | 1 | 0.75 | 0.45 | off / off / off |
+| `chapter` | 0.6 | 2 | 1.2 | 1.35 | off / on / on |
+
+`classic` preserves the original defaults. `quiet` also avoids large secondary
+statement motifs and uses smaller heading blossoms. Set `style` first, then
+override individual controls:
+
+```tex
+\clearpage
+\florilegiumsetup{style=quiet,density=0.4,focal-count=2,focal-scale=0.9,asymmetry=0.6}
+```
+
+`focal-count` is an integer from 0 to 3 and applies to the three main stems, not
+every small flower or heading mark. `focal-scale` accepts 0.5 to 1.5. `asymmetry`
+accepts 0 to 2 and controls stem waviness and spread; it does not impose exact
+whole-page symmetry. A style resets the fields in the table, leaving `side` and
+`text-gap` intact. All layout changes still take effect at shipout.
+
+## Vector export and smaller repeated-asset PDFs
+
+```sh
+python3 tools/exportasset.py flower --seed 7 --size 1.2 --ink 2456C4 --output build/assets/flower
+make export-check
+```
+
+The exporter uses LuaLaTeX and Inkscape 1.x to produce a transparent vector PDF
+and a plain SVG. It rejects conversions containing embedded raster images.
+Supported motifs are listed by `--help`; size is 0.1 to 2, seed is 0 to 2^31-1,
+and ink is a six-digit HTML color. The fixed canvas is 6 cm square. Exported SVGs
+were checked with Inkscape; rendering in Office is not tested by this repository.
+The [starter assets](examples/assets) include flower, leaf and butterfly SVG/PDF
+pairs under the repository's MIT license.
+
+```tex
+\florilegiumdeclareasset{flower}{examples/assets/flower.pdf}
+\florilegiumuseasset[width=18mm]{flower}
+```
+
+These commands work in either composition and with `nomargin`. PDF inclusion
+reuses the same Form XObject instead of writing the paths at every occurrence.
+In the 48-repeat reference benchmark, the local PDF decreased from 995,950 to
+23,530 bytes (97.6%); raster comparisons had a mean channel error of 0.022/255.
+This result concerns repeated identical assets, not unique random gardens.
+`asset-demo.tex` shows the starter set; `make export-check` reproduces the
+benchmark and writes current measurements to `build/assets/reuse-report.json`.
+
+## Headings and initial fonts
+
+The `sections` option wraps the public section/subsection commands, plus chapters
+when present, after heading packages finish loading. Numbered headings receive
+flowers; starred headings retain their normal behavior. Short titles keep markers
+out of contents, running titles and bookmarks. Checks cover standard `article`,
+KOMA-Script `scrartcl`/`scrbook`, `titlesec` loaded before and after florilegium,
+and `hyperref` references.
+
+If the initial's font file, glyph outline or luaotfload reader is unavailable,
+the default is a visible plain initial and a diagnostic instead of a Lua crash.
+The text remains searchable. Use the package option `initial-fallback=error` to
+require the decorated outline. An initial must be exactly one visible Unicode
+character. This fallback applies to either composition.
+
+`make check` now includes book/heading/font and obstacle checks.
+`make book-preview` renders the facing-page example; `make export-check` needs
+Inkscape, Pillow and Poppler in addition to LuaLaTeX.
+
 ## Watch it grow
 
 | as it grows | with the free space it fills |
@@ -210,7 +327,7 @@ docker build -t florilegium-tex tools
 make RUN=tools/in-docker
 ```
 
-Or paste `florilegium.sty`, the seven `.lua` files and one of the `.tex` files into an
+Or paste `florilegium.sty`, the eight `.lua` files and one of the `.tex` files into an
 [Overleaf](https://www.overleaf.com) project and set the compiler to LuaLaTeX.
 
 Use it in your own document:
