@@ -8,6 +8,22 @@ from visualcheck import colored, page_box
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def text_region(image, bounds):
+    # Poppler's vertical bounds can include a font's ascender space well above
+    # the visible letters. Locate the neutral text ink inside those independent
+    # PDF bounds, then retain their full width and a one-pixel vertical guard.
+    rgb = image.convert("RGB")
+    x0, y0, x1, y1 = bounds
+    rows = []
+    for y in range(y0, y1):
+        for x in range(x0, x1):
+            pixel = rgb.getpixel((x, y))
+            if max(pixel) < 240 and max(pixel) - min(pixel) < 8:
+                rows.append(y)
+    assert rows and max(rows) - min(rows) >= 2, "Protected text ink was not rendered"
+    return x0, min(rows) - 1, x1, max(rows) + 2
+
+
 def main():
     folder = ROOT / "build/offset-check"
     folder.mkdir(parents=True, exist_ok=True)
@@ -43,13 +59,14 @@ def main():
         words = [n for n in ET.fromstring(bbox).iter() if n.tag.endswith("word") and n.text == "Protected"]
         assert len(words) == 1
         w = words[0].attrib
-        # Text bbox is measured by Poppler from the actual PDF, not our Lua model.
+        # Text bounds are measured from the actual PDF, not our Lua model.
         scale = 65 / 72
         text_box = tuple(round(float(w[k]) * scale) for k in ("xMin", "yMin", "xMax", "yMax"))
         with Image.open(stem.with_suffix(".png")) as im:
             count = colored(im, page_box(1, 10, 4, 15))
             assert count == 0, f"{side}/{page}: {count} colored pixels entered the physical reservation"
             assert colored(im, page_box(0.3, 11, 0.8, 14)) > 50, "Control area was not painted"
+            text_box = text_region(im, text_box)
             content_count = colored(im, text_box)
             assert content_count == 0, f"{side}/{page}: {content_count} colored pixels in measured text box {text_box}; see {stem}"
         print("PASS", side, page, f"offsets {h}/{v}mm")
