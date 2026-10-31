@@ -493,17 +493,18 @@ end
 -- a tapered stem along points (local cm), full widths in cm at the base and the tip;
 -- with `tip` (cm) its last stretch narrows to a point, as at a growing tip
 function M.stem(pts, w0, w1, c, op, tip)
-  local wbp = (w0 + w1) / 2 * ink.unit() * ink.CM
+  local base = type(w0) == "function" and w0 or function(t) return lerp(w0,w1,t) end
+  local wbp = (type(w0) == "function" and w0(0.5) or (w0+w1)/2) * ink.unit() * ink.CM
   if wbp < 0.7 then
     ink.smooth(pts, false)
     ink.stroke(c or tone(0.07), wbp, op)
     return
   end
-  local width = function(t) return lerp(w0, w1, t) end
+  local width = base
   if tip then
     local _, L = ink.arclen(pts)
     local f = math.min(1, tip / math.max(L, 1e-9))
-    width = function(t) return lerp(w0, w1, t) * (t > 1 - f and lerp(1, 0.15, (t - 1 + f) / f) or 1) end
+    width = function(t) return base(t) * (t > 1 - f and lerp(1, 0.15, (t - 1 + f) / f) or 1) end
   end
   ink.smooth(ink.ribbon(pts, width), true)
   ink.fill(c or tone(0.07), op)
@@ -1022,6 +1023,27 @@ function M.ghost(level, fn)
   local old = ink.set_lift(level or 0.62)
   fn()
   ink.set_lift(old)
+end
+
+-- A small symmetrical fleuron, made from the garden's own leaves and rosette.
+-- Mirrored halves replay one seed, so a divider reads as intentional typography.
+function M.divider(rng,s)
+  s=s or 1
+  local seed=rng.int(1,0x3fffffff)
+  ink.push();ink.scale(s)
+  for _,side in ipairs({-1,1}) do
+    local r=ink.rng(seed)
+    ink.push();ink.scale(side,1)
+    local pts={{0.12,0},{0.55,0.03},{1.05,0.02},{1.6,0.08},{1.95,0}}
+    M.stem(pts,0.035,0.008,tone(0.12),0.85)
+    for i,p in ipairs({{0.55,0.03},{1.02,0.02},{1.48,0.06}}) do
+      ink.push();ink.translate(p[1],p[2]);ink.rotate(i%2==1 and -45 or -130)
+      ink.scale(0.28);M.leaflet(r,{bend=0.15});ink.pop()
+    end
+    ink.pop()
+  end
+  M.rosette(rng.fork(),0.15)
+  ink.pop()
 end
 
 return M

@@ -50,6 +50,16 @@ def main():
     with Image.open(folder/"flower-svg.png") as im:
         alpha=im.convert("RGBA").getchannel("A")
         assert alpha.getbbox() is not None and alpha.getextrema()[0]==0,"SVG lacks transparent background"
+    # Long stems and drifting seeds extend beyond a radius equal to their size.
+    # Check actual alpha at the largest supported size rather than a proxy radius.
+    for motif in ("divider", "hedera", "seedhead"):
+        _, wide_svg = export(motif, 7, 2, "2456C4", folder / (motif + "-large"))
+        png = wide_svg.with_suffix(".png")
+        subprocess.run(["inkscape",str(wide_svg),"--export-type=png",f"--export-filename={png}",
+                        "--export-width=300","--export-height=300"],check=True,capture_output=True)
+        with Image.open(png) as im:
+            bounds=im.convert("RGBA").getchannel("A").getbbox()
+            assert bounds and bounds[0]>1 and bounds[1]>1 and bounds[2]<299 and bounds[3]<299,f"Export clipped {motif}"
     report={"inline_bytes":paths[0].stat().st_size,"reused_bytes":paths[1].stat().st_size,
             "reduction_percent":round(100*(1-paths[1].stat().st_size/paths[0].stat().st_size),1),
             "mean_pixel_error":round(mean,4),"svg_paths":sum(n.tag.endswith("path") for n in tree.iter())}

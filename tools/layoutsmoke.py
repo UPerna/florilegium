@@ -42,6 +42,7 @@ CASES = (
     ("focal-scale", "grown,focal-scale=3", "", "invalid focal_scale"),
     ("asymmetry", "grown,asymmetry=-1", "", "invalid asymmetry"),
     ("strict-initial", "grown,initial-fallback=error", r"\florilegiuminitialfont{missing-font.otf}\AtBeginDocument{\florilegiuminitial{E}very}","initial font not found"),
+    ("runtime-initial", "grown,nomargin", r"\AtBeginDocument{\florilegiumsetup{initial-fallback=error}\florilegiuminitialfont{missing-font.otf}\florilegiuminitial{E}very}","initial font not found"),
     ("initial-character", "grown", r"\AtBeginDocument{\florilegiuminitial{AB}}","one visible Unicode character"),
     ("reserve-size", "grown", r"\AtBeginDocument{\florilegiumreserve{0pt}{0pt}{-1cm}{1cm}}","reserve width/height must be positive"),
     ("density-range", "grown,density=1.1", "", "density must be"),

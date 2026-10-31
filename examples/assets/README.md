@@ -12,7 +12,7 @@ python3 tools/exportasset.py flower --seed 7 --size 1.2 --output examples/assets
 ```
 
 Use the SVG in a vector editor or a slide application. For repeated decoration
-inside LuaLaTeX, declare the PDF once and reuse it:
+inside LuaLaTeX or XeLaTeX, declare the PDF once and reuse it:
 
 ```tex
 \florilegiumdeclareasset{flower}{examples/assets/flower.pdf}

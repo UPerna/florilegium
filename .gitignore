@@ -11,3 +11,8 @@ scratch/
 !gallery/*.png
 __pycache__/
 *.py[cod]
+*.flo
+*.xdv
+*-flo.pdf
+*-flo.tex
+*.toc

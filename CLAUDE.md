@@ -1,10 +1,10 @@
 # florilegium — handoff notes
 
-Procedurally generated Delft-blue floral page margins for LuaLaTeX. All geometry is
+Procedurally generated Delft-blue floral page margins for LuaLaTeX and XeLaTeX. All geometry is
 computed in Lua and written as raw PDF path operators; TeX does no arithmetic. Two
 documents share one package: an **authored** composition (hand-placed stems, leaves and
 branch targets, parameters sampled) and a **grown** one (layout computed by a greedy
-space-filling loop). Same primitives, same motif table. No images, no assets. The grown
+space-filling loop). Same primitives, same motif table. No stock images or traced assets. The grown
 margin also reads the text (flowers at headings and marked lines, seasons over the
 document), pages get visitors, and paragraphs can open with a decorated initial;
 `showcase.tex` demonstrates all of it.
@@ -13,7 +13,7 @@ document), pages get visitors, and paragraphs can open with a decorated initial;
 
 | file | what |
 |---|---|
-| `florilegium.sty` | thin TeX layer: options `authored` (default) / `grown`, `nomargin`, `novisitors`, `sections`, `aging`; colors `ink` and `accent`; `\florilegiumdraw`, `\florilegiumtextend`, `\florilegiumbloom`, `\florilegiumage`, `\florilegiuminitial`, `\florilegiuminitialfont`, `\florilegiumframe`; the shipout hook. LuaLaTeX only. |
+| `florilegium.sty` | thin TeX layer: options `authored` (default) / `grown`, `nomargin`, `novisitors`, `sections`, `aging`; colors `ink` and `accent`; `\florilegiumdraw`, `\florilegiumtextend`, `\florilegiumbloom`, `\florilegiumage`, `\florilegiuminitial`, `\florilegiuminitialfont`, `\florilegiumframe`; the common API and physical-origin shipout hook. Hosts are split into `florilegium-luatex.def` and `florilegium-xetex.def`. |
 | `florilegium.lua` | glue: page geometry from TeX dimens, colors, page seed, the TikZ transform (`\pgf@pt@aa..bb`, `\pgf@pt@x/y`), primitive dispatch, the header; text marks (whatsits) and the walk of `\ShipoutBox` that finds them; age; animation frames; the initial's placement and its invisible letter. |
 | `ink.lua` | drawing core: mulberry32 rng, 1-D gradient noise/fbm, OKLCH tone ramp, affine transform stack, path building (`smooth` = Catmull-Rom as Béziers, `taper`, `ribbon`, `blade`, `blob`), fill/stroke/clip with ExtGState opacity + multiply, numbered layers, `flush()` into one `pdf_literal` node. |
 | `flora.lua` | the primitives: `petal flower lily blossom floret bud bell leaf leaflet stem cyme sprig umbel seedhead tendril sparkle rosette hedera ghost`, the visitors `butterfly bee snail bird`, plus `branch_path`. |
@@ -27,11 +27,18 @@ document), pages get visitors, and paragraphs can open with a decorated initial;
 | `gallery.tex`, `tools/gallery.py` | one short page per variant (`\galleryink`, `\galleryage`) → `gallery/seeds.png` + `seeds.gif`, `inks.png`, `seasons.png`. |
 | `layout-demo.tex`, `tools/layoutpreview.py` | matched full/balanced/airy/whitespace examples → `build/layout-*.pdf`, `gallery/layout-controls.png`. |
 | `book-demo.tex`, `tools/bookpreview.py`, `tools/visualcheck.py` | outer-margin facing pages, reserved callout, rendered side/clip checks including overlapping barriers and a full-page reservation. |
-| `tools/exportasset.py`, `tools/exportcheck.py`, `asset-demo.tex` | seeded native vector PDF/plain SVG export through LuaLaTeX + Inkscape; named PDF Form reuse, repeated-asset size/render benchmark; starter assets in `examples/assets/`. |
+| `tools/exportasset.py`, `tools/exportcheck.py`, `asset-demo.tex` | seeded native vector PDF/plain SVG export through texlua + Inkscape (with a LuaLaTeX reference route); named PDF Form reuse, repeated-asset size/render benchmark; starter assets in `examples/assets/`. |
 | `tools/bookcheck.py`, `tools/initialcheck.lua`, `tools/spacecheck.lua` | real class/heading/reference/float/fallback tests and direct font-reader/routing failure checks. |
 | `tools/layoutcheck.lua`, `tools/layoutsmoke.py` | upstream default path fingerprints, density/region behavior and validation; real LaTeX package options, setup calls and error cases. `make check` also runs `tools/animcheck.lua`. |
 | `animation.tex`, `tools/animate.py` | growth animation: one page per frame (`\florilegiumframe`), parallel LuaLaTeX jobs, pdftoppm, ffmpeg → `build/grow-N.gif` + `.mp4`. `tools/animcheck.lua` checks that the last frame equals the page. |
 | `tools/Dockerfile`, `tools/in-docker` | TeX Live 2023 image; `make RUN=tools/in-docker` when there's no local TeX. |
+| `numeral.lua`, `folio.lua` | Arabic/Roman stroke shapes and botanical label layout/painting. Counter-reflection keeps letters upright; a separate invisible text label preserves search. |
+| `pdfwriter.lua`, `fontreader.lua` | standalone PDF resources/objects and optional guarded plain-texlua fontloader bootstrap. |
+| `florilegium-xe.lua`, `florilegium-xetex.def` | trusted generated item/mark records, shared layout/settings, PDF vector pages, initial statuses and stale-record digest. No shell escape. |
+| `tools/build.py`, `tools/renderasset.lua` | bounded convergence for both engines; native motif PDF export. Output-directory/filename spaces are covered. |
+| `tools/backendcheck.lua`, `tools/enginecheck.py`, `tools/offsetcheck.py` | hostless rendering, upright glyph bodies, actual engine/path/raster/text parity and independent physical-coordinate regression. CI requires decorated outlines. |
+| `folio-demo.tex`, `examples/book.tex`, `tools/foliopreview.py` | four-page guide, copyable template, full-page and folio close-up previews. |
+| `tools/package.py`, `tools/packagecheck.py` | deterministic source archive/manifest and extracted-kit builds through its own tools, outside this checkout. |
 | `postscript/florilegium.ps` | the PostScript port: ink + flora + grow (no animation, initials or authored page) and a two-page text that describes itself, with heading marks and the spill. One file, run by Ghostscript (`make postscript`, local `gs`, not the Docker image) or a printer. Not kept in sync automatically: a change to a primitive or to `grow.lua` has to be made there too. |
 
 ## Build
@@ -51,6 +58,13 @@ make layout-preview                      # four matched examples and contact she
 make book-preview                        # facing-page image (two TeX runs)
 make visual-check                        # book sides and reserved-region pixel checks
 make export-check                        # requires Inkscape; SVG/Form reuse benchmark
+make engine-check                        # actual Lua/Xe parity and failure checks
+make offset-check                        # flooded physical reservations and text bbox
+make folio-preview                       # four-page guide and folio close-up
+make xe                                  # guide through the managed Xe build
+make source-package                      # ZIP source kit with SHA-256 manifest
+python3 tools/enginecheck.py --require-outlines # full TeX Live, mandatory in CI
+python3 tools/packagecheck.py             # source kit works after extraction
 ```
 
 Fixed seed: `lualatex "\def\florilegiumseed{7}\input{florilegium-grow.tex}"`. Any
@@ -75,7 +89,7 @@ is ~70 KB of path operators, a page ~3 MB uncompressed, ~0.7 MB in the PDF.
   that should scale with a motif is a filled shape (`taper`, `ribbon`); `flora.stem`
   switches to a stroke below ~0.7 bp.
 - **Opacity/blend** need ExtGState resources: `ink.lua: gs()` registers `/floaNN` and
-  `/flomNN` (multiply) through `\pgfutil@addpdfresource@extgs` once per document.
+  `/flomNN` (multiply) through the active `ink.backend.extgs` sink once per backend; LuaTeX uses pgf and `pdfwriter` owns standalone resources.
 - **Size budget.** Output, not time, is the constraint. Coordinates are printed `%.1f` bp;
   a path used for fill and clip is emitted once (`clip()` then `flood()`); streaks are
   `taper` (2 Béziers); florets below 0.7 mm are a 10-point polygon. Measure before adding
@@ -115,6 +129,8 @@ is ~70 KB of path operators, a page ~3 MB uncompressed, ~0.7 MB in the PDF.
   titles keep markers out of TOCs/bookmarks/references. Standard classes,
   scrartcl/scrbook, titlesec in both package orders and hyperref are checked.
 - **Book geometry**: choose the real odd/even text margin and include hoffset/voffset.
+  Cancel hoffset/voffset at the background placement; never add the origin shift
+  again to PDF paths. Test the actual raster, not just geometry values.
   A right garden uses reflected text geometry and a drawing-only page transform;
   text remains native. `outer`/`inner` follow two-sided parity, with right/left
   meanings in one-sided documents. Reserved rectangles use physical page coordinates
@@ -128,6 +144,30 @@ is ~70 KB of path operators, a page ~3 MB uncompressed, ~0.7 MB in the PDF.
   before subsequent per-key overrides. Main focal count is 0..3; it is not a total
   flower count. Frame signatures include all geometry, marks, reservations, settings
   and colors. Default path fingerprints must still match upstream.
+- **Focal bounds**: custom scale/asymmetry eases stem tips into a safe target
+  interval and constrains focal sizes to the side column. Classic defaults retain
+  their exact upstream paths.
+- **Botanical labels**: `folio.layout` rejects unsupported, too-wide or obstructed
+  labels before planning the stems. `folio.draw` reflects the label coordinates
+  inside their box on a mirrored page; the outer page reflection cancels that.
+  Return its box in `stats` for normal and animated rendering. Search text is
+  positioned physically after the drawing transform/clip is cleared. Never
+  automatically override a document class's page style.
+- **Variation/print**: spread variation uses floor(page/2)+1; fixed uses index 1.
+  The actual page counter stays unchanged for geometry and labels. Monochrome is
+  applied in the shared color writer to all artwork, including accents; default
+  color paths remain byte-identical. `flora.divider` replays a seed for mirrored
+  halves and does not use page-global randomness inside its primitive.
+- **Xe protocol**: snapshot settings and the last seeded settings for each inline
+  item. Replaying the RNG must restore the current item color mode afterward.
+  Deferred marks use pdfsavepos and their shipped-page index; normalize dimensions
+  to physical cm once. Nomargin ignores page marks. Font fallback status travels
+  back through generated metadata so the native text fallback remains visible.
+- **Build convergence**: run TeX in the output directory and expose source/root
+  through TEXINPUTS/LUAINPUTS. Re-render on every fresh invocation, including when
+  records are unchanged but renderer code changed. Return success only after the
+  drawing digest and aux/toc/out state settle. Do not treat a partial first Xe
+  pass as a finished document.
 - **Aging needs the .aux**: `\flo@lastpage` is written at the end and read on the next run;
   until then every page is summer and LaTeX asks for a rerun.
 - **Never wrap typeset text in `q`…`Q` page literals**: `Q` drops the `Tf` LuaTeX set

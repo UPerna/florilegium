@@ -19,17 +19,17 @@ jobs:
             showcase.tex
             book-demo.tex
             asset-demo.tex
+            folio-demo.tex
           latexmk_use_lualatex: true
           extra_system_packages: python3 py3-pillow poppler-utils inkscape
           post_compile: >-
             texlua tools/layoutcheck.lua &&
             texlua tools/spacecheck.lua &&
             texlua tools/initialcheck.lua &&
+            texlua tools/backendcheck.lua &&
             python3 tools/layoutsmoke.py &&
             python3 tools/bookcheck.py &&
-            texlua tools/animcheck.lua 1 6 &&
-            python3 tools/exportcheck.py &&
-            python3 tools/visualcheck.py
+            texlua tools/animcheck.lua 1 6
       - uses: actions/upload-artifact@v4
         with:
           name: florilegium-pdfs
@@ -39,6 +39,34 @@ jobs:
             showcase.pdf
             book-demo.pdf
             asset-demo.pdf
+            folio-demo.pdf
+
+  portable:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: shared renderer and source kit
+        uses: xu-cheng/latex-action@v3
+        with:
+          root_file: folio-demo.tex
+          latexmk_use_lualatex: true
+          extra_system_packages: python3 py3-pillow poppler-utils inkscape
+          post_compile: >-
+            python3 tools/enginecheck.py --require-outlines &&
+            python3 tools/offsetcheck.py &&
+            python3 tools/exportcheck.py &&
+            python3 tools/visualcheck.py &&
+            python3 tools/foliopreview.py &&
+            python3 tools/build.py folio-demo.tex --engine xe --output-dir build/xe &&
+            python3 tools/packagecheck.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: florilegium-portable-kit
+          path: |
+            build/florilegium-v1.4-source.zip
+            build/xe/folio-demo.pdf
+            gallery/folio-guide.png
+            gallery/folio-labels.png
 
   gallery:
     runs-on: ubuntu-latest

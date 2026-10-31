@@ -246,15 +246,30 @@ function M.layer(n) local old = cur cur = n return old end
 function M.tag(t) local old = tag tag = t return old end
 function M.record(on) recording = on tag = nil end
 
+-- Default LuaTeX sink. Standalone PDF and XeTeX replace the sink, not the paths.
+M.backend = {
+  literal = function(s, mode)
+    local n = node.new("whatsit", "pdf_literal")
+    n.mode, n.data = mode or 0, s
+    node.write(n)
+  end,
+  extgs = function(name, dict)
+    tex.sprint(luatexbase.registernumber("catcodetable@atletter"),
+      fmt("\\pgfutil@addpdfresource@extgs{/%s %s}", name, dict))
+  end,
+}
 local gs_known = {}
+function M.set_backend(backend)
+  assert(type(backend.literal) == "function" and type(backend.extgs) == "function", "invalid drawing backend")
+  M.backend, gs_known = backend, {}
+end
 local function gs(op, mult)
   op = floor(op * 100 + 0.5)
   if op >= 100 and not mult then return nil end
   local name = fmt("flo%s%d", mult and "m" or "a", op)
   if not gs_known[name] then
     gs_known[name] = true
-    tex.sprint(luatexbase.registernumber("catcodetable@atletter"),
-      fmt("\\pgfutil@addpdfresource@extgs{/%s << /ca %.2f /CA %.2f%s >>}", name, op / 100, op / 100, mult and " /BM /Multiply" or ""))
+    M.backend.extgs(name, fmt("<< /ca %.2f /CA %.2f%s >>", op / 100, op / 100, mult and " /BM /Multiply" or ""))
   end
   return name
 end
@@ -307,7 +322,18 @@ function M.circle(x, y, r)
 end
 local function take() local s = concat(path, " ") path = {} return s end
 
-local function rgb(c, stroke) return fmt(stroke and "%.3f %.3f %.3f RG" or "%.3f %.3f %.3f rg", c[1], c[2], c[3]) end
+local color_mode = "color"
+function M.set_color_mode(mode)
+  assert(mode=="color" or mode=="mono", "invalid color mode")
+  color_mode=mode
+end
+local function rgb(c, stroke)
+  local r,g,b=c[1],c[2],c[3]
+  if color_mode=="mono" then
+    return fmt(stroke and "%.3f G" or "%.3f g",0.2126*r+0.7152*g+0.0722*b)
+  end
+  return fmt(stroke and "%.3f %.3f %.3f RG" or "%.3f %.3f %.3f rg", r,g,b)
+end
 
 -- paint the current path. opacity < 1 or mult=true wraps it in its own graphics state
 function M.fill(c, op, mult)
@@ -344,10 +370,7 @@ local function literal(parts)
     s=concat(clips,"\n").."\n"..s.."\nQ"
   end
   if page_transform then s = "q " .. concat(page_transform, " ") .. " cm\n" .. s .. "\nQ" end
-  local n = node.new("whatsit", "pdf_literal")
-  n.mode = 0
-  n.data = s
-  node.write(n)
+  M.backend.literal(s)
   return #s
 end
 local function sorted_keys()

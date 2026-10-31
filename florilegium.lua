@@ -8,6 +8,22 @@ local M = { ink = ink, flora = flora }
 local frame, recorded = nil, {}
 M.layout = settings.resolve()
 
+-- Host operations are replaceable; standalone rendering does not need TeX nodes.
+function M.dimen(name)
+  if name == "hoffset" or name == "voffset" then return tex[name] or 0 end
+  return tex.dimen[name]
+end
+function M.macro(name) return token.get_macro(name) end
+function M.page() return tex and tex.count and tex.count["c@page"] or M.page_number or 1 end
+function M.error(message)
+  if tex and tex.error then tex.error(message) else error(message, 0) end
+end
+function M.warning(message) texio.write_nl("florilegium warning: " .. message) end
+function M.initial_result(status)
+  M.last_initial_status = status
+  if tex and tex.count then tex.count["flo@initialok"] = status end
+end
+
 -- A setup call persists until the next one. Invalidate animation recordings too:
 -- otherwise a new density or whitespace setting could replay the old garden.
 function M.configure(key, value)
@@ -20,20 +36,21 @@ function M.configure(key, value)
   end
   next_layout[key] = value
   M.layout = settings.resolve(next_layout)
+  ink.set_color_mode(M.layout.color_mode)
   recorded = {}
 end
 
 local SP_CM = 2.54 / (72.27 * 65536)          -- cm per scaled point
-local function cm(name) return tex.dimen[name] * SP_CM end
+local function cm(name) return M.dimen(name) * SP_CM end
 
 -- the page layout, in cm from the lower-left corner of the paper
 function M.geometry(text_gap, side)
   local inch = 2.54
-  local page = tex.count and tex.count["c@page"] or M.page_number or 1
+  local page = M.page()
   local margin = M.twoside and page % 2 == 0 and "evensidemargin" or "oddsidemargin"
   local g = {
     pw = cm("paperwidth"), ph = cm("paperheight"),
-    textleft = inch + cm(margin) + (tex.hoffset or 0) * SP_CM,
+    textleft = inch + cm(margin) + cm("hoffset"),
   }
   g.textright = g.textleft + cm("textwidth")
   g.actual_left, g.actual_right = g.textleft, g.textright
@@ -41,7 +58,7 @@ function M.geometry(text_gap, side)
   local recto=not M.twoside or page%2==1
   g.mirror = side == "right" or (side == "outer" and recto) or (side == "inner" and not recto)
   if g.mirror then g.textleft, g.textright = g.pw - g.textright, g.pw - g.textleft end
-  g.ytop = g.ph - inch - cm("topmargin") - cm("headheight") - cm("headsep") - (tex.voffset or 0) * SP_CM
+  g.ytop = g.ph - inch - cm("topmargin") - cm("headheight") - cm("headsep") - cm("voffset")
   g.ybot = g.ytop - cm("textheight")
   -- The existing safety clip extends 2.5 mm beyond the growth column. Account
   -- for that overhang so text-gap is the actual clear space beside the text.
@@ -56,32 +73,37 @@ function M.colors(ir, ig, ib, ar, ag, ab)
   M.color_key=table.concat({ir,ig,ib,ar,ag,ab}," ")
   ink.set_ink(ir, ig, ib)
   ink.set_accent(ar, ag, ab)
+  ink.set_color_mode(M.layout.color_mode)
 end
 
 -- one rng per page; primitives drawn from TeX fork it in call order
 local page_rng = ink.rng(1)
 function M.seed(page, fixed)
   M.page_number = page
-  local s = fixed and (fixed * 7919 + page * 131) or (page * 97 + 1030)
+  local index = M.layout.variation=="spread" and math.floor(page/2)+1 or M.layout.variation=="fixed" and 1 or page
+  fixed = fixed or M.layout.seed
+  local s = fixed and (fixed * 7919 + index * 131) or (index * 97 + 1030)
   page_rng = ink.rng(s)
   return s
 end
+function M.reset_rng() page_rng = ink.rng(1) end
+function M.advance(n) for _ = 1, n do page_rng.fork() end end
 
 -- the current pgf transformation (TikZ scopes) as an ink transform: local cm -> page bp
 local function sync_transform()
   local C = ink.CM
   local bp = 72 / 72.27 / 65536
   ink.set_transform({
-    tonumber(token.get_macro("pgf@pt@aa")) * C, tonumber(token.get_macro("pgf@pt@ab")) * C,
-    tonumber(token.get_macro("pgf@pt@ba")) * C, tonumber(token.get_macro("pgf@pt@bb")) * C,
-    tex.dimen["pgf@pt@x"] * bp, tex.dimen["pgf@pt@y"] * bp })
+    tonumber(M.macro("pgf@pt@aa")) * C, tonumber(M.macro("pgf@pt@ab")) * C,
+    tonumber(M.macro("pgf@pt@ba")) * C, tonumber(M.macro("pgf@pt@bb")) * C,
+    M.dimen("pgf@pt@x") * bp, M.dimen("pgf@pt@y") * bp })
 end
 
 -- \florilegiumdraw{name}{s, opts}: one primitive at the origin of the current TikZ scope
 local scaled = { leaf = true, leaflet = true, petal = true }
 function M.draw(name, s, o)
   local fn = flora[name]
-  if not fn then tex.error("florilegium: unknown primitive '" .. tostring(name) .. "'") return end
+  if not fn then M.error("florilegium: unknown primitive '" .. tostring(name) .. "'") return end
   sync_transform()
   local rng = page_rng.fork()
   if name == "ghost" then
@@ -137,8 +159,11 @@ function M.reserve_box(w,h,d,pad)
   M.mark("reserve_box",{w=dimension(w),h=dimension(h),d=dimension(d),pad=dimension(pad)})
 end
 
-local HLIST, VLIST, GLUE, KERN, RULE, WHATSIT = node.id("hlist"), node.id("vlist"), node.id("glue"), node.id("kern"), node.id("rule"), node.id("whatsit")
-local USER = node.subtype("user_defined")
+local HLIST, VLIST, GLUE, KERN, RULE, WHATSIT, USER
+local function node_ids()
+  HLIST, VLIST, GLUE, KERN, RULE, WHATSIT = node.id("hlist"), node.id("vlist"), node.id("glue"), node.id("kern"), node.id("rule"), node.id("whatsit")
+  USER = node.subtype("user_defined")
+end
 -- walk a box list; y grows downward from the top of the outer box, x rightward
 local function walk(head, parent, x, y, vertical, out)
   for n in node.traverse(head) do
@@ -170,6 +195,8 @@ local function walk(head, parent, x, y, vertical, out)
 end
 -- the marks on the page being shipped out, in page cm from the lower-left corner
 local function page_marks(box)
+  if type(box) == "table" then return box end
+  if not HLIST then node_ids() end
   local b = box and tex.box[box]
   if not b then return {} end
   local out = {}
@@ -190,31 +217,26 @@ M.initial_font = "lmroman10-bold.otf"
 M.initial_fallback = "plain"
 function M.initial(letter, side, hang, cap)
   if utf8.len(letter)~=1 or letter:match("^%s$") then
-    tex.count["flo@initialok"]=-1
-    tex.error("florilegium: an initial must be exactly one visible Unicode character")
+    M.initial_result(-1)
+    M.error("florilegium: an initial must be exactly one visible Unicode character")
     return
   end
   local bp = 72 / 72.27 / 65536
   ink.set_transform({ ink.CM, 0, 0, ink.CM, -hang * bp, (cap - side) * bp })
   local ok, err = require("initial").draw(page_rng.fork(), side * SP_CM, letter, { font = M.initial_font })
-  tex.count["flo@initialok"] = ok and 1 or 0
+  M.initial_result(ok and 1 or 0)
   if not ok then
-    if M.initial_fallback == "error" then tex.error("florilegium: " .. tostring(err))
-    else texio.write_nl("florilegium warning: " .. tostring(err) .. "; using a plain initial") end
+    if M.initial_fallback == "error" then M.error("florilegium: " .. tostring(err))
+    else M.warning(tostring(err) .. "; using a plain initial") end
   else ink.flush() end
 end
 -- the letter is also typeset in the text, in PDF's invisible text rendering
 -- mode, so that the paragraph still copies and searches as "This", not "his"
 function M.hidden(on)
-  local n = node.new("whatsit", "pdf_literal")
-  n.mode = 1                                  -- page level, outside the text object
-  n.data = on and "3 Tr" or "0 Tr"
-  node.write(n)
+  ink.backend.literal(on and "3 Tr" or "0 Tr", 1)
 end
 function M.empty_text(on)
-  local n=node.new("whatsit","pdf_literal")
-  n.mode=1;n.data=on and "/Span << /ActualText <FEFF> >> BDC" or "EMC"
-  node.write(n)
+  ink.backend.literal(on and "/Span << /ActualText <FEFF> >> BDC" or "EMC", 1)
 end
 
 -- ---------------------------------------------------------------- aging
@@ -252,20 +274,28 @@ local function grown_frame(g)
     local p = (t - e.t0) / e.dur
     return p >= tag[2] and (tag[3] == nil or p < tag[3])
   end)
+  return r.stats
+end
+
+-- Page labels are also real, invisible text. Their physical position and reading
+-- order are independent of the reflected illustration.
+function M.number_text(label, box)
+  tex.sprint(luatexbase.registernumber("catcodetable@atletter"),string.format(
+    "\\flo@numbertext{%.4f}{%.4f}{%s}",box[1]*ink.CM,box[2]*ink.CM,label))
 end
 
 -- the grown composition for this page; M.visitors = false (option novisitors)
 -- leaves out the butterflies, bees, snails and birds
 M.visitors = true
-function M.grown(seed, spill, spilly, box)
+function M.grown(seed, spill, spilly, box, number)
   local g = M.geometry(M.layout.text_gap, M.layout.side)
   if g.colright < 1.8 then
-    tex.error("florilegium: text-gap leaves less than 18 mm for the garden",
-      { "Reduce text-gap or increase the document's left margin." })
+    M.error("florilegium: text-gap leaves less than 18 mm for the garden; reduce text-gap or increase the selected margin")
     return
   end
   g.seed, g.spill, g.spilly, g.visitors, g.age = seed, spill, spilly, M.visitors, M.age
   g.layout = M.layout
+  g.number = M.layout.page_number and number or nil
   g.marks,g.reserves = {},{}
   for _,m in ipairs(page_marks(box)) do
     local r
@@ -280,10 +310,18 @@ function M.grown(seed, spill, spilly, box)
   end
   ink.set_page_transform(g.mirror and { -1, 0, 0, 1, g.pw * ink.CM, 0 } or nil)
   ink.set_page_clip(g.pw,g.ph,g.reserves)
-  if frame then grown_frame(g) else require("grow").page(g) end
+  local stats
+  if frame then stats=grown_frame(g) else stats=require("grow").page(g) end
   if M.layout.header then M.head(g) end
   ink.set_page_transform(nil)
   ink.set_page_clip(nil,nil,nil)
+  if g.number then
+    local b=stats and stats.number_box
+    if b then
+      if g.mirror then b={g.pw-b[3],b[2],g.pw-b[1],b[4]} end
+      M.number_text(g.number,b)
+    else M.warning("page label '"..g.number.."' could not fit safely; retain the document's ordinary footer") end
+  end
 end
 
 -- the authored composition for this page

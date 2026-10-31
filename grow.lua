@@ -24,6 +24,7 @@ local ink = require("ink")
 local flora = require("flora")
 local settings = require("layout")
 local space = require("space")
+local folio = require("folio")
 local M = {}
 
 local sqrt, cos, sin, atan, pi, floor, max, min, abs = math.sqrt, math.cos, math.sin, math.atan, math.pi, math.floor, math.max, math.min, math.abs
@@ -231,6 +232,7 @@ end
 -- recording is returned with its events timed: { rec, total }.
 function M.page(g)
   local options = settings.resolve(g.layout)
+  ink.set_color_mode(options.color_mode)
   local density = options.density
   local exclusions=g.reserves or {}
   local skipped,route_failures=0,0
@@ -367,7 +369,11 @@ function M.page(g)
         for i = 1, j do head[i] = pts[i] end
         head[j + 1] = { lerp(pts[j][1], pts[j + 1][1], u), lerp(pts[j][2], pts[j + 1][2], u) }
         ink.tag({ now, k / n, (k + 1) / n })
-        flora.stem(head, w0, lerp(w0, w1, k / n), nil, nil, 0.4)
+        if type(w0)=="function" then
+          flora.stem(head, function(t) return w0(t*k/n) end, nil, nil, nil, 0.4)
+        else
+          flora.stem(head, w0, lerp(w0, w1, k / n), nil, nil, 0.4)
+        end
       end
       ink.tag({ now, 1 })
     end
@@ -429,11 +435,22 @@ function M.page(g)
 
   -- ---------------------------------------------------------- 1. stems
   local root = { layout.range(1.0, 1.6), 0.75 }
+  local num = folio.layout(g,options,root,foot)
+  local custom_focals=options.focal_scale~=1 or options.asymmetry~=1
+  local function focal_size(s)
+    local size=s*options.focal_scale
+    -- Keep enlarged/custom flowers whole inside the available side column.
+    -- The classic path remains unchanged for upstream reproducibility.
+    return custom_focals and min(size,(g.colright-0.8)/2.5) or size
+  end
+  local hero_size=focal_size(min(1.75,g.colright*0.27))
+  local focal_radius={1.25*hero_size,1.25*focal_size(1.2),1.25*focal_size(1)}
   local cx = g.colright * 0.47
   local amp = g.colright * 0.2 * options.asymmetry
   local mains, mainev = {}, {}
   local tops = { g.ph - 2.6, g.ph * layout.range(0.6, 0.72), g.ph * layout.range(0.36, 0.48) }
   tops[1] = min(tops[1], g.ph - 0.8 - min(1.75, g.colright * 0.27) * options.focal_scale)
+  if custom_focals then tops[1]=min(tops[1],g.ph-focal_radius[1]-0.7) end
   for k = 1, 3 do
     local f = ink.fbm1(layout, 2)
     local ph, lam = layout.range(0, 10), layout.range(6, 9)
@@ -444,6 +461,14 @@ function M.page(g)
       local x = cx + amp * f(y / lam + ph) + (k - 2) * 0.35 * options.asymmetry
       x = lerp(x0, x, smoothstep(0, 4, y - root[2]))
       x = max(0.9, min(g.colright - 0.9, x))
+      if custom_focals and k<=options.focal_count then
+        local r=focal_radius[k]
+        local target=max(r+0.35,min(g.colright-r-0.35,x))
+        x=lerp(x,target,smoothstep(tops[k]-3,tops[k],y))
+      end
+      if num and x>num.x0-0.45 then
+        x=lerp(x,num.x0-0.45,1-smoothstep(num.ytop,num.ytop+1.6,y))
+      end
       pts[#pts + 1] = { x, y }
       y = y + 0.25
     end
@@ -485,6 +510,19 @@ function M.page(g)
       stem(footpts, 0.065, 0.01, 0.06)
       add_stem_points(footpts, 0.065, 0.012)
     end
+  end
+  local number_box
+  if num then
+    if not options.footer then
+      -- A compact label keeps its own baseline inside the side column; the
+      -- optional under-text footer remains absent in quiet compositions.
+      local base={}
+      for _,p in ipairs(footpts) do if p[1]<=num.x1+0.15 then base[#base+1]=p end end
+      event({kind="stem",phase="stems",off=0.4})
+      stem(route(base),0.055,0.012,0.05)
+    end
+    number_box=folio.draw(num,g,{stem=stem,place=place,event=event,disc=disc,
+      add_stem_points=add_stem_points,footpts=footpts,leaf_layer=L_LEAF})
   end
   -- on the last page, branches arch out of the main stems into the space under
   -- the text, each ending in a flower
@@ -528,7 +566,7 @@ function M.page(g)
   if options.focal_count > 0 then
     local p, q = mains[1][#mains[1]], mains[1][#mains[1] - 2]
     local hx, hy = norm(p[1] - q[1], p[2] - q[2])
-    local s = min(1.75, g.colright * 0.27) * options.focal_scale
+    local s = hero_size
     local fx, fy = p[1] + hx * 0.2, p[2] + hy * 0.2
     event({ kind = "bloom", parent = mainev[1], at = 1, size = s })
     place(L_BLOOM, fx, fy, 90, function() flora.flower(rng.fork(), s) end)
@@ -541,7 +579,7 @@ function M.page(g)
       -- the shorter stems end in a lily and a flower; in spring in buds, in autumn gone to seed
       local tip = spring > 0.5 and "bud" or autumn > 0.5 and "seedhead" or nil
       if k == 2 then
-        local s2 = layout.range(1.0, 1.2) * options.focal_scale
+        local s2 = focal_size(layout.range(1.0, 1.2))
         event({ kind = "bloom", parent = mainev[2], at = 1, size = s2 })
         if tip == "bud" then
           place(L_BLOOM, p2[1], p2[2], deg(ax, ay), function() flora.bud(rng.fork(), 0.95 * s2) end)
@@ -553,7 +591,7 @@ function M.page(g)
         disc(p2[1] + ax * 0.3 * s2, p2[2] + ay * 0.3 * s2, 0.95 * s2, 0.85)
         counts.lily = counts.lily + 1
       else
-        local s3 = layout.range(0.85, 1.0) * options.focal_scale
+        local s3 = focal_size(layout.range(0.85, 1.0))
         event({ kind = "bloom", parent = mainev[3], at = 1, size = s3 })
         if tip == "bud" then
           place(L_BLOOM, p2[1], p2[2], deg(ax, ay), function() flora.bud(rng.fork(), 0.9 * s3) end)
@@ -975,7 +1013,7 @@ function M.page(g)
     if (counts[name] or 0) > 0 then seen[#seen + 1] = counts[name] .. " " .. name end
   end
   local stats = { cells = #gx, motifs = n, branches = nbranch, fills = fills, accents = accents,
-    skipped=skipped, route_failures=route_failures }
+    skipped=skipped, route_failures=route_failures, number_box=number_box }
   if anim then
     local total = schedule(events)
     if texio then texio.write_nl(string.format("florilegium: recorded %d motifs, %d events, %.1f s of growth", n, #events, total)) end

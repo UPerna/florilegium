@@ -11,10 +11,10 @@ It gets a similar look.
 
 ## What it is
 
-Procedurally generated Delft-blue floral page margins for LaTeX. No images, no imported
-paths, no external assets: every petal, leaf and stem is a parametric curve computed in Lua
-while the page is being written, painted like a watercolor, and written straight into the
-PDF. Every page gets its own garden.
+Procedurally generated Delft-blue floral page margins for LuaLaTeX and XeLaTeX.
+Every petal, leaf and stem is a parametric curve computed in Lua and painted like a
+watercolor. LuaLaTeX writes the paths directly; XeLaTeX places generated vector PDFs
+from the same renderer. There are no stock images or traced illustrations.
 
 ![six seeds](gallery/seeds.gif)
 
@@ -40,11 +40,57 @@ Both PDFs are self-describing: the body text is the write-up of how the margin i
 *300 dpi crop. Mottled washes with white streaks lifted out, lobed leaves with white veins,
 forget-me-not cymes, a pale ghost flower behind the stems.*
 
+## Botanical books and folios
+
+![Quiet monochrome and chapter-blue spreads](gallery/folio-guide.png)
+
+[folio-demo.tex](folio-demo.tex) is a four-page design guide. It demonstrates upright
+Arabic/Roman page labels, coordinated spreads, grayscale print artwork, protected
+notes and matching section dividers. The default composition remains unchanged.
+
+```tex
+\documentclass[twoside]{book}
+\usepackage[inner=24mm,outer=68mm,bindingoffset=4mm]{geometry}
+\usepackage[grown,side=outer,style=quiet,pagenumber,
+  variation=spread,seed=17]{florilegium}
+\pagestyle{empty} % Configure your own footer explicitly.
+```
+
+| Control | Default | Behavior |
+| --- | --- | --- |
+| `pagenumber` | `false` | Grow the page label from the plant's base. Arabic digits and Roman-letter forms are supported. Labels remain searchable and upright in either margin. |
+| `number-scale` | `1` | Desired label height, from `0.5` to `1.25`; available width still limits the size. |
+| `variation` | `page` | `spread` shares a seed across logical even/odd facing pages; `fixed` reuses one seed index. Geometry, text marks, seasons and reservations still affect placement. |
+| `seed` | `auto` | Integer `0..2^31-1` for reproducible variation. The legacy `\florilegiumseed` macro takes precedence when supplied. |
+| `color-mode` | `color` | `mono` emits DeviceGray illustration colors, including the accent. It is also a package option for authored or standalone drawings. |
+
+![Upright Roman and Arabic folios](gallery/folio-labels.png)
+
+The page-number option does not take over the document's page style. This guide
+uses `\pagestyle{empty}` to avoid a second visible footer. Book classes may force
+`plain` on chapter openings; the supplied template explicitly clears that style too.
+Keep a normal footer
+when using unsupported labels, very narrow margins, or reservations covering the
+label area: botanical lettering is then omitted with a diagnostic. With
+`footer=false`, a label retains a short baseline inside the side column while the
+long under-text footer is absent.
+
+Monochrome applies to newly rendered paths. Included PDF assets retain their
+exported colors; create a gray version with `--color-mode=mono` when needed.
+
+`\florilegiumdivider[36mm]` places a centered vector fleuron made from the garden's
+leaves and rosette. The optional argument sets its width. It works in either
+composition and with `nomargin`; `divider` is also an exportable motif.
+
+Spread, seed and lettering controls require `grown`. Use a clear page before
+changing a shipped-page treatment. Custom focal sizes are constrained to the
+column and their stem tips ease inward so enlarged flowers remain whole.
+
 ## Layout controls in this fork
 
 The grown composition has controls for density and deliberate whitespace. The
-defaults retain the upstream drawing. These additions are for LuaLaTeX; the
-PostScript port still uses the original layout.
+defaults retain the upstream drawing. These additions work with both TeX engines;
+the PostScript port still uses the original layout.
 
 ```tex
 \usepackage[grown,density=airy,spill=false]{florilegium}
@@ -157,10 +203,12 @@ python3 tools/exportasset.py flower --seed 7 --size 1.2 --ink 2456C4 --output bu
 make export-check
 ```
 
-The exporter uses LuaLaTeX and Inkscape 1.x to produce a transparent vector PDF
-and a plain SVG. It rejects conversions containing embedded raster images.
+The exporter uses `texlua` and Inkscape 1.x to produce a transparent vector PDF
+and a plain SVG, without a LaTeX compilation. `--renderer=lualatex` selects the
+reference TeX route; `--color-mode=mono` exports grayscale artwork. It rejects conversions containing embedded raster images.
 Supported motifs are listed by `--help`; size is 0.1 to 2, seed is 0 to 2^31-1,
-and ink is a six-digit HTML color. The fixed canvas is 6 cm square. Exported SVGs
+and ink is a six-digit HTML color. The canvas is at least 6 cm square and expands
+for a large divider, ivy stem or drifting seed head to avoid cropping. Exported SVGs
 were checked with Inkscape; rendering in Office is not tested by this repository.
 The [starter assets](examples/assets) include flower, leaf and butterfly SVG/PDF
 pairs under the repository's MIT license.
@@ -172,8 +220,8 @@ pairs under the repository's MIT license.
 
 These commands work in either composition and with `nomargin`. PDF inclusion
 reuses the same Form XObject instead of writing the paths at every occurrence.
-In the 48-repeat reference benchmark, the local PDF decreased from 995,950 to
-23,530 bytes (97.6%); raster comparisons had a mean channel error of 0.022/255.
+In the 48-repeat native-export benchmark, the local PDF decreased from 995,950 to
+23,931 bytes (97.6%); raster comparisons had a mean channel error of 0.053/255.
 This result concerns repeated identical assets, not unique random gardens.
 `asset-demo.tex` shows the starter set; `make export-check` reproduces the
 benchmark and writes current measurements to `build/assets/reuse-report.json`.
@@ -195,7 +243,7 @@ character. This fallback applies to either composition.
 
 `make check` now includes book/heading/font and obstacle checks.
 `make book-preview` renders the facing-page example; `make export-check` needs
-Inkscape, Pillow and Poppler in addition to LuaLaTeX.
+Inkscape, Pillow and Poppler in addition to TeX Live.
 
 ## Watch it grow
 
@@ -309,8 +357,23 @@ it has no transparency.*
 
 ## Build
 
-LuaLaTeX, one pass, about a second a page (two passes for `showcase.tex`, whose seasons need
-the page count).
+LuaLaTeX is the native route. A simple page can compile in one pass; references,
+seasons and remembered positions need further passes. The build command manages
+convergence for both engines:
+
+```sh
+python3 tools/build.py folio-demo.tex --engine lua --output-dir build/lua
+python3 tools/build.py folio-demo.tex --engine xe --output-dir "build/XeLaTeX proof"
+```
+
+It uses no shell escape, runs the Xe vector renderer between passes, and checks
+that records and auxiliary files settle before reporting success. Source filenames
+and output directories containing spaces are supported. `--job-name` selects a
+safe output basename. Plain `xelatex doc.tex`, `texlua florilegium-xe.lua doc`,
+`xelatex doc.tex` also works from one directory; repeat when warned about stale
+records. Prefer the build command for an output directory or a document with aging.
+
+The established targets remain available:
 
 ```sh
 make                        # the three PDFs
@@ -327,8 +390,15 @@ docker build -t florilegium-tex tools
 make RUN=tools/in-docker
 ```
 
-Or paste `florilegium.sty`, the eight `.lua` files and one of the `.tex` files into an
-[Overleaf](https://www.overleaf.com) project and set the compiler to LuaLaTeX.
+For a ready-to-copy starting point, use [examples/book.tex](examples/book.tex).
+`make source-package` creates `build/florilegium-v1.4-source.zip`, with the source,
+examples, previews, license and a SHA-256 manifest. Extract it and build the template
+with its own `tools/build.py`. `python3 tools/packagecheck.py` verifies that workflow.
+
+For LuaLaTeX on [Overleaf](https://www.overleaf.com), copy `florilegium.sty`, the root
+`.def` and `.lua` files and a document, then select LuaLaTeX. The portable Xe workflow
+uses the external `texlua` pass; it is checked through the local build command rather
+than assuming a hosted editor permits that command.
 
 Use it in your own document:
 
@@ -414,4 +484,6 @@ yet done.
 
 ## License
 
-MIT.
+MIT. See [ACKNOWLEDGEMENTS.md](ACKNOWLEDGEMENTS.md) for the original project and
+the pinned fork contributions adapted here. [VALIDATION.md](VALIDATION.md) records
+the checks and practical limits.
