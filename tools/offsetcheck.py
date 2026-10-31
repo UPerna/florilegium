@@ -23,6 +23,7 @@ def main():
                   + rf"\usepackage[{margins}]{{geometry}}\usepackage[grown,side={side},style=quiet]{{florilegium}}"
                   + rf"\hoffset={h}mm\voffset={v}mm\setcounter{{page}}{{{page}}}"
                   + r"\directlua{require('grow').page=function(g) local ink=require('ink');"
+                    r"for _,r in ipairs(g.reserves) do texio.write_nl('offset reserve: '..table.concat(r,',')) end;"
                     r"ink.set_transform({ink.CM,0,0,ink.CM,0,0});ink.layer(5);"
                     r"ink.flood({0.1,0.3,0.8},0,0,g.pw,g.ph);ink.flush() end}"
                     r"\begin{document}\florilegiumreserve[0pt]{1cm}{10cm}{3cm}{5cm}"
@@ -38,6 +39,7 @@ def main():
         subprocess.run(["pdftoppm", "-r", "65", "-png", "-singlefile", str(stem.with_suffix('.pdf')), str(stem)],
                        check=True, capture_output=True)
         bbox = subprocess.check_output(["pdftotext", "-bbox", str(stem.with_suffix('.pdf')), "-"], text=True)
+        stem.with_suffix(".bbox.html").write_text(bbox)
         words = [n for n in ET.fromstring(bbox).iter() if n.tag.endswith("word") and n.text == "Protected"]
         assert len(words) == 1
         w = words[0].attrib
@@ -48,7 +50,8 @@ def main():
             count = colored(im, page_box(1, 10, 4, 15))
             assert count == 0, f"{side}/{page}: {count} colored pixels entered the physical reservation"
             assert colored(im, page_box(0.3, 11, 0.8, 14)) > 50, "Control area was not painted"
-            assert colored(im, text_box) == 0, f"{side}/{page}: protected content shifted away from its clip"
+            content_count = colored(im, text_box)
+            assert content_count == 0, f"{side}/{page}: {content_count} colored pixels in measured text box {text_box}; see {stem}"
         print("PASS", side, page, f"offsets {h}/{v}mm")
     print(f"offsetcheck: {len(cases)} rendered physical and content-relative reservations passed")
 

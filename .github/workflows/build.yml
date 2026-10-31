@@ -59,6 +59,9 @@ jobs:
             python3 tools/foliopreview.py &&
             python3 tools/build.py folio-demo.tex --engine xe --output-dir build/xe &&
             python3 tools/packagecheck.py
+      - name: make container build evidence readable
+        if: always()
+        run: sudo chmod -R a+rX build
       - uses: actions/upload-artifact@v4
         with:
           name: florilegium-portable-kit
@@ -72,7 +75,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: florilegium-portable-failure
-          path: build/engine-check-*/
+          path: |
+            build/engine-check-*/
+            build/offset-check/
           if-no-files-found: ignore
 
   gallery:
