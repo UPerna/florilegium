@@ -11,12 +11,24 @@ import shutil
 import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
+AUXILIARY_SUFFIXES = {".aux", ".toc", ".out", ".lof", ".lot", ".nav", ".snm"}
 
 
 def state(folder, name, engine):
-    extensions = [".aux", ".toc", ".out"] + ([".flo"] if engine == "xe" else [])
-    return tuple(hashlib.sha256((folder / (name + ext)).read_bytes()).hexdigest()
-                 if (folder / (name + ext)).exists() else None for ext in extensions)
+    files = {folder / (name + ext) for ext in AUXILIARY_SUFFIXES}
+    if engine == "xe":
+        files.add(folder / (name + ".flo"))
+    recorder = folder / (name + ".fls")
+    if recorder.is_file():
+        for line in recorder.read_text(errors="replace").splitlines():
+            if line.startswith("OUTPUT "):
+                path = Path(line[7:])
+                if not path.is_absolute():
+                    path = folder / path
+                if path.suffix in AUXILIARY_SUFFIXES:
+                    files.add(path.resolve())
+    return tuple((str(path), hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None)
+                 for path in sorted(files))
 
 
 def complete_pdf(path, logfile):
@@ -57,7 +69,7 @@ def build(source, engine="lua", output_dir=None, job_name=None, max_passes=6):
     pdf = folder / (name + ".pdf")
     for run in range(1, max_passes + 1):
         pdf.unlink(missing_ok=True)
-        result = subprocess.run([executable, "-no-shell-escape", "-halt-on-error", "-interaction=nonstopmode",
+        result = subprocess.run([executable, "-no-shell-escape", "-halt-on-error", "-interaction=nonstopmode", "-recorder",
                                  f"-jobname={name}", r"\input{" + source.as_posix() + "}"],
                                 cwd=folder, env=env, capture_output=True, text=True)
         logfile = folder / f"{name}.pass-{run}.log"

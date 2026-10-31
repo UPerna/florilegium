@@ -6,6 +6,7 @@ import re
 from pathlib import Path
 import subprocess
 import tempfile
+import unicodedata
 import xml.etree.ElementTree as ET
 from PIL import Image, ImageChops, ImageStat
 from build import build, ROOT
@@ -97,6 +98,7 @@ def main(require_outlines=False):
           + CAPTURE + r"\begin{document}Reusable vector assets.\par"
             r"\florilegiumuseasset[width=20mm]{flower}\florilegiumuseasset[width=20mm]{flower}\end{document}"),
     }
+    cases["specimen"] = (ROOT / "specimen.tex").read_text().replace(r"\pagestyle", CAPTURE + r"\pagestyle", 1)
     for after in (False, True):
         core = r"\usepackage[grown,sections,style=quiet]{florilegium}"
         title = r"\usepackage{titlesec}"
@@ -123,6 +125,9 @@ def main(require_outlines=False):
                 text = subprocess.check_output(["pdftotext", str(pdf), "-"], text=True)
                 if name in ("primitives", "initial"):
                     assert "Every" in text, f"{name}/{engine}: initial is not searchable"
+                if name == "specimen":
+                    label_text = unicodedata.normalize("NFKC", text)
+                    assert all(label in label_text for label in ("flower", "floret", "butterfly", "visitors")), "Specimen labels lost searchable ligatures"
                 if name == "book":
                     assert all(label in text.split() for label in ("xiv", "xv", "38", "39", "40")), "Page label missing from PDF text"
                     bbox = subprocess.check_output(["pdftotext", "-bbox", str(pdf), "-"], text=True)
@@ -160,7 +165,7 @@ def main(require_outlines=False):
                     assert ImageChops.difference(mono.getchannel("R"), mono.getchannel("G")).getbbox() is None
                     assert ImageChops.difference(mono.getchannel("G"), mono.getchannel("B")).getbbox() is None
                     assert colored(pages[4], protected_regions[index]) == 0, "Ornament entered the deferred protected box"
-            if name in ("primitives", "authored", "initial", "animation", "assets"):
+            if name in ("primitives", "authored", "initial", "animation", "assets", "specimen"):
                 assert captures[0] == captures[1], f"{name}: native and external vector paths differ"
             if name == "animation":
                 log = artifacts[1].with_name("animation.render-1.log").read_text()
@@ -172,6 +177,32 @@ def main(require_outlines=False):
                 meta = artifacts[1].with_name("initial-flo.tex").read_text()
                 assert "initialstatus" in meta and "{1}{1}" in meta, "Xe font outline reader fell back"
             print("PASS", name, "pages", len(a), "mean pixel errors", [round(e, 4) for e in errors], flush=True)
+        # Included chapters write their own auxiliary files. A stable main aux
+        # file must not let the builder return a PDF containing an older value.
+        included = folder / "included source"
+        included.mkdir()
+        main = included / "main.tex"
+        main.write_text(r"\documentclass{article}" + FONTS
+          + r"\usepackage[nomargin]{florilegium}\begin{document}\include{chapter}\end{document}")
+        chapter = (r"\makeatletter\newcount\currentstate"
+          r"\ifdefined\savedstate\currentstate=\savedstate\relax\fi "
+          r"Observed state: \the\currentstate."
+          r"\ifnum\currentstate<2 \advance\currentstate by1\fi"
+          r"\immediate\write\@auxout{\gdef\string\savedstate{\the\currentstate}}\makeatother")
+        for engine in ("lua", "xe"):
+            (included / "chapter.tex").write_text(chapter)
+            pdf = build(main, engine, included / (engine + " output"))
+            text = subprocess.check_output(["pdftotext", str(pdf), "-"], text=True)
+            assert "Observed state: 2." in text, f"{engine}: included aux did not converge"
+            (included / "chapter.tex").write_text(chapter.replace(
+                r"\ifnum\currentstate<2 \advance\currentstate by1\fi", r"\advance\currentstate by1"))
+            try:
+                build(main, engine, included / (engine + " nonconvergent"), max_passes=3)
+            except RuntimeError as error:
+                assert "did not converge" in str(error), str(error)
+            else:
+                raise AssertionError(f"{engine}: nonconvergent included aux was accepted")
+        print("PASS included auxiliary convergence and bounded nonconvergence in both engines", flush=True)
         # A second build in the same directory must replace stale drawing data.
         path = folder / "changed source.tex"
         base = r"\documentclass{article}" + FONTS + r"\usepackage[nomargin]{florilegium}\begin{document}\begin{tikzpicture}\florilegiumdraw{MOTIF}{1}\end{tikzpicture}\end{document}"
@@ -197,7 +228,7 @@ def main(require_outlines=False):
                 pass
             else:
                 raise AssertionError("Xe accepted invalid " + name)
-        print("enginecheck: 10 dual-engine documents, vector/text/metadata/mono/offset parity, cached animation, PDF assets, stale rebuilds and 6 rejected inputs passed")
+        print("enginecheck: 11 dual-engine documents, vector/text/metadata/mono/offset parity, cached animation, PDF assets, included auxiliary convergence, stale rebuilds and 6 rejected inputs passed")
     finally:
         if old_capture is None:
             os.environ.pop("FLORILEGIUM_CAPTURE", None)

@@ -20,6 +20,12 @@ def main():
         for row in manifest:
             digest, name = row.split("  ", 1)
             assert hashlib.sha256((kit / name).read_bytes()).hexdigest() == digest
+        readme = (kit / "README.md").read_text()
+        images = re.findall(r'!\[[^\]]*\]\(([^)]+)\)|<img\b[^>]*\bsrc="([^"]+)"', readme)
+        for markdown, html in images:
+            path = markdown or html
+            if not path.startswith(("https://", "http://")):
+                assert (kit / path).is_file(), f"Packaged README image is missing: {path}"
         for engine in ("lua", "xe"):
             result = subprocess.run(["python3", str(kit / "tools/build.py"), str(kit / "examples/book.tex"),
                                      "--engine", engine, "--output-dir", str(kit / "output" / engine)],

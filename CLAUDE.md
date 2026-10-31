@@ -163,10 +163,10 @@ is ~70 KB of path operators, a page ~3 MB uncompressed, ~0.7 MB in the PDF.
   Deferred marks use pdfsavepos and their shipped-page index; normalize dimensions
   to physical cm once. Nomargin ignores page marks. Font fallback status travels
   back through generated metadata so the native text fallback remains visible.
-- **Build convergence**: run TeX in the output directory and expose source/root
+- **Build convergence**: run TeX with its file recorder in the output directory and expose source/root
   through TEXINPUTS/LUAINPUTS. Re-render on every fresh invocation, including when
   records are unchanged but renderer code changed. Return success only after the
-  drawing digest and aux/toc/out state settle. Do not treat a partial first Xe
+  drawing digest and all recorded auxiliary outputs (including included chapters) settle. Do not treat a partial first Xe
   pass as a finished document.
 - **Aging needs the .aux**: `\flo@lastpage` is written at the end and read on the next run;
   until then every page is summer and LaTeX asks for a rerun.

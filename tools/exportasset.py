@@ -15,7 +15,8 @@ MOTIFS = ("flower", "lily", "leaf", "leaflet", "butterfly", "bee", "hedera", "ro
 
 
 def canvas_size(motif, size):
-    return max(6, {"divider": 4.4, "hedera": 4.4, "seedhead": 6}.get(motif, 0) * size)
+    # The bee's looping flight trail reaches over three body lengths behind it.
+    return max(6, {"divider": 4.4, "hedera": 4.4, "seedhead": 6, "bee": 7, "rosette": 3.4}.get(motif, 0) * size)
 
 
 def picture(motif, size):

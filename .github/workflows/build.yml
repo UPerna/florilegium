@@ -5,11 +5,16 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   pdfs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: authored and grown (lualatex)
         uses: xu-cheng/latex-action@v3
         with:
@@ -20,6 +25,7 @@ jobs:
             book-demo.tex
             asset-demo.tex
             folio-demo.tex
+            specimen.tex
           latexmk_use_lualatex: true
           extra_system_packages: python3 py3-pillow poppler-utils inkscape
           post_compile: >-
@@ -40,11 +46,14 @@ jobs:
             book-demo.pdf
             asset-demo.pdf
             folio-demo.pdf
+            specimen.pdf
 
   portable:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: shared renderer and source kit
         uses: xu-cheng/latex-action@v3
         with:
@@ -85,6 +94,8 @@ jobs:
     if: github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: render six seeds
         uses: xu-cheng/latex-action@v3
         with:

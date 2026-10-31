@@ -367,7 +367,8 @@ python3 tools/build.py folio-demo.tex --engine xe --output-dir "build/XeLaTeX pr
 ```
 
 It uses no shell escape, runs the Xe vector renderer between passes, and checks
-that records and auxiliary files settle before reporting success. Source filenames
+that records and auxiliary files settle before reporting success, including the
+files written by included chapters and lists of figures/tables. Source filenames
 and output directories containing spaces are supported. `--job-name` selects a
 safe output basename. Plain `xelatex doc.tex`, `texlua florilegium-xe.lua doc`,
 `xelatex doc.tex` also works from one directory; repeat when warned about stale
@@ -486,4 +487,4 @@ yet done.
 
 MIT. See [ACKNOWLEDGEMENTS.md](ACKNOWLEDGEMENTS.md) for the original project and
 the pinned fork contributions adapted here. [VALIDATION.md](VALIDATION.md) records
-the checks and practical limits.
+the checks and practical limits. [QC.md](QC.md) records the full review and repairs.

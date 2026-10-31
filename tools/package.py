@@ -14,7 +14,7 @@ def package(output=None):
     paths.update(ROOT / name for name in ("LICENSE", "Makefile"))
     for directory, extensions in (("tools", {".py", ".lua"}),
                                   ("examples", {".tex", ".md", ".pdf", ".svg"}),
-                                  ("gallery", {".png", ".gif"}),
+                                  ("gallery", {".png", ".gif", ".jpg", ".jpeg"}),
                                   ("postscript", {".ps"})):
         paths.update(p for p in (ROOT / directory).rglob("*") if p.suffix in extensions)
     paths.update(ROOT / "tools" / name for name in ("Dockerfile", "in-docker"))
