@@ -67,6 +67,13 @@ jobs:
             build/xe/folio-demo.pdf
             gallery/folio-guide.png
             gallery/folio-labels.png
+      - name: preserve portable failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: florilegium-portable-failure
+          path: build/engine-check-*/
+          if-no-files-found: ignore
 
   gallery:
     runs-on: ubuntu-latest

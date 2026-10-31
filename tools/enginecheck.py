@@ -17,7 +17,7 @@ GEOMETRY = r"\usepackage[a4paper,left=68mm,right=22mm,top=32mm,bottom=30mm]{geom
 # Xe driver canvas translation. This reaches the real host paths in both engines.
 CAPTURE = r"""\ifLuaTeX\directlua{
  local ink=require('ink');local original=ink.backend.literal
- local file=assert(io.open(os.getenv('FLORILEGIUM_CAPTURE'),'wb'))
+ local file=assert(io.open('paths.bin','wb'))
  ink.backend.literal=function(s,mode)
   if mode==nil and s:sub(1,1)=='q' then file:write(string.len(s),string.char(10),s,string.char(10));file:flush() end
   return original(s,mode) end
@@ -116,7 +116,7 @@ def main(require_outlines=False):
                 out.mkdir(parents=True, exist_ok=True)
                 capture = out / "paths.bin"
                 capture.unlink(missing_ok=True)
-                os.environ["FLORILEGIUM_CAPTURE"] = str(capture)
+                os.environ["FLORILEGIUM_CAPTURE"] = capture.name
                 pdf = build(path, engine, out)
                 artifacts.append(pdf)
                 captures.append(signature(capture))
