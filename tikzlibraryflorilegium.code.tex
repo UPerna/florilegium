@@ -449,28 +449,50 @@
       \else\ifx\flo@vw\flo@Vlips
         \let\flo@oarg\flo@bd\pgftransformscale{\flo@oarg}%
         \ifdim\flo@bturn pt<0pt \pgftransformxscale{-1}\fi\flo@vlips\flo@oarg
+      \else\ifx\flo@vw\flo@Vorchid
+        \flo@upright\flo@calc\flo@oarg{0.4*\flo@t}\pgftransformrotate{\flo@oarg}%
+        \flo@range\flo@oarg{0.75}{0.95}\pgftransformxscale{\flo@oarg}%
+        \pgftransformscale{\flo@bd}\flo@vorchid\flo@bd
+      \else\ifx\flo@vw\flo@Vspur
+        \flo@calc\flo@oarg{0.75*\flo@bd}\pgftransformscale{\flo@oarg}\flo@vaquilegia\flo@oarg
       \else
         \def\flo@ys{1}%
         \ifx\flo@vw\flo@Vtilt\flo@range\flo@ys{0.5}{0.7}\fi
         \ifx\flo@vw\flo@Vback\flo@range\flo@ys{0.55}{0.75}\flo@calc\flo@lift{1-(1-\flo@lift)*0.85}\fi
         \ifdim\flo@ys pt<1pt
           \flo@calc\flo@oarg{0.12*\flo@bd}\pgftransformshift{\flo@P0\flo@oarg}\pgftransformyscale{\flo@ys}\fi
-        \pgftransformrotate{\flo@t}\pgftransformscale{\flo@bd}%
+        \def\flo@tmp{iris}\ifx\flo@fm\flo@tmp\flo@upright\flo@calc\flo@t{0.6*\flo@t}\fi
+        \pgftransformrotate{\flo@t}%
+        \ifx\flo@fm\flo@tmp\flo@range\flo@oarg{0.72}{1}\pgftransformxscale{\flo@oarg}\fi
+        \pgftransformscale{\flo@bd}%
         \flo@calc\flo@t{\flo@bd*28.45276}\flo@sflower\flo@t
         \ifx\flo@vw\flo@Vback\flo@vcalyx\fi
-      \fi\fi\fi\fi
+      \fi\fi\fi\fi\fi\fi
     \end{pgfscope}%
   \fi\fi}
 % how a flower of the species is seen, \flo@vw: face (held erect), tilt (sideways), back
 % (nodding), lily (a lily held sideways or nodding: flora's lily is drawn at a tilt
 % already), tube (bells, urns, tubes and trumpets, always in profile), salver (a
 % flat-faced tube held sideways or nodding), pea or lips (pea and two-lipped flowers,
-% always in profile, their upper side toward the way they turn); and how far it turns from its stalk,
+% always in profile, their upper side toward the way they turn), orchid (face on, upright on
+% the page, \flo@upright, leaning a little) or spur (a columbine held
+% sideways or nodding, in profile); and how far it turns from its stalk,
 % \flo@bturn degrees: a little for an erect tube, 50 to 80 when held sideways, 100 to 140
 % when it nods, toward \flo@bside (1 its stalk's left, -1 its right; empty: one draw);
 % in a head (\flo@bfan 1), where each flower already points away from the center, 5 to 25
+% stand the current frame upright on the page (+y up), keeping its origin, its scale (the
+% geometric mean of its axes') and its handedness: for flowers with an up and a down, an
+% iris or an orchid, whichever way their stalk points. (No determinant: pgfmath overflows
+% above 16384.) Its temporaries are its own: Lua's code calls it too, and knows nothing of them
+\def\flo@upright{%
+  \pgfgettransformentries\flo@ura\flo@urb\flo@urc\flo@urd\flo@urx\flo@ury
+  \flo@calc\flo@urp{veclen(\flo@ura,\flo@urb)}\flo@calc\flo@urq{veclen(\flo@urc,\flo@urd)}%
+  \flo@calc\flo@urs{sqrt(\flo@urp)*sqrt(\flo@urq)}%
+  \flo@calc\flo@urt{(\flo@ura/\flo@urp)*(\flo@urd/\flo@urq)-(\flo@urb/\flo@urp)*(\flo@urc/\flo@urq)}%
+  \ifdim\flo@urt pt<0pt \flo@calc\flo@ura{-\flo@urs}\else\let\flo@ura\flo@urs\fi
+  \pgfsettransformentries\flo@ura{0}{0}\flo@urs\flo@urx\flo@ury}
 \def\flo@Vface{face}\def\flo@Vtilt{tilt}\def\flo@Vback{back}\def\flo@Vlily{lily}\def\flo@Vtube{tube}
-\def\flo@Vsalver{salver}\def\flo@Vpea{pea}\def\flo@Vlips{lips}\def\flo@Oerect{erect}\def\flo@Onod{nodding}\def\flo@bside{}
+\def\flo@Vsalver{salver}\def\flo@Vpea{pea}\def\flo@Vlips{lips}\def\flo@Vorchid{orchid}\def\flo@Vspur{spur}\def\flo@Oerect{erect}\def\flo@Onod{nodding}\def\flo@bside{}
 \def\flo@bfan{0}
 \def\flo@bview{%
   \edef\flo@or{\flo@get{orient}}\edef\flo@fm{\flo@get{form}}\def\flo@bturn{0}%
@@ -483,6 +505,8 @@
   \def\flo@tmp{funnelform}\ifx\flo@fm\flo@tmp\def\flo@vw{tube}\fi
   \def\flo@tmp{papilionaceous}\ifx\flo@fm\flo@tmp\def\flo@vw{pea}\fi
   \def\flo@tmp{bilabiate}\ifx\flo@fm\flo@tmp\def\flo@vw{lips}\fi
+  \def\flo@tmp{orchid}\ifx\flo@fm\flo@tmp\def\flo@vw{orchid}\fi
+  \ifx\flo@or\flo@Oerect\else\def\flo@tmp{spurred}\ifx\flo@fm\flo@tmp\def\flo@vw{spur}\fi\fi
   \ifx\flo@or\flo@Oerect
     \ifx\flo@vw\flo@Vtube\flo@sym\flo@bturn{15}\fi
   \else
@@ -526,6 +550,8 @@
   \def\flo@tmp{liptube}\ifx\flo@tufm\flo@tmp
     \def\flo@tua{0.04}\def\flo@tub{0.06}\def\flo@tuc{1.6}\let\flo@tuL\flo@lpL\def\flo@tun{0}\let\flo@tubd\flo@lpb
     \def\flo@tusep{0}\fi
+  \def\flo@tmp{aqcup}\ifx\flo@tufm\flo@tmp
+    \def\flo@tua{0.12}\def\flo@tub{0.04}\def\flo@tuc{1}\def\flo@tuL{0.32}\def\flo@tut{0.08}\def\flo@tusep{0}\fi
   \edef\flo@t{\flo@get{apex}}\def\flo@tutk{0.7}%
   \def\flo@tmp{rounded}\ifx\flo@t\flo@tmp\def\flo@tutk{1}\flo@calc\flo@tut{0.7*\flo@tut}\fi
   \def\flo@tmp{emarginate}\ifx\flo@t\flo@tmp\def\flo@tutk{1}\flo@calc\flo@tut{0.7*\flo@tut}\fi
@@ -2577,8 +2603,11 @@
   \ifx\flo@form\flo@tmp\flo@sdaisy\flo@sfd\else
   \def\flo@tmp{lily}%
   \ifx\flo@form\flo@tmp
-    \begin{pgfscope}\pgftransformscale{0.48}\flo@calc\flo@oarg{(\flo@sfd)*0.48/28.45276}\flo@vlily\flo@oarg\end{pgfscope}%
+    \begin{pgfscope}\pgftransformscale{0.48}\flo@calc\flo@oarg{(\flo@sfd)*0.48/28.45276}\flo@vlily\flo@oarg
+      \edef\flo@t{\flo@get{corona}}\def\flo@tmp{none}\ifx\flo@t\flo@tmp\else\flo@vcorona\flo@oarg\fi\end{pgfscope}%
   \else
+    \def\flo@tmp{iris}\def\flo@ivon{0}\ifx\flo@form\flo@tmp\ifdim\flo@sfd pt<8pt \else\def\flo@ivon{1}\fi\fi
+    \ifnum\flo@ivon=1 \flo@viris\flo@sfd\else
     \ifdim\flo@sfd pt<22pt
       % small: a floret (under about 3 mm) or a blossom of the species' parts
       \flo@calc\flo@t{max(4,min(6,\flo@nn))}\pgfmathtruncatemacro\flo@fp{\flo@t}%
@@ -2601,8 +2630,244 @@
         \def\flo@vf@ns{3}\def\flo@vp@notchp{0.85}\def\flo@vp@notchk{1.6}\fi
       \begin{pgfscope}\pgftransformscale{0.45}\flo@calc\flo@vs{(\flo@sfd)*0.45/28.45276}\flo@vflower\flo@vs\flo@np\end{pgfscope}%
       \ifx\flo@form\flo@tmp\flo@vboss\fi
-    \fi
+    \fi\fi
   \fi\fi}
+% one part of an iris: from the origin toward #1 degrees, #2 long, a narrow haft for
+% \flo@ivc of it (none at 0), then flora's petal: #3 half-wide, bent #4, tone #5, a white
+% heart (#6 1) or none, #7 white streaks (empty: drawn), notched with chance #8; #9 cm per
+% unit of the flower; pointed when \flo@ivpt is 1
+\def\flo@ivc{0}\def\flo@ivpt{0}
+\def\flo@ivpart#1#2#3#4#5#6#7#8#9{%
+  \edef\flo@iva{#1}\edef\flo@ivl{#2}\edef\flo@ivw{#3}\edef\flo@ivb{#4}\edef\flo@ivt{#5}%
+  \edef\flo@ivh{#6}\edef\flo@ivn{#7}\edef\flo@ivp{#8}\edef\flo@ivu{#9}%
+  \begin{pgfscope}\flo@calc\flo@t{\flo@iva-90}\pgftransformrotate{\flo@t}\pgftransformscale{\flo@ivl}%
+    \ifdim\flo@ivc pt>0pt
+      \flo@calc\flo@twa{0.3*\flo@ivw}\flo@calc\flo@twb{0.34*\flo@ivw*(1-\flo@ivc)}%
+      \flo@vtone{flo@c}{\flo@ivt}\flo@calc\flo@t{\flo@ivc*0.5}\flo@calc\flo@ya{\flo@ivc+0.01}%
+      \flo@vfill{flo@c}{1}{0}{\flo@vtaper{0}{0}{0}\flo@t{0}\flo@t{0}\flo@ya}%
+      \def\flo@twa{0.02}\def\flo@twb{0.004}\flo@calc\flo@ya{\flo@ivc*0.95}%
+      \flo@vfill{white}{0.6}{0}{\flo@vtaper{0}{0.02}{0}\flo@t{0}\flo@t{0}\flo@ya}%
+      \pgftransformshift{\flo@P0\flo@ivc}\flo@calc\flo@t{1-\flo@ivc}\pgftransformscale{\flo@t}%
+    \fi
+    \let\flo@vp@pointed\flo@ivpt\let\flo@vp@W\flo@ivw\let\flo@vp@bend\flo@ivb\let\flo@vp@ns\flo@ivn
+    \let\flo@vp@heart\flo@ivh\let\flo@vp@tone\flo@ivt\let\flo@vp@notchp\flo@ivp\def\flo@vp@notchk{1.6}%
+    \flo@calc\flo@vp@u{\flo@ivu*\flo@ivl*(1-\flo@ivc)}\flo@vpetal\end{pgfscope}}
+% an iris, three-quarters from the front, diameter 1, its heart at the origin: three
+% standards that rise and cup together, the back one behind; three falls that spread and
+% droop, the front one toward the viewer with a copper beard and the species' guides; a
+% pale crest (a style arm) over each fall's base. #1 its diameter on the page in pt
+\def\flo@viris#1{%
+  \flo@calc\flo@ivs{(#1)/28.45276}%
+  \ifx\flo@vf@tone\pgfutil@empty\flo@range\flo@ivq{0.28}{0.38}\else\edef\flo@ivq{\flo@vf@tone}\fi
+  % the standards' hafts are shorter than the falls' (the species' claw)
+  \flo@calc\flo@ivcf{0.7*min(0.45,\flo@get{claw})}\flo@calc\flo@ivc{0.55*\flo@ivcf}%
+  % the back standard
+  \flo@sym\flo@t{6}\flo@calc\flo@a{90+\flo@t}\flo@range\flo@len{0.46}{0.52}\flo@sym\flo@b{0.06}%
+  \flo@calc\flo@tp{\flo@ivq+0.04}\flo@ivpart\flo@a\flo@len{0.27}\flo@b\flo@tp{0}{5}{0.5}\flo@ivs
+  % the side falls, each with its crest
+  \flo@loop{ivf}\flo@ka{0}{1}{%
+    \ifnum\flo@ka=0 \def\flo@sg{-1}\else\def\flo@sg{1}\fi
+    \flo@range\flo@t{20}{45}\flo@calc\flo@a{-90+\flo@sg*\flo@t}%
+    \flo@range\flo@len{0.52}{0.6}\flo@range\flo@b{0.15}{0.3}\flo@calc\flo@b{\flo@sg*\flo@b}%
+    \flo@sym\flo@t{0.03}\flo@calc\flo@tp{\flo@ivq+\flo@t}%
+    \let\flo@ivc\flo@ivcf\flo@ivpart\flo@a\flo@len{0.34}\flo@b\flo@tp{0}{}{0.3}\flo@ivs
+    \def\flo@ivc{0}\flo@range\flo@len{0.26}{0.32}\flo@calc\flo@tp{\flo@ivq+0.18}%
+    \flo@ivpart\flo@a\flo@len{0.24}{0}\flo@tp{0}{3}{0.9}\flo@ivs}%
+  \flo@calc\flo@ivc{0.55*\flo@ivcf}%
+  % the front standards, cupping toward each other
+  \flo@loop{ivs}\flo@ka{0}{1}{%
+    \ifnum\flo@ka=0 \def\flo@sg{-1}\else\def\flo@sg{1}\fi
+    \flo@range\flo@t{8}{28}\flo@calc\flo@a{90-\flo@sg*\flo@t}%
+    \flo@range\flo@len{0.48}{0.56}\flo@range\flo@b{0.15}{0.3}\flo@calc\flo@b{-\flo@sg*\flo@b}%
+    \flo@sym\flo@t{0.03}\flo@calc\flo@tp{\flo@ivq+0.02+\flo@t}%
+    \flo@ivpart\flo@a\flo@len{0.27}\flo@b\flo@tp{0}{5}{0.5}\flo@ivs}%
+  % the front fall, its guides and beard, its crest
+  \flo@sym\flo@t{6}\flo@calc\flo@a{-90+\flo@t}\flo@range\flo@len{0.56}{0.64}\flo@sym\flo@b{0.08}%
+  \let\flo@ivc\flo@ivcf\flo@ivpart\flo@a\flo@len{0.36}\flo@b\flo@ivq{0}{}{0.3}\flo@ivs\def\flo@ivc{0}%
+  \flo@calc\flo@t{\flo@ivs*\flo@len}%
+  \ifdim\flo@t pt>0.15pt
+    \begin{pgfscope}\flo@calc\flo@t{\flo@a-90}\pgftransformrotate{\flo@t}\pgftransformscale{\flo@len}%
+      \edef\flo@g{\flo@get{guides}}%
+      \def\flo@tmp{lines}\ifx\flo@g\flo@tmp
+        \flo@vtone{flo@c}{0.06}\def\flo@twb{0.004}\def\flo@twa{0.035}%
+        \flo@loop{ivg}\flo@kb{-2}{2}{%
+          \flo@sym\flo@t{0.03}\flo@calc\flo@f{\the\flo@kb*0.07+\flo@t}\flo@range\flo@ya{0.25}{0.38}%
+          \flo@calc\flo@xb{0.6*\flo@f}\flo@calc\flo@xc{1.1*\flo@f}\flo@calc\flo@xd{1.4*\flo@f}%
+          \flo@calc\flo@yb{0.35*\flo@ya+0.4}\flo@calc\flo@yc{0.7*\flo@ya+0.4}\flo@calc\flo@yd{\flo@ya+0.4}%
+          \flo@vfill{flo@c}{0.45}{1}{\flo@vtaper\flo@f{0.4}\flo@xb\flo@yb\flo@xc\flo@yc\flo@xd\flo@yd}}\fi
+      \def\flo@tmp{blotch}\ifx\flo@g\flo@tmp
+        \flo@vblob{0}{0.62}{0.16}{0.12}{0.25}{9}\flo@vfill{white}{0.7}{0}{\flo@smoothpath}%
+        \flo@vblob{0}{0.62}{0.07}{0.05}{0.3}{7}\flo@vtone{flo@c}{0.06}\flo@vfill{flo@c}{0.5}{1}{\flo@smoothpath}\fi
+      \def\flo@tmp{dots}\ifx\flo@g\flo@tmp
+        \flo@spk={}%
+        \flo@loop{ivd}\flo@kb{1}{9}{%
+          \flo@sym\flo@xa{0.16}\flo@range\flo@ya{0.45}{0.8}\flo@range\flo@r{0.012}{0.024}%
+          \edef\flo@tmp{\noexpand\pgfpathcircle{\noexpand\flo@P{\flo@xa}{\flo@ya}}{\flo@r pt}}%
+          \flo@spk\expandafter\expandafter\expandafter{\expandafter\the\expandafter\flo@spk\flo@tmp}}%
+        \flo@vtone{flo@c}{0.06}\flo@vfill{flo@c}{0.7}{1}{\the\flo@spk}\fi
+      % the beard: copper hairs along the fall's middle, beyond its crest
+      \flo@spk={}%
+      \flo@loop{ivb}\flo@kb{1}{14}{%
+        \flo@sym\flo@xa{0.035}\flo@calc\flo@ya{0.38+0.024*\the\flo@kb}\flo@range\flo@r{0.012}{0.022}%
+        \edef\flo@tmp{\noexpand\pgfpathcircle{\noexpand\flo@P{\flo@xa}{\flo@ya}}{\flo@r pt}}%
+        \flo@spk\expandafter\expandafter\expandafter{\expandafter\the\expandafter\flo@spk\flo@tmp}}%
+      \flo@vaccent{flo@c}{0.1}\flo@vfill{flo@c}{0.9}{0}{\the\flo@spk}%
+    \end{pgfscope}%
+  \fi
+  \flo@range\flo@len{0.26}{0.32}\flo@calc\flo@tp{\flo@ivq+0.18}%
+  \flo@ivpart\flo@a\flo@len{0.24}{0}\flo@tp{0}{3}{0.9}\flo@ivs}
+% an orchid face on, diameter 1, upright: pointed sepals in a star, one above and two
+% below, two narrower petals raised beside the upper one, a lip at the bottom of two small
+% side lobes and a notched middle lobe with a pale heart and the species' guides, and the
+% column over it; flora's petals (\flo@ivpart). #1 cm per unit
+\def\flo@vorchid#1{%
+  \edef\flo@ocu{#1}\def\flo@ivc{0}%
+  \ifx\flo@vf@tone\pgfutil@empty\flo@range\flo@ocq{0.28}{0.38}\else\edef\flo@ocq{\flo@vf@tone}\fi
+  % the lateral sepals, then the dorsal one
+  \def\flo@ivpt{1}%
+  \flo@loop{ocs}\flo@ka{0}{1}{%
+    \ifnum\flo@ka=0 \def\flo@sg{-1}\else\def\flo@sg{1}\fi
+    \flo@range\flo@t{45}{60}\flo@calc\flo@a{-90+\flo@sg*\flo@t}\flo@range\flo@len{0.42}{0.5}%
+    \flo@sym\flo@b{0.08}\flo@sym\flo@t{0.03}\flo@calc\flo@tp{\flo@ocq+0.02+\flo@t}%
+    \flo@ivpart\flo@a\flo@len{0.12}\flo@b\flo@tp{0}{3}{0}\flo@ocu}%
+  \flo@sym\flo@t{6}\flo@calc\flo@a{90+\flo@t}\flo@range\flo@len{0.4}{0.48}\flo@sym\flo@b{0.08}%
+  \flo@calc\flo@tp{\flo@ocq+0.02}\flo@ivpart\flo@a\flo@len{0.13}\flo@b\flo@tp{0}{3}{0}\flo@ocu
+  \def\flo@ivpt{0}%
+  % the petals, raised beside the dorsal sepal
+  \flo@loop{ocp}\flo@ka{0}{1}{%
+    \ifnum\flo@ka=0 \def\flo@sg{-1}\else\def\flo@sg{1}\fi
+    \flo@range\flo@t{45}{65}\flo@calc\flo@a{90-\flo@sg*\flo@t}\flo@range\flo@len{0.36}{0.44}%
+    \flo@range\flo@b{0}{0.12}\flo@calc\flo@b{\flo@sg*\flo@b}\flo@sym\flo@t{0.03}\flo@calc\flo@tp{\flo@ocq+\flo@t}%
+    \flo@ivpart\flo@a\flo@len{0.2}\flo@b\flo@tp{0}{5}{0.3}\flo@ocu}%
+  % the lip: two side lobes, the middle lobe, its guides
+  \flo@calc\flo@tp{\flo@ocq-0.06}%
+  \flo@loop{ocl}\flo@ka{0}{1}{%
+    \ifnum\flo@ka=0 \def\flo@sg{-1}\else\def\flo@sg{1}\fi
+    \flo@range\flo@t{40}{55}\flo@calc\flo@a{-90+\flo@sg*\flo@t}\flo@range\flo@len{0.18}{0.24}%
+    \flo@ivpart\flo@a\flo@len{0.35}{0}\flo@tp{0}{3}{0}\flo@ocu}%
+  \flo@sym\flo@t{6}\flo@calc\flo@a{-90+\flo@t}\flo@range\flo@len{0.44}{0.54}\flo@sym\flo@b{0.06}%
+  \flo@ivpart\flo@a\flo@len{0.38}\flo@b\flo@tp{1}{5}{0.85}\flo@ocu
+  \flo@calc\flo@t{\flo@ocu*\flo@len}%
+  \ifdim\flo@t pt>0.15pt
+    \begin{pgfscope}\flo@calc\flo@t{\flo@a-90}\pgftransformrotate{\flo@t}\pgftransformscale{\flo@len}%
+      \edef\flo@g{\flo@get{guides}}%
+      \def\flo@tmp{lines}\ifx\flo@g\flo@tmp
+        \flo@vtone{flo@c}{0.06}\def\flo@twb{0.004}\def\flo@twa{0.035}%
+        \flo@loop{ocg}\flo@kb{-2}{2}{%
+          \flo@sym\flo@t{0.03}\flo@calc\flo@f{\the\flo@kb*0.09+\flo@t}\flo@range\flo@ya{0.35}{0.5}%
+          \flo@calc\flo@xb{0.7*\flo@f}\flo@calc\flo@xc{1.2*\flo@f}\flo@calc\flo@xd{1.5*\flo@f}%
+          \flo@calc\flo@yb{0.35*\flo@ya+0.12}\flo@calc\flo@yc{0.7*\flo@ya+0.12}\flo@calc\flo@yd{\flo@ya+0.12}%
+          \flo@vfill{flo@c}{0.45}{1}{\flo@vtaper\flo@f{0.12}\flo@xb\flo@yb\flo@xc\flo@yc\flo@xd\flo@yd}}\fi
+      \def\flo@tmp{blotch}\ifx\flo@g\flo@tmp
+        \flo@vblob{0}{0.4}{0.2}{0.15}{0.3}{9}\flo@vfill{white}{0.65}{0}{\flo@smoothpath}%
+        \flo@spk={}%
+        \flo@loop{ocb}\flo@kb{1}{8}{%
+          \flo@sym\flo@xa{0.14}\flo@range\flo@ya{0.3}{0.5}\flo@range\flo@r{0.015}{0.03}%
+          \edef\flo@tmp{\noexpand\pgfpathcircle{\noexpand\flo@P{\flo@xa}{\flo@ya}}{\flo@r pt}}%
+          \flo@spk\expandafter\expandafter\expandafter{\expandafter\the\expandafter\flo@spk\flo@tmp}}%
+        \flo@vtone{flo@c}{0.06}\flo@vfill{flo@c}{0.7}{1}{\the\flo@spk}\fi
+      \def\flo@tmp{dots}\ifx\flo@g\flo@tmp
+        \flo@spk={}%
+        \flo@loop{ocd}\flo@kb{1}{11}{%
+          \flo@sym\flo@xa{0.24}\flo@range\flo@ya{0.2}{0.75}\flo@range\flo@r{0.014}{0.028}%
+          \edef\flo@tmp{\noexpand\pgfpathcircle{\noexpand\flo@P{\flo@xa}{\flo@ya}}{\flo@r pt}}%
+          \flo@spk\expandafter\expandafter\expandafter{\expandafter\the\expandafter\flo@spk\flo@tmp}}%
+        \flo@vtone{flo@c}{0.06}\flo@vfill{flo@c}{0.7}{1}{\the\flo@spk}\fi
+    \end{pgfscope}%
+  \fi
+  % the column: pale, hooded, a dark cap
+  \flo@vblob{0}{0.05}{0.05}{0.085}{0.15}{8}\flo@vfill{white}{0.85}{0}{\flo@smoothpath}%
+  \flo@vtone{flo@c}{0.1}\flo@vstroke{flo@c}{0.2}{0.5}{0}{\flo@smoothpath}%
+  \flo@vtone{flo@c}{0.06}\flo@vfill{flo@c}{1}{0}{\pgfpathcircle{\flo@P0{0.11}}{0.022pt}}}
+% a lily's corona (the monocot's cup or trumpet, as a daffodil's), in \flo@vlily's frame
+% after its star (petal length 1, the face toward +y, \flo@tilt its squash): a body that
+% flares from the heart toward the face, a frilled rim seen as an ellipse, the throat
+% inside darker; a cup is short, a trumpet long. #1 cm per unit
+\def\flo@vcorona#1{%
+  \edef\flo@cqu{#1}\edef\flo@cqf{\flo@get{corona}}\def\flo@tmp{trumpet}%
+  \ifx\flo@cqf\flo@tmp\flo@range\flo@cqh{0.4}{0.6}\def\flo@cqb{0.1}\flo@range\flo@cqR{0.24}{0.32}%
+  \else\flo@range\flo@cqh{0.12}{0.2}\def\flo@cqb{0.14}\flo@range\flo@cqR{0.2}{0.28}\fi
+  \ifx\flo@vf@tone\pgfutil@empty\flo@range\flo@cqq{0.24}{0.32}\else\flo@calc\flo@cqq{\flo@vf@tone-0.08}\fi
+  \flo@int\flo@cqn{9}{14}\flo@range\flo@cqp{0}{360}%
+  % the body: the base's near half, the right side, the rim's near half, the left side
+  \flo@loop{cqa}\flo@kb{0}{4}{%
+    \flo@calc\flo@a{180+45*\the\flo@kb}%
+    \flo@calc\flo@xa{\flo@cqb*cos(\flo@a)}\flo@calc\flo@ya{\flo@cqb*\flo@tilt*sin(\flo@a)}%
+    \flo@put{\the\numexpr\flo@kb+1\relax}\flo@xa\flo@ya}%
+  \flo@loop{cqb}\flo@kb{1}{3}{%
+    \flo@calc\flo@v{\the\flo@kb/4}\flo@calc\flo@xa{\flo@cqb+(\flo@cqR-\flo@cqb)*pow(\flo@v,1.6)}\flo@calc\flo@ya{\flo@cqh*\flo@v}%
+    \flo@put{\the\numexpr\flo@kb+5\relax}\flo@xa\flo@ya}%
+  \flo@loop{cqc}\flo@kb{0}{6}{%
+    \flo@calc\flo@a{-30*\the\flo@kb}%
+    \flo@calc\flo@r{1+0.09*sin(\flo@cqn*\flo@a+\flo@cqp)}%
+    \flo@calc\flo@xa{\flo@cqR*\flo@r*cos(\flo@a)}\flo@calc\flo@ya{\flo@cqh+\flo@cqR*\flo@r*\flo@tilt*sin(\flo@a)}%
+    \flo@put{\the\numexpr\flo@kb+9\relax}\flo@xa\flo@ya}%
+  \flo@loop{cqd}\flo@kb{1}{3}{%
+    \flo@calc\flo@v{1-\the\flo@kb/4}\flo@calc\flo@xa{-\flo@cqb-(\flo@cqR-\flo@cqb)*pow(\flo@v,1.6)}\flo@calc\flo@ya{\flo@cqh*\flo@v}%
+    \flo@put{\the\numexpr\flo@kb+15\relax}\flo@xa\flo@ya}%
+  \flo@smoothprepT{18}{0.9}\flo@keep{cqo}%
+  \flo@vtone{flo@c}{\flo@cqq}\flo@vfill{flo@c}{1}{0}{\flo@kept{cqo}}%
+  \ifdim\flo@cqu pt>0.12pt
+    \begin{pgfscope}\flo@kept{cqo}\pgfusepath{clip}%
+      % streaks up the body, white and dark by turns
+      \def\flo@twa{0.025}\def\flo@twb{0.008}%
+      \flo@loop{cqs}\flo@ka{-2}{2}{%
+        \flo@calc\flo@f{\the\flo@ka/2.6}\flo@sym\flo@t{0.02}%
+        \flo@calc\flo@xa{\flo@f*\flo@cqb}\flo@calc\flo@xd{\flo@f*\flo@cqR+\flo@t}\flo@calc\flo@ya{-0.02}\flo@calc\flo@yd{\flo@cqh}%
+        \flo@calc\flo@xb{0.7*\flo@xa+0.3*\flo@xd}\flo@calc\flo@yb{0.4*\flo@cqh}\flo@calc\flo@xc{0.3*\flo@xa+0.7*\flo@xd}\flo@calc\flo@yc{0.75*\flo@cqh}%
+        \ifodd\flo@ka\flo@vtone{flo@c}{0.08}\flo@vfill{flo@c}{0.25}{1}{\flo@vtaper\flo@xa\flo@ya\flo@xb\flo@yb\flo@xc\flo@yc\flo@xd\flo@yd}%
+        \else\flo@vfill{white}{0.5}{0}{\flo@vtaper\flo@xa\flo@ya\flo@xb\flo@yb\flo@xc\flo@yc\flo@xd\flo@yd}\fi}%
+    \end{pgfscope}%
+  \fi
+  % the opening: the rim's ellipse, frilled, paler, the throat darker inside
+  \flo@loop{cqe}\flo@kb{1}{16}{%
+    \flo@calc\flo@a{22.5*\the\flo@kb}\flo@calc\flo@r{1+0.09*sin(\flo@cqn*\flo@a+\flo@cqp)}%
+    \flo@calc\flo@xa{\flo@cqR*\flo@r*cos(\flo@a)}\flo@calc\flo@ya{\flo@cqh+\flo@cqR*\flo@r*\flo@tilt*sin(\flo@a)}%
+    \flo@put{\the\flo@kb}\flo@xa\flo@ya}%
+  \flo@smoothprepT{16}{1}\flo@keep{cqr}%
+  \flo@calc\flo@t{\flo@cqq+0.12}\flo@vtone{flo@c}{\flo@t}\flo@vfill{flo@c}{1}{0}{\flo@kept{cqr}}%
+  \flo@calc\flo@t{0.55*\flo@cqR}\flo@calc\flo@ya{\flo@cqh-0.15*\flo@cqR*\flo@tilt}\flo@calc\flo@r{\flo@t*\flo@tilt}%
+  \flo@vblob{0}\flo@ya\flo@t\flo@r{0.15}{8}\flo@calc\flo@t{\flo@cqq-0.12}\flo@vtone{flo@c}{\flo@t}\flo@vfill{flo@c}{0.6}{1}{\flo@smoothpath}%
+  \flo@vtone{flo@c}{0.08}\flo@vstroke{flo@c}{0.2}{0.6}{0}{\flo@kept{cqr}}%
+  \flo@vstroke{flo@c}{0.2}{0.35}{0}{\flo@kept{cqo}}}
+% a columbine in profile (a spurred flower), in \flo@vtube's units: the stalk meets it at
+% the origin, its face toward +y. Pointed sepals spread like a star, two swept back and
+% two forward; three of its five spurs run back past the stalk, tapering to a knob, their
+% tips drawn together or spread apart; the cup of petal blades in front (\flo@vtube's
+% aqcup: paler, lobed, stamens out of it). #1 cm per unit
+\def\flo@vaquilegia#1{%
+  \edef\flo@aqu{#1}%
+  \ifx\flo@vf@tone\pgfutil@empty\flo@range\flo@aqq{0.3}{0.4}\else\edef\flo@aqq{\flo@vf@tone}\fi
+  % the sepals swept back
+  \def\flo@ivc{0}\def\flo@ivpt{1}%
+  \flo@loop{aqb}\flo@ka{0}{1}{%
+    \ifnum\flo@ka=0 \def\flo@sg{-1}\else\def\flo@sg{1}\fi
+    \flo@range\flo@t{105}{135}\flo@calc\flo@a{90-\flo@sg*\flo@t}\flo@range\flo@len{0.32}{0.4}%
+    \flo@sym\flo@b{0.08}\flo@calc\flo@tp{\flo@aqq-0.04}%
+    \begin{pgfscope}\pgftransformshift{\flo@P0{0.12}}\flo@ivpart\flo@a\flo@len{0.14}\flo@b\flo@tp{0}{3}{0}\flo@aqu\end{pgfscope}}%
+  % the spurs
+  \flo@range\flo@aqh{0}{0.16}\def\flo@twb{0.024}%
+  \flo@loop{aqs}\flo@ka{-1}{1}{%
+    \flo@range\flo@len{0.38}{0.58}\flo@sym\flo@t{0.03}%
+    \flo@calc\flo@xa{\the\flo@ka*0.08}\flo@calc\flo@xb{\the\flo@ka*0.16+\flo@t}\flo@calc\flo@yb{0.16-0.4*\flo@len}%
+    \flo@calc\flo@xc{\the\flo@ka*0.14+\flo@t}\flo@calc\flo@yc{0.16-0.8*\flo@len}%
+    \flo@calc\flo@xd{\the\flo@ka*(0.16-\flo@aqh)+\flo@t}\flo@calc\flo@yd{0.16-\flo@len}%
+    \ifnum\flo@ka=0 \flo@calc\flo@tp{\flo@aqq-0.06}\else\edef\flo@tp{\flo@aqq}\fi
+    \def\flo@twa{0.12}\flo@vtone{flo@c}{\flo@tp}%
+    \flo@vfill{flo@c}{1}{0}{\flo@vtaper\flo@xa{0.16}\flo@xb\flo@yb\flo@xc\flo@yc\flo@xd\flo@yd}%
+    \ifdim\flo@aqu pt>0.15pt
+      \def\flo@twa{0.018}\flo@calc\flo@xa{\flo@xa+0.025}\flo@calc\flo@xb{\flo@xb+0.018}\flo@calc\flo@xc{\flo@xc+0.01}%
+      \flo@vfill{white}{0.35}{0}{\flo@vtaper\flo@xa{0.14}\flo@xb\flo@yb\flo@xc\flo@yc\flo@xd\flo@yd}\fi
+    \flo@calc\flo@t{\flo@tp-0.12}\flo@vtone{flo@c}{\flo@t}\flo@vfill{flo@c}{1}{0}{\pgfpathcircle{\flo@P\flo@xd\flo@yd}{0.03pt}}}%
+  % the sepals swept forward
+  \flo@loop{aqf}\flo@ka{0}{1}{%
+    \ifnum\flo@ka=0 \def\flo@sg{-1}\else\def\flo@sg{1}\fi
+    \flo@range\flo@t{45}{70}\flo@calc\flo@a{90-\flo@sg*\flo@t}\flo@range\flo@len{0.3}{0.38}%
+    \flo@sym\flo@b{0.08}\flo@sym\flo@t{0.03}\flo@calc\flo@tp{\flo@aqq+\flo@t}%
+    \begin{pgfscope}\pgftransformshift{\flo@P0{0.12}}\flo@ivpart\flo@a\flo@len{0.14}\flo@b\flo@tp{0}{3}{0}\flo@aqu\end{pgfscope}}%
+  \def\flo@ivpt{0}%
+  % the cup of petal blades, paler, in front
+  \begin{pgfscope}\pgftransformshift{\flo@P0{0.08}}\flo@calc\flo@vf@tone{\flo@aqq+0.1}\flo@vtube\flo@aqu{aqcup}\end{pgfscope}}
 % a daisy head, diameter 1: rays (flora's petals, narrow and round-tipped, as ligules are) around a disk of florets
 \def\flo@sdaisy#1{%
   \edef\flo@nr{\flo@get{merosity}}\flo@range\flo@spin{0}{360}%
