@@ -11,8 +11,8 @@
 -- draws), uncompressed, and compares each page's content stream: the same operators in
 -- the same order and every number within 0.05 bp; the streams are expected to be equal.
 --   texlua tools/tikzcheck.lua draw [quick|full]      (quick: one flower, one leaf and one
---   inflorescence of every body plan, one inflorescence of every kind, the v1.3 pics, a
---   plant in three seasons; full: also two strips of three plants, as specimen-tikz.tex
+--   inflorescence of every body plan, one inflorescence of every kind and of every view,
+--   the v1.3 pics, a plant in three seasons; full: also two strips of three plants, as specimen-tikz.tex
 --   draws them, several minutes in pure TikZ)
 package.path = "./?.lua;" .. package.path
 local fmt = string.format
@@ -68,6 +68,18 @@ if arg[1] == "draw" then
     for _, season in ipairs({ "0.85", table.unpack(SEASONS[kind] or {}) }) do
       pic(fmt("florilegium inflorescence={seed=%d, role=any, scale=1.2, season=%s}", seed, season))
     end
+  end
+  -- every view of a flower: each form drawn in profile, a flat-faced tube held sideways,
+  -- flowers at a tilt and from behind, a nodding lily
+  for _, v in ipairs({ { "campanulate" }, { "urceolate" }, { "tubular" }, { "funnelform" }, { "salverform", "horizontal" },
+    { "rotate", "horizontal" }, { "rosaceous", "nodding" }, { "lily", "nodding" } }) do
+    local seed = 1
+    while true do
+      local sp = species.sample(seed, "any")
+      if sp.form == v[1] and (not v[2] or sp.orient == v[2]) then break end
+      seed = seed + 1
+    end
+    pic(fmt("florilegium inflorescence={seed=%d, role=any, scale=1, season=0.75}", seed))
   end
   pic("florilegium v13 flower={seed=7, size=1.9cm}")
   pic("florilegium v13 leaf={seed=7, size=4cm}")
