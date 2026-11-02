@@ -378,7 +378,7 @@ local function species_rows(sp, i, sea)
   local _, r1, kind = O.unitdisc(sp, 1)       -- the disc grows linearly with the scale k
   local fd1 = min(2.8, 0.7 + 0.032 * sp.size) -- a flower's diameter at k = 1
   local airy = kind == "umbel" or kind == "raceme"
-  local up = ({ solitary = 0.3, blossoms = 0.5, umbel = 1.0, raceme = 0.6 })[kind]
+  local up = ({ solitary = 0.3, blossoms = 0.5, umbel = 1.0, raceme = 0.6, head = 0.5, catkin = 0.4 })[kind]
   local leafc = sp.compound == "simple" and 1 or 1.35
   -- Copper is v1.3's sparing accent: a red or orange plant, painted in it, flowers once
   -- a page in each way (a hole near it may stay empty)

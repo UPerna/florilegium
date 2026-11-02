@@ -419,7 +419,8 @@
 
 % ---------------------------------------------------------------- flowers, buds, clusters
 % one flower of the species at the origin, facing the viewer, diameter #1 cm, at stage #2:
-% below 0.3 a bud, above 1.15 its fruit, opening in between
+% below 0.3 a bud, above 1.15 its fruit, opening in between, past its best above 1 (paler
+% and a little smaller as it fades)
 \def\flo@bloom#1#2{%
   \edef\flo@bd{#1}\edef\flo@bst{#2}\flo@stone
   \ifdim\flo@bst pt<0.3pt
@@ -432,7 +433,9 @@
     \edef\flo@or{\flo@get{orient}}\def\flo@tmp{erect}%
     \ifx\flo@or\flo@tmp\def\flo@ys{1}\else\def\flo@ys{0.8}\fi
     \flo@sym\flo@t{30}\flo@calc\flo@bd{\flo@bd*min(1,0.55+(\flo@bst-0.3)*0.9)}%
+    \ifdim\flo@bst pt>1pt \flo@calc\flo@bd{\flo@bd*(1-0.8*(\flo@bst-1))}\fi
     \begin{pgfscope}\pgftransformyscale{\flo@ys}\pgftransformrotate{\flo@t}\pgftransformscale{\flo@bd}%
+      \ifdim\flo@bst pt>1pt \flo@calc\flo@lift{1-(1-\flo@lift)*(1-3*(\flo@bst-1))}\fi
       \flo@calc\flo@t{\flo@bd*28.45276}\flo@sflower\flo@t\end{pgfscope}%
   \fi\fi}
 % the species' flower diameter on the page, cm, times #1
@@ -556,6 +559,408 @@
         \flo@calc\flo@t{0.18*\flo@s}\flo@vtone{flo@c}{0.2}\flo@vfill{flo@c}{1}{0}{\pgfpathcircle{\flo@P00}{\flo@t pt}}%
       \else\flo@bloom\flo@s\flo@t\fi
     \end{pgfscope}}}
+% flora's cyme, the forget-me-not's, as the species' coiled cyme: an axis of #1 cm that
+% curls at its end like a scorpion's tail, the more the species coils (\flo@get{coil}),
+% with the species' flowers crowding along it, on the outside of the coil (siderule same)
+% or on alternate sides, smaller toward the coil, where they are buds: the lowest opens
+% first. Often a second, shorter curl forks off, a little younger. The stage of the
+% oldest is \flo@ust
+\def\flo@curlunit#1{%
+  \edef\flo@bst{\flo@ust}\flo@stone
+  \flo@chance{0.5}\ifflo@yes\def\flo@side{1}\else\def\flo@side{-1}\fi
+  \flo@sym\flo@t{10}\flo@calc\flo@h{90+\flo@t}%
+  \flo@calc\flo@cfd{min(0.4,0.17+0.014*\flo@get{size})}%
+  \flo@calc\flo@ccn{int(max(9,min(17,\flo@get{count}+2)))}%
+  \flo@curl{0}{0}{#1}{0.026}{0}%
+  \flo@chance{0.6}\ifflo@yes
+    \flo@range\flo@t{0.25}{0.4}\flo@calc\flo@ci{int(37*\flo@t)}%
+    \edef\flo@xa{\csname flo@AX\flo@ci\endcsname}\edef\flo@ya{\csname flo@AY\flo@ci\endcsname}%
+    \edef\flo@t{\the\numexpr\flo@ci+1\relax}%
+    \edef\flo@xb{\csname flo@AX\flo@t\endcsname}\edef\flo@yb{\csname flo@AY\flo@t\endcsname}%
+    \flo@range\flo@t{30}{50}\flo@calc\flo@h{atan2(\flo@yb-\flo@ya,\flo@xb-\flo@xa)-\flo@side*\flo@t}%
+    \flo@range\flo@t{0.45}{0.65}\flo@calc\flo@L{(#1)*\flo@t}%
+    \flo@calc\flo@side{-\flo@side}\flo@calc\flo@ccn{int(max(6,\flo@ccn*0.7))}%
+    \flo@curl\flo@xa\flo@ya\flo@L{0.018}{0.15}%
+  \fi}
+\def\flo@same{same}
+% one curl of \flo@curlunit: from (#1,#2) heading \flo@h, length #3 cm, #4 cm wide at its
+% base, its flowers #5 younger than the unit's oldest; points in flo@AX/AY, normals in
+% flo@AN/AM
+\def\flo@curl#1#2#3#4#5{%
+  \edef\flo@xx{#1}\edef\flo@yy{#2}\edef\flo@cL{#3}\edef\flo@clate{#5}%
+  \flo@range\flo@t{0.85}{1.15}\flo@calc\flo@turn{(100+170*\flo@get{coil})*\flo@t}%
+  \flo@put1\flo@xx\flo@yy\flo@calc\flo@ds{\flo@cL/36}%
+  \flo@loop{cuw}\flo@Gc{1}{36}{%
+    \flo@calc\flo@v{(\the\flo@Gc-0.5)/36}%
+    \flo@calc\flo@a{\flo@h+\flo@side*\flo@turn*\flo@v*\flo@v*sqrt(sqrt(\flo@v))}%
+    \flo@calc\flo@xx{\flo@xx+\flo@ds*cos(\flo@a)}\flo@calc\flo@yy{\flo@yy+\flo@ds*sin(\flo@a)}%
+    \flo@put{\the\numexpr\flo@Gc+1\relax}{\flo@xx}{\flo@yy}}%
+  \flo@normals{37}%
+  \flo@loop{cuk}\flo@Gc{1}{37}{%
+    \expandafter\edef\csname flo@AX\the\flo@Gc\endcsname{\flo@x{\the\flo@Gc}}%
+    \expandafter\edef\csname flo@AY\the\flo@Gc\endcsname{\flo@y{\the\flo@Gc}}%
+    \expandafter\edef\csname flo@AN\the\flo@Gc\endcsname{\csname flo@NX\the\flo@Gc\endcsname}%
+    \expandafter\edef\csname flo@AM\the\flo@Gc\endcsname{\csname flo@NY\the\flo@Gc\endcsname}}%
+  \flo@vstem{37}{#4}{0.006}{0.1}%
+  \edef\flo@csr{\flo@get{siderule}}%
+  \flo@loop{cuf}\flo@Gc{1}{\flo@ccn}{%
+    \flo@calc\flo@v{\the\flo@Gc/\flo@ccn}\flo@calc\flo@f{0.18+0.82*sqrt(\flo@v)*sqrt(sqrt(\flo@v))}%
+    \flo@calc\flo@ri{int(max(2,min(37,floor(\flo@f*36+1.5))))}%
+    \ifx\flo@csr\flo@same\flo@calc\flo@sg{-\flo@side}\else\ifodd\flo@Gc\def\flo@sg{-1}\else\def\flo@sg{1}\fi\fi
+    \edef\flo@px{\csname flo@AX\flo@ri\endcsname}\edef\flo@py{\csname flo@AY\flo@ri\endcsname}%
+    \edef\flo@pnx{\csname flo@AN\flo@ri\endcsname}\edef\flo@pny{\csname flo@AM\flo@ri\endcsname}%
+    \flo@range\flo@t{0.7}{1.2}\flo@calc\flo@stalk{(0.1-0.08*\flo@f)*\flo@t}%
+    \flo@calc\flo@qx{\flo@px+\flo@pnx*\flo@sg*\flo@stalk}\flo@calc\flo@qy{\flo@py+\flo@pny*\flo@sg*\flo@stalk}%
+    \ifdim\flo@stalk pt>0.03pt
+      \flo@vtone{flo@c}{0.12}\flo@vstroke{flo@c}{0.25}{0.9}{0}{\pgfpathmoveto{\flo@P\flo@px\flo@py}\pgfpathlineto{\flo@P\flo@qx\flo@qy}}\fi
+    \flo@range\flo@s{0.85}{1.15}\flo@calc\flo@s{\flo@cfd*(1-0.74*\flo@f)*\flo@s}%
+    \flo@calc\flo@t{\flo@bst+0.55-\flo@f-\flo@clate}%
+    \flo@calc\flo@a{atan2(\flo@qy-\flo@py,\flo@qx-\flo@px)-90}%
+    \begin{pgfscope}\pgftransformshift{\flo@P\flo@qx\flo@qy}\pgftransformrotate{\flo@a}%
+      \ifdim\flo@f pt>0.8pt
+        \flo@calc\flo@t{0.3*\flo@s}\flo@vtone{flo@c}{0.2}\flo@vfill{flo@c}{1}{0}{\pgfpathcircle{\flo@P00}{\flo@t pt}}%
+      \else\flo@bloom\flo@s\flo@t\fi
+    \end{pgfscope}}}
+% ---------------------------------------------------------------- clusters
+% The clusters below collect their flowers while they draw their stalks and draw them
+% after (\flo@fadd, \flo@fdraw), so that no stalk crosses an open flower. A flower whose
+% stage is below -0.25 is a bud too small to draw: a dot.
+\def\flo@zset#1#2#3{\expandafter\edef\csname flo@Z#1@#2\endcsname{#3}}
+\def\flo@z#1#2{\csname flo@Z#1@#2\endcsname}
+% the species' flower at (#1,#2), turned #3 degrees, diameter #4 cm, stage #5
+\def\flo@fat#1#2#3#4#5{%
+  \begin{pgfscope}\pgftransformshift{\flo@P{#1}{#2}}\pgftransformrotate{#3}%
+    \ifdim#5pt<-0.25pt
+      \flo@calc\flo@t{0.3*(#4)}\flo@vtone{flo@c}{0.2}\flo@vfill{flo@c}{1}{0}{\pgfpathcircle{\flo@P00}{\flo@t pt}}%
+    \else\flo@bloom{#4}{#5}\fi
+  \end{pgfscope}}
+\def\flo@fadd#1#2#3#4#5{\edef\flo@fnum{\the\numexpr\flo@fnum+1\relax}%
+  \flo@zset{fx}\flo@fnum{#1}\flo@zset{fy}\flo@fnum{#2}\flo@zset{fa}\flo@fnum{#3}%
+  \flo@zset{fs}\flo@fnum{#4}\flo@zset{ft}\flo@fnum{#5}}
+\def\flo@fdraw{\flo@loop{fdr}\flo@Gc{1}{\flo@fnum}{%
+  \flo@fat{\flo@z{fx}{\the\flo@Gc}}{\flo@z{fy}{\the\flo@Gc}}{\flo@z{fa}{\the\flo@Gc}}%
+    {\flo@z{fs}{\the\flo@Gc}}{\flo@z{ft}{\the\flo@Gc}}}}
+% a stalk (a hairline) from (#1,#2) to (#3,#4)
+\def\flo@hair#1#2#3#4{\flo@vtone{flo@c}{0.12}%
+  \flo@vstroke{flo@c}{0.25}{0.9}{0}{\pgfpathmoveto{\flo@P{#1}{#2}}\pgfpathlineto{\flo@P{#3}{#4}}}}
+% racemeunit's axis: #1 cm from the origin, bending toward its tip by about #2 degrees,
+% #3 cm wide at its base; points 1..25 in flo@AX/AY, normals in flo@AN/AM; drawn
+\def\flo@axis#1#2#3{%
+  \flo@chance{0.5}\ifflo@yes\def\flo@side{1}\else\def\flo@side{-1}\fi
+  \flo@range\flo@t{0.75}{1.25}\flo@calc\flo@turn{(#2)*\flo@t}%
+  \flo@sym\flo@t{8}\flo@calc\flo@h{90+\flo@t}%
+  \flo@put1{0}{0}\def\flo@xx{0}\def\flo@yy{0}\flo@calc\flo@ds{(#1)/24}%
+  \flo@loop{axw}\flo@Gc{1}{24}{%
+    \flo@calc\flo@v{(\the\flo@Gc-0.5)/24}%
+    \flo@calc\flo@a{\flo@h+\flo@side*\flo@turn*\flo@v*\flo@v*sqrt(sqrt(\flo@v))}%
+    \flo@calc\flo@xx{\flo@xx+\flo@ds*cos(\flo@a)}\flo@calc\flo@yy{\flo@yy+\flo@ds*sin(\flo@a)}%
+    \flo@put{\the\numexpr\flo@Gc+1\relax}{\flo@xx}{\flo@yy}}%
+  \flo@normals{25}%
+  \flo@loop{axk}\flo@Gc{1}{25}{%
+    \expandafter\edef\csname flo@AX\the\flo@Gc\endcsname{\flo@x{\the\flo@Gc}}%
+    \expandafter\edef\csname flo@AY\the\flo@Gc\endcsname{\flo@y{\the\flo@Gc}}%
+    \expandafter\edef\csname flo@AN\the\flo@Gc\endcsname{\csname flo@NX\the\flo@Gc\endcsname}%
+    \expandafter\edef\csname flo@AM\the\flo@Gc\endcsname{\csname flo@NY\the\flo@Gc\endcsname}}%
+  \flo@vstem{25}{#3}{0.006}{0.1}}
+% the axis at \flo@clf (0..1): its point \flo@px,\flo@py, normal \flo@pnx,\flo@pny and
+% heading \flo@ah (degrees); the tangent is (ny,-nx)
+\def\flo@axisat{%
+  \flo@calc\flo@ri{int(max(2,min(25,floor(\flo@clf*24+1.5))))}%
+  \edef\flo@px{\csname flo@AX\flo@ri\endcsname}\edef\flo@py{\csname flo@AY\flo@ri\endcsname}%
+  \edef\flo@pnx{\csname flo@AN\flo@ri\endcsname}\edef\flo@pny{\csname flo@AM\flo@ri\endcsname}%
+  \flo@calc\flo@ah{atan2(-\flo@pnx,\flo@pny)}}
+% a branch from (#1,#2) heading #3 degrees and turning by #4 along its length #5 cm, in
+% #6 steps: points 1..#6+1 in flo@X/Y, its end \flo@xx,\flo@yy
+\def\flo@walk#1#2#3#4#5#6{%
+  \edef\flo@xx{#1}\edef\flo@yy{#2}\flo@put1\flo@xx\flo@yy\flo@calc\flo@ds{(#5)/(#6)}%
+  \flo@loop{wlk}\flo@Gc{1}{#6}{%
+    \flo@calc\flo@a{(#3)+(#4)*(\the\flo@Gc-0.5)/(#6)}%
+    \flo@calc\flo@xx{\flo@xx+\flo@ds*cos(\flo@a)}\flo@calc\flo@yy{\flo@yy+\flo@ds*sin(\flo@a)}%
+    \flo@put{\the\numexpr\flo@Gc+1\relax}{\flo@xx}{\flo@yy}}}
+
+% flora's sprig as the species' forked cyme (a dichasium): a stalk that forks two ways,
+% now and then three, \flo@get{depth}+1 times (three at most), a flower in every fork on a
+% stalk of its own and at every tip, small bracts at the lower forks; the flower of the
+% first fork opens first, the tips last. Reach about #1 cm
+\def\flo@forkunit#1{%
+  \edef\flo@bst{\flo@ust}\flo@stone\def\flo@fnum{0}%
+  \flo@calc\flo@cld{int(min(3,\flo@get{depth}+1))}%
+  \flo@calc\flo@clfd{min(0.45,0.16+0.012*\flo@get{size})}%
+  \flo@sym\flo@t{8}\flo@calc\flo@t{90+\flo@t}\flo@calc\flo@s{(#1)*0.4}%
+  \flo@zset{bx}{1}{0}\flo@zset{by}{1}{0}\flo@zset{bh}{1}{\flo@t}\flo@zset{bl}{1}{\flo@s}%
+  \flo@zset{bw}{1}{0.024}\flo@zset{bv}{1}{0}\def\flo@cln{1}%
+  \flo@loop{fk}\flo@Gd{1}{\flo@cln}{%
+    \edef\flo@clh{\flo@z{bh}{\the\flo@Gd}}\edef\flo@cll{\flo@z{bl}{\the\flo@Gd}}%
+    \edef\flo@clw{\flo@z{bw}{\the\flo@Gd}}\edef\flo@clv{\flo@z{bv}{\the\flo@Gd}}%
+    \flo@sym\flo@clb{20}%
+    \flo@walk{\flo@z{bx}{\the\flo@Gd}}{\flo@z{by}{\the\flo@Gd}}\flo@clh\flo@clb\flo@cll{6}%
+    \edef\flo@clx{\flo@xx}\edef\flo@cly{\flo@yy}%
+    \flo@calc\flo@clwe{0.72*\flo@clw}\flo@vstem{7}\flo@clw\flo@clwe{0.1}%
+    \flo@calc\flo@clh{\flo@clh+\flo@clb}%
+    \flo@sym\flo@t{0.05}\flo@calc\flo@clt{\flo@bst-0.3*\flo@clv+\flo@t}%
+    \flo@range\flo@t{0.85}{1.1}\flo@calc\flo@cls{\flo@clfd*(1-0.1*\flo@clv)*\flo@t}%
+    \flo@calc\flo@t{\flo@clh-90}%
+    \ifnum\flo@clv<\flo@cld
+      % a fork: a bract, two or three branches, the flower between them on its stalk
+      \ifnum\flo@clv<2 \flo@chance{0.4}\ifflo@yes
+        \flo@chance{0.5}\ifflo@yes\def\flo@sg{1}\else\def\flo@sg{-1}\fi
+        \flo@range\flo@a{40}{70}\flo@calc\flo@a{\flo@clh-90+\flo@sg*\flo@a}%
+        \flo@range\flo@s{0.35}{0.55}\flo@calc\flo@s{\flo@cll*\flo@s}%
+        \begin{pgfscope}\pgftransformshift{\flo@P\flo@clx\flo@cly}\pgftransformrotate{\flo@a}\pgftransformscale{\flo@s}%
+          \def\flo@vl@W{0.14}\def\flo@vl@tone{}\edef\flo@vl@u{\flo@s}\flo@vleaflet\end{pgfscope}%
+      \fi\fi
+      \flo@chance{0.2}\ifflo@yes\def\flo@clk{3}\else\def\flo@clk{2}\fi
+      \flo@loop{fkk}\flo@n{1}{\flo@clk}{%
+        \ifnum\flo@clk=2 \flo@range\flo@a{16}{34}\ifnum\flo@n=1 \flo@calc\flo@a{-\flo@a}\fi
+        \else\flo@range\flo@a{22}{36}\flo@calc\flo@a{(\the\flo@n-2)*\flo@a}\fi
+        \edef\flo@cln{\the\numexpr\flo@cln+1\relax}%
+        \flo@zset{bx}\flo@cln\flo@clx\flo@zset{by}\flo@cln\flo@cly
+        \flo@calc\flo@t{\flo@clh+\flo@a}\flo@zset{bh}\flo@cln\flo@t
+        \flo@range\flo@t{0.62}{0.8}\flo@calc\flo@t{\flo@cll*\flo@t}\flo@zset{bl}\flo@cln\flo@t
+        \flo@zset{bw}\flo@cln\flo@clwe
+        \flo@zset{bv}\flo@cln{\the\numexpr\flo@clv+1\relax}}%
+      \flo@calc\flo@xa{\flo@clx+0.22*\flo@cll*cos(\flo@clh)}\flo@calc\flo@ya{\flo@cly+0.22*\flo@cll*sin(\flo@clh)}%
+      \flo@hair\flo@clx\flo@cly\flo@xa\flo@ya
+      \flo@calc\flo@t{\flo@clh-90}\flo@fadd\flo@xa\flo@ya\flo@t\flo@cls\flo@clt
+    \else
+      \flo@fadd\flo@clx\flo@cly\flo@t\flo@cls\flo@clt
+    \fi}%
+  \flo@fdraw}
+
+% a panicle: a raceme whose branches are racemes, an axis of #1 cm bending a little, its
+% branches on alternate sides, shorter toward the top, each ending in a flower with more
+% on short stalks along it (and on the lowest, small forks of two when the species
+% branches twice); the lowest open first
+\def\flo@panicleunit#1{%
+  \edef\flo@bst{\flo@ust}\edef\flo@clL{#1}\flo@stone\def\flo@fnum{0}%
+  \flo@calc\flo@clfd{min(0.34,0.15+0.01*\flo@get{size})}%
+  \flo@axis\flo@clL{30}{0.026}%
+  \flo@calc\flo@clm{int(max(3,min(7,\flo@get{count}/4+1)))}%
+  \flo@chance{0.5}\ifflo@yes\def\flo@clsg{1}\else\def\flo@clsg{-1}\fi
+  \flo@loop{pan}\flo@Gd{1}{\flo@clm}{%
+    \flo@sym\flo@t{0.03}\flo@calc\flo@clf{0.1+0.66*(\the\flo@Gd-1)/max(1,\flo@clm-1)+\flo@t}%
+    \flo@axisat\flo@calc\flo@clsg{-\flo@clsg}%
+    \flo@range\flo@clang{40}{58}\flo@calc\flo@clh{\flo@ah+\flo@clsg*\flo@clang}%
+    \flo@range\flo@t{0.8}{1.2}\flo@calc\flo@cll{\flo@clL*0.42*(1-0.7*\flo@clf)*\flo@t}%
+    \flo@calc\flo@clb{-\flo@clsg*0.55*\flo@clang}%
+    \flo@walk\flo@px\flo@py\flo@clh\flo@clb\flo@cll{8}\flo@normals{9}%
+    \flo@calc\flo@t{\flo@bst+0.2-0.9*\flo@clf}\flo@calc\flo@cls{\flo@clfd*(1-0.3*\flo@clf)}%
+    \flo@calc\flo@a{\flo@clh+\flo@clb-90}\flo@fadd\flo@xx\flo@yy\flo@a\flo@cls\flo@t
+    \flo@int\flo@clk{1}{3}%
+    \ifnum\flo@get{depth}=2 \ifdim\flo@clf pt<0.45pt \edef\flo@clk{\the\numexpr\flo@clk+1\relax}\fi\fi
+    \flo@loop{pnl}\flo@n{1}{\flo@clk}{%
+      \flo@calc\flo@v{0.3+0.5*(\the\flo@n-1)/max(1,\flo@clk-1)}%
+      \flo@calc\flo@clq{int(1+floor(\flo@v*8+0.5))}%
+      \ifodd\flo@n\def\flo@sg{1}\else\def\flo@sg{-1}\fi
+      \edef\flo@xa{\flo@x\flo@clq}\edef\flo@ya{\flo@y\flo@clq}%
+      \edef\flo@clnx{\csname flo@NX\flo@clq\endcsname}\edef\flo@clny{\csname flo@NY\flo@clq\endcsname}%
+      \flo@range\flo@t{0.1}{0.18}%
+      \flo@calc\flo@xb{\flo@xa+(\flo@clnx*\flo@sg*0.8+\flo@clny*0.6)*\flo@t}%
+      \flo@calc\flo@yb{\flo@ya+(\flo@clny*\flo@sg*0.8-\flo@clnx*0.6)*\flo@t}%
+      \flo@hair\flo@xa\flo@ya\flo@xb\flo@yb
+      \flo@calc\flo@t{\flo@bst+0.3-0.9*\flo@clf-0.25*(1-\flo@v)}%
+      \flo@calc\flo@s{\flo@clfd*(0.9-0.3*\flo@clf)}%
+      \flo@calc\flo@a{atan2(\flo@yb-\flo@ya,\flo@xb-\flo@xa)-90}%
+      \flo@fadd\flo@xb\flo@yb\flo@a\flo@s\flo@t}%
+    \flo@vstem{9}{0.012}{0.005}{0.12}}%
+  \edef\flo@xa{\csname flo@AX25\endcsname}\edef\flo@ya{\csname flo@AY25\endcsname}%
+  \def\flo@clf{1}\flo@axisat\flo@calc\flo@a{\flo@ah-90}%
+  \flo@calc\flo@t{\flo@bst-0.6}\flo@calc\flo@s{0.6*\flo@clfd}\flo@fadd\flo@xa\flo@ya\flo@a\flo@s\flo@t
+  \flo@fdraw}
+
+% a thyrse: a raceme of small cymes, as a lilac's: an axis of #1 cm, at each node a pair
+% of short stalks, each ending in a flower between two younger ones, shorter toward the
+% top, where there are only buds; the lowest open first
+\def\flo@thyrseunit#1{%
+  \edef\flo@bst{\flo@ust}\edef\flo@clL{#1}\flo@stone\def\flo@fnum{0}%
+  \flo@calc\flo@clfd{min(0.42,0.15+0.012*\flo@get{size})}%
+  \flo@axis\flo@clL{20}{0.028}%
+  \flo@calc\flo@clm{int(max(6,min(11,\flo@get{count}/2.5)))}%
+  \flo@loop{thy}\flo@Gd{1}{\flo@clm}{%
+    \flo@calc\flo@clf{0.08+0.84*(\the\flo@Gd-1)/max(1,\flo@clm-1)}%
+    \flo@axisat
+    \flo@loop{thys}\flo@n{0}{1}{%
+      \ifnum\flo@n=0 \def\flo@sg{1}\else\def\flo@sg{-1}\fi
+      \flo@range\flo@clang{45}{65}\flo@calc\flo@clh{\flo@ah+\flo@sg*\flo@clang}%
+      \flo@range\flo@t{0.8}{1.2}\flo@calc\flo@cll{\flo@clL*0.17*(1-0.75*\flo@clf)*\flo@t}%
+      \flo@calc\flo@xa{\flo@px+\flo@cll*cos(\flo@clh)}\flo@calc\flo@ya{\flo@py+\flo@cll*sin(\flo@clh)}%
+      \flo@hair\flo@px\flo@py\flo@xa\flo@ya
+      \flo@calc\flo@clt{\flo@bst+0.3-1.0*\flo@clf}\flo@calc\flo@cls{\flo@clfd*(1-0.4*\flo@clf)}%
+      \ifdim\flo@clf pt<0.8pt
+        \flo@loop{thyc}\flo@m{0}{1}{%
+          \ifnum\flo@m=0 \def\flo@t{1}\else\def\flo@t{-1}\fi
+          \flo@range\flo@a{30}{50}\flo@calc\flo@a{\flo@clh+\flo@t*\flo@a}%
+          \flo@calc\flo@xb{\flo@xa+0.55*\flo@cll*cos(\flo@a)}\flo@calc\flo@yb{\flo@ya+0.55*\flo@cll*sin(\flo@a)}%
+          \flo@hair\flo@xa\flo@ya\flo@xb\flo@yb
+          \flo@calc\flo@t{\flo@clt-0.2}\flo@calc\flo@s{0.85*\flo@cls}\flo@calc\flo@a{\flo@a-90}%
+          \flo@fadd\flo@xb\flo@yb\flo@a\flo@s\flo@t}%
+      \fi
+      \flo@calc\flo@xa{\flo@xa+0.15*\flo@cll*cos(\flo@clh)}\flo@calc\flo@ya{\flo@ya+0.15*\flo@cll*sin(\flo@clh)}%
+      \flo@calc\flo@a{\flo@clh-90}\flo@fadd\flo@xa\flo@ya\flo@a\flo@cls\flo@clt}}%
+  \edef\flo@xa{\csname flo@AX25\endcsname}\edef\flo@ya{\csname flo@AY25\endcsname}%
+  \def\flo@clf{1}\flo@axisat\flo@calc\flo@a{\flo@ah-90}%
+  \flo@calc\flo@t{\flo@bst-0.75}\flo@calc\flo@s{0.6*\flo@clfd}\flo@fadd\flo@xa\flo@ya\flo@a\flo@s\flo@t
+  \flo@fdraw}
+
+% a corymb: stalks from along a short axis, the lower the longer, that bring their
+% flowers up to one flat top #1 cm high; the outermost open first, the middle last
+\def\flo@corymbunit#1{%
+  \edef\flo@bst{\flo@ust}\edef\flo@clL{#1}\flo@stone\def\flo@fnum{0}%
+  \flo@calc\flo@clfd{min(0.6,0.3*\flo@fd)}%
+  \flo@calc\flo@clm{int(max(3,min(9,min(\flo@get{count},2.6/\flo@clfd))))}%
+  \flo@calc\flo@clW{\flo@clL*0.7}\flo@calc\flo@cltop{\flo@clL*0.92}\flo@calc\flo@cla{\flo@clL*0.5}%
+  \flo@sym\flo@t{0.06}\flo@calc\flo@yc{0.35*\flo@cla}\flo@calc\flo@yd{0.7*\flo@cla}%
+  \flo@vtone{flo@c}{0.1}%
+  \flo@vstroke{flo@c}{0.5}{1}{0}{\pgfpathmoveto{\flo@P00}\pgfpathcurveto{\flo@P\flo@t\flo@yc}{\flo@P\flo@t\flo@yd}{\flo@P0\flo@cla}}%
+  \flo@chance{0.5}\ifflo@yes\def\flo@clsg{1}\else\def\flo@clsg{-1}\fi
+  \flo@loop{cor}\flo@Gd{1}{\flo@clm}{%
+    \flo@calc\flo@v{(\the\flo@Gd-1)/max(1,\flo@clm-1)}%
+    \flo@calc\flo@clsg{-\flo@clsg}%
+    \flo@calc\flo@ya{\flo@cla*(0.12+0.88*\flo@v)}%
+    \flo@range\flo@t{0.75}{1}\flo@calc\flo@xb{\flo@clsg*\flo@clW*(1-0.85*\flo@v)*\flo@t}%
+    \flo@sym\flo@t{0.08}\flo@calc\flo@yb{\flo@cltop-0.32*\flo@xb*\flo@xb/\flo@clW+\flo@t}%
+    \flo@calc\flo@xc{0.55*\flo@xb}\flo@calc\flo@yc{\flo@ya+0.25*(\flo@yb-\flo@ya)}%
+    \flo@calc\flo@xd{0.95*\flo@xb}\flo@calc\flo@yd{\flo@yb-0.45*(\flo@yb-\flo@ya)}%
+    \flo@vtone{flo@c}{0.12}\flo@vstroke{flo@c}{0.3}{0.9}{0}{\pgfpathmoveto{\flo@P0\flo@ya}%
+      \pgfpathcurveto{\flo@P\flo@xc\flo@yc}{\flo@P\flo@xd\flo@yd}{\flo@P\flo@xb\flo@yb}}%
+    \flo@calc\flo@t{\flo@bst-0.35*\flo@v}\flo@range\flo@s{0.85}{1.1}\flo@calc\flo@s{\flo@clfd*\flo@s}%
+    \flo@calc\flo@a{-20*\flo@xb/\flo@clW}\flo@fadd\flo@xb\flo@yb\flo@a\flo@s\flo@t}%
+  \flo@vtone{flo@c}{0.12}\flo@sym\flo@xb{0.04}%
+  \flo@vstroke{flo@c}{0.3}{0.9}{0}{\pgfpathmoveto{\flo@P0\flo@cla}\pgfpathlineto{\flo@P\flo@xb\flo@cltop}}%
+  \flo@calc\flo@t{\flo@bst-0.42}\flo@calc\flo@s{0.9*\flo@clfd}\def\flo@a{0}%
+  \flo@fadd\flo@xb\flo@cltop\flo@a\flo@s\flo@t
+  \flo@fdraw}
+
+% a spike: flowers without stalks crowding an axis of #1 cm, alternately left, right and
+% in front, smaller toward the tip, which is all buds; the lowest open first
+\def\flo@spikeunit#1{%
+  \edef\flo@bst{\flo@ust}\flo@stone\def\flo@fnum{0}%
+  \flo@calc\flo@clfd{min(0.5,0.2+0.014*\flo@get{size})}%
+  \flo@axis{#1}{14}{0.03}%
+  \flo@calc\flo@clm{int(max(14,min(30,\flo@get{count}+4)))}%
+  \flo@loop{spk}\flo@Gd{1}{\flo@clm}{%
+    \flo@sym\flo@t{0.01}\flo@calc\flo@clf{0.06+0.92*(\the\flo@Gd-1)/max(1,\flo@clm-1)+\flo@t}%
+    \flo@axisat
+    \flo@range\flo@t{0.85}{1.1}\flo@calc\flo@s{\flo@clfd*(1-0.45*\flo@clf)*\flo@t}%
+    \flo@calc\flo@t{\flo@bst+0.35-1.2*\flo@clf}%
+    \flo@calc\flo@clk{int(mod(\the\flo@Gd,3))}%
+    \ifnum\flo@clk=0
+      \flo@sym\flo@a{10}\flo@calc\flo@a{\flo@ah-90+\flo@a}%
+      \flo@fadd\flo@px\flo@py\flo@a\flo@s\flo@t
+    \else
+      \ifnum\flo@clk=1 \def\flo@sg{1}\else\def\flo@sg{-1}\fi
+      \flo@range\flo@a{30}{55}\flo@calc\flo@a{\flo@ah-90+\flo@sg*\flo@a}%
+      \flo@calc\flo@xa{\flo@px+\flo@pnx*\flo@sg*0.42*\flo@s}\flo@calc\flo@ya{\flo@py+\flo@pny*\flo@sg*0.42*\flo@s}%
+      \flo@fadd\flo@xa\flo@ya\flo@a\flo@s\flo@t
+    \fi}%
+  \flo@fdraw}
+
+% a simple umbel: rays from one point, about #1 cm long, fanning upward to a dome, each
+% ending in a flower; the outermost open first (or the middle, as the species has it);
+% bracts at the base
+\def\flo@umbelsunit#1{%
+  \edef\flo@bst{\flo@ust}\edef\flo@clL{#1}\flo@stone\def\flo@fnum{0}\edef\flo@oo{\flo@get{openorder}}%
+  \flo@calc\flo@clfd{min(0.8,0.24+0.02*\flo@get{size})}%
+  \flo@calc\flo@clm{int(max(4,min(12,\flo@get{count})))}%
+  \flo@range\flo@clang{50}{75}%
+  \flo@loop{ums}\flo@Gd{1}{\flo@clm}{%
+    \ifodd\flo@Gd\edef\flo@clk{\the\numexpr(\flo@Gd+1)/2\relax}\else\edef\flo@clk{\the\numexpr\flo@clm+1-\flo@Gd/2\relax}\fi
+    \flo@calc\flo@clf{(\flo@clk-(\flo@clm+1)/2)/max(1,(\flo@clm-1)/2)}%
+    \flo@sym\flo@t{5}\flo@calc\flo@a{90+\flo@clf*\flo@clang+\flo@t}%
+    \flo@range\flo@t{0.88}{1.05}\flo@calc\flo@clR{\flo@clL*\flo@t*(1-0.12*abs(\flo@clf))}%
+    \flo@calc\flo@xb{\flo@clR*cos(\flo@a)}\flo@calc\flo@yb{\flo@clR*sin(\flo@a)}%
+    \flo@calc\flo@xc{0.15*\flo@xb}\flo@calc\flo@yc{0.5*\flo@yb}\flo@calc\flo@xd{0.6*\flo@xb}\flo@calc\flo@yd{0.95*\flo@yb}%
+    \flo@vtone{flo@c}{0.12}\flo@vstroke{flo@c}{0.25}{0.9}{0}{\pgfpathmoveto{\flo@P00}%
+      \pgfpathcurveto{\flo@P\flo@xc\flo@yc}{\flo@P\flo@xd\flo@yd}{\flo@P\flo@xb\flo@yb}}%
+    \def\flo@tmp{center}%
+    \ifx\flo@oo\flo@tmp\flo@calc\flo@t{\flo@bst-0.35*abs(\flo@clf)}\else\flo@calc\flo@t{\flo@bst-0.35*(1-abs(\flo@clf))}\fi
+    \flo@sym\flo@s{0.05}\flo@calc\flo@t{\flo@t+\flo@s}%
+    \flo@range\flo@s{0.85}{1.1}\flo@calc\flo@s{\flo@clfd*\flo@s}\flo@calc\flo@a{\flo@a-90}%
+    \flo@fadd\flo@xb\flo@yb\flo@a\flo@s\flo@t}%
+  \flo@loop{umsb}\flo@Gd{-1}{1}{%
+    \flo@sym\flo@t{10}\flo@calc\flo@a{\the\flo@Gd*40+\flo@t+180}\flo@range\flo@s{0.12}{0.18}\flo@calc\flo@s{\flo@clL*\flo@s}%
+    \begin{pgfscope}\pgftransformrotate{\flo@a}\pgftransformscale{\flo@s}%
+      \def\flo@vl@W{0.06}\def\flo@vl@tone{}\edef\flo@vl@u{\flo@s}\flo@vleaflet\end{pgfscope}}%
+  \flo@fdraw}
+
+% a head: many small flowers packed into a ball at the end of a stalk of #1 cm, as a
+% clover's; the outermost open first
+\def\flo@headunit#1{%
+  \edef\flo@bst{\flo@ust}\edef\flo@clL{#1}\flo@stone\def\flo@fnum{0}%
+  \flo@axis\flo@clL{18}{0.024}%
+  \def\flo@clf{1}\flo@axisat
+  \flo@range\flo@t{0.9}{1.1}\flo@calc\flo@clr{(0.26+0.006*\flo@get{count})*\flo@t}%
+  \flo@calc\flo@clx{\flo@px+0.75*\flo@clr*\flo@pny}\flo@calc\flo@cly{\flo@py-0.75*\flo@clr*\flo@pnx}%
+  \flo@calc\flo@clm{int(max(18,min(34,\flo@get{count}+6)))}%
+  \flo@loop{hd}\flo@Gd{1}{\flo@clm}{%
+    \edef\flo@clk{\the\numexpr\flo@clm+1-\flo@Gd\relax}%
+    \flo@calc\flo@v{sqrt(\flo@clk/\flo@clm)}\flo@calc\flo@a{137.508*\flo@clk}%
+    \flo@calc\flo@xa{\flo@clx+\flo@clr*\flo@v*cos(\flo@a)}\flo@calc\flo@ya{\flo@cly+0.9*\flo@clr*\flo@v*sin(\flo@a)}%
+    \flo@range\flo@t{0.9}{1.1}\flo@calc\flo@s{\flo@clr*0.5*(0.7+0.3*\flo@v)*\flo@t}%
+    \flo@calc\flo@t{\flo@bst-0.45*(1-\flo@v)}\flo@calc\flo@a{\flo@a-90}%
+    \flo@fadd\flo@xa\flo@ya\flo@a\flo@s\flo@t}%
+  \flo@fdraw}
+
+% catkins: two to four hanging from a short twig of #1 cm, each a stalk that bends over
+% and a tapering tassel of scales with anthers at their edges, short and tight while
+% young; in fruit, the fruit instead
+\def\flo@catkinunit#1{%
+  \edef\flo@bst{\flo@ust}\edef\flo@clL{#1}\flo@stone
+  \flo@sym\flo@t{10}\flo@calc\flo@clh{90+\flo@t}\flo@sym\flo@clb{15}%
+  \flo@walk{0}{0}\flo@clh\flo@clb\flo@clL{6}%
+  \flo@loop{ckt}\flo@Gc{1}{7}{%
+    \expandafter\edef\csname flo@AX\the\flo@Gc\endcsname{\flo@x{\the\flo@Gc}}%
+    \expandafter\edef\csname flo@AY\the\flo@Gc\endcsname{\flo@y{\the\flo@Gc}}}%
+  \flo@vstem{7}{0.028}{0.016}{0.1}%
+  \flo@int\flo@clm{2}{4}%
+  \flo@calc\flo@clw{0.11+0.02*\flo@get{size}}\flo@calc\flo@clwe{0.4*\flo@clw}%
+  \ifx\flo@vf@tone\pgfutil@empty\def\flo@clt{0.4}\else\edef\flo@clt{\flo@vf@tone}\fi
+  \flo@loop{ck}\flo@Gd{1}{\flo@clm}{%
+    \edef\flo@clq{\the\numexpr8-\flo@Gd\relax}%
+    \edef\flo@xa{\csname flo@AX\flo@clq\endcsname}\edef\flo@ya{\csname flo@AY\flo@clq\endcsname}%
+    \ifodd\flo@Gd\def\flo@sg{1}\else\def\flo@sg{-1}\fi
+    \flo@range\flo@t{40}{80}\flo@calc\flo@clhd{\flo@clh+\flo@clb+\flo@sg*\flo@t}%
+    \ifdim\flo@bst pt>1.15pt
+      \flo@calc\flo@xb{\flo@xa+0.25*cos(\flo@clhd)}\flo@calc\flo@yb{\flo@ya+0.25*sin(\flo@clhd)}%
+      \flo@hair\flo@xa\flo@ya\flo@xb\flo@yb
+      \def\flo@fu{0.3}\flo@calc\flo@a{\flo@clhd-90}%
+      \begin{pgfscope}\pgftransformshift{\flo@P\flo@xb\flo@yb}\pgftransformrotate{\flo@a}\pgftransformscale{\flo@fu}%
+        \flo@fruit\end{pgfscope}%
+    \else
+      % the stalk bends over and down, on the side it leans to, swaying a little
+      \ifnum\flo@sg=1 \def\flo@cltg{270}\else\def\flo@cltg{-90}\fi
+      \flo@range\flo@t{0.7}{1.1}\flo@calc\flo@cll{\flo@clL*2.2*\flo@t*min(1,0.45+0.6*\flo@bst)}%
+      \flo@sym\flo@clph{180}\flo@calc\flo@clr{\flo@clhd-\flo@cltg}%
+      \flo@put1\flo@xa\flo@ya\edef\flo@xx{\flo@xa}\edef\flo@yy{\flo@ya}\flo@calc\flo@ds{\flo@cll/18}%
+      \flo@loop{ckw}\flo@Gc{1}{18}{%
+        \flo@calc\flo@v{(\the\flo@Gc-0.5)/18}%
+        \flo@calc\flo@a{\flo@cltg+\flo@clr*(1-min(1,\flo@v*3))+7*sin(360*\flo@v+\flo@clph)}%
+        \flo@calc\flo@xx{\flo@xx+\flo@ds*cos(\flo@a)}\flo@calc\flo@yy{\flo@yy+\flo@ds*sin(\flo@a)}%
+        \flo@put{\the\numexpr\flo@Gc+1\relax}{\flo@xx}{\flo@yy}}%
+      \flo@vtone{flo@c}{0.1}\flo@vstroke{flo@c}{0.4}{1}{0}{\flo@smoothopen{5}}%
+      % the tassel along points 4..19: a ribbon, then a scale and an anther at each point
+      \flo@loop{ckc}\flo@Gc{4}{19}{%
+        \edef\flo@clq{\the\numexpr\flo@Gc-3\relax}%
+        \flo@zset{cx}\flo@clq{\flo@x{\the\flo@Gc}}\flo@zset{cy}\flo@clq{\flo@y{\the\flo@Gc}}}%
+      \flo@loop{ckd}\flo@Gc{1}{16}{\flo@put{\the\flo@Gc}{\flo@z{cx}{\the\flo@Gc}}{\flo@z{cy}{\the\flo@Gc}}}%
+      \flo@normals{16}%
+      \flo@loop{cke}\flo@Gc{1}{16}{%
+        \flo@zset{cn}{\the\flo@Gc}{\csname flo@NX\the\flo@Gc\endcsname}%
+        \flo@zset{cm}{\the\flo@Gc}{\csname flo@NY\the\flo@Gc\endcsname}}%
+      \flo@vstem{16}\flo@clw\flo@clwe\flo@clt
+      \flo@vtone{flo@c}{0.16}%
+      \flo@loop{cks}\flo@Gc{2}{15}{%
+        \ifodd\flo@Gc\def\flo@sg{1}\else\def\flo@sg{-1}\fi
+        \flo@calc\flo@v{(\the\flo@Gc-1)/15}\flo@calc\flo@s{\flo@clw*0.5*(1-0.6*\flo@v)}%
+        \edef\flo@xa{\flo@z{cx}{\the\flo@Gc}}\edef\flo@ya{\flo@z{cy}{\the\flo@Gc}}%
+        \edef\flo@clnx{\flo@z{cn}{\the\flo@Gc}}\edef\flo@clny{\flo@z{cm}{\the\flo@Gc}}%
+        \flo@calc\flo@xb{\flo@xa+\flo@clnx*\flo@sg*\flo@s}\flo@calc\flo@yb{\flo@ya+\flo@clny*\flo@sg*\flo@s}%
+        \flo@calc\flo@xc{\flo@xa+\flo@clny*0.6*\flo@s}\flo@calc\flo@yc{\flo@ya-\flo@clnx*0.6*\flo@s}%
+        \flo@vstroke{flo@c}{0.3}{0.7}{1}{\pgfpathmoveto{\flo@P\flo@xb\flo@yb}%
+          \pgfpathcurveto{\flo@P\flo@xc\flo@yc}{\flo@P\flo@xc\flo@yc}{\flo@P\flo@xa\flo@ya}}%
+        \flo@range\flo@t{0.008}{0.014}%
+        \flo@vfill{flo@c}{0.9}{0}{\pgfpathcircle{\flo@P\flo@xb\flo@yb}{\flo@t pt}}}%
+    \fi}}
 % flora.tendril: a tapered logarithmic spiral from the origin, size #1 cm
 \def\flo@vtendril#1{%
   \flo@range\flo@turns{1.6}{2.3}%
@@ -591,19 +996,24 @@
   \ifnum\flo@Ot=0 \def\flo@taken{0}\else\flo@calc\flo@taken{\the\flo@On/\the\flo@Ot}\fi}
 
 % ---------------------------------------------------------------- the inflorescence in place
-% the species' inflorescence as florilegium-grow.lua's motifs, \flo@kind: solitary, umbel,
-% raceme (racemes, spikes, panicles, thyrses, catkins, coiled cymes) or blossoms (the rest)
+% the species' inflorescence as florilegium-grow.lua's motifs, \flo@kind: solitary, umbel
+% (umbels, corymbs, forked cymes: a fan), raceme (racemes, spikes, panicles, thyrses,
+% coiled cymes: along an axis), head, catkin, or blossoms (the rest)
 \def\flo@kindof{%
   \edef\flo@if{\flo@get{inflo}}\def\flo@kind{blossoms}%
   \def\flo@tmp{solitary}\ifx\flo@if\flo@tmp\def\flo@kind{solitary}\fi
   \def\flo@tmp{cumbel}\ifx\flo@if\flo@tmp\def\flo@kind{umbel}\fi
+  \def\flo@tmp{umbel}\ifx\flo@if\flo@tmp\def\flo@kind{umbel}\fi
+  \def\flo@tmp{corymb}\ifx\flo@if\flo@tmp\def\flo@kind{umbel}\fi
+  \def\flo@tmp{dichasium}\ifx\flo@if\flo@tmp\def\flo@kind{umbel}\fi
   \def\flo@tmp{raceme}\ifx\flo@if\flo@tmp\def\flo@kind{raceme}\fi
   \def\flo@tmp{spike}\ifx\flo@if\flo@tmp\def\flo@kind{raceme}\fi
   \def\flo@tmp{panicle}\ifx\flo@if\flo@tmp\def\flo@kind{raceme}\fi
   \def\flo@tmp{thyrse}\ifx\flo@if\flo@tmp\def\flo@kind{raceme}\fi
-  \def\flo@tmp{catkin}\ifx\flo@if\flo@tmp\def\flo@kind{raceme}\fi
-  \def\flo@tmp{monochasium}\ifx\flo@if\flo@tmp\def\flo@kind{raceme}\fi}
-\def\flo@Kumbel{umbel}\def\flo@Kraceme{raceme}\def\flo@Kblossoms{blossoms}
+  \def\flo@tmp{monochasium}\ifx\flo@if\flo@tmp\def\flo@kind{raceme}\fi
+  \def\flo@tmp{head}\ifx\flo@if\flo@tmp\def\flo@kind{head}\fi
+  \def\flo@tmp{catkin}\ifx\flo@if\flo@tmp\def\flo@kind{catkin}\fi}
+\def\flo@Kumbel{umbel}\def\flo@Kraceme{raceme}\def\flo@Kblossoms{blossoms}\def\flo@Khead{head}\def\flo@Kcatkin{catkin}
 % the room it takes at (#1,#2), axis #3 degrees, #4 times its size: a disc at
 % \flo@udx,\flo@udy of radius \flo@udr (nominal sizes, no draws)
 \def\flo@unitdisc#1#2#3#4{%
@@ -611,6 +1021,8 @@
   \ifx\flo@kind\flo@Kumbel\flo@calc\flo@uo{0.69*(#4)}\flo@calc\flo@udr{0.86*(#4)}\fi
   \ifx\flo@kind\flo@Kraceme\flo@calc\flo@uo{0.95*(#4)}\flo@calc\flo@udr{0.75*(#4)}\fi
   \ifx\flo@kind\flo@Kblossoms\flo@calc\flo@uo{0.5*\flo@fd}\flo@calc\flo@udr{0.8*\flo@fd}\fi
+  \ifx\flo@kind\flo@Khead\flo@calc\flo@uo{0.8*(#4)}\flo@calc\flo@udr{0.5*(#4)}\fi
+  \ifx\flo@kind\flo@Kcatkin\flo@calc\flo@uo{0.2*(#4)}\flo@calc\flo@udr{0.9*(#4)}\fi
   \flo@calc\flo@udx{(#1)+\flo@uo*cos(#3)}\flo@calc\flo@udy{(#2)+\flo@uo*sin(#3)}}
 % The species' inflorescence at (#1,#2), its axis at #3 degrees, #4 times its size, opening
 % #5 later than the plant's first flower (0..0.5); its room is marked. Draws: the stage,
@@ -630,13 +1042,17 @@
     \flo@range\flo@t{0.95}{1.35}\flo@calc\flo@t{\flo@t*(#1)}\flo@umbelunit\flo@t\flo@ust\else
   \flo@range\flo@t{1.5}{2.3}\flo@calc\flo@L{\flo@t*(#1)}%
   \def\flo@tmp{raceme}\ifx\flo@if\flo@tmp\flo@racemeunit\flo@L{0.3}{40}\else
-  \def\flo@tmp{spike}\ifx\flo@if\flo@tmp\flo@racemeunit\flo@L{0.06}{25}\else
-  \def\flo@tmp{panicle}\ifx\flo@if\flo@tmp\flo@racemeunit\flo@L{0.32}{45}\else
-  \def\flo@tmp{thyrse}\ifx\flo@if\flo@tmp\flo@racemeunit\flo@L{0.16}{35}\else
-  \def\flo@tmp{catkin}\ifx\flo@if\flo@tmp\flo@racemeunit\flo@L{0.03}{20}\else
-  \def\flo@tmp{monochasium}\ifx\flo@if\flo@tmp\flo@racemeunit\flo@L{0.1}{220}\else
+  \def\flo@tmp{spike}\ifx\flo@if\flo@tmp\flo@spikeunit\flo@L\else
+  \def\flo@tmp{panicle}\ifx\flo@if\flo@tmp\flo@panicleunit\flo@L\else
+  \def\flo@tmp{thyrse}\ifx\flo@if\flo@tmp\flo@thyrseunit\flo@L\else
+  \def\flo@tmp{monochasium}\ifx\flo@if\flo@tmp\flo@curlunit\flo@L\else
+  \def\flo@tmp{catkin}\ifx\flo@if\flo@tmp\flo@calc\flo@L{0.3*\flo@L}\flo@catkinunit\flo@L\else
+  \def\flo@tmp{dichasium}\ifx\flo@if\flo@tmp\flo@calc\flo@L{0.8*\flo@L}\flo@forkunit\flo@L\else
+  \def\flo@tmp{corymb}\ifx\flo@if\flo@tmp\flo@calc\flo@L{0.75*\flo@L}\flo@corymbunit\flo@L\else
+  \def\flo@tmp{umbel}\ifx\flo@if\flo@tmp\flo@calc\flo@L{0.55*\flo@L}\flo@umbelsunit\flo@L\else
+  \def\flo@tmp{head}\ifx\flo@if\flo@tmp\flo@calc\flo@L{0.35*\flo@L}\flo@headunit\flo@L\else
   \flo@calc\flo@fd{0.85*\flo@fd}\flo@blossoms\flo@fd\flo@ust
-  \fi\fi\fi\fi\fi\fi\fi\fi}
+  \fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi}
 % opening order down the plant: from the top (cymes, solitary flowers) or from below; #1
 % the height on the plant (0..1): \flo@late
 \def\flo@lateness#1{%
@@ -881,8 +1297,8 @@
   seed/.store in=\flo@o@seed, role/.store in=\flo@o@role, size/.store in=\flo@o@size,
   draw/.store in=\flo@o@draw, season/.store in=\flo@o@season,
   plants/.store in=\flo@o@plants, width/.store in=\flo@o@width, ghost/.store in=\flo@o@ghost,
-  engine/.store in=\flo@o@engine,
-  seed=1, role=any, size=2cm, draw=, season=0.75, plants=, width=6cm, ghost=true, engine=auto}
+  engine/.store in=\flo@o@engine, scale/.store in=\flo@o@scale,
+  seed=1, role=any, size=2cm, draw=, season=0.75, plants=, width=6cm, ghost=true, engine=auto, scale=1}
 % engine=lua: the hybrid. florilegium-organs.lua computes the pic and writes the pgf
 % commands this file would run for it, the same commands for the same seed (the same PDF,
 % byte for byte), and TikZ draws them, about 18 times faster. engine=tikz: pgfmath
@@ -904,6 +1320,7 @@
   \directlua{require("florilegium-organs").tex("#1", "\luaescapestring{\flo@o@seed}",
     "\luaescapestring{\flo@o@role}", "\luaescapestring{\flo@o@draw}", \number\pgf@x, \number\pgf@y,
     "\luaescapestring{\flo@o@season}", "\luaescapestring{\flo@o@plants}", "\luaescapestring{\flo@o@ghost}",
+    "\luaescapestring{\flo@o@scale}",
     "\ifcsname ver@tikzlibraryflorilegium.code.tex\endcsname\luaescapestring{\csname ver@tikzlibraryflorilegium.code.tex\endcsname}\fi")}}
 % #1 the pic's keys, #2 its kind for Lua, #3 the TikZ code
 \def\flo@engine#1#2#3{\pgfkeys{/florilegium,#1}%
@@ -927,6 +1344,16 @@
   \flo@picsetup{#1}%
   \pgftransformscale{\flo@sizept}%
   \flo@leaf\flo@sizept}}}}
+% \pic {florilegium inflorescence={seed=7, role=borage, scale=1, season=0.75}}: the
+% species' flowers as they grow together, from the origin along +y, as large as a margin's
+% at scale 1 (a raceme's axis is then about 2 cm long); season as for a plant, the
+% oldest flower's stage 1.2 times it
+\tikzset{pics/florilegium inflorescence/.style={code={\flo@engine{#1}{inflorescence}{%
+  \flo@picsetup{#1}%
+  \pgfsetroundcap\pgfsetroundjoin\pgftransformscale{28.45276}%
+  \flo@kindof\edef\flo@season{\flo@o@season}\def\flo@ulate{0}%
+  \flo@sym\flo@t{0.08}\flo@calc\flo@ust{1.2*\flo@season-\flo@ulate+\flo@t+\flo@get{phenology}}%
+  \flo@unitdraw{\flo@o@scale}}}}}
 % the list plants={seed/role, ...} into \flo@pp@s<k>, \flo@pp@r<k>, k = 1..\flo@Np
 \def\flo@parseplants#1{\flo@Np=0 \flo@parseplant#1,\relax/\relax,}
 \def\flo@parseplant#1/#2,{%

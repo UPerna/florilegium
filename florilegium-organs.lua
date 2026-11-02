@@ -69,7 +69,7 @@ local X, Y, A, B, C, D = {}, {}, {}, {}, {}, {}
 local NX, NY, RX, RY, QX, QY, S = {}, {}, {}, {}, {}, {}, {}
 local G = { {}, {}, {} }          -- \flo@G<k>@<i>, the noise gradients
 local T = { TX = {}, TY = {}, MX = {}, MY = {}, MU = {}, MV = {},   -- the rarer ones (Lua's
-  AX = {}, AY = {}, AN = {}, AM = {}, O = {}, VEIN = {} }             -- 200 locals)
+  AX = {}, AY = {}, AN = {}, AM = {}, O = {}, VEIN = {}, Z = {} }     -- 200 locals)
 local KEPT = {}                   -- \flo@<name>@N, @X<i> ... (\flo@keep)
 local ROOM = {}                   -- \flo@rm<roomid>@<i>@<j>
 local PP = {}                     -- \flo@pp@... of a garden (some global)
@@ -1391,7 +1391,7 @@ local function cubicat(t)                                    -- -> \flo@cx, \flo
 end
 
 -- ---------------------------------------------------------------- flowers, buds, clusters
--- \flo@bloom{diameter cm}{stage}
+-- \flo@bloom{diameter cm}{stage}: a bud below 0.3, the fruit above 1.15, past its best above 1
 local function bloom(d, st)
   V.bd = d V.bst = st stone()
   if R.bst < K"0.3" then
@@ -1404,8 +1404,10 @@ local function bloom(d, st)
     V["or"] = tr("orient")
     if R["or"] == "erect" then V.ys = U else V.ys = K"0.8" end
     V.t = sym(30 * U) V.bd = E"@bd*min(1,0.55+(@bst-0.3)*0.9)"
+    if R.bst > U then V.bd = E"@bd*(1-0.8*(@bst-1))" end
     scope(function()
       yscale(R.ys) rotate(R.t) scale(R.bd)
+      if R.bst > U then V.lift = E"1-(1-@lift)*(1-3*(@bst-1))" end
       V.t = E"@bd*28.45276" sflower(R.t)
     end)
   end
@@ -1546,6 +1548,425 @@ local function racemeunit(len, ped, bend)
     end)
   end)
 end
+-- ---------------------------------------------------------------- clusters
+-- in a block of their own (Lua's 200 locals): CL.curl, CL.fork ... draw them
+local CL = {}
+do
+  -- \flo@curlunit{axis cm}: flora's cyme as the species' coiled cyme; \flo@curl{x}{y}{len}{w}{late}
+  local curl
+  local function curlunit(len)
+    V.bst = R.ust stone()
+    if chance(K"0.5") then V.side = U else V.side = -U end
+    V.t = sym(10 * U) V.h = E"90+@t"
+    V.cfd = E"min(0.4,0.17+0.014*$size)"
+    V.ccn = E"int(max(9,min(17,$count+2)))"
+    curl(0, 0, len, K"0.026", 0)
+    if chance(K"0.6") then
+      V.t = range(K"0.25", K"0.4") V.ci = E"int(37*@t)"
+      local ci = I("ci")
+      V.xa = T.AX[ci] V.ya = T.AY[ci]
+      V.t = (ci + 1) * U
+      V.xb = T.AX[ci + 1] V.yb = T.AY[ci + 1]
+      V.t = range(30 * U, 50 * U) V.h = E"atan2(@yb-@ya,@xb-@xa)-@side*@t"
+      V.t = range(K"0.45", K"0.65") V.L = E("(%1)*@t", { len })
+      V.side = E"-@side" V.ccn = E"int(max(6,@ccn*0.7))"
+      curl(R.xa, R.ya, R.L, K"0.018", K"0.15")
+    end
+  end
+  function curl(x, y, len, w, late)
+    V.xx = x V.yy = y V.cL = len V.clate = late
+    V.t = range(K"0.85", K"1.15") V.turn = E"(100+170*$coil)*@t"
+    put(1, R.xx, R.yy) V.ds = E"@cL/36"
+    loop("#Gc", 1, 36, function()
+      V.v = E"(#Gc-0.5)/36"
+      V.a = E"@h+@side*@turn*@v*@v*sqrt(sqrt(@v))"
+      V.xx = E"@xx+@ds*cos(@a)" V.yy = E"@yy+@ds*sin(@a)"
+      put(R["#Gc"] + 1, R.xx, R.yy)
+    end)
+    normals(37)
+    for g = 1, 37 do setv(T.AX, g, X[g]) setv(T.AY, g, Y[g]) setv(T.AN, g, NX[g]) setv(T.AM, g, NY[g]) end
+    V["#Gc"] = 38
+    vstem(37, w, K"0.006", K"0.1")
+    V.csr = tr("siderule")
+    loop("#Gc", 1, function() return I("ccn") end, function()
+      V.v = E"#Gc/@ccn" V.f = E"0.18+0.82*sqrt(@v)*sqrt(sqrt(@v))"
+      V.ri = E"int(max(2,min(37,floor(@f*36+1.5))))"
+      if R.csr == "same" then V.sg = E"-@side" elseif R["#Gc"] % 2 == 1 then V.sg = -U else V.sg = U end
+      local ri = I("ri")
+      V.px = T.AX[ri] V.py = T.AY[ri] V.pnx = T.AN[ri] V.pny = T.AM[ri]
+      V.t = range(K"0.7", K"1.2") V.stalk = E"(0.1-0.08*@f)*@t"
+      V.qx = E"@px+@pnx*@sg*@stalk" V.qy = E"@py+@pny*@sg*@stalk"
+      if R.stalk > K"0.03" then
+        vtone("flo@c", K"0.12")
+        vstroke("flo@c", K"0.25", K"0.9", 0, function() moveto(R.px, R.py) lineto(R.qx, R.qy) end)
+      end
+      V.s = range(K"0.85", K"1.15") V.s = E"@cfd*(1-0.74*@f)*@s"
+      V.t = E"@bst+0.55-@f-@clate"
+      V.a = E"atan2(@qy-@py,@qx-@px)-90"
+      scope(function()
+        shift(R.qx, R.qy) rotate(R.a)
+        if R.f > K"0.8" then
+          V.t = E"0.3*@s" vtone("flo@c", K"0.2") vfill("flo@c", U, 0, function() circle(0, 0, R.t) end)
+        else bloom(R.s, R.t) end
+      end)
+    end)
+  end
+  CL.curl = curlunit
+  -- \flo@zset, \flo@z: the named lists of the clusters (\flo@Z<name>@<i>)
+  local function zset(n, i, v) setv(T.Z, n .. "@" .. i, v) end
+  local function z(n, i) return T.Z[n .. "@" .. i] end
+  -- \flo@fat{x}{y}{angle}{diameter}{stage}
+  local function fat(x, y, a, d, st)
+    scope(function()
+      shift(x, y) rotate(a)
+      if st < K"-0.25" then
+        V.t = E("0.3*(%1)", { d }) vtone("flo@c", K"0.2") vfill("flo@c", U, 0, function() circle(0, 0, R.t) end)
+      else bloom(d, st) end
+    end)
+  end
+  -- \flo@fadd, \flo@fdraw
+  local function fadd(x, y, a, d, st)
+    V.fnum = R.fnum + U
+    local n = I("fnum")
+    zset("fx", n, x) zset("fy", n, y) zset("fa", n, a) zset("fs", n, d) zset("ft", n, st)
+  end
+  local function fdraw()
+    loop("#Gc", 1, function() return I("fnum") end, function()
+      local g = R["#Gc"]
+      fat(z("fx", g), z("fy", g), z("fa", g), z("fs", g), z("ft", g))
+    end)
+  end
+  -- \flo@hair{x1}{y1}{x2}{y2}
+  local function hair(x1, y1, x2, y2)
+    vtone("flo@c", K"0.12")
+    vstroke("flo@c", K"0.25", K"0.9", 0, function() moveto(x1, y1) lineto(x2, y2) end)
+  end
+  -- \flo@axis{len}{bend}{width}
+  local function axis(len, bend, w)
+    if chance(K"0.5") then V.side = U else V.side = -U end
+    V.t = range(K"0.75", K"1.25") V.turn = E("(%1)*@t", { bend })
+    V.t = sym(8 * U) V.h = E"90+@t"
+    put(1, 0, 0) V.xx = 0 V.yy = 0 V.ds = E("(%1)/24", { len })
+    loop("#Gc", 1, 24, function()
+      V.v = E"(#Gc-0.5)/24"
+      V.a = E"@h+@side*@turn*@v*@v*sqrt(sqrt(@v))"
+      V.xx = E"@xx+@ds*cos(@a)" V.yy = E"@yy+@ds*sin(@a)"
+      put(R["#Gc"] + 1, R.xx, R.yy)
+    end)
+    normals(25)
+    for g = 1, 25 do setv(T.AX, g, X[g]) setv(T.AY, g, Y[g]) setv(T.AN, g, NX[g]) setv(T.AM, g, NY[g]) end
+    V["#Gc"] = 26
+    vstem(25, w, K"0.006", K"0.1")
+  end
+  -- \flo@axisat
+  local function axisat()
+    V.ri = E"int(max(2,min(25,floor(@clf*24+1.5))))"
+    local ri = I("ri")
+    V.px = T.AX[ri] V.py = T.AY[ri] V.pnx = T.AN[ri] V.pny = T.AM[ri]
+    V.ah = E"atan2(-@pnx,@pny)"
+  end
+  -- \flo@walk{x}{y}{heading}{turn}{len}{n}
+  local function walk(x, y, h, dh, len, n)
+    V.xx = x V.yy = y put(1, R.xx, R.yy) V.ds = E("(%1)/(%2)", { len, n * U })
+    loop("#Gc", 1, n, function()
+      V.a = E("(%1)+(%2)*(#Gc-0.5)/(%3)", { h, dh, n * U })
+      V.xx = E"@xx+@ds*cos(@a)" V.yy = E"@yy+@ds*sin(@a)"
+      put(R["#Gc"] + 1, R.xx, R.yy)
+    end)
+  end
+  -- \flo@forkunit{reach}: flora's sprig as the species' forked cyme
+  local function forkunit(len)
+    V.bst = R.ust stone() V.fnum = 0
+    V.cld = E"int(min(3,$depth+1))"
+    V.clfd = E"min(0.45,0.16+0.012*$size)"
+    V.t = sym(8 * U) V.t = E"90+@t" V.s = E("(%1)*0.4", { len })
+    zset("bx", 1, 0) zset("by", 1, 0) zset("bh", 1, R.t) zset("bl", 1, R.s)
+    zset("bw", 1, K"0.024") zset("bv", 1, 0) V.cln = U
+    loop("#Gd", 1, function() return I("cln") end, function()
+      local g = R["#Gd"]
+      V.clh = z("bh", g) V.cll = z("bl", g) V.clw = z("bw", g) V.clv = z("bv", g)
+      V.clb = sym(20 * U)
+      walk(z("bx", g), z("by", g), R.clh, R.clb, R.cll, 6)
+      V.clx = R.xx V.cly = R.yy
+      V.clwe = E"0.72*@clw" vstem(7, R.clw, R.clwe, K"0.1")
+      V.clh = E"@clh+@clb"
+      V.t = sym(K"0.05") V.clt = E"@bst-0.3*@clv+@t"
+      V.t = range(K"0.85", K"1.1") V.cls = E"@clfd*(1-0.1*@clv)*@t"
+      V.t = E"@clh-90"
+      if I("clv") < I("cld") then
+        if I("clv") < 2 and chance(K"0.4") then
+          if chance(K"0.5") then V.sg = U else V.sg = -U end
+          V.a = range(40 * U, 70 * U) V.a = E"@clh-90+@sg*@a"
+          V.s = range(K"0.35", K"0.55") V.s = E"@cll*@s"
+          scope(function()
+            shift(R.clx, R.cly) rotate(R.a) scale(R.s)
+            V["vl@W"] = K"0.14" V["vl@tone"] = "" V["vl@u"] = R.s vleaflet()
+          end)
+        end
+        if chance(K"0.2") then V.clk = 3 * U else V.clk = 2 * U end
+        loop("#n", 1, function() return I("clk") end, function()
+          if I("clk") == 2 then
+            V.a = range(16 * U, 34 * U)
+            if R["#n"] == 1 then V.a = E"-@a" end
+          else
+            V.a = range(22 * U, 36 * U) V.a = E"(#n-2)*@a"
+          end
+          V.cln = R.cln + U
+          local c = I("cln")
+          zset("bx", c, R.clx) zset("by", c, R.cly)
+          V.t = E"@clh+@a" zset("bh", c, R.t)
+          V.t = range(K"0.62", K"0.8") V.t = E"@cll*@t" zset("bl", c, R.t)
+          zset("bw", c, R.clwe)
+          zset("bv", c, R.clv + U)
+        end)
+        V.xa = E"@clx+0.22*@cll*cos(@clh)" V.ya = E"@cly+0.22*@cll*sin(@clh)"
+        hair(R.clx, R.cly, R.xa, R.ya)
+        V.t = E"@clh-90" fadd(R.xa, R.ya, R.t, R.cls, R.clt)
+      else
+        fadd(R.clx, R.cly, R.t, R.cls, R.clt)
+      end
+    end)
+    fdraw()
+  end
+  -- \flo@panicleunit{axis cm}
+  local function panicleunit(len)
+    V.bst = R.ust V.clL = len stone() V.fnum = 0
+    V.clfd = E"min(0.34,0.15+0.01*$size)"
+    axis(R.clL, 30 * U, K"0.026")
+    V.clm = E"int(max(3,min(7,$count/4+1)))"
+    if chance(K"0.5") then V.clsg = U else V.clsg = -U end
+    loop("#Gd", 1, function() return I("clm") end, function()
+      V.t = sym(K"0.03") V.clf = E"0.1+0.66*(#Gd-1)/max(1,@clm-1)+@t"
+      axisat() V.clsg = E"-@clsg"
+      V.clang = range(40 * U, 58 * U) V.clh = E"@ah+@clsg*@clang"
+      V.t = range(K"0.8", K"1.2") V.cll = E"@clL*0.42*(1-0.7*@clf)*@t"
+      V.clb = E"-@clsg*0.55*@clang"
+      walk(R.px, R.py, R.clh, R.clb, R.cll, 8) normals(9)
+      V.t = E"@bst+0.2-0.9*@clf" V.cls = E"@clfd*(1-0.3*@clf)"
+      V.a = E"@clh+@clb-90" fadd(R.xx, R.yy, R.a, R.cls, R.t)
+      V.clk = int(1, 3)
+      if tr("depth") == 2 * U and R.clf < K"0.45" then V.clk = R.clk + U end
+      loop("#n", 1, function() return I("clk") end, function()
+        V.v = E"0.3+0.5*(#n-1)/max(1,@clk-1)"
+        V.clq = E"int(1+floor(@v*8+0.5))"
+        if R["#n"] % 2 == 1 then V.sg = U else V.sg = -U end
+        local q = I("clq")
+        V.xa = X[q] V.ya = Y[q] V.clnx = NX[q] V.clny = NY[q]
+        V.t = range(K"0.1", K"0.18")
+        V.xb = E"@xa+(@clnx*@sg*0.8+@clny*0.6)*@t"
+        V.yb = E"@ya+(@clny*@sg*0.8-@clnx*0.6)*@t"
+        hair(R.xa, R.ya, R.xb, R.yb)
+        V.t = E"@bst+0.3-0.9*@clf-0.25*(1-@v)"
+        V.s = E"@clfd*(0.9-0.3*@clf)"
+        V.a = E"atan2(@yb-@ya,@xb-@xa)-90"
+        fadd(R.xb, R.yb, R.a, R.s, R.t)
+      end)
+      vstem(9, K"0.012", K"0.005", K"0.12")
+    end)
+    V.xa = T.AX[25] V.ya = T.AY[25]
+    V.clf = U axisat() V.a = E"@ah-90"
+    V.t = E"@bst-0.6" V.s = E"0.6*@clfd" fadd(R.xa, R.ya, R.a, R.s, R.t)
+    fdraw()
+  end
+  -- \flo@thyrseunit{axis cm}
+  local function thyrseunit(len)
+    V.bst = R.ust V.clL = len stone() V.fnum = 0
+    V.clfd = E"min(0.42,0.15+0.012*$size)"
+    axis(R.clL, 20 * U, K"0.028")
+    V.clm = E"int(max(6,min(11,$count/2.5)))"
+    loop("#Gd", 1, function() return I("clm") end, function()
+      V.clf = E"0.08+0.84*(#Gd-1)/max(1,@clm-1)"
+      axisat()
+      loop("#n", 0, 1, function()
+        if R["#n"] == 0 then V.sg = U else V.sg = -U end
+        V.clang = range(45 * U, 65 * U) V.clh = E"@ah+@sg*@clang"
+        V.t = range(K"0.8", K"1.2") V.cll = E"@clL*0.17*(1-0.75*@clf)*@t"
+        V.xa = E"@px+@cll*cos(@clh)" V.ya = E"@py+@cll*sin(@clh)"
+        hair(R.px, R.py, R.xa, R.ya)
+        V.clt = E"@bst+0.3-1.0*@clf" V.cls = E"@clfd*(1-0.4*@clf)"
+        if R.clf < K"0.8" then
+          loop("#m", 0, 1, function()
+            if R["#m"] == 0 then V.t = U else V.t = -U end
+            V.a = range(30 * U, 50 * U) V.a = E"@clh+@t*@a"
+            V.xb = E"@xa+0.55*@cll*cos(@a)" V.yb = E"@ya+0.55*@cll*sin(@a)"
+            hair(R.xa, R.ya, R.xb, R.yb)
+            V.t = E"@clt-0.2" V.s = E"0.85*@cls" V.a = E"@a-90"
+            fadd(R.xb, R.yb, R.a, R.s, R.t)
+          end)
+        end
+        V.xa = E"@xa+0.15*@cll*cos(@clh)" V.ya = E"@ya+0.15*@cll*sin(@clh)"
+        V.a = E"@clh-90" fadd(R.xa, R.ya, R.a, R.cls, R.clt)
+      end)
+    end)
+    V.xa = T.AX[25] V.ya = T.AY[25]
+    V.clf = U axisat() V.a = E"@ah-90"
+    V.t = E"@bst-0.75" V.s = E"0.6*@clfd" fadd(R.xa, R.ya, R.a, R.s, R.t)
+    fdraw()
+  end
+  -- \flo@corymbunit{height cm}
+  local function corymbunit(len)
+    V.bst = R.ust V.clL = len stone() V.fnum = 0
+    V.clfd = E"min(0.6,0.3*@fd)"
+    V.clm = E"int(max(3,min(9,min($count,2.6/@clfd))))"
+    V.clW = E"@clL*0.7" V.cltop = E"@clL*0.92" V.cla = E"@clL*0.5"
+    V.t = sym(K"0.06") V.yc = E"0.35*@cla" V.yd = E"0.7*@cla"
+    vtone("flo@c", K"0.1")
+    vstroke("flo@c", K"0.5", U, 0, function() moveto(0, 0) curveto(R.t, R.yc, R.t, R.yd, 0, R.cla) end)
+    if chance(K"0.5") then V.clsg = U else V.clsg = -U end
+    loop("#Gd", 1, function() return I("clm") end, function()
+      V.v = E"(#Gd-1)/max(1,@clm-1)"
+      V.clsg = E"-@clsg"
+      V.ya = E"@cla*(0.12+0.88*@v)"
+      V.t = range(K"0.75", U) V.xb = E"@clsg*@clW*(1-0.85*@v)*@t"
+      V.t = sym(K"0.08") V.yb = E"@cltop-0.32*@xb*@xb/@clW+@t"
+      V.xc = E"0.55*@xb" V.yc = E"@ya+0.25*(@yb-@ya)"
+      V.xd = E"0.95*@xb" V.yd = E"@yb-0.45*(@yb-@ya)"
+      vtone("flo@c", K"0.12")
+      vstroke("flo@c", K"0.3", K"0.9", 0, function() moveto(0, R.ya) curveto(R.xc, R.yc, R.xd, R.yd, R.xb, R.yb) end)
+      V.t = E"@bst-0.35*@v" V.s = range(K"0.85", K"1.1") V.s = E"@clfd*@s"
+      V.a = E"-20*@xb/@clW" fadd(R.xb, R.yb, R.a, R.s, R.t)
+    end)
+    vtone("flo@c", K"0.12") V.xb = sym(K"0.04")
+    vstroke("flo@c", K"0.3", K"0.9", 0, function() moveto(0, R.cla) lineto(R.xb, R.cltop) end)
+    V.t = E"@bst-0.42" V.s = E"0.9*@clfd" V.a = 0
+    fadd(R.xb, R.cltop, R.a, R.s, R.t)
+    fdraw()
+  end
+  -- \flo@spikeunit{axis cm}
+  local function spikeunit(len)
+    V.bst = R.ust stone() V.fnum = 0
+    V.clfd = E"min(0.5,0.2+0.014*$size)"
+    axis(len, 14 * U, K"0.03")
+    V.clm = E"int(max(14,min(30,$count+4)))"
+    loop("#Gd", 1, function() return I("clm") end, function()
+      V.t = sym(K"0.01") V.clf = E"0.06+0.92*(#Gd-1)/max(1,@clm-1)+@t"
+      axisat()
+      V.t = range(K"0.85", K"1.1") V.s = E"@clfd*(1-0.45*@clf)*@t"
+      V.t = E"@bst+0.35-1.2*@clf"
+      V.clk = E"int(mod(#Gd,3))"
+      if I("clk") == 0 then
+        V.a = sym(10 * U) V.a = E"@ah-90+@a"
+        fadd(R.px, R.py, R.a, R.s, R.t)
+      else
+        if I("clk") == 1 then V.sg = U else V.sg = -U end
+        V.a = range(30 * U, 55 * U) V.a = E"@ah-90+@sg*@a"
+        V.xa = E"@px+@pnx*@sg*0.42*@s" V.ya = E"@py+@pny*@sg*0.42*@s"
+        fadd(R.xa, R.ya, R.a, R.s, R.t)
+      end
+    end)
+    fdraw()
+  end
+  -- \flo@umbelsunit{ray cm}: a simple umbel
+  local function umbelsunit(len)
+    V.bst = R.ust V.clL = len stone() V.fnum = 0 V.oo = tr("openorder")
+    V.clfd = E"min(0.8,0.24+0.02*$size)"
+    V.clm = E"int(max(4,min(12,$count)))"
+    V.clang = range(50 * U, 75 * U)
+    loop("#Gd", 1, function() return I("clm") end, function()
+      local g = R["#Gd"]
+      if g % 2 == 1 then V.clk = nediv(g + 1, 2) * U else V.clk = (I("clm") + 1 - nediv(g, 2)) * U end
+      V.clf = E"(@clk-(@clm+1)/2)/max(1,(@clm-1)/2)"
+      V.t = sym(5 * U) V.a = E"90+@clf*@clang+@t"
+      V.t = range(K"0.88", K"1.05") V.clR = E"@clL*@t*(1-0.12*abs(@clf))"
+      V.xb = E"@clR*cos(@a)" V.yb = E"@clR*sin(@a)"
+      V.xc = E"0.15*@xb" V.yc = E"0.5*@yb" V.xd = E"0.6*@xb" V.yd = E"0.95*@yb"
+      vtone("flo@c", K"0.12")
+      vstroke("flo@c", K"0.25", K"0.9", 0, function() moveto(0, 0) curveto(R.xc, R.yc, R.xd, R.yd, R.xb, R.yb) end)
+      V.tmp = "center"
+      if R.oo == R.tmp then V.t = E"@bst-0.35*abs(@clf)" else V.t = E"@bst-0.35*(1-abs(@clf))" end
+      V.s = sym(K"0.05") V.t = E"@t+@s"
+      V.s = range(K"0.85", K"1.1") V.s = E"@clfd*@s" V.a = E"@a-90"
+      fadd(R.xb, R.yb, R.a, R.s, R.t)
+    end)
+    loop("#Gd", -1, 1, function()
+      V.t = sym(10 * U) V.a = E"#Gd*40+@t+180" V.s = range(K"0.12", K"0.18") V.s = E"@clL*@s"
+      scope(function()
+        rotate(R.a) scale(R.s)
+        V["vl@W"] = K"0.06" V["vl@tone"] = "" V["vl@u"] = R.s vleaflet()
+      end)
+    end)
+    fdraw()
+  end
+  -- \flo@headunit{stalk cm}
+  local function headunit(len)
+    V.bst = R.ust V.clL = len stone() V.fnum = 0
+    axis(R.clL, 18 * U, K"0.024")
+    V.clf = U axisat()
+    V.t = range(K"0.9", K"1.1") V.clr = E"(0.26+0.006*$count)*@t"
+    V.clx = E"@px+0.75*@clr*@pny" V.cly = E"@py-0.75*@clr*@pnx"
+    V.clm = E"int(max(18,min(34,$count+6)))"
+    loop("#Gd", 1, function() return I("clm") end, function()
+      V.clk = (I("clm") + 1 - R["#Gd"]) * U
+      V.v = E"sqrt(@clk/@clm)" V.a = E"137.508*@clk"
+      V.xa = E"@clx+@clr*@v*cos(@a)" V.ya = E"@cly+0.9*@clr*@v*sin(@a)"
+      V.t = range(K"0.9", K"1.1") V.s = E"@clr*0.5*(0.7+0.3*@v)*@t"
+      V.t = E"@bst-0.45*(1-@v)" V.a = E"@a-90"
+      fadd(R.xa, R.ya, R.a, R.s, R.t)
+    end)
+    fdraw()
+  end
+  -- \flo@catkinunit{twig cm}
+  local function catkinunit(len)
+    V.bst = R.ust V.clL = len stone()
+    V.t = sym(10 * U) V.clh = E"90+@t" V.clb = sym(15 * U)
+    walk(0, 0, R.clh, R.clb, R.clL, 6)
+    for g = 1, 7 do setv(T.AX, g, X[g]) setv(T.AY, g, Y[g]) end
+    V["#Gc"] = 8
+    vstem(7, K"0.028", K"0.016", K"0.1")
+    V.clm = int(2, 4)
+    V.clw = E"0.11+0.02*$size" V.clwe = E"0.4*@clw"
+    if R["vf@tone"] == "" then V.clt = K"0.4" else V.clt = R["vf@tone"] end
+    loop("#Gd", 1, function() return I("clm") end, function()
+      V.clq = (8 - R["#Gd"]) * U
+      local q = I("clq")
+      V.xa = T.AX[q] V.ya = T.AY[q]
+      if R["#Gd"] % 2 == 1 then V.sg = U else V.sg = -U end
+      V.t = range(40 * U, 80 * U) V.clhd = E"@clh+@clb+@sg*@t"
+      if R.bst > K"1.15" then
+        V.xb = E"@xa+0.25*cos(@clhd)" V.yb = E"@ya+0.25*sin(@clhd)"
+        hair(R.xa, R.ya, R.xb, R.yb)
+        V.fu = K"0.3" V.a = E"@clhd-90"
+        scope(function() shift(R.xb, R.yb) rotate(R.a) scale(R.fu) fruit() end)
+      else
+        if R.sg == U then V.cltg = 270 * U else V.cltg = -90 * U end
+        V.t = range(K"0.7", K"1.1") V.cll = E"@clL*2.2*@t*min(1,0.45+0.6*@bst)"
+        V.clph = sym(180 * U) V.clr = E"@clhd-@cltg"
+        put(1, R.xa, R.ya) V.xx = R.xa V.yy = R.ya V.ds = E"@cll/18"
+        loop("#Gc", 1, 18, function()
+          V.v = E"(#Gc-0.5)/18"
+          V.a = E"@cltg+@clr*(1-min(1,@v*3))+7*sin(360*@v+@clph)"
+          V.xx = E"@xx+@ds*cos(@a)" V.yy = E"@yy+@ds*sin(@a)"
+          put(R["#Gc"] + 1, R.xx, R.yy)
+        end)
+        vtone("flo@c", K"0.1") vstroke("flo@c", K"0.4", U, 0, function() smoothopen(5) end)
+        loop("#Gc", 4, 19, function()
+          V.clq = (R["#Gc"] - 3) * U
+          zset("cx", I("clq"), X[R["#Gc"]]) zset("cy", I("clq"), Y[R["#Gc"]])
+        end)
+        loop("#Gc", 1, 16, function() put(R["#Gc"], z("cx", R["#Gc"]), z("cy", R["#Gc"])) end)
+        normals(16)
+        loop("#Gc", 1, 16, function()
+          zset("cn", R["#Gc"], NX[R["#Gc"]]) zset("cm", R["#Gc"], NY[R["#Gc"]])
+        end)
+        vstem(16, R.clw, R.clwe, R.clt)
+        vtone("flo@c", K"0.16")
+        loop("#Gc", 2, 15, function()
+          local g = R["#Gc"]
+          if g % 2 == 1 then V.sg = U else V.sg = -U end
+          V.v = E"(#Gc-1)/15" V.s = E"@clw*0.5*(1-0.6*@v)"
+          V.xa = z("cx", g) V.ya = z("cy", g) V.clnx = z("cn", g) V.clny = z("cm", g)
+          V.xb = E"@xa+@clnx*@sg*@s" V.yb = E"@ya+@clny*@sg*@s"
+          V.xc = E"@xa+@clny*0.6*@s" V.yc = E"@ya-@clnx*0.6*@s"
+          vstroke("flo@c", K"0.3", K"0.7", 1, function() moveto(R.xb, R.yb) curveto(R.xc, R.yc, R.xc, R.yc, R.xa, R.ya) end)
+          V.t = range(K"0.008", K"0.014")
+          vfill("flo@c", K"0.9", 0, function() circle(R.xb, R.yb, R.t) end)
+        end)
+      end
+    end)
+  end
+  CL.fork, CL.panicle, CL.thyrse, CL.corymb = forkunit, panicleunit, thyrseunit, corymbunit
+  CL.spike, CL.umbel, CL.head, CL.catkin = spikeunit, umbelsunit, headunit, catkinunit
+end
 -- \flo@vtendril{size}: a tapered logarithmic spiral from the origin
 local function vtendril(size)
   V.turns = range(K"1.6", K"2.3")
@@ -1587,8 +2008,9 @@ local function takenat(x, y, r)                              -- -> \flo@taken
 end
 
 -- ---------------------------------------------------------------- the inflorescence in place
-local KIND = { solitary = "solitary", cumbel = "umbel", raceme = "raceme", spike = "raceme",
-  panicle = "raceme", thyrse = "raceme", catkin = "raceme", monochasium = "raceme" }
+local KIND = { solitary = "solitary", cumbel = "umbel", umbel = "umbel", corymb = "umbel", dichasium = "umbel",
+  raceme = "raceme", spike = "raceme", panicle = "raceme", thyrse = "raceme", monochasium = "raceme",
+  head = "head", catkin = "catkin" }
 local function kindof()
   V["if"] = tr("inflo") V.kind = KIND[R["if"]] or "blossoms"
 end
@@ -1597,10 +2019,10 @@ local function unitdisc(x, y, axis, k)
   if R.kind == "umbel" then V.uo = E("0.69*(%1)", { k }) V.udr = E("0.86*(%1)", { k }) end
   if R.kind == "raceme" then V.uo = E("0.95*(%1)", { k }) V.udr = E("0.75*(%1)", { k }) end
   if R.kind == "blossoms" then V.uo = E"0.5*@fd" V.udr = E"0.8*@fd" end
+  if R.kind == "head" then V.uo = E("0.8*(%1)", { k }) V.udr = E("0.5*(%1)", { k }) end
+  if R.kind == "catkin" then V.uo = E("0.2*(%1)", { k }) V.udr = E("0.9*(%1)", { k }) end
   V.udx = E("(%1)+@uo*cos(%2)", { x, axis }) V.udy = E("(%1)+@uo*sin(%2)", { y, axis })
 end
-local RACEME = { raceme = { "0.3", 40 }, spike = { "0.06", 25 }, panicle = { "0.32", 45 }, thyrse = { "0.16", 35 },
-  catkin = { "0.03", 20 }, monochasium = { "0.1", 220 } }
 local function unitdraw(k)
   fdiam(k)
   local f = R["if"]
@@ -1609,8 +2031,16 @@ local function unitdraw(k)
     V.t = range(K"0.95", K"1.35") V.t = E("@t*(%1)", { k }) umbelunit(R.t, R.ust)
   else
     V.t = range(K"1.5", K"2.3") V.L = E("@t*(%1)", { k })
-    local r = RACEME[f]
-    if r then racemeunit(R.L, K(r[1]), r[2] * U)
+    if f == "raceme" then racemeunit(R.L, K"0.3", 40 * U)
+    elseif f == "spike" then CL.spike(R.L)
+    elseif f == "panicle" then CL.panicle(R.L)
+    elseif f == "thyrse" then CL.thyrse(R.L)
+    elseif f == "monochasium" then CL.curl(R.L)
+    elseif f == "catkin" then V.L = E"0.3*@L" CL.catkin(R.L)
+    elseif f == "dichasium" then V.L = E"0.8*@L" CL.fork(R.L)
+    elseif f == "corymb" then V.L = E"0.75*@L" CL.corymb(R.L)
+    elseif f == "umbel" then V.L = E"0.55*@L" CL.umbel(R.L)
+    elseif f == "head" then V.L = E"0.35*@L" CL.head(R.L)
     else V.fd = E"0.85*@fd" blossoms(R.fd, R.ust) end
   end
 end
@@ -1977,7 +2407,7 @@ local function reset()
   for k in pairs(R) do R[k] = nil end
   level, saves = 0, {}
   for _, t in ipairs({ X, Y, A, B, C, D, NX, NY, RX, RY, QX, QY, S, T.TX, T.TY, T.MX, T.MY, T.MU, T.MV,
-    T.AX, T.AY, T.AN, T.AM, T.O, T.VEIN, KEPT, ROOM, G[1], G[2], G[3] }) do
+    T.AX, T.AY, T.AN, T.AM, T.O, T.VEIN, T.Z, KEPT, ROOM, G[1], G[2], G[3] }) do
     for k in pairs(t) do t[k] = nil end
   end
   R.lift = 0 R.zero = 0 R["vp@notchp"] = K"0.4" R["vp@notchk"] = U
@@ -1993,7 +2423,8 @@ end
 local function sizecm(pt) return pm.div(pt, K"28.45276") end
 
 -- The pics of the TikZ library, as the pgf code they run. Lengths in sp, as TeX holds
--- them. o: seed, role, draw (optional), size; for plants, plants = { {seed, role}, ... },
+-- them. o: seed, role, draw (optional), size; for an inflorescence, scale and season (sp);
+-- for plants, plants = { {seed, role}, ... },
 -- width, season (sp), ghost (boolean). Returns a list of strings.
 function M.pic(kind, o)
   reset()
@@ -2007,6 +2438,12 @@ function M.pic(kind, o)
     picsetup(o) scale(o.size)
     V["vl@W"] = "" V["vl@bend"] = "" V["vl@lobes"] = "" V["vl@depth"] = "" V["vl@tone"] = ""
     V["vl@u"] = sizecm(o.size) vleaf()
+  elseif kind == "inflorescence" then
+    picsetup(o)
+    out("\\pgfsetroundcap\\pgfsetroundjoin") scale(K"28.45276")
+    kindof() V.season = o.season V.ulate = 0
+    V.t = sym(K"0.08") V.ust = E"1.2*@season-@ulate+@t+$phenology"
+    unitdraw(o.scale)
   elseif kind == "plant" then
     picsetup(o)
     V["#Np"] = 1 V["pp@s1"] = o.seed V["pp@r1"] = o.role or "any"
@@ -2051,9 +2488,10 @@ local function check(lib)
 end
 -- \flo@luapic: the pic with the keys as TeX holds them (lengths in sp), written into the
 -- picture as partial lines (no spaces between commands); lib the library's \ProvidesFile
-function M.tex(kind, seed, role, draw, size, width, season, plants, ghost, lib)
+function M.tex(kind, seed, role, draw, size, width, season, plants, ghost, scale, lib)
   if not checked then check(lib) end
-  local o = { role = role, size = size, width = width, season = value(season), ghost = ghost ~= "false" }
+  local o = { role = role, size = size, width = width, season = value(season), ghost = ghost ~= "false",
+    scale = value(scale) }
   o.seed = pm.int(value(seed)) // U
   if draw ~= "" then o.draw = pm.int(value(draw)) // U end
   if kind == "plants" then
@@ -2083,6 +2521,8 @@ function M.unitdisc(s, k)
   if kind == "umbel" then return 0.69 * k, 0.86 * k, kind end
   if kind == "raceme" then return 0.95 * k, 0.75 * k, kind end
   if kind == "blossoms" then return 0.5 * fd, 0.8 * fd, kind end
+  if kind == "head" then return 0.8 * k, 0.5 * k, kind end
+  if kind == "catkin" then return 0.2 * k, 0.9 * k, kind end
   return 0, 0.5 * fd, kind
 end
 -- \flo@lateness: how much later than the top an inflorescence at height h (0..1) opens
