@@ -86,7 +86,7 @@ fail. General style declarations and full renderers belong to later stages.
 
 Contexts carry explicit seed, source, version and frame metadata. Named-stream
 requests require a configured provider; there is no global random fallback.
-Portable domain derivation and versioned vectors are stage 04. Callbacks charge
+Portable domain derivation and versioned vectors are implemented by stage04; see RECIPES.md. Callbacks charge
 named object/operation/byte budgets at bounded work intervals; cancellation and
 budget exhaustion return distinct failure diagnostics, never accepted instances.
 The registry also charges serialized scene bytes and drawing operations.
@@ -121,11 +121,12 @@ branch tests a family name.
 
 Object keys sort bytewise, array order is semantic, finite numbers use 17-digit
 round-trip spelling and zero has one spelling. The serializer is deterministic
-for this runtime; cross-runtime canonical numeric/hash vectors are stage 04.
+for the supported profile; stage04 supplies numeric/hash vectors on Lua5.3/5.4.
 dkjson 2.11 provides UTF-8 quoting and decoding, with its full upstream MIT notice.
 `deserialize` reconstructs a specified validated contract, rejects trailing data
-and applies a 2 MiB input limit. This is currently a trusted-contract round trip:
-strict recipe parsing, duplicate-key rejection and domain hashes belong to 04.
+and applies a 2 MiB input limit. Stage04 now supplies strict recipe parsing,
+duplicate-key rejection and domain hashes; see RECIPES.md. This entry point
+also uses the strict parser.
 Unsupported versions fail explicitly. Future migrations must name source/target
 versions, preserve their original input receipt and run target validation; no
 silent inference from missing fields or unknown future tags.

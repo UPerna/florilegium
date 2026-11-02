@@ -81,7 +81,8 @@ check(not result and err.code=="budget_exhausted","budget failure is not accepte
 result,err=registry:generate(defs.graph.id,E.specification(defs.graph),context({cancelled=function() return true end}))
 check(not result and err.status=="cancelled","cancellation receipt")
 rejects(function() context():stream("geometry","id") end,"not configured")
-local record={id="build/test",status="complete",source={revision="fixture"},runtime={name="Lua",version=_VERSION},seed=7,inputs=P.array(),dependencies={},lineage=P.array(),validation={status="passed",checks={"contractcheck"}},outputs={{path="memory:scene",kind="scene"}},diagnostics=P.array(),budgets=context():receipt()}
+local hash=require("pattern_hash").sha256
+local record={id="build/test",status="complete",source={revision="fixture",digest=hash("fixture source")},runtime={name="Lua",version=_VERSION},seed=7,inputs={{kind="fixture",sha256=hash("fixture input")}},dependencies={},lineage=P.array(),validation={status="passed",checks={"contractcheck"}},outputs={{path="memory:scene",kind="scene",sha256=hash("fixture scene")}},diagnostics=P.array(),budgets=context():receipt()}
 local build=P.build_record(record);check(P.serialize(P.deserialize(P.serialize(build),"build_record"))==P.serialize(build),"build record roundtrip")
 record.validation.checks=P.array();rejects(function() P.build_record(record) end,"actual validation")
 print("contractcheck: "..count.." checks passed; actual floral + graph + tiling examples; semantic-only text/strands/3D/field fixtures")

@@ -30,6 +30,8 @@ jobs:
           extra_system_packages: python3 py3-pillow poppler-utils inkscape
           post_compile: >-
             texlua tools/contractcheck.lua &&
+            texlua tools/replaycheck.lua &&
+            python3 tools/determinism_oracle.py &&
             texlua tools/layoutcheck.lua &&
             texlua tools/spacecheck.lua &&
             texlua tools/initialcheck.lua &&

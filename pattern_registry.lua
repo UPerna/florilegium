@@ -8,7 +8,7 @@ function M.context(options)
   local limits=P.plain(options.limits or {objects=10000,operations=100000,bytes=2*1024*1024})
   for k,n in pairs(limits) do assert(type(k)=="string" and type(n)=="number" and n%1==0 and n>=0 and n<math.huge,"invalid construction budget") end
   local spent,cancelled={},false
-  local on_cancel,provider=options.cancelled,options.stream_provider
+  local on_cancel,provider,input_provider=options.cancelled,options.stream_provider,options.input_provider
   local metadata={seed=seed,source=P.snapshot(options.source),versions=P.snapshot(options.versions or {}),frame=P.snapshot(options.frame or {id="world",unit="cm",dimension=2,handedness="right",origin={0,0}})}
   local ctx=setmetatable({},{__index=metadata,__newindex=function(t,k,v) assert(metadata[k]==nil,"immutable construction context metadata");rawset(t,k,v) end})
   function ctx:consume(name,n)
@@ -22,6 +22,10 @@ function M.context(options)
     assert(type(name)=="string" and name~="" and type(semantic_id)=="string" and semantic_id~="","named semantic stream required")
     assert(type(provider)=="function","named stream derivation is not configured; stage 04 supplies it")
     return provider(name,semantic_id,seed)
+  end
+  function ctx:input(name)
+    assert(type(name)=="string" and #name>0 and type(input_provider)=="function","verified named input provider required")
+    return input_provider(name)
   end
   function ctx:receipt() return {limits=P.plain(limits),spent=P.plain(spent),cancelled=not not cancelled} end
   return ctx

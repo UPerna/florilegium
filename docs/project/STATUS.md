@@ -1,7 +1,7 @@
 # Florilegium execution status
 
-Stages 00–02 passed. The lost delivery was explicitly replaced by user-approved verified baseline; never recovered. Latest verified checkpoint 879610d82637229f0f4c06f828fe3a6d68d6faf6, CI 41462720343 success.
+Stages00–03 passed. Latest verified checkpoint e9793c9efa8a8246175bc5921f7d3771ca69350b, CI41470769063 both required jobs success. Draft project PR#2 on pattern/common-platform against improve/layout-controls. Original floral PR#1 unchanged.
 
-Stage 03 in progress on pattern/common-platform from 879610d; work/stage03 retains current work. Minimal Lua contracts and three vertical examples implemented. 61 local contract checks and unchanged space/backend/layout/initial regressions passed under Lupa 2.8/Lua 5.3. Browser parity unverified; Windows native TeX initialization unavailable. Linux TeX CI is mandatory.
+Stage04 in progress, work/stage04 from e9793c9. Implemented strict recipes/canonical SHA256/named PRNG, verified input/source digests, layered cache keys, outcome-specific Build records and atomic immutable cache files. 145 local replay checks plus61 contracts pass on Lua5.3/5.4. Independent Python oracle passes. Exact next action: publish reviewed diff with lease on e9793c9, independently fetch tree/bytes, require both exact-revision CI jobs and repair failures before stage05.
 
-Exact next action: publish guarded stage 03 feature checkpoint, open draft project PR against improve/layout-controls, independently fetch the commit, require both CI jobs for this revision, repair failures. Do not advance stage 04 until gate passes. Preserve existing PR #1 floral scope and every dirty worktree. Source recovery obligations remain before their owning implementation stages.
+Native Windows TeX initialization unavailable; Linux CI remains mandatory. Browser parity pending31. Legacy full-page visitor interactions remain08 migration work; original source/fingerprints unchanged. Primary-source recovery obligations remain before owning family gates. User-approved baseline amendment applies only to lost96545fa recovery. No merge/release/deploy before39.

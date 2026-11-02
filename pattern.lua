@@ -25,7 +25,10 @@ local function clone(v,seen,depth,count)
     need(finite(v),"data","nonfinite number")
     need(not math.type or math.type(v)~="integer" or (v>=-9007199254740991 and v<=9007199254740991),"data","integer exceeds portable exact range; use a string identity")
     return v
-  elseif ty=="string" then need(utf8.len(v)~=nil,"data","invalid UTF-8; binary resources require explicit encoding");return v
+  elseif ty=="string" then
+    need(utf8.len(v)~=nil,"data","invalid UTF-8; binary resources require explicit encoding")
+    for _,cp in utf8.codes(v) do need(cp<=0x10ffff and (cp<0xd800 or cp>0xdfff),"data","invalid Unicode scalar value") end
+    return v
   elseif ty=="boolean" or ty=="nil" then return v end
   need(ty=="table" and v~=json.null,"data","expected JSON data, without null/functions/userdata")
   v=stored[v] or v;seen=seen or {};depth=depth or 0;count=count or {n=0}
@@ -38,7 +41,7 @@ local function clone(v,seen,depth,count)
   local out=setmetatable({},{__jsontype=array and "array" or "object"})
   for k,x in pairs(v) do
     if array then need(type(k)=="number" and k%1==0 and k>=1 and k<=#v,"data","sparse or mixed array")
-    else need(type(k)=="string","data","object keys must be strings") end
+    else need(type(k)=="string","data","object keys must be strings");clone(k) end
     out[k]=clone(x,seen,depth+1,count)
   end
   seen[v]=nil;return out
@@ -215,17 +218,14 @@ local function instance(x,d)
   end
   return ids
 end
-local function view(v,x,d)
-  instance(x,d)
-  header(v,"view");fields(v,"instance_ref unit transform crop protected_regions derived validity projection","view")
-  need(v.instance_ref==x.id,"view.instance_ref","wrong instance")
+local function view_settings(v,d,dimension)
   need(v.unit=="cm","view.unit","document view must use cm")
   numbers(v.transform,6,"view.transform");bounds(v.crop,"view.crop")
   for _,r in ipairs(seq(v.protected_regions,"view.protected_regions")) do bounds(r.bounds,"protected region");need(r.role=="protected_content","protected region","explicit role required") end
   need(type(v.derived)=="boolean","view.derived","explicit derived-view flag required")
   local a,b,c,e=v.transform[1],v.transform[2],v.transform[3],v.transform[4]
   local det=a*e-b*c;need(math.abs(det)>M.TOLERANCE,"view.transform","singular or sub-tolerance transform")
-  if x.frame.dimension==3 then need(v.derived and type(v.projection)=="table","view.projection","3D lowering requires an explicit derived projection") end
+  if dimension==3 then need(v.derived and type(v.projection)=="table","view.projection","3D lowering requires an explicit derived projection") end
   if v.projection then numbers(v.projection.matrix,16,"projection.matrix");need(v.projection.depth_policy=="all_curves" or v.projection.depth_policy=="depth_sorted","projection.depth_policy","explicit supported visibility policy required") end
   if v.derived then need(v.validity=="visualization_only","view.validity","derived views must disclaim construction-metric validity")
   else
@@ -237,6 +237,18 @@ local function view(v,x,d)
     end
     need(det>0 or d.transforms.reflection,"view.transform","reflection prohibited")
   end
+end
+local function view(v,x,d)
+  instance(x,d)
+  header(v,"view");fields(v,"instance_ref unit transform crop protected_regions derived validity projection","view")
+  need(v.instance_ref==x.id,"view.instance_ref","wrong instance")
+  view_settings(v,d,x.frame.dimension)
+end
+function M.view_settings(t,d,dimension)
+  definition(d);local v=clone(t)
+  fields(v,"unit transform crop protected_regions derived validity projection","view settings")
+  need(dimension==2 or dimension==3,"view settings","dimension required")
+  view_settings(v,d,dimension);return freeze(v)
 end
 local function scene(s,x,v,d)
   view(v,x,d)
@@ -285,7 +297,11 @@ local function build(r)
   need(finite(r.seed) and r.seed%1==0 and r.seed>=0 and r.seed<2^31,"build_record.seed","invalid seed")
   seq(r.inputs,"build_record.inputs");seq(r.lineage,"build_record.lineage");seq(r.outputs,"build_record.outputs");seq(r.diagnostics,"build_record.diagnostics")
   need(type(r.validation)=="table","build_record.validation","validation receipt required")
-  if r.status=="complete" then need(r.validation.status=="passed" and #seq(r.validation.checks,"validation.checks")>0 and #r.outputs>0,"build_record","complete output needs actual validation and output evidence")
+  if r.status=="complete" then
+    need(r.validation.status=="passed" and #seq(r.validation.checks,"validation.checks")>0 and #r.outputs>0 and #r.inputs>0,"build_record","complete output needs actual validation and input/output evidence")
+    local function digest(v) return type(v)=="string" and #v==64 and not v:find('[^0-9a-f]') end
+    need(digest(r.source.digest),"build_record.source","source manifest digest required")
+    for _,list in ipairs({r.inputs,r.outputs}) do for _,item in ipairs(list) do need(type(item)=="table" and digest(item.sha256),"build_record","exact input/output byte digests required") end end
   else need(#r.diagnostics>0,"build_record","unfinished outcomes require diagnostics") end
 end
 local function make(kind,data,check,...)
@@ -310,22 +326,26 @@ end
 function M.serialize(record)
   local function encode(v)
     if type(v)=="string" then return json.quotestring(v)
-    elseif type(v)=="number" then return v==0 and "0" or string.format("%.17g",v):gsub(",",".")
+    elseif type(v)=="number" then
+      if v==0 then return "0" end
+      local s=string.format("%.17g",v):gsub(",","."):lower()
+      return (s:gsub("e([+-]?)0*(%d+)",function(sign,n) return "e"..(sign=="-" and "-" or "+")..n end))
     elseif type(v)=="boolean" then return tostring(v) end
     local out={};local mt=getmetatable(v)
     if mt and mt.__jsontype=="array" then for i=1,#v do out[i]=encode(v[i]) end;return "["..table.concat(out,",").."]" end
-    local keys={};for k in pairs(v) do keys[#keys+1]=k end;table.sort(keys)
+    local keys={};for k in pairs(v) do keys[#keys+1]=k end;table.sort(keys,M.byte_less)
     for _,k in ipairs(keys) do out[#out+1]=json.quotestring(k)..":"..encode(v[k]) end
     return "{"..table.concat(out,",").."}"
   end
   return encode(clone(record))
 end
+function M.byte_less(a,b)
+  for i=1,math.min(#a,#b) do local x,y=a:byte(i),b:byte(i);if x~=y then return x<y end end
+  return #a<#b
+end
 function M.deserialize(text,kind,...)
   need(type(text)=="string" and #text<=2*1024*1024,"JSON","input exceeds contract byte limit")
-  local ok,value,pos,err=pcall(json.decode,text,1,json.null)
-  need(ok,"JSON","decoder failed on malformed input")
-  need(not err and value~=nil,"JSON",err or "missing value")
-  need(not text:sub(pos):find("%S"),"JSON","trailing data")
+  local value=require("pattern_parse").decode(text)
   local kinds={definition=true,specification=true,instance=true,view=true,scene=true,build_record=true}
   need(kinds[kind],"JSON","unknown constructor")
   return M[kind](value,...)

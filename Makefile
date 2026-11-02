@@ -14,6 +14,8 @@ florilegium.pdf florilegium-grow.pdf showcase.pdf specimen.pdf: $(HOSTS)
 
 check:
 	$(RUN) texlua tools/contractcheck.lua
+	$(RUN) texlua tools/replaycheck.lua
+	$(RUN) python3 tools/determinism_oracle.py
 	$(RUN) texlua tools/layoutcheck.lua
 	$(RUN) texlua tools/spacecheck.lua
 	$(RUN) texlua tools/initialcheck.lua

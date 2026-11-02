@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_stage": "03",
+  "current_stage": "04",
   "prompt_sha256": "8D25740D944FC98943FD005737BD825215CFCF6F894218790E140EDE8EE3F09E",
   "stages": [
     {
@@ -82,7 +82,7 @@
     {
       "id": "03",
       "title": "specify the shared contracts and extension boundaries",
-      "status": "in_progress",
+      "status": "passed",
       "prerequisites": "02",
       "acceptance_items": [
         "the contracts represent the five mandatory early demonstrations without family-specific core hacks, and express chirality, shared edges, reading order, boundary roles and instance/view separation. Architecture examples run. Record API decisions and future migration boundaries; do not spend this stage building speculative infrastructure."
@@ -90,33 +90,50 @@
       "observed_results": [
         "61 contract checks passed under local Lua 5.3: three real vertical examples plus corruption, transform, semantic-order and failure cases",
         "Existing space/backend/layout (28)/initial checks passed locally without changing their baselines",
-        "CI integration preserves all previous checks; exact-revision TeX jobs pending"
+        "CI integration preserves all previous checks; exact-revision TeX jobs pending",
+        "Exact-revision CI 41470769063 success: real texlua contractcheck, all existing document/layout/animation checks, portable source kit 130 hashes and extracted Lua/Xe builds"
       ],
       "evidence_paths": [
         "docs/architecture/CONTRACTS.md",
         "tools/contractcheck.lua",
         "artifacts/receipts/03/local-checks.json",
-        "artifacts/receipts/03/dkjson-dependency.json"
+        "artifacts/receipts/03/dkjson-dependency.json",
+        "artifacts/receipts/03/ci-final.json",
+        "artifacts/receipts/03/remote-byte-verification.json",
+        "artifacts/receipts/03/portable-ci.json"
       ],
-      "tested_code_revision": null,
-      "local_commit": null,
-      "verified_remote_revision": null,
-      "next_action": "Publish guarded feature checkpoint; open draft project PR; verify independent Git fetch and both required exact-revision CI jobs. Remain stage 03 until success."
+      "tested_code_revision": "e9793c9efa8a8246175bc5921f7d3771ca69350b",
+      "local_commit": "e9793c9efa8a8246175bc5921f7d3771ca69350b",
+      "verified_remote_revision": "e9793c9efa8a8246175bc5921f7d3771ca69350b",
+      "next_action": "Stage 04 deterministic recipes, identities and build provenance"
     },
     {
       "id": "04",
       "title": "deterministic recipes, identities and build provenance",
-      "status": "pending",
+      "status": "in_progress",
       "prerequisites": "03",
       "acceptance_items": [
         "recipes round-trip, fixed PRNG vectors pass on supported runtimes available now, malformed input fails usefully, cache dependency mutations invalidate the correct layer, and build records bind outputs to the exact source/input digests. Future browser parity remains a named gate until actually run there."
       ],
-      "observed_results": null,
-      "evidence_paths": null,
+      "observed_results": [
+        "145 local replay checks and61 contract checks pass on Lua5.3 and5.4 via Lupa2.8",
+        "Independent Python oracle validates SHA256, canonical number and named PRNG vectors",
+        "Actual floral primitive visitor isolation; real recipe generation/replay; palette/crop instance preservation; verified input bytes affect geometry",
+        "Dependency mutation, budget/cancel/lowering-failure records and actual atomic filesystem fault checks pass",
+        "Exact-revision Linux CI still pending publication; browser parity pending31"
+      ],
+      "evidence_paths": [
+        "docs/architecture/RECIPES.md",
+        "docs/validation/fixtures/determinism-v1.json",
+        "tools/replaycheck.lua",
+        "tools/determinism_oracle.py",
+        "artifacts/receipts/04/local-checks.json",
+        "artifacts/receipts/04/verification-notes.json"
+      ],
       "tested_code_revision": null,
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+      "next_action": "Publish reviewed stage04 checkpoint to pattern/common-platform with expected e9793c9; independently fetch bytes and verify required exact-revision CI before stage05."
     },
     {
       "id": "05",
