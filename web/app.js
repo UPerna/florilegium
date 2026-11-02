@@ -440,6 +440,12 @@ function pageText(m) {
       const who = (p) => p.role === 'spray' ? 'The stem along the foot of the page' : mains.length === 1 ? 'The stem'
         : p === mains[0] ? 'The tallest stem' : mains.length === 2 ? 'The other' : p === mains[1] ? 'The second' : 'The third'
       P.push(grew.map((p) => `${who(p)} bears ${p.text[0].toLowerCase()}${p.text.slice(1)}`).join(' '))
+      // the document's fern, on the pages that have it (florilegium-grow.lua: stats.fern)
+      const fern = m.stats.fern
+      if (fern) {
+        P.push(`The document has a fern as well, which grows on some of its pages, and on this one it sends up ${say(fern.fronds)}
+          frond${fern.fronds === 1 ? '' : 's'} from the root beside the stems. It is ${fern.text[0].toLowerCase()}${fern.text.slice(1)}`)
+      }
     }
     const grown = Object.keys(NAMES).filter((k) => !VISITORS.includes(k) && counts[k] > 0)
     const branches = grown.reduce((a, k) => a + counts[k], 0)

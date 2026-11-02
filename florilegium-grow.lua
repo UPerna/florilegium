@@ -373,13 +373,21 @@ local function pgfseed(r) return 1 + floor(r.u() * 2147483645) end
 -- The page's plants share v1.3's allowance: a row's `max` caps its group (all the
 -- plants' leaves together, as v1.3 has one leaf row), `limit` the row itself.
 M.GROUPS = { unit = 9, bloom = 3, spray = 8, budding = 6, leaf = 8, tendril = 4 }
+-- how much longer than v1.3's a species' leaf is drawn, so that it carries about as much
+-- ink: a compound leaf a third longer, so that its leaflets read as leaves; a narrow blade
+-- longer as it is narrower (v1.3's leaf is about 2.2 times as long as it is wide), up to
+-- 1.45 times. The TikZ library's \flo@leafcof computes the same for its plants
+local function leafc_of(sp)
+  if sp.compound ~= "simple" then return 1.35 end
+  return min(1.45, max(1, sqrt(sp.leafaspect / 2.2)))
+end
 local function species_rows(sp, i, sea)
   local O = ORG
   local _, r1, kind = O.unitdisc(sp, 1)       -- the disc grows linearly with the scale k
   local fd1 = min(2.8, 0.7 + 0.032 * sp.size) -- a flower's diameter at k = 1
   local airy = kind == "umbel" or kind == "raceme"
   local up = ({ solitary = 0.3, blossoms = 0.5, umbel = 1.0, raceme = 0.6, head = 0.5, catkin = 0.4 })[kind]
-  local leafc = sp.compound == "simple" and 1 or 1.35
+  local leafc = leafc_of(sp)
   -- Copper is v1.3's sparing accent: a red or orange plant, painted in it, flowers once
   -- a page in each way (a hole near it may stay empty)
   local cu = (sp.color == "red" or sp.color == "orange") and 1 or nil
@@ -1062,9 +1070,9 @@ function M.page(g)
   -- big stems get full leaves, alternating sides, smaller toward the top; the
   -- footer gets leaflets that thin out toward its end
   if FOOTER then leafy[#leafy + 1] = { pts = footpts, big = false, ev = footev } end
-  -- species: the plant's own leaves (its arrangement: one, two or three at a node; a
-  -- basal rosette; a monocot's straps from the base and two leaves up the stem), smaller
-  -- up the stem by the species' taper
+  -- species: the plant's own leaves (its arrangement: one, two or three at a node, a
+  -- lily's too; a basal rosette; an iris's or a grass's straps from the base and two leaves
+  -- up the stem), smaller up the stem by the species' taper
   local function species_leaves(st)
     local sp, pts = st.sp, st.pts
     -- a leaf at (x, y) along a; fore: foreshortened (a decussate pair's), sa, w: the stem's
@@ -1096,10 +1104,10 @@ function M.page(g)
     local function tangent_at(i)
       return norm(pts[min(#pts, i + 1)][1] - pts[max(1, i - 1)][1], pts[min(#pts, i + 1)][2] - pts[max(1, i - 1)][2])
     end
-    local leafc = sp.compound == "simple" and 1 or 1.35
+    local leafc = leafc_of(sp)
     local young = season(0.8, 1, 1)
     local b0 = pts[1]
-    if sp.clade == "monocot" then
+    if sp.clade == "monocot" and sp.arrangement ~= "alternate" and sp.arrangement ~= "whorled" then
       local nb = layout.int(3, 5)
       local H = pts[#pts][2] - b0[2]
       for b = 1, nb do
@@ -1114,7 +1122,7 @@ function M.page(g)
         while i < #pts and cum[i] < u * total do i = i + 1 end
         side = -side
         local tx, ty = tangent_at(i)
-        local Lf = sized(pts[i][2]) * layout.range(0.85, 1.1) * 0.75 * young
+        local Lf = sized(pts[i][2]) * layout.range(0.85, 1.1) * 0.75 * leafc * young
         leafat(pts[i][1], pts[i][2], deg(tx, ty) + side * layout.range(35, 60), Lf, u, side, 1, deg(tx, ty), lerp(w0, w1, u))
       end
       return

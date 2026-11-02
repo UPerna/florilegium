@@ -3554,7 +3554,7 @@ local function stemload()
 end
 local function leafcof()
   V.t = tr("compound")
-  if R.t == "simple" then V.leafc = U else V.leafc = K"1.35" end
+  if R.t == "simple" then V.leafc = E"min(1.45,max(1,sqrt($leafaspect/2.2)))" else V.leafc = K"1.35" end
 end
 local function nodeat()
   V.nyy = R.ny V.u = E"@nyy/@pH"
@@ -3623,6 +3623,7 @@ local function rosette()
     V.f = E"(#Gb-(@nb+1)/2)/max(1,(@nb-1)/2)"
     V.t = sym(8 * U) V.la = E"90-62*@f+@t"
     V.lf = range(K"1.6", K"2.3") V.t = range(K"0.05", K"0.3") V.sbend = E"(@f<0 ? 1 : -1)*@t"
+    V.lf = E"@lf*@leafc"
     V.lc = rnd() seedorgan() placeleaf(R.root, K"0.1")
   end)
 end
@@ -3653,6 +3654,11 @@ end
 local function passleaves()
   stemload() V["#Ge"] = 0 leafcof()
   V.cl = tr("clade")
+  if R.cl == "monocot" then
+    V.arr = tr("arrangement")
+    if R.arr == "alternate" then V.cl = "leafy" end
+    if R.arr == "whorled" then V.cl = "leafy" end
+  end
   if R.cl == "monocot" then monocotleaves() else eudicotleaves() end
   V["nd@n" .. R["#Ga"]] = R["#Ge"]
 end

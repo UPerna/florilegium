@@ -1493,15 +1493,25 @@
 \def\flo@stemload{\expandafter\expandafter\expandafter\flo@stemload@\csname flo@pp@f\the\flo@Ga\endcsname}
 \def\flo@stemload@#1#2#3{\def\flo@pph{#1}\def\flo@pps{#2}\def\flo@plam{#3}}
 % 2. leaves at nodes up the stem (each node kept for pass 3), a rosette at the root, or a
-% monocot's strap leaves
+% monocot's strap leaves; a monocot with alternate or whorled leaves (a lily's) carries
+% them up the stem as a eudicot does
 \def\flo@passleaves{%
   \flo@stemload\flo@Ge=0 \flo@leafcof
   \edef\flo@cl{\flo@get{clade}}\def\flo@tmp{monocot}%
+  \ifx\flo@cl\flo@tmp
+    \edef\flo@arr{\flo@get{arrangement}}%
+    \def\flo@tmp{alternate}\ifx\flo@arr\flo@tmp\def\flo@cl{leafy}\fi
+    \def\flo@tmp{whorled}\ifx\flo@arr\flo@tmp\def\flo@cl{leafy}\fi
+    \def\flo@tmp{monocot}%
+  \fi
   \ifx\flo@cl\flo@tmp\flo@monocotleaves\else\flo@eudicotleaves\fi
   \expandafter\edef\csname flo@nd@n\the\flo@Ga\endcsname{\the\flo@Ge}}
-% compound leaves a third larger, so that their leaflets read as leaves: \flo@leafc
+% how much longer than v1.3's the species' leaves are drawn, so that they carry about as
+% much ink (\flo@leafc): compound leaves a third longer, so that their leaflets read as
+% leaves; a narrow blade longer as it is narrower (v1.3's leaf is about 2.2 times as long
+% as it is wide), up to 1.45 times. florilegium-grow.lua's leafc_of is the same
 \def\flo@leafcof{\edef\flo@t{\flo@get{compound}}\def\flo@tmp{simple}%
-  \ifx\flo@t\flo@tmp\def\flo@leafc{1}\else\def\flo@leafc{1.35}\fi}
+  \ifx\flo@t\flo@tmp\flo@calc\flo@leafc{min(1.45,max(1,sqrt(\flo@get{leafaspect}/2.2)))}\else\def\flo@leafc{1.35}\fi}
 \def\flo@eudicotleaves{%
   \edef\flo@arr{\flo@get{arrangement}}\def\flo@per{1}\def\flo@gap{1}\def\flo@leafk{1}%
   \def\flo@tmp{opposite}\ifx\flo@arr\flo@tmp\def\flo@per{2}\def\flo@gap{1.3}\fi
@@ -1573,8 +1583,10 @@
     \flo@calc\flo@f{(\the\flo@Gb-(\flo@nb+1)/2)/max(1,(\flo@nb-1)/2)}%
     \flo@sym\flo@t{8}\flo@calc\flo@la{90-62*\flo@f+\flo@t}%
     \flo@range\flo@lf{1.6}{2.3}\flo@range\flo@t{0.05}{0.3}\flo@calc\flo@sbend{(\flo@f<0 ? 1 : -1)*\flo@t}%
+    \flo@calc\flo@lf{\flo@lf*\flo@leafc}%
     \flo@rnd\flo@lc\flo@seedorgan\flo@placeleaf\flo@root{0.1}}}
-% a monocot: three to five strap leaves arching from the root, two nodes up the stem
+% a monocot (an iris's or a grass's leaves, or a rosette): three to five strap leaves
+% arching from the root, two nodes up the stem
 \def\flo@monocotleaves{%
   \flo@int\flo@nb{3}{5}%
   \flo@loop{mb}\flo@Gb{1}{\flo@nb}{%

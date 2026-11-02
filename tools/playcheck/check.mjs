@@ -184,6 +184,10 @@ const sp7 = s
   const c = await tab('cli')
   check('species: the command line', /--seed 7 \\\n\s*--species /.test(c.snippet), c.snippet.replace(/\s*\\\n\s*/g, ' '))
   await tab('latex')
+  // seed 7's page has the document's fern at the root, which the text names after the plants
+  const fern = await page.evaluate(() => window.current.stats.fern)
+  check('species: a fern at the root, in words', fern && fern.fronds === 2 && s.text.includes('on this one it sends up two fronds from the root beside the stems')
+    && s.text.includes('It is ' + fern.text[0].toLowerCase() + fern.text.slice(1)), s.text.match(/The document has a fern[^.]*\.[^.]*\./)?.[0])
 }
 s = await choose('style', 'a plant cut from flat shapes')
 check('species: geometric has none (same garden, no term, no option)', s.sha === geo.sha && !(await page.$$eval('#colophon .term', (t) => t.map((x) => x.dataset.k))).includes('species')
@@ -193,7 +197,7 @@ check('species: math has none', !(await page.$$eval('#colophon .term', (t) => t.
 s = await choose('style', 'a flowering plant')
 check('species: back with the flowering plant', s.sha === sp7.sha && /Each stem is a species of its own/.test(s.colophon))
 s = await choose('density', 'pared down to a single vine')
-check('species: a single vine grows one of them', /this page grows one of them/.test(s.text) && /The stem bears /.test(s.text) && !/The second bears|along the foot/.test(s.text), s.text.match(/this page grows[^.]*\./)?.[0])
+check('species: a single vine grows one of them, and no fern', /this page grows one of them/.test(s.text) && /The stem bears /.test(s.text) && !/The second bears|along the foot|a fern as well/.test(s.text), s.text.match(/this page grows[^.]*\./)?.[0])
 s = await choose('density', 'at full density')
 s = await choose('species', 'Its stems are all one plant')
 check('species: off, the same garden as before', s.sha === base.sha && !/species/.test(s.hash + s.snippet + s.text), s.sha)
