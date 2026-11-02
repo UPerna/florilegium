@@ -2379,7 +2379,7 @@
 \def\flo@ls@reniform{\def\flo@lvm{0.42}\def\flo@lkb{2}\def\flo@ldrop{0.8}\def\flo@lround{1}}
 \def\flo@ls@deltoid{\def\flo@lvm{0.1}\def\flo@lkb{3.5}}
 \def\flo@ls@sagittate{\def\flo@lvm{0.32}\def\flo@lkb{1.8}\def\flo@ldrop{2}}
-\def\flo@ls@hastate{\def\flo@lvm{0.42}\def\flo@lkb{1.3}\def\flo@lhl{1.25}\def\flo@ldrop{0.3}}
+\def\flo@ls@hastate{\def\flo@lvm{0.38}\def\flo@lkb{1.7}\def\flo@lhl{1.05}\def\flo@ldrop{0.2}}
 \def\flo@la@acute{\def\flo@lka{1.25}}
 \def\flo@la@acuminate{\def\flo@lka{1.5}\def\flo@lacu{1}}
 \def\flo@la@obtuse{\def\flo@lka{2}}
@@ -2402,15 +2402,62 @@
     \def\flo@dy{0}%
   \fi
   \ifdim\flo@lhl pt>0pt
-    \flo@calc\flo@t{max(0,1-abs((\flo@shv)-0.14)/0.14)}%
+    \flo@calc\flo@t{max(0,1-abs((\flo@shv)-0.11)/0.11)}%
     \ifdim\flo@t pt>0pt \flo@calc\flo@h{max(\flo@h,\flo@lhl*\flo@lW*\flo@t)}\fi
   \fi}
 \def\flo@slenv#1{\flo@shw{#1}\let\flo@env\flo@h}
+% The body's margin: samples \flo@sv<k> along the spine, k = 1..\flo@mn, each with its
+% tooth profile \flo@sd<k> (1 at a tooth's tip and on a smooth edge, 0 at the bottom of a
+% notch) and the cut's scale on the left and the right (\flo@sjl<k>, \flo@sjr<k>), so no two
+% teeth are alike. A smooth margin is \flo@bn+1 samples closer together at the ends, a wavy
+% one waves three to five times; teeth run from 0.12 to 0.93 along the spine, as many as the
+% species has where the leaf is large enough to show them: serrate teeth lean toward the tip,
+% dentate ones point out, crenate ones are round scallops, doubly serrate ones carry a
+% smaller tooth. A lobed body keeps a smooth edge (its lobes have their own).
+\def\flo@sadd#1#2#3#4{\edef\flo@mn{\the\numexpr\flo@mn+1\relax}%
+  \expandafter\edef\csname flo@sv\flo@mn\endcsname{#1}\expandafter\edef\csname flo@sd\flo@mn\endcsname{#2}%
+  \expandafter\edef\csname flo@sjl\flo@mn\endcsname{#3}\expandafter\edef\csname flo@sjr\flo@mn\endcsname{#4}}
+% a point of the tooth that starts at \flo@tvo and is \flo@tw wide: #1 its phase, #2 its profile
+\def\flo@tpt#1#2{\flo@calc\flo@t{\flo@tvo+\flo@tw*(#1)}\flo@sadd\flo@t{#2}\flo@jl\flo@jr}
+\def\flo@lt@serrate{\flo@tpt{0}{0}\flo@tpt{0.75+\flo@jp}{1}}
+\def\flo@lt@doubly{\flo@tpt{0}{0}\flo@tpt{0.38}{0.55}\flo@tpt{0.52}{0.3}\flo@tpt{0.82+\flo@jp}{1}}
+\def\flo@lt@dentate{\flo@tpt{0}{0}\flo@tpt{0.5+\flo@jp}{1}}
+\def\flo@lt@crenate{\flo@tpt{0}{0}\flo@tpt{0.2}{0.72}\flo@tpt{0.5+\flo@jp}{1}\flo@tpt{0.8}{0.72}}
+% the margin's kind \flo@lmk (0 smooth, 1 wavy, 2 toothed), the cut's depth \flo@ldep and
+% the outline's tension \flo@ltk (teeth a little sharper)
+\def\flo@lm@undulate{\def\flo@lmk{1}}
+\def\flo@lm@serrate{\def\flo@lmk{2}\def\flo@ltk{0.5}\def\flo@ltd{1.2}}
+\def\flo@lm@doubly{\def\flo@lmk{2}\def\flo@ltk{0.5}\def\flo@ltd{1.3}}
+\def\flo@lm@dentate{\def\flo@lmk{2}\def\flo@ltk{0.5}\def\flo@ltd{1.3}}
+\def\flo@lm@crenate{\def\flo@lmk{2}\def\flo@ltd{1.5}}
+\def\flo@smargin{%
+  \def\flo@lmk{0}\def\flo@mn{0}\def\flo@ltk{0.8}\def\flo@ldep{0}\edef\flo@lmn{\flo@get{leafmargin}}%
+  \ifdim\flo@ldepth pt>0pt\else\ifcsname flo@lm@\flo@lmn\endcsname\csname flo@lm@\flo@lmn\endcsname\fi\fi
+  \ifnum\flo@lmk<2
+    \ifnum\flo@lmk=1 \flo@int\flo@lwn{3}{5}\flo@calc\flo@ldep{(0.05+\flo@get{dissection})*\flo@lW*2.4}\fi
+    \flo@loop{smg}\flo@kb{0}{\flo@bn}{%
+      \flo@calc\flo@v{0.5-0.5*cos(180*\the\flo@kb/\flo@bn)}%
+      \ifnum\flo@lmk=1 \flo@calc\flo@t{0.5+0.5*sin(360*\flo@lwn*\flo@v)}\else\def\flo@t{1}\fi
+      \flo@sadd\flo@v\flo@t{1}{1}}%
+  \else
+    \flo@calc\flo@ldep{\flo@get{dissection}*\flo@lW*\flo@ltd}%
+    \flo@calc\flo@t{min(\flo@get{teeth},max(4,round(4+8*\flo@vl@u)))}\pgfmathtruncatemacro\flo@ltn{\flo@t}%
+    \flo@calc\flo@tw{0.81/\flo@ltn}%
+    \flo@loop{smb}\flo@kb{0}{4}{\flo@calc\flo@v{0.12*(1-cos(90*\the\flo@kb/5))}\flo@sadd\flo@v{1}{1}{1}}%
+    \flo@loop{smt}\flo@ka{1}{\flo@ltn}{%
+      \flo@range\flo@jl{0.65}{1.35}\flo@range\flo@jr{0.65}{1.35}\flo@sym\flo@jp{0.06}%
+      \flo@calc\flo@tvo{0.12+\flo@tw*(\the\flo@ka-1)}\csname flo@lt@\flo@lmn\endcsname}%
+    \flo@sadd{0.93}{0}{1}{1}%
+    \flo@loop{smp}\flo@kb{1}{5}{\flo@calc\flo@v{0.93+0.07*sin(90*\the\flo@kb/5)}\flo@sadd\flo@v{1}{1}{1}}%
+  \fi}
 \def\flo@sleaf{%
   \flo@sshape
   % a broad blade is drawn shorter, so that it stays within the room a leaf is given (about
   % 0.6 of its length across) and leaves of every shape carry about the same weight
   \flo@calc\flo@lsc{min(1,0.3/\flo@lW)}%
+  % (a palmately lobed leaf's lobes fan out to about 0.55 of its length each side)
+  \edef\flo@t{\flo@get{leafmargin}}\def\flo@tmp{palmatelobed}%
+  \ifx\flo@t\flo@tmp\flo@calc\flo@lsc{min(1,0.3/max(\flo@lW,0.55))}\fi
   \begin{pgfscope}%
   \ifdim\flo@lsc pt<1pt \pgftransformscale{\flo@lsc}\flo@calc\flo@vl@u{\flo@vl@u*\flo@lsc}\fi
   % stipules at the foot, a pair of small leaflets (on leaves a centimeter long or more)
@@ -2445,39 +2492,63 @@
   \ifx\flo@vl@tone\pgfutil@empty\flo@range\flo@lt{0.26}{0.38}\else\edef\flo@lt{\flo@vl@tone}\fi
   \ifdim\flo@vl@u pt>0.6pt \def\flo@fine{1}\def\flo@bn{36}\else\def\flo@fine{0}\def\flo@bn{24}\fi
   \ifdim\flo@ldepth pt>0pt \flo@calc\flo@bodyw{1-0.75*\flo@ldepth}\def\flo@lent{0}\else\def\flo@bodyw{1}\def\flo@lent{1}\fi
-  % the body: points closer together toward the base and the tip, where the outline turns
-  \flo@loop{sbs}\flo@kb{0}{\flo@bn}{%
-    \flo@calc\flo@v{0.5-0.5*cos(180*\the\flo@kb/\flo@bn)}\flo@lspine\flo@v
-    \flo@put{\the\numexpr\flo@kb+1\relax}{\flo@sx}{\flo@sy}}%
-  \flo@normals{\the\numexpr\flo@bn+1\relax}%
-  \flo@loop{sbo}\flo@kb{0}{\flo@bn}{%
-    \flo@calc\flo@v{0.5-0.5*cos(180*\the\flo@kb/\flo@bn)}\edef\flo@q{\the\numexpr\flo@kb+1\relax}%
-    \flo@calc\flo@t{\flo@v*3}\flo@lteeth\flo@t
-    \flo@shw\flo@v\flo@calc\flo@e{max(0,\flo@h*\flo@bodyw+\flo@lent*\flo@th)}%
+  % the body along its margin's samples (\flo@smargin)
+  \flo@smargin
+  \flo@loop{sbs}\flo@kb{1}{\flo@mn}{%
+    \edef\flo@v{\csname flo@sv\the\flo@kb\endcsname}\flo@lspine\flo@v\flo@put{\the\flo@kb}{\flo@sx}{\flo@sy}}%
+  \flo@normals{\flo@mn}%
+  \flo@loop{sbo}\flo@kb{1}{\flo@mn}{%
+    \edef\flo@q{\the\flo@kb}\edef\flo@v{\csname flo@sv\flo@q\endcsname}\edef\flo@sdd{\csname flo@sd\flo@q\endcsname}%
+    \flo@shw\flo@v\flo@calc\flo@cut{\flo@ldep*min(1,\flo@h/(0.45*\flo@lW))*(1-\flo@sdd)}%
+    \flo@calc\flo@e{max(0,\flo@h*\flo@bodyw-\flo@cut*\csname flo@sjl\flo@q\endcsname)}%
     \flo@calc\flo@xl{\flo@x\flo@q+\csname flo@NX\flo@q\endcsname*\flo@e}\flo@calc\flo@yl{\flo@y\flo@q+\csname flo@NY\flo@q\endcsname*\flo@e-\flo@dy}%
-    \ifdim\flo@lobl pt>0pt \flo@calc\flo@vo{max(0,(\flo@v-\flo@lobl)/(1-\flo@lobl))}\flo@shw\flo@vo
-      \flo@calc\flo@e{max(0,\flo@h*\flo@bodyw+\flo@lent*\flo@th)}\fi
+    \ifdim\flo@lobl pt>0pt \flo@calc\flo@vo{max(0,(\flo@v-\flo@lobl)/(1-\flo@lobl))}\flo@shw\flo@vo\fi
+    \flo@calc\flo@e{max(0,\flo@h*\flo@bodyw-\flo@cut*\csname flo@sjr\flo@q\endcsname)}%
     \flo@calc\flo@xr{\flo@x\flo@q-\csname flo@NX\flo@q\endcsname*\flo@e}\flo@calc\flo@yr{\flo@y\flo@q-\csname flo@NY\flo@q\endcsname*\flo@e-\flo@dy}%
     \expandafter\let\csname flo@RX\flo@q\endcsname\flo@xl\expandafter\let\csname flo@RY\flo@q\endcsname\flo@yl
     \expandafter\let\csname flo@QX\flo@q\endcsname\flo@xr\expandafter\let\csname flo@QY\flo@q\endcsname\flo@yr}%
   % the tip: notched (emarginate) or a short point (mucronate)
-  \edef\flo@q{\the\numexpr\flo@bn+1\relax}%
+  \edef\flo@q{\flo@mn}%
   \ifnum\flo@ltip<0 \flo@calc\flo@t{\csname flo@RY\flo@q\endcsname-0.25*\flo@lW}\expandafter\let\csname flo@RY\flo@q\endcsname\flo@t\fi
   \ifnum\flo@ltip>0 \flo@calc\flo@t{\csname flo@RY\flo@q\endcsname+0.04}\expandafter\let\csname flo@RY\flo@q\endcsname\flo@t\fi
-  \flo@bladeassemble{\flo@bn}\flo@smoothprepT{\the\numexpr2*\flo@bn\relax}{0.8}\flo@keep{ls1}%
+  \edef\flo@mnm{\the\numexpr\flo@mn-1\relax}\flo@bladeassemble\flo@mnm
+  \flo@smoothprepT{\the\numexpr2*\flo@mn-2\relax}{\flo@ltk}\flo@keep{ls1}%
+  % a hairy leaf's fringe: short hairs straight out from every other point of its edge
+  \ifnum\flo@get{hairy}=1 \ifnum\flo@fine=1
+    \edef\flo@hn{\the\numexpr2*\flo@mn-2\relax}\flo@normals\flo@hn
+    \flo@vtone{flo@c}{0.1}%
+    \flo@vstroke{flo@c}{0.15}{0.55}{0}{%
+      \flo@loop{hair}\flo@kb{1}{\flo@hn}{\ifodd\flo@kb
+        \flo@range\flo@hl{0.008}{0.02}%
+        \flo@calc\flo@xl{\flo@x{\the\flo@kb}+\csname flo@NX\the\flo@kb\endcsname*\flo@hl}%
+        \flo@calc\flo@yl{\flo@y{\the\flo@kb}+\csname flo@NY\the\flo@kb\endcsname*\flo@hl}%
+        \pgfpathmoveto{\flo@P{\flo@x{\the\flo@kb}}{\flo@y{\the\flo@kb}}}\pgfpathlineto{\flo@P\flo@xl\flo@yl}\fi}}%
+  \fi\fi
   \def\flo@nshapes{1}\def\flo@nveins{0}%
-  % the lobes, grown out of the body along the spine, turned 38..58 degrees outward
+  % the lobes, grown out of the body along the spine, turned 38..58 degrees outward; a
+  % palmately lobed leaf's (a maple's) fan out from its base instead, wider, each shorter
+  % and further round than the last
   \ifdim\flo@ldepth pt>0pt
+    \def\flo@tmp{palmatelobed}\ifx\flo@lmn\flo@tmp
+      \def\flo@lpal{1}\def\flo@lwf{1.3}\pgfmathtruncatemacro\flo@lnl{max(1,floor(\flo@llobes/2))}%
+    \else\def\flo@lpal{0}\def\flo@lwf{1}\edef\flo@lnl{\flo@llobes}\fi
     \flo@loop{slside}\flo@kc{0}{1}{%
       \ifnum\flo@kc=0 \def\flo@side{-1}\else\def\flo@side{1}\fi
-      \flo@loop{slobe}\flo@ka{1}{\flo@llobes}{%
-        \flo@calc\flo@lv{0.1+0.72*(\the\flo@ka-(\flo@side>0 ? 0.25 : 0.75))/\flo@llobes}%
-        \flo@lspine\flo@lv\let\flo@lx\flo@sx\let\flo@ly\flo@sy\flo@ltan\flo@lv
-        \flo@calc\flo@t{min(0.95,\flo@lv+0.08)}\flo@slenv\flo@t\flo@range\flo@t{0.95}{1.15}\flo@calc\flo@reach{\flo@env*\flo@t}%
-        \flo@range\flo@lang{38}{58}%
+      \flo@loop{slobe}\flo@ka{1}{\flo@lnl}{%
+        \ifnum\flo@lpal=1
+          \flo@calc\flo@lv{0.04+0.025*\the\flo@ka}%
+          \flo@lspine\flo@lv\let\flo@lx\flo@sx\let\flo@ly\flo@sy\flo@ltan\flo@lv
+          \flo@range\flo@t{0.9}{1.1}\flo@calc\flo@lL{0.8*(1-0.3*(\the\flo@ka-1)/\flo@lnl)*\flo@t}%
+          \flo@range\flo@lang{30}{40}\flo@calc\flo@lang{\flo@lang+45*(\the\flo@ka-1)/max(1,\flo@lnl-1)}%
+        \else
+          \flo@calc\flo@lv{0.1+0.72*(\the\flo@ka-(\flo@side>0 ? 0.25 : 0.75))/\flo@llobes}%
+          \flo@lspine\flo@lv\let\flo@lx\flo@sx\let\flo@ly\flo@sy\flo@ltan\flo@lv
+          \flo@calc\flo@t{min(0.95,\flo@lv+0.08)}\flo@slenv\flo@t\flo@range\flo@t{0.95}{1.15}\flo@calc\flo@reach{\flo@env*\flo@t}%
+          \flo@range\flo@lang{38}{58}%
+        \fi
         \flo@calc\flo@c{cos(\flo@lang)}\flo@calc\flo@sn{sin(\flo@lang)*\flo@side}%
         \flo@calc\flo@ldx{\flo@tx*\flo@c-\flo@ty*\flo@sn}\flo@calc\flo@ldy{\flo@tx*\flo@sn+\flo@ty*\flo@c}%
-        \flo@calc\flo@lL{\flo@reach/sin(\flo@lang)*0.95}%
+        \ifnum\flo@lpal=0 \flo@calc\flo@lL{\flo@reach/sin(\flo@lang)*0.95}\fi
         \flo@sym\flo@t{0.25}\flo@calc\flo@lb{\flo@t-\flo@side*0.15}%
         \flo@loop{slbp}\flo@kb{0}{11}{%
           \flo@calc\flo@v{\the\flo@kb/11}%
@@ -2489,8 +2560,8 @@
           \flo@calc\flo@v{\the\flo@kb/11}\edef\flo@q{\the\numexpr\flo@kb+1\relax}%
           \ifdim\flo@v pt>0.2pt \flo@calc\flo@t{\flo@v*1.4+\the\flo@ka}\flo@lteeth\flo@t\flo@calc\flo@e{\flo@th*\flo@lL*4}\else\def\flo@e{0}\fi
           \ifdim\flo@v pt>0pt \flo@calc\flo@g{pow(max(0,sin(180*pow(\flo@v,0.62))),0.75)}\else\def\flo@g{0}\fi
-          \flo@range\flo@t{0.26}{0.3}\flo@calc\flo@wa{max(0,\flo@lL*\flo@t*\flo@g+\flo@e)}%
-          \flo@range\flo@t{0.26}{0.3}\flo@calc\flo@wb{max(0,\flo@lL*\flo@t*\flo@g+\flo@e)}%
+          \flo@range\flo@t{0.26}{0.3}\flo@calc\flo@wa{max(0,\flo@lL*\flo@t*\flo@lwf*\flo@g+\flo@e)}%
+          \flo@range\flo@t{0.26}{0.3}\flo@calc\flo@wb{max(0,\flo@lL*\flo@t*\flo@lwf*\flo@g+\flo@e)}%
           \flo@calc\flo@xl{\flo@x\flo@q+\csname flo@NX\flo@q\endcsname*\flo@wa}\flo@calc\flo@yl{\flo@y\flo@q+\csname flo@NY\flo@q\endcsname*\flo@wa}%
           \flo@calc\flo@xr{\flo@x\flo@q-\csname flo@NX\flo@q\endcsname*\flo@wb}\flo@calc\flo@yr{\flo@y\flo@q-\csname flo@NY\flo@q\endcsname*\flo@wb}%
           \expandafter\let\csname flo@RX\flo@q\endcsname\flo@xl\expandafter\let\csname flo@RY\flo@q\endcsname\flo@yl
@@ -2526,15 +2597,42 @@
       \expandafter\expandafter\expandafter\flo@lveinat\csname flo@V\the\flo@ka\endcsname
       \def\flo@twa{0.017}\def\flo@twb{0.002}\flo@range\flo@op{0.5}{0.75}%
       \flo@vfill{white}{\flo@op}{0}{\flo@vtaper\flo@va\flo@vb\flo@mx\flo@my\flo@c\flo@d\flo@ex\flo@ey}}%
+    % veins: side veins from the midrib (pinnate), curving up along the edge toward the tip
+    % (arcuate), or two each side fanning from the base below a few side veins (palmate)
     \ifnum\flo@nveins=0
-      \flo@loop{slsveins}\flo@ka{1}{9}{%
+      \edef\flo@vn{\flo@get{venation}}\def\flo@vka{1}\def\flo@varc{0}%
+      \def\flo@tmp{arcuate}\ifx\flo@vn\flo@tmp\def\flo@varc{1}\fi
+      \def\flo@tmp{palmate}\ifx\flo@vn\flo@tmp
+        \def\flo@vka{5}%
+        \flo@lspine{0.03}\let\flo@lx\flo@sx\let\flo@ly\flo@sy\flo@ltan{0.03}%
+        \flo@loop{slpv}\flo@kc{0}{3}{%
+          \ifnum\flo@kc<2 \def\flo@side{-1}\else\def\flo@side{1}\fi
+          \ifodd\flo@kc\def\flo@t{64}\def\flo@vbl{1.1}\else\def\flo@t{32}\def\flo@vbl{1.5}\fi
+          \flo@range\flo@lang{\flo@t-5}{\flo@t+5}%
+          \flo@calc\flo@c{cos(\flo@lang)}\flo@calc\flo@sn{sin(\flo@lang)*\flo@side}%
+          \flo@calc\flo@ldx{\flo@tx*\flo@c-\flo@ty*\flo@sn}\flo@calc\flo@ldy{\flo@tx*\flo@sn+\flo@ty*\flo@c}%
+          \flo@range\flo@t{0.85}{1}\flo@calc\flo@lL{\flo@lW*\flo@vbl*\flo@t}%
+          \flo@calc\flo@pa{\flo@lx+\flo@ldx*\flo@lL*0.4}\flo@calc\flo@pb{\flo@ly+\flo@ldy*\flo@lL*0.4}%
+          \flo@calc\flo@pc{\flo@lx+\flo@ldx*\flo@lL*0.75+\flo@tx*\flo@lL*0.25}\flo@calc\flo@pd{\flo@ly+\flo@ldy*\flo@lL*0.75+\flo@ty*\flo@lL*0.25}%
+          \flo@calc\flo@pe{\flo@lx+\flo@ldx*\flo@lL*0.9+\flo@tx*\flo@lL*0.6}\flo@calc\flo@pf{\flo@ly+\flo@ldy*\flo@lL*0.9+\flo@ty*\flo@lL*0.6}%
+          \let\flo@qa\flo@pa\let\flo@qb\flo@pb\let\flo@qc\flo@pc\let\flo@qd\flo@pd\let\flo@qe\flo@pe\let\flo@qf\flo@pf
+          \def\flo@twa{0.016}\def\flo@twb{0.002}\flo@range\flo@op{0.45}{0.7}%
+          \flo@vfill{white}{\flo@op}{0}{\flo@vtaper\flo@lx\flo@ly\flo@qa\flo@qb\flo@qc\flo@qd\flo@qe\flo@qf}}%
+      \fi
+      \flo@loop{slsveins}\flo@ka{\flo@vka}{9}{%
         \flo@calc\flo@v{(\the\flo@ka-0.3)/10*0.9}\ifodd\flo@ka\def\flo@sg{-1}\else\def\flo@sg{1}\fi
         \flo@lspine\flo@v\let\flo@lx\flo@sx\let\flo@ly\flo@sy\flo@ltan\flo@v
         \flo@calc\flo@nx{-\flo@ty*\flo@sg}\flo@calc\flo@ny{\flo@tx*\flo@sg}%
         \flo@slenv\flo@v\flo@range\flo@t{0.75}{0.95}\flo@calc\flo@lL{\flo@env*\flo@bodyw*\flo@t}%
-        \flo@calc\flo@pa{\flo@lx+\flo@nx*\flo@lL*0.4}\flo@calc\flo@pb{\flo@ly+\flo@ny*\flo@lL*0.4}%
-        \flo@calc\flo@pc{\flo@lx+\flo@nx*\flo@lL*0.75+\flo@tx*\flo@lL*0.3}\flo@calc\flo@pd{\flo@ly+\flo@ny*\flo@lL*0.75+\flo@ty*\flo@lL*0.3}%
-        \flo@calc\flo@pe{\flo@lx+\flo@nx*\flo@lL*0.95+\flo@tx*\flo@lL*0.6}\flo@calc\flo@pf{\flo@ly+\flo@ny*\flo@lL*0.95+\flo@ty*\flo@lL*0.6}%
+        \ifnum\flo@varc=1
+          \flo@calc\flo@pa{\flo@lx+\flo@nx*\flo@lL*0.3+\flo@tx*\flo@lL*0.12}\flo@calc\flo@pb{\flo@ly+\flo@ny*\flo@lL*0.3+\flo@ty*\flo@lL*0.12}%
+          \flo@calc\flo@pc{\flo@lx+\flo@nx*\flo@lL*0.62+\flo@tx*\flo@lL*0.55}\flo@calc\flo@pd{\flo@ly+\flo@ny*\flo@lL*0.62+\flo@ty*\flo@lL*0.55}%
+          \flo@calc\flo@pe{\flo@lx+\flo@nx*\flo@lL*0.72+\flo@tx*\flo@lL*1.15}\flo@calc\flo@pf{\flo@ly+\flo@ny*\flo@lL*0.72+\flo@ty*\flo@lL*1.15}%
+        \else
+          \flo@calc\flo@pa{\flo@lx+\flo@nx*\flo@lL*0.4}\flo@calc\flo@pb{\flo@ly+\flo@ny*\flo@lL*0.4}%
+          \flo@calc\flo@pc{\flo@lx+\flo@nx*\flo@lL*0.75+\flo@tx*\flo@lL*0.3}\flo@calc\flo@pd{\flo@ly+\flo@ny*\flo@lL*0.75+\flo@ty*\flo@lL*0.3}%
+          \flo@calc\flo@pe{\flo@lx+\flo@nx*\flo@lL*0.95+\flo@tx*\flo@lL*0.6}\flo@calc\flo@pf{\flo@ly+\flo@ny*\flo@lL*0.95+\flo@ty*\flo@lL*0.6}%
+        \fi
         \let\flo@qa\flo@pa\let\flo@qb\flo@pb\let\flo@qc\flo@pc\let\flo@qd\flo@pd\let\flo@qe\flo@pe\let\flo@qf\flo@pf
         \def\flo@twa{0.014}\def\flo@twb{0.002}\flo@range\flo@op{0.45}{0.7}%
         \flo@vfill{white}{\flo@op}{0}{\flo@vtaper\flo@lx\flo@ly\flo@qa\flo@qb\flo@qc\flo@qd\flo@qe\flo@qf}}%

@@ -91,8 +91,9 @@ if arg[1] == "draw" then
     end
     pic(fmt("florilegium inflorescence={seed=%d, role=any, scale=1, season=0.75}", seed))
   end
-  -- a simple leaf of every shape, apex, base and attachment, one with stipules and a lobed
-  -- spear-shaped one (the first seed that has each; one pic per seed)
+  -- a simple leaf of every shape, apex, base and attachment, one with stipules, a lobed
+  -- spear-shaped one, every margin and venation and a hairy toothed one (the first seed that
+  -- has each; one pic per seed)
   do
     local seen = {}
     local function simple(sp) return sp.compound == "simple" and sp.venation ~= "parallel" end
@@ -107,6 +108,10 @@ if arg[1] == "draw" then
       wants[#wants + 1] = function(sp) return sp.attachment == v end end
     wants[#wants + 1] = function(sp) return sp.stipules ~= "none" end
     wants[#wants + 1] = function(sp) return sp.leafshape == "hastate" and sp.leafmargin == "lobed" end
+    for _, v in ipairs({ "entire", "undulate", "serrate", "doubly", "dentate", "crenate", "lobed", "pinnatifid",
+      "palmatelobed" }) do wants[#wants + 1] = function(sp) return sp.leafmargin == v end end
+    for _, v in ipairs({ "pinnate", "arcuate", "palmate" }) do wants[#wants + 1] = function(sp) return sp.venation == v end end
+    wants[#wants + 1] = function(sp) return sp.hairy == 1 and sp.leafmargin == "serrate" end
     for _, want in ipairs(wants) do
       local seed = 1
       while true do

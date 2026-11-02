@@ -1216,7 +1216,7 @@ local LSHAPE = {
   reniform = function() V.lvm = K"0.42" V.lkb = 2 * U V.ldrop = K"0.8" V.lround = U end,
   deltoid = function() V.lvm = K"0.1" V.lkb = K"3.5" end,
   sagittate = function() V.lvm = K"0.32" V.lkb = K"1.8" V.ldrop = 2 * U end,
-  hastate = function() V.lvm = K"0.42" V.lkb = K"1.3" V.lhl = K"1.25" V.ldrop = K"0.3" end,
+  hastate = function() V.lvm = K"0.38" V.lkb = K"1.7" V.lhl = K"1.05" V.ldrop = K"0.2" end,
 }
 local LAPEX = {
   acute = function() V.lka = K"1.25" end,
@@ -1250,11 +1250,52 @@ local function shw(v)
     V.dy = 0
   end
   if R.lhl > 0 then
-    V.t = E"max(0,1-abs((@shv)-0.14)/0.14)"
+    V.t = E"max(0,1-abs((@shv)-0.11)/0.11)"
     if R.t > 0 then V.h = E"max(@h,@lhl*@lW*@t)" end
   end
 end
 local function slenv(v) shw(v) V.env = R.h end
+-- \flo@smargin: the body's margin samples {v, profile, left scale, right scale} in MS[1..MS.n]
+local MS = { n = 0 }
+local function sadd(v, d, jl, jr) MS.n = MS.n + 1 MS[MS.n] = { v, d, jl, jr } end
+local LMARGIN = {
+  undulate = function() V.lmk = U end,
+  serrate = function() V.lmk = 2 * U V.ltk = K"0.5" V.ltd = K"1.2" end,
+  doubly = function() V.lmk = 2 * U V.ltk = K"0.5" V.ltd = K"1.3" end,
+  dentate = function() V.lmk = 2 * U V.ltk = K"0.5" V.ltd = K"1.3" end,
+  crenate = function() V.lmk = 2 * U V.ltd = K"1.5" end,
+}
+local TOOTH = {                   -- \flo@lt@...: each point's phase and profile
+  serrate = { { "0", 0 }, { "0.75+@jp", U } },
+  doubly = { { "0", 0 }, { "0.38", K"0.55" }, { "0.52", K"0.3" }, { "0.82+@jp", U } },
+  dentate = { { "0", 0 }, { "0.5+@jp", U } },
+  crenate = { { "0", 0 }, { "0.2", K"0.72" }, { "0.5+@jp", U }, { "0.8", K"0.72" } },
+}
+local function smargin()
+  V.lmk = 0 MS.n = 0 V.ltk = K"0.8" V.ldep = 0 V.lmn = tr("leafmargin")
+  if R.ldepth <= 0 and LMARGIN[R.lmn] then LMARGIN[R.lmn]() end
+  if R.lmk < 2 * U then
+    if R.lmk == U then V.lwn = int(3, 5) V.ldep = E"(0.05+$dissection)*@lW*2.4" end
+    loop("#kb", 0, I("bn"), function()
+      V.v = E"0.5-0.5*cos(180*#kb/@bn)"
+      if R.lmk == U then V.t = E"0.5+0.5*sin(360*@lwn*@v)" else V.t = U end
+      sadd(R.v, R.t, U, U)
+    end)
+  else
+    V.ldep = E"$dissection*@lW*@ltd"
+    V.t = E"min($teeth,max(4,round(4+8*@vl@u)))" V.ltn = pm.int(R.t)
+    V.tw = E"0.81/@ltn"
+    loop("#kb", 0, 4, function() V.v = E"0.12*(1-cos(90*#kb/5))" sadd(R.v, U, U, U) end)
+    loop("#ka", 1, I("ltn"), function()
+      V.jl = range(K"0.65", K"1.35") V.jr = range(K"0.65", K"1.35") V.jp = sym(K"0.06")
+      V.tvo = E"0.12+@tw*(#ka-1)"
+      for _, pt in ipairs(TOOTH[R.lmn]) do V.t = E("@tvo+@tw*(" .. pt[1] .. ")") sadd(R.t, pt[2], R.jl, R.jr) end
+    end)
+    sadd(K"0.93", 0, U, U)
+    loop("#kb", 1, 5, function() V.v = E"0.93+0.07*sin(90*#kb/5)" sadd(R.v, U, U, U) end)
+  end
+  V.mn = MS.n * U
+end
 -- \flo@sblade: the blade along +y, length 1 (\flo@vleaf with the species' outline)
 local function sblade()
   if R["vl@bend"] == "" then V.lbend = sym(K"0.25") else V.lbend = R["vl@bend"] end
@@ -1262,42 +1303,68 @@ local function sblade()
   if R["vl@tone"] == "" then V.lt = range(K"0.26", K"0.38") else V.lt = R["vl@tone"] end
   if R["vl@u"] > K"0.6" then V.fine = U V.bn = 36 * U else V.fine = 0 V.bn = 24 * U end
   if R.ldepth > 0 then V.bodyw = E"1-0.75*@ldepth" V.lent = 0 else V.bodyw = U V.lent = U end
-  -- the body: points closer together toward the base and the tip
-  local bn = I("bn")
-  loop("#kb", 0, bn, function()
-    V.v = E"0.5-0.5*cos(180*#kb/@bn)" lspine(R.v) put(R["#kb"] + 1, R.sx, R.sy)
-  end)
-  normals(bn + 1)
-  loop("#kb", 0, bn, function()
-    V.v = E"0.5-0.5*cos(180*#kb/@bn)" V.q = (R["#kb"] + 1) * U
-    V.t = E"@v*3" lteeth(R.t)
-    shw(R.v) V.e = E"max(0,@h*@bodyw+@lent*@th)"
-    local q = I("q")
+  -- the body along its margin's samples
+  smargin()
+  local mn = MS.n
+  loop("#kb", 1, mn, function() V.v = MS[R["#kb"]][1] lspine(R.v) put(R["#kb"], R.sx, R.sy) end)
+  normals(mn)
+  loop("#kb", 1, mn, function()
+    local q = R["#kb"]
+    local m = MS[q]
+    V.q = q * U V.v = m[1] V.sdd = m[2]
+    shw(R.v) V.cut = E"@ldep*min(1,@h/(0.45*@lW))*(1-@sdd)"
+    V.e = E("max(0,@h*@bodyw-@cut*%1)", { m[3] })
     V.xl = E("%1+%2*@e", { X[q], NX[q] }) V.yl = E("%1+%2*@e-@dy", { Y[q], NY[q] })
-    if R.lobl > 0 then
-      V.vo = E"max(0,(@v-@lobl)/(1-@lobl))" shw(R.vo) V.e = E"max(0,@h*@bodyw+@lent*@th)"
-    end
+    if R.lobl > 0 then V.vo = E"max(0,(@v-@lobl)/(1-@lobl))" shw(R.vo) end
+    V.e = E("max(0,@h*@bodyw-@cut*%1)", { m[4] })
     V.xr = E("%1-%2*@e", { X[q], NX[q] }) V.yr = E("%1-%2*@e-@dy", { Y[q], NY[q] })
     setv(RX, q, R.xl) setv(RY, q, R.yl) setv(QX, q, R.xr) setv(QY, q, R.yr)
   end)
   -- the tip: notched (emarginate) or a short point (mucronate)
-  V.q = (bn + 1) * U
-  if R.ltip < 0 then V.t = E("%1-0.25*@lW", { RY[bn + 1] }) setv(RY, bn + 1, R.t) end
-  if R.ltip > 0 then V.t = E("%1+0.04", { RY[bn + 1] }) setv(RY, bn + 1, R.t) end
-  bladeassemble(bn) smoothprepT(2 * bn, K"0.8") keep("ls1")
+  V.q = mn * U
+  if R.ltip < 0 then V.t = E("%1-0.25*@lW", { RY[mn] }) setv(RY, mn, R.t) end
+  if R.ltip > 0 then V.t = E("%1+0.04", { RY[mn] }) setv(RY, mn, R.t) end
+  V.mnm = (mn - 1) * U bladeassemble(mn - 1)
+  smoothprepT(2 * mn - 2, R.ltk) keep("ls1")
+  -- a hairy leaf's fringe
+  if tr("hairy") == U and R.fine == U then
+    local hn = 2 * mn - 2
+    V.hn = hn * U normals(hn)
+    vtone("flo@c", K"0.1")
+    vstroke("flo@c", K"0.15", K"0.55", 0, function()
+      loop("#kb", 1, hn, function()
+        local kb = R["#kb"]
+        if kb % 2 == 1 then
+          V.hl = range(K"0.008", K"0.02")
+          V.xl = E("%1+%2*@hl", { X[kb], NX[kb] }) V.yl = E("%1+%2*@hl", { Y[kb], NY[kb] })
+          moveto(X[kb], Y[kb]) lineto(R.xl, R.yl)
+        end
+      end)
+    end)
+  end
   V.nshapes = U V.nveins = 0
   -- the lobes, grown out of the body along the spine
   if R.ldepth > 0 then
+    -- a palmately lobed leaf's lobes fan out from its base
+    if R.lmn == "palmatelobed" then V.lpal = U V.lwf = K"1.3" V.lnl = pm.int(E"max(1,floor(@llobes/2))")
+    else V.lpal = 0 V.lwf = U V.lnl = R.llobes end
     loop("#kc", 0, 1, function()
       if R["#kc"] == 0 then V.side = -U else V.side = U end
-      loop("#ka", 1, function() return I("llobes") end, function()
-        V.lv = E"0.1+0.72*(#ka-(@side>0 ? 0.25 : 0.75))/@llobes"
-        lspine(R.lv) V.lx = R.sx V.ly = R.sy ltan(R.lv)
-        V.t = E"min(0.95,@lv+0.08)" slenv(R.t) V.t = range(K"0.95", K"1.15") V.reach = E"@env*@t"
-        V.lang = range(38 * U, 58 * U)
+      loop("#ka", 1, function() return I("lnl") end, function()
+        if R.lpal == U then
+          V.lv = E"0.04+0.025*#ka"
+          lspine(R.lv) V.lx = R.sx V.ly = R.sy ltan(R.lv)
+          V.t = range(K"0.9", K"1.1") V.lL = E"0.8*(1-0.3*(#ka-1)/@lnl)*@t"
+          V.lang = range(30 * U, 40 * U) V.lang = E"@lang+45*(#ka-1)/max(1,@lnl-1)"
+        else
+          V.lv = E"0.1+0.72*(#ka-(@side>0 ? 0.25 : 0.75))/@llobes"
+          lspine(R.lv) V.lx = R.sx V.ly = R.sy ltan(R.lv)
+          V.t = E"min(0.95,@lv+0.08)" slenv(R.t) V.t = range(K"0.95", K"1.15") V.reach = E"@env*@t"
+          V.lang = range(38 * U, 58 * U)
+        end
         V.c = E"cos(@lang)" V.sn = E"sin(@lang)*@side"
         V.ldx = E"@tx*@c-@ty*@sn" V.ldy = E"@tx*@sn+@ty*@c"
-        V.lL = E"@reach/sin(@lang)*0.95"
+        if R.lpal == 0 then V.lL = E"@reach/sin(@lang)*0.95" end
         V.t = sym(K"0.25") V.lb = E"@t-@side*0.15"
         loop("#kb", 0, 11, function()
           V.v = E"#kb/11"
@@ -1310,8 +1377,8 @@ local function sblade()
           V.v = E"#kb/11" V.q = (R["#kb"] + 1) * U
           if R.v > K"0.2" then V.t = E"@v*1.4+#ka" lteeth(R.t) V.e = E"@th*@lL*4" else V.e = 0 end
           if R.v > 0 then V.g = E"pow(max(0,sin(180*pow(@v,0.62))),0.75)" else V.g = 0 end
-          V.t = range(K"0.26", K"0.3") V.wa = E"max(0,@lL*@t*@g+@e)"
-          V.t = range(K"0.26", K"0.3") V.wb = E"max(0,@lL*@t*@g+@e)"
+          V.t = range(K"0.26", K"0.3") V.wa = E"max(0,@lL*@t*@lwf*@g+@e)"
+          V.t = range(K"0.26", K"0.3") V.wb = E"max(0,@lL*@t*@lwf*@g+@e)"
           local q = I("q")
           V.xl = E("%1+%2*@wa", { X[q], NX[q] }) V.yl = E("%1+%2*@wa", { Y[q], NY[q] })
           V.xr = E("%1-%2*@wb", { X[q], NX[q] }) V.yr = E("%1-%2*@wb", { Y[q], NY[q] })
@@ -1358,16 +1425,44 @@ local function sblade()
       V.twa = K"0.017" V.twb = K"0.002" V.op = range(K"0.5", K"0.75")
       vfill("white", R.op, 0, function() vtaper(R.va, R.vb, R.mx, R.my, R.c, R.d, R.ex, R.ey) end)
     end)
+    -- veins: pinnate, arcuate (curving up toward the tip) or palmate (two each side from the base)
     if R.nveins == 0 then
-      loop("#ka", 1, 9, function()
+      V.vn = tr("venation") V.vka = U V.varc = 0
+      if R.vn == "arcuate" then V.varc = U end
+      if R.vn == "palmate" then
+        V.vka = 5 * U
+        lspine(K"0.03") V.lx = R.sx V.ly = R.sy ltan(K"0.03")
+        loop("#kc", 0, 3, function()
+          local kc = R["#kc"]
+          if kc < 2 then V.side = -U else V.side = U end
+          if kc % 2 == 1 then V.t = 64 * U V.vbl = K"1.1" else V.t = 32 * U V.vbl = K"1.5" end
+          V.lang = range(E"@t-5", E"@t+5")
+          V.c = E"cos(@lang)" V.sn = E"sin(@lang)*@side"
+          V.ldx = E"@tx*@c-@ty*@sn" V.ldy = E"@tx*@sn+@ty*@c"
+          V.t = range(K"0.85", U) V.lL = E"@lW*@vbl*@t"
+          V.pa = E"@lx+@ldx*@lL*0.4" V.pb = E"@ly+@ldy*@lL*0.4"
+          V.pc = E"@lx+@ldx*@lL*0.75+@tx*@lL*0.25" V.pd = E"@ly+@ldy*@lL*0.75+@ty*@lL*0.25"
+          V.pe = E"@lx+@ldx*@lL*0.9+@tx*@lL*0.6" V.pf = E"@ly+@ldy*@lL*0.9+@ty*@lL*0.6"
+          V.qa = R.pa V.qb = R.pb V.qc = R.pc V.qd = R.pd V.qe = R.pe V.qf = R.pf
+          V.twa = K"0.016" V.twb = K"0.002" V.op = range(K"0.45", K"0.7")
+          vfill("white", R.op, 0, function() vtaper(R.lx, R.ly, R.qa, R.qb, R.qc, R.qd, R.qe, R.qf) end)
+        end)
+      end
+      loop("#ka", I("vka"), 9, function()
         V.v = E"(#ka-0.3)/10*0.9"
         if R["#ka"] % 2 == 1 then V.sg = -U else V.sg = U end
         lspine(R.v) V.lx = R.sx V.ly = R.sy ltan(R.v)
         V.nx = E"-@ty*@sg" V.ny = E"@tx*@sg"
         slenv(R.v) V.t = range(K"0.75", K"0.95") V.lL = E"@env*@bodyw*@t"
-        V.pa = E"@lx+@nx*@lL*0.4" V.pb = E"@ly+@ny*@lL*0.4"
-        V.pc = E"@lx+@nx*@lL*0.75+@tx*@lL*0.3" V.pd = E"@ly+@ny*@lL*0.75+@ty*@lL*0.3"
-        V.pe = E"@lx+@nx*@lL*0.95+@tx*@lL*0.6" V.pf = E"@ly+@ny*@lL*0.95+@ty*@lL*0.6"
+        if R.varc == U then
+          V.pa = E"@lx+@nx*@lL*0.3+@tx*@lL*0.12" V.pb = E"@ly+@ny*@lL*0.3+@ty*@lL*0.12"
+          V.pc = E"@lx+@nx*@lL*0.62+@tx*@lL*0.55" V.pd = E"@ly+@ny*@lL*0.62+@ty*@lL*0.55"
+          V.pe = E"@lx+@nx*@lL*0.72+@tx*@lL*1.15" V.pf = E"@ly+@ny*@lL*0.72+@ty*@lL*1.15"
+        else
+          V.pa = E"@lx+@nx*@lL*0.4" V.pb = E"@ly+@ny*@lL*0.4"
+          V.pc = E"@lx+@nx*@lL*0.75+@tx*@lL*0.3" V.pd = E"@ly+@ny*@lL*0.75+@ty*@lL*0.3"
+          V.pe = E"@lx+@nx*@lL*0.95+@tx*@lL*0.6" V.pf = E"@ly+@ny*@lL*0.95+@ty*@lL*0.6"
+        end
         V.qa = R.pa V.qb = R.pb V.qc = R.pc V.qd = R.pd V.qe = R.pe V.qf = R.pf
         V.twa = K"0.014" V.twb = K"0.002" V.op = range(K"0.45", K"0.7")
         vfill("white", R.op, 0, function() vtaper(R.lx, R.ly, R.qa, R.qb, R.qc, R.qd, R.qe, R.qf) end)
@@ -1381,6 +1476,7 @@ function sleaf()
   sshape()
   -- a broad blade is drawn shorter, to stay within a leaf's room
   V.lsc = E"min(1,0.3/@lW)"
+  if tr("leafmargin") == "palmatelobed" then V.lsc = E"min(1,0.3/max(@lW,0.55))" end
   scope(function()
   if R.lsc < U then scale(R.lsc) V["vl@u"] = E"@vl@u*@lsc" end
   if tr("stipules") ~= "none" and R["vl@u"] > K"0.8" then
