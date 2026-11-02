@@ -114,7 +114,10 @@ is ~70 KB of path operators, a page ~3 MB uncompressed, ~0.7 MB in the PDF.
   credit where it is used and a line under README's Credits (Ottosson's Oklab, Ettinger's
   mulberry32, Wong et al.). Trademarks stay out of user-facing names (`hypotrochoid`, not
   Spirograph); data with a license of its own stays out of the package (MSC2020 is
-  CC BY-NC-SA: bare codes only).
+  CC BY-NC-SA: bare codes only). Code that reproduces pgf (`florilegium-pgfmath.lua`, ink's
+  `pgfrng`, the library's patch of pgf's number parser) keeps its LPPL notice: not part of
+  pgf, how it differs, no support from pgf's authors, where unmodified pgf is (LPPL 1.3c
+  clauses 6 and 10, which let it stay MIT).
 - **Raw literals bypass TikZ transforms.** A primitive called inside a TikZ scope must
   read pgf's matrix itself (`florilegium.lua: sync_transform`). Inside the margin picture
   the transform is just cm→bp from the page's lower-left corner.

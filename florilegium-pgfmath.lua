@@ -10,8 +10,21 @@
 -- pgfmath does, step for step, on integers: TeX's decimal reading (round_decimals) and
 -- printing (print_scaled), a factor times a dimension (xn_over_d), \divide, and pgf's own
 -- algorithms for divide, reciprocal, sqrt, ln, exp, pow, sin, cos, atan, atan2 and
--- veclen (pgfmath, pgf 3.1.10, by Till Tantau, Mark Wibrow, Christian Feuersaenger and
--- others; LPPL 1.3c / GPL 2), including its two lookup tables, which are pgf's.
+-- veclen, with pgf's constants and its two lookup tables.
+--
+-- Not part of pgf. pgfmath is Mark Wibrow's (pgfmathfunctions.*.code.tex, "Copyright 2019
+-- by Mark Wibrow", building on code by Till Tantau); its ln follows an algorithm due to
+-- Rouben Rostamian with coefficients contributed by Alain Matthes, as pgfmath credits them.
+-- This file is a reimplementation of pgfmath 3.1.10's arithmetic in Lua, made to give the
+-- same results, and differs from it in this: the TeX macros are rewritten as Lua functions
+-- on integers, expressions are compiled to Lua instead of evaluated in TeX, and an
+-- overflow raises a Lua error where TeX reports one and goes on (tools/pgfmathcheck.lua
+-- tests that the results agree). It replaces and changes no file of pgf. pgf's authors do
+-- not support it: report problems with it to florilegium. pgf itself, unmodified, is at
+-- https://ctan.org/pkg/pgf and https://github.com/pgf-tikz/pgf. pgf is distributed under
+-- the LaTeX Project Public License 1.3c or the GNU GPL 2; this file takes it under the
+-- LPPL, whose clause 10 lets a derived work carry another license (here MIT) if it keeps
+-- the conditions of clause 6, which this paragraph states. Keep it with any copy.
 --
 -- M.compile(expr) turns a pgfmath expression into a Lua function with pgfmath's operator
 -- precedences, so that organs can be written with the TikZ library's own expressions:
@@ -225,6 +238,7 @@ function M.sqrt(x)
   return sp(fmt("%d.%05d", r // 100000, r % 100000))
 end
 
+-- ln: Rouben Rostamian's algorithm, Alain Matthes's coefficients (as pgfmath credits them)
 local LN = { sp("0.04300521312"), sp("-.4025153233"), sp("1.589480044"), sp("-3.489886985"),
   sp("5.047861502"), sp("-2.787927935"), sp("0.6931471806") }
 local P2 = {}

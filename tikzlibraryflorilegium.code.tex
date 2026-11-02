@@ -25,6 +25,9 @@
 % and under pdfLaTeX (fixed string pool) a few thousand parsed coordinates fill the pool.
 % Here the lookup is made only when the number so far is 0 (the only case a prefix can
 % follow), which changes nothing else. Applied only if that line is found as written.
+% The change is florilegium's, made at load time in documents that load this library; pgf's
+% files are not changed, and pgf's authors do not support it: report problems with it to
+% florilegium. pgf itself, unmodified, is at https://ctan.org/pkg/pgf (LPPL 1.3c or GPL 2).
 \def\flo@pgfpatch#1\csname pgfmath@base@\pgfmath@number\pgfmath@token\endcsname\relax#2\flo@pgfpatch@end{%
   \def\flo@tmp{#2}%
   \ifx\flo@tmp\pgfutil@empty\else

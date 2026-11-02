@@ -46,8 +46,10 @@ end
 
 -- pgf's own generator, replayed step for step, so that a species drawn by TikZ
 -- (tikzlibraryflorilegium.code.tex) and by Lua from the same seed makes the same
--- choices. pgfmathfunctions.random.code.tex (pgf, LPPL 1.3c / GPL 2): Lehmer's
--- generator, a = 69621, m = 2^31-1, by Schrage's method (q = 30845, r = 23902).
+-- choices. pgfmathfunctions.random.code.tex (pgf, Mark Wibrow; LPPL 1.3c / GPL 2): Lehmer's
+-- generator, a = 69621, m = 2^31-1, by Schrage's method (q = 30845, r = 23902). Not part of
+-- pgf: a reimplementation in Lua, not supported by pgf's authors (pgf itself, unmodified,
+-- is at https://ctan.org/pkg/pgf); see florilegium-pgfmath.lua for its license terms.
 -- rnd is (z mod 100001) written as five decimals and read as a TeX dimension,
 -- rand the same over (z mod 200001) - 100000, random(a,b) is a + z mod (b-a+1).
 -- Values are returned as TeX holds them: whole scaled points (1/65536 pt).
