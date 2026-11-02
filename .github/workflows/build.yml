@@ -5,11 +5,16 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   pdfs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: authored and grown (lualatex)
         uses: xu-cheng/latex-action@v3
         with:
@@ -17,7 +22,20 @@ jobs:
             florilegium.tex
             florilegium-grow.tex
             showcase.tex
+            book-demo.tex
+            asset-demo.tex
+            folio-demo.tex
+            specimen.tex
           latexmk_use_lualatex: true
+          extra_system_packages: python3 py3-pillow poppler-utils inkscape
+          post_compile: >-
+            texlua tools/layoutcheck.lua &&
+            texlua tools/spacecheck.lua &&
+            texlua tools/initialcheck.lua &&
+            texlua tools/backendcheck.lua &&
+            python3 tools/layoutsmoke.py &&
+            python3 tools/bookcheck.py &&
+            texlua tools/animcheck.lua 1 6
       - uses: actions/upload-artifact@v4
         with:
           name: florilegium-pdfs
@@ -25,12 +43,59 @@ jobs:
             florilegium.pdf
             florilegium-grow.pdf
             showcase.pdf
+            book-demo.pdf
+            asset-demo.pdf
+            folio-demo.pdf
+            specimen.pdf
+
+  portable:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: shared renderer and source kit
+        uses: xu-cheng/latex-action@v3
+        with:
+          root_file: folio-demo.tex
+          latexmk_use_lualatex: true
+          extra_system_packages: python3 py3-pillow poppler-utils inkscape
+          post_compile: >-
+            python3 tools/enginecheck.py --require-outlines &&
+            python3 tools/offsetcheck.py &&
+            python3 tools/exportcheck.py &&
+            python3 tools/visualcheck.py &&
+            python3 tools/foliopreview.py &&
+            python3 tools/build.py folio-demo.tex --engine xe --output-dir build/xe &&
+            python3 tools/packagecheck.py
+      - name: make container build evidence readable
+        if: always()
+        run: sudo chmod -R a+rX build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: florilegium-portable-kit
+          path: |
+            build/florilegium-v1.4-source.zip
+            build/xe/folio-demo.pdf
+            gallery/folio-guide.png
+            gallery/folio-labels.png
+      - name: preserve portable failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: florilegium-portable-failure
+          path: |
+            build/engine-check-*/
+            build/offset-check/
+          if-no-files-found: ignore
 
   gallery:
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: render six seeds
         uses: xu-cheng/latex-action@v3
         with:

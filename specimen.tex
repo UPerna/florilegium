@@ -2,15 +2,16 @@
 %%   lualatex specimen.tex
 \documentclass{article}
 \usepackage[a4paper,margin=1cm]{geometry}
-\renewcommand\rmdefault{cmr}\renewcommand\sfdefault{cmss}\renewcommand\ttdefault{cmtt}
 \usepackage[T1]{fontenc}
+\usepackage{lmodern}
 \usepackage[nomargin]{florilegium}
 \pagestyle{empty}
 \newcommand\lab[2]{\node[font=\sffamily\scriptsize,gray] at #1 {#2};}
 \newcommand\at[3][0]{\begin{scope}[shift={#2},rotate=#1]#3\end{scope}}
 \begin{document}
-\begin{tikzpicture}[x=1cm,y=1cm]
-  \draw[gray!30] (0,0) rectangle (19,27.5);
+\noindent\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (0,0) rectangle (19,27.5);
+  \draw[overlay,gray!30] (0,0) rectangle (19,27.5);
   \at{(3.2,24)}{\florilegiumdraw{flower}{1.9}}                 \lab{(3.2,21.3)}{flower}
   \at{(9,24)}{\florilegiumdraw{ghost}{"flower", {s=1.9}}}      \lab{(9,21.3)}{ghost}
   \at{(15,23.6)}{\florilegiumdraw{lily}{2.0}}                  \lab{(15,21.3)}{lily}

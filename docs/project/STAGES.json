@@ -1,0 +1,638 @@
+{
+  "schema_version": 1,
+  "current_stage": "02",
+  "prompt_sha256": "8D25740D944FC98943FD005737BD825215CFCF6F894218790E140EDE8EE3F09E",
+  "stages": [
+    {
+      "id": "00",
+      "title": "recover and publish the existing verified delivery",
+      "status": "passed",
+      "prerequisites": null,
+      "acceptance_items": [
+        "fetch/read the resulting remote commit independently; verify expected parent/history, full tree identity or documented equivalent tree, binary hashes, branch head and PR association. Confirm relevant CI for the published revision, not older green runs. Preserve the dirty checkout exactly. Save a Git recovery receipt and report the usable branch/commit for stage 01. If credentials/capabilities or CI prevent completion, preserve a verifiable recovery bundle and remain blocked at stage 00; do not claim success or start architecture work."
+      ],
+      "observed_results": [
+        "Missing delivery GitHub lookup 422",
+        "Remote dd8ee95 independently read; exact-revision CI success",
+        "Original checkouts unavailable",
+        "User approved replacement baseline dd8ee95; all 99 blobs verified including binary SHA-256; full Git clone recovered through system proxy with OpenSSL backend.",
+        "CI build #11 run 41439783001 completed success for published revision. User-approved replacement gate passed; no claim to recover lost commit."
+      ],
+      "evidence_paths": "artifacts/receipts/00/",
+      "tested_code_revision": "a77e32057da52d44b9baa8c0c1bce55865a45bf7",
+      "local_commit": "a77e32057da52d44b9baa8c0c1bce55865a45bf7",
+      "verified_remote_revision": "a77e32057da52d44b9baa8c0c1bce55865a45bf7",
+      "next_action": "Stage 01 baseline recovery"
+    },
+    {
+      "id": "01",
+      "title": "establish the recoverable baseline",
+      "status": "passed",
+      "prerequisites": "00",
+      "acceptance_items": [
+        "a newcomer can identify the authoritative branch, rebuild the baseline, locate the verified visual/structural evidence, see every known limitation, and resume stage 02. Unexpected regressions are investigated before marking this stage passed. Record the precise compatibility baseline rather than claiming compatibility with an untested moving upstream."
+      ],
+      "observed_results": [
+        "Source/module/host/tool/license inventory recovered from actual repository",
+        "Current baseline CI run 41439783001 passed both required jobs",
+        "Local package reproducibility and 107 hashes passed after including baseline records",
+        "Historical sample differences investigated: two stale prose documents; showcase/specimen NFKC text equal; specimen visually inspected",
+        "Current upstream head recorded separately; compatibility pinned to 138f9f2; no merge",
+        "Local TeX initialization failure retained; no Windows compatibility claim",
+        "Both required jobs passed for exact checkpoint b8ab612, CI run 41443273221, including extracted-kit builds after documentation inclusion."
+      ],
+      "evidence_paths": [
+        "docs/project/BASELINE.md",
+        "docs/validation/CLAIMS.md",
+        "docs/validation/fixtures/floral-baseline.json",
+        "artifacts/receipts/01/"
+      ],
+      "tested_code_revision": "b8ab6123891fd4f36e726b3fe4ef53bdd13136c3",
+      "local_commit": "b8ab6123891fd4f36e726b3fe4ef53bdd13136c3",
+      "verified_remote_revision": "b8ab6123891fd4f36e726b3fe4ef53bdd13136c3",
+      "next_action": "Stage 02 complete literature capability ledger"
+    },
+    {
+      "id": "02",
+      "title": "turn the literature into a complete capability ledger",
+      "status": "in_progress",
+      "prerequisites": "01",
+      "acceptance_items": [
+        "every discussed paper and family maps to a concrete implementation and validation task. Explain which targets reproduce a specified method and which add new capabilities. There are no anonymous 'inspired by' substitutes counted as complete, unsupported universal-reproduction claims or hidden backlog items required by the agreed scope."
+      ],
+      "observed_results": [
+        "26 source records and 51 capabilities (45 mandatory, 6 optional) audited for unique IDs, known references, owners and required fields",
+        "All mandatory families and source papers mapped; no new implementation passes claimed",
+        "R12 author/venue and paper/code licenses reconciled from actual PDF and pinned code",
+        "Primary text recovery obligations explicit for R08/R10a/R16b/R19a/R19b/R04c before owning implementation gates"
+      ],
+      "evidence_paths": [
+        "docs/research/BIBLIOGRAPHY.json",
+        "docs/research/COVERAGE.csv",
+        "docs/research/SOURCES.md",
+        "docs/research/OPEN_OBLIGATIONS.json",
+        "artifacts/receipts/02/ledger-audit.json"
+      ],
+      "tested_code_revision": "b8ab6123891fd4f36e726b3fe4ef53bdd13136c3",
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Inspect diff, verify new source-kit hashes, publish ledger with expected-head protection; verify exact-revision CI; then begin stage 03 contracts."
+    },
+    {
+      "id": "03",
+      "title": "specify the shared contracts and extension boundaries",
+      "status": "pending",
+      "prerequisites": "02",
+      "acceptance_items": [
+        "the contracts represent the five mandatory early demonstrations without family-specific core hacks, and express chirality, shared edges, reading order, boundary roles and instance/view separation. Architecture examples run. Record API decisions and future migration boundaries; do not spend this stage building speculative infrastructure."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "04",
+      "title": "deterministic recipes, identities and build provenance",
+      "status": "pending",
+      "prerequisites": "03",
+      "acceptance_items": [
+        "recipes round-trip, fixed PRNG vectors pass on supported runtimes available now, malformed input fails usefully, cache dependency mutations invalidate the correct layer, and build records bind outputs to the exact source/input digests. Future browser parity remains a named gate until actually run there."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "05",
+      "title": "shared numerical geometry and semantic topology",
+      "status": "pending",
+      "prerequisites": "04",
+      "acceptance_items": [
+        "downstream code can inspect connectivity, adjacency and actual bounds without reverse-engineering SVG/PDF paths. Checks detect deliberately corrupted edge incidence, duplicates and crossings. Document unsupported geometric operations explicitly rather than returning plausible empty success."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "06",
+      "title": "lower semantic instances into shared vector scenes",
+      "status": "pending",
+      "prerequisites": "05",
+      "acceptance_items": [
+        "a tiny floral fixture, graph/strand fixture and tiled fixture produce valid PDF/SVG with consistent geometry and correct bounds. Existing floral default regressions still pass. The scene can carry all required text and semantic references without forcing a new generator or a second renderer."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "07",
+      "title": "document-aware planning and views",
+      "status": "pending",
+      "prerequisites": "06",
+      "acceptance_items": [
+        "the same world-anchored tiling viewed in two overlapping regions agrees in the overlap; a changed page crop does not regenerate unrelated interior geometry; flowers still adapt to permitted space; protected ink regions are clear; views preserve traceability to source semantic objects. Demonstrate both a standalone panel and a two-page document with independently checked physical coordinates."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "08",
+      "title": "migrate and extend the botanical generator safely",
+      "status": "pending",
+      "prerequisites": "07",
+      "acceptance_items": [
+        "old examples and QC remain passing through both legacy and new entry points; chosen default path comparisons hold; independent crop checks find no new clipping; new semantic instances serialize/replay; the new nonrectangular example is structurally validated and visually inspected. Explain any unavoidable compatibility differences with measured evidence before marking the stage passed."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "09",
+      "title": "periodic tiling and symmetry infrastructure",
+      "status": "pending",
+      "prerequisites": "08",
+      "acceptance_items": [
+        "the supported tiling registry and its limits are inspectable, standard fixtures are correct independently of rendering, and later families can attach motifs using shared boundary ports. Periodicity is a declared mathematical construction property, not an inference from the size of an exported rectangle."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "10",
+      "title": "Celtic knotwork with actual strand semantics",
+      "status": "pending",
+      "prerequisites": "09",
+      "acceptance_items": [
+        "all four fixtures produce correct semantic topology and readable vector output, width changes preserve graph/crossing identities, impossible constraints fail clearly, and the capability ledger accurately records which source mechanisms have been implemented."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "11",
+      "title": "classical Islamic geometric construction",
+      "status": "pending",
+      "prerequisites": "10",
+      "acceptance_items": [
+        "the declared classical capabilities run through the shared contracts and renderer, quantitative seam/continuity checks pass, fixtures are visually inspected, and unsupported geometry is reported accurately. No claim of historical authenticity follows merely from algorithmic validity."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "12",
+      "title": "freeform Islamic geometry and circle packing",
+      "status": "pending",
+      "prerequisites": "11",
+      "acceptance_items": [
+        "fixtures demonstrate the paper's declared freeform capability, not just a classical pattern with jitter. Quantified packing and seam evidence exists, generation/solver failure is visible, and both source fidelity and any deliberate departures are recorded in COVERAGE.csv."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "13",
+      "title": "aperiodic construction and validation infrastructure",
+      "status": "pending",
+      "prerequisites": "12",
+      "acceptance_items": [
+        "a real substitution fixture exercises the infrastructure; deliberate reflection, duplicate, seam and parent-child corruptions fail. Overlap queries and expanded generation agree inside their declared valid domain. The Build record states the source construction, hypotheses, query horizon and every performed finite check."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "14",
+      "title": "Penrose tilings",
+      "status": "pending",
+      "prerequisites": "13",
+      "acceptance_items": [
+        "a reproducible Penrose instance passes structural and source-rule checks, renders through shared PDF/SVG output, and supports view changes without interior regeneration. Published aperiodicity is cited with its applicable assumptions; finite test results remain separately labelled."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "15",
+      "title": "Spectre, with correct chirality and boundaries",
+      "status": "pending",
+      "prerequisites": "14",
+      "acceptance_items": [
+        "actual Spectre boundaries and one-chirality construction are implemented and accurately labelled; Tile(1,1) diagnostics are distinct; valid patches preserve IDs across views. All mathematical claims match the source case actually generated. Retain required code/data attribution and licenses."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "16",
+      "title": "pass the five-family architecture gate",
+      "status": "pending",
+      "prerequisites": "15",
+      "acceptance_items": [
+        "all five real implementations work without changing core contracts per example. Every required capability to this point has evidence, no placeholder output is counted, and the updated architecture explains any necessary decisions. If a family fails, fix the failure or remain on stage 16. Do not describe this milestone as completion of the remaining family scope."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "17",
+      "title": "Ammann–Beenker and projection/multigrid generation",
+      "status": "pending",
+      "prerequisites": "16",
+      "acceptance_items": [
+        "this family works through shared contracts, a genuine projection/multigrid generator is exercised, tie rules are deterministic, and finite validation is distinct from the source's mathematical nonperiodicity. Record exact parameter choices and supported query horizons for reproducible continuation."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "18",
+      "title": "Hat and bounded constraint construction",
+      "status": "pending",
+      "prerequisites": "17",
+      "acceptance_items": [
+        "Hat is correctly differentiated from Spectre and Tile(1,1); all four named aperiodic families are implemented; the three construction routes have real exercised examples; bounded construction has honest finite guarantees and reproducible failure handling."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "19",
+      "title": "Gothic window tracery and geometric grammars",
+      "status": "pending",
+      "prerequisites": "18",
+      "acceptance_items": [
+        "the declared grammar creates several structurally different valid examples through shared contracts, parameter changes preserve dependencies, and invalid requests produce useful diagnostics. Source fidelity, dimensional scope and deviations are visible in the coverage and claims ledgers."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "20",
+      "title": "Escherization and boundary-coupled deformation",
+      "status": "pending",
+      "prerequisites": "19",
+      "acceptance_items": [
+        "users can provide a real target shape and obtain a valid improved approximation in the supported cases; matching and coverage survive the edits; rejected deformations fail clearly; aperiodic decoration preserves its declared source construction. Keep solver artifacts and source-specific fidelity claims inspectable."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "21",
+      "title": "decorative mosaics with field-aligned packing",
+      "status": "pending",
+      "prerequisites": "20",
+      "acceptance_items": [
+        "source-required behavior is present, quantitative packing/feature evidence exists, vector exports contain the actual tiles and color samples, and difficult boundary/convergence cases are diagnosed. A visually attractive mosaic does not by itself establish nonoverlap or faithful implementation of the chosen metric."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "22",
+      "title": "stroke fields, hatching and stippling",
+      "status": "pending",
+      "prerequisites": "21",
+      "acceptance_items": [
+        "all declared modes work, example structure measurably influences synthesis, field metadata is reusable by micrography, and SVG/PDF contain real vectors. Tone fidelity, local structure and aesthetic inspection are separately reported with known limitations."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "23",
+      "title": "image-guided mazes and independently verified solutions",
+      "status": "pending",
+      "prerequisites": "22",
+      "acceptance_items": [
+        "the source-guided capability works and has quantitative/topological plus visual evidence; impossible inputs fail; solution overlays derive from the actual graph; no illustrated wall contradicts the solver graph. Record stage 23 in STAGES.json, make stage 24 depend on it, and include maze fixtures in all later CLI/browser/export/release gates."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "24",
+      "title": "micrography with meaningful readable text",
+      "status": "pending",
+      "prerequisites": "23",
+      "acceptance_items": [
+        "the microgram follows the image/region while carrying real meaningful text, source-method coverage is honest, and font/searchability behavior is verified for each supported backend. Preserve failure cases for insufficient space and impossible legibility constraints."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "25",
+      "title": "example-driven decorative synthesis",
+      "status": "pending",
+      "prerequisites": "24",
+      "acceptance_items": [
+        "a user can supply/select a real exemplar library and guide, obtain a valid structured synthesis and refine a region without replacing unrelated output. Provenance and failure diagnostics are available; no model/API-dependent generation is required for basic replay. Respect code/data licenses separately from paper access."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "26",
+      "title": "Gothic microarchitecture and projected 3D curve networks",
+      "status": "pending",
+      "prerequisites": "25",
+      "acceptance_items": [
+        "users can edit/generate the declared genuine spatial construction and derive consistent 2D ornamental views. The core remains lightweight for ordinary 2D use. Source fidelity, optional dependencies, dimensional scope and all unimplemented source capabilities remain explicit in the coverage ledger."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "27",
+      "title": "original cross-family designs and coherent collections",
+      "status": "pending",
+      "prerequisites": "26",
+      "acceptance_items": [
+        "all four original products are implemented, exportable and replayable; structural validators survive composition; styles remain coherent at physical document size; old fixtures are unchanged. Add a small visually reviewed collection and explicit capability/compatibility tables, with no theme counted complete solely because its name appears in a menu."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "28",
+      "title": "one public CLI and batch/replay workflow",
+      "status": "pending",
+      "prerequisites": "27",
+      "acceptance_items": [
+        "a documented CLI-only workflow generates and validates at least one instance from every family, replays cached solver output, exports PDF/SVG, and reports partial batch failure correctly. Real consumer examples and a small invalid-input/path-handling suite pass. Help output agrees with actual capabilities and defaults."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "29",
+      "title": "LuaLaTeX document integration",
+      "status": "pending",
+      "prerequisites": "28",
+      "acceptance_items": [
+        "old documents still build, the new API drives actual semantic generators through the same core, text remains searchable where declared, and existing plus new consumer regressions pass. Reject unsupported options clearly; no successful compile may hide missing artwork behind an unreported fallback."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "30",
+      "title": "XeLaTeX portability and convergent external builds",
+      "status": "pending",
+      "prerequisites": "29",
+      "acceptance_items": [
+        "the documented dual-engine suite includes all newly required document capabilities, convergence and stale-rebuild failures are exercised, and the output in each engine is independently complete. Hosted-editor limitations remain explicit unless actually tested there. New backend work must preserve the verified standalone shared renderer."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "31",
+      "title": "run the same core in a browser worker",
+      "status": "pending",
+      "prerequisites": "30",
+      "acceptance_items": [
+        "real browser runs pass PRNG vectors, recipe/instance round-trips and representative semantic hashes/tolerance checks against native execution, including all browser-supported families. Unsupported numerical/solver features are honestly surfaced. Worker cancellation, out-of-order responses, bad messages and budget exhaustion are exercised. Report actual browser/version evidence rather than declaring cross-browser support by assumption."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "32",
+      "title": "build the pattern editor around real capabilities",
+      "status": "pending",
+      "prerequisites": "31",
+      "acceptance_items": [
+        "these tasks work through the shared implementation, no menu contains placeholder capabilities, stale worker results cannot overwrite current state, errors are actionable and saved work reloads faithfully. Record browser evidence and remaining compatibility limits."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "33",
+      "title": "adversarial geometry, topology and reproducibility checks",
+      "status": "pending",
+      "prerequisites": "32",
+      "acceptance_items": [
+        "a claim-by-claim report contains observed evidence, counterexamples/fixes and residual uncertainty. All release-blocking structural, reproducibility and data-loss failures are resolved. Optional delegation is used only if explicitly authorized by the active user/instructions; single-agent work must not be represented as an independent swarm."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "34",
+      "title": "performance, scaling and cancellation",
+      "status": "pending",
+      "prerequisites": "33",
+      "acceptance_items": [
+        "a reproducible benchmark report identifies useful workload limits and evidence-backed improvements; the UI remains usable during long generation; cached and uncached semantic results agree; all major hot paths have bounded-failure behavior. Do not claim Pi/mobile/desktop performance that was not measured on the relevant device class."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "35",
+      "title": "print, vector export and visual quality",
+      "status": "pending",
+      "prerequisites": "34",
+      "acceptance_items": [
+        "every implemented family has reviewed clean and diagnostic exports; no release-blocking crop, seam, legibility or protected-content defect remains. The report distinguishes objective geometry/export results, subjective design decisions and untested host applications. Include small downloadable examples and exact replay recipes."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "36",
+      "title": "complete gallery, documentation and reproducible examples",
+      "status": "pending",
+      "prerequisites": "35",
+      "acceptance_items": [
+        "a newcomer follows the documented paths successfully, links/assets exist, source recipes reproduce examples, and the gallery's metadata binds to tested code. Documentation states practical limits without burying required missing work in a backlog. Use plain language and avoid inflated universal or mathematical claims."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "37",
+      "title": "clean installation, CI and release packaging",
+      "status": "pending",
+      "prerequisites": "36",
+      "acceptance_items": [
+        "manifests verify after extraction, source-only reconstruction succeeds, candidate outputs match the declared comparison standard, and CI evidence belongs to the candidate revision. Any untested operating system/browser is listed accurately. Do not publish a release package that only works because of files left in the original checkout."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "38",
+      "title": "final challenger review and defect closure",
+      "status": "pending",
+      "prerequisites": "37",
+      "acceptance_items": [
+        "zero unresolved release-blocking findings, all mandatory capabilities accounted for, final claims match actual evidence, and residual limitations are explicit. Freeze the tested candidate by source/tree digest and identify the exact publication-ready commit and artifacts for stage 39."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    },
+    {
+      "id": "39",
+      "title": "publish the verified result and hand it over",
+      "status": "pending",
+      "prerequisites": "38",
+      "acceptance_items": [
+        "deliver working repository/PR links, verified local/remote revision, source package and runnable artifact links, quickstart commands, complete capability/limitation table, evidence summary and remaining optional research work. The next prompt is 'none' only when every mandatory gate including publication has passed. Otherwise identify the same unfinished stage and the smallest action needed to resume it."
+      ],
+      "observed_results": null,
+      "evidence_paths": null,
+      "tested_code_revision": null,
+      "local_commit": null,
+      "verified_remote_revision": null,
+      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+    }
+  ],
+  "user_approved_amendment": "Original delivery lost; user authorized verified GitHub dd8ee95 replacement baseline and continuation. Original recovery gate amended; all remaining gates preserved."
+}

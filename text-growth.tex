@@ -36,7 +36,7 @@ the edge of a flower; stems are proxies too, as chains of small discs.
 \end{definition}
 
 \begin{construction}[Growth]
-The region $R$ is the margin column, a band along the bottom of the page, and on the last
+At full density, the region $R$ is the margin column, a band along the bottom of the page, and on the last
 page also the rectangle between the end of the text and the footer. On a grid of candidates
 spaced $2\,$mm apart, each point keeps $f(p)$ and its distance to the nearest stem. Then,
 until the largest free radius falls below $3.6\,$mm:
@@ -66,6 +66,19 @@ garden therefore spills into the space below the words in a single compilation: 
 arch out of the main stems into that space and each ends in a flower.
 \end{remark}
 
+\begin{remark}[Density and whitespace]
+The grown layout can leave more room. The key \texttt{density} accepts \texttt{full}
+($1$), \texttt{balanced} ($0.6$), \texttt{airy} ($0.3$), or a number from $0.2$ to $1$.
+Smaller values space the leaves farther apart, limit secondary branches and reduce
+small finishing details; they do not measure the fraction of the page covered by ink.
+The switches \texttt{spill=false}, \texttt{footer=false} and \texttt{header=false}
+preserve the space below the text, omit the footer plant and omit the header ornament,
+respectively. The key \texttt{text-gap} sets the minimum side clearance from the text.
+Set these as package options with \texttt{grown}, or use
+\verb|\florilegiumsetup{density=airy,text-gap=6mm}|. Settings are applied at shipout;
+flush the previous page before changing them. The defaults retain the original garden.
+\end{remark}
+
 \begin{remark}[Visitors, marks and seasons]
 Butterflies and bees take holes like any motif but need no branch; a snail is put on a
 main stem and, on about one page in five, a bird on a twig of its own. Their decisions come
@@ -75,8 +88,29 @@ the page box at shipout and gets its flower before any leaf is hung. An age betw
 and $1$ reweights the motifs from buds in spring to seed heads in autumn.
 \end{remark}
 
+\begin{remark}[Book layouts and protected content]
+The key \texttt{side} selects left, right, outer or inner ornament. Outer and inner
+follow page parity in two-sided documents, using the actual text margins and page
+offsets. The drawing alone is reflected. The styles \texttt{classic}, \texttt{quiet}
+and \texttt{chapter} set density, main focal motifs, scale and stem asymmetry.
+Selected content can be placed inside a \texttt{florilegiumprotect} environment;
+its reserved rectangle travels with the box, including within a float. The growth
+grid excludes reserved areas, feasible branches detour around them, and motifs
+that overlap them are omitted. A final clip protects the content even when a box
+blocks every route. Such a box can interrupt the plant's continuity. Fixed page
+rectangles can instead be declared with \verb|\florilegiumreserve|.
+\end{remark}
+
+\begin{remark}[Lettering and spread rhythm]
+The optional page label is a set of planted strokes, with curls and small leaves.
+Arabic and Roman forms share this treatment. Its geometry is counter-reflected
+when the garden changes sides, so the lettering still reads normally; an invisible
+text label preserves search and copy. Spread variation shares a seed across a
+logical even/odd pair, while fixed variation holds one seed index throughout.
+Monochrome artwork and a matching section divider provide quieter print choices.
+\end{remark}
+
 \begin{remark}[Cost]
 The layout is cheap: the grid has a few thousand points, a proxy only updates the points
-near it, and the whole loop takes a fraction of a second. This document of four pages
-compiles in about five seconds.
+near it, and the whole loop takes a fraction of a second. Rendering cost depends on the seed, available area, detail and compilation passes.
 \end{remark}

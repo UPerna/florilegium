@@ -24,8 +24,14 @@ local cache = {}
 local function font_glyphs(file)
   if cache[file] then return cache[file] end
   local path = kpse.find_file(file, "opentype fonts") or kpse.find_file(file, "truetype fonts")
-  if not path then return nil end
-  local shapes = fonts.handlers.otf.readers.loadshapes(path)
+  if not path then return nil, "initial font not found: " .. file end
+  local reader = fonts and fonts.handlers and fonts.handlers.otf and fonts.handlers.otf.readers
+  if not reader or type(reader.loadshapes) ~= "function" then
+    return nil, "luaotfload's outline reader is unavailable (install texlive-luatex)"
+  end
+  local ok, shapes = pcall(reader.loadshapes, path)
+  if not ok or type(shapes) ~= "table" then return nil, "cannot read initial font: " .. file end
+  if type(shapes.glyphs)~="table" then return nil,"no glyph outlines in initial font: "..file end
   local byuni = {}
   for _, gl in pairs(shapes.glyphs or {}) do
     if type(gl.unicode) == "number" and not byuni[gl.unicode] then byuni[gl.unicode] = gl end
@@ -37,11 +43,14 @@ end
 -- the contours of one character, as path commands and as flattened polygons,
 -- scaled to fit a box of height h and width w (cm) centered at (cx, cy)
 local function contours(file, char, cx, cy, h, w)
-  local f = font_glyphs(file)
-  if not f then return nil, "font not found: " .. file end
+  local f, err = font_glyphs(file)
+  if not f then return nil, err end
   local gl = f.byuni[utf8.codepoint(char)]
   if not gl or not gl.segments then return nil, "no outline for '" .. char .. "' in " .. file end
   local bb = gl.boundingbox
+  if type(bb)~="table" or not (bb[3] and bb[4] and bb[1] and bb[2]) or bb[3]<=bb[1] or bb[4]<=bb[2] then
+    return nil,"no usable outline bounds for '"..char.."' in "..file
+  end
   local k = min(h / (bb[4] - bb[2]), w / (bb[3] - bb[1]))
   local ox, oy = cx - k * (bb[1] + bb[3]) / 2, cy - k * (bb[2] + bb[4]) / 2
   local function P(x, y) return ox + k * x, oy + k * y end
@@ -106,6 +115,7 @@ end
 -- Roman Bold by default, the OpenType twin of Computer Modern)
 function M.draw(rng, S, letter, o)
   o = o or {}
+  if utf8.len(letter) ~= 1 then return nil, "an initial must contain exactly one Unicode character" end
   local m = 0.07 * S                           -- the frame's inset
   local cs, err = contours(o.font or "lmroman10-bold.otf", letter, S * 0.5, S * 0.47, S * 0.66, S * 0.7)
   if not cs then return nil, err end

@@ -2,11 +2,51 @@ LUALATEX = $(RUN) lualatex -interaction=nonstopmode -halt-on-error
 SEEDS   ?= 1 2 3 4 5 6
 # RUN=tools/in-docker builds inside the florilegium-tex image (see tools/Dockerfile)
 RUN     ?=
-LUA      = ink.lua flora.lua florilegium.lua initial.lua
+LUA      = $(wildcard *.lua)
+HOSTS    = florilegium-luatex.def florilegium-xetex.def
 GS      ?= gs
 SEED    ?= 7
+CHECK_SEEDS ?= 1
 
 all: florilegium.pdf florilegium-grow.pdf showcase.pdf
+
+florilegium.pdf florilegium-grow.pdf showcase.pdf specimen.pdf: $(HOSTS)
+
+check:
+	$(RUN) texlua tools/layoutcheck.lua
+	$(RUN) texlua tools/spacecheck.lua
+	$(RUN) texlua tools/initialcheck.lua
+	$(RUN) texlua tools/backendcheck.lua
+	$(RUN) python3 tools/layoutsmoke.py
+	$(RUN) python3 tools/bookcheck.py
+	$(RUN) texlua tools/animcheck.lua $(CHECK_SEEDS)
+
+engine-check:
+	$(RUN) python3 tools/enginecheck.py
+
+offset-check:
+	$(RUN) python3 tools/offsetcheck.py
+
+folio-preview:
+	$(RUN) python3 tools/foliopreview.py
+
+xe:
+	$(RUN) python3 tools/build.py folio-demo.tex --engine xe --output-dir build/xe
+
+source-package:
+	$(RUN) python3 tools/package.py
+
+export-check:
+	$(RUN) python3 tools/exportcheck.py
+
+visual-check:
+	$(RUN) python3 tools/visualcheck.py
+
+book-preview: book-demo.tex florilegium.sty grow.lua $(LUA) tools/bookpreview.py
+	$(RUN) python3 tools/bookpreview.py
+
+layout-preview: layout-demo.tex florilegium.sty grow.lua $(LUA) tools/layoutpreview.py
+	$(RUN) python3 tools/layoutpreview.py
 
 # authored composition (authored.lua), one pass, about a second a page
 florilegium.pdf: florilegium.tex florilegium.sty authored.lua grow.lua $(LUA) text-methods.tex text-sharing.tex
@@ -75,4 +115,4 @@ preview: florilegium.pdf florilegium-grow.pdf showcase.pdf
 clean:
 	rm -rf build *.aux *.log *.out *.synctex.gz
 
-.PHONY: all gallery animation preview postscript clean
+.PHONY: all check engine-check offset-check folio-preview xe source-package export-check visual-check book-preview layout-preview gallery animation preview postscript clean
