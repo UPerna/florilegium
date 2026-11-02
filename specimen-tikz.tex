@@ -1,17 +1,19 @@
 % specimen-tikz.tex -- florilegium's species drawn in TikZ (\usetikzlibrary{florilegium}).
-% Under pdfLaTeX pgfmath computes and TikZ draws (pure TikZ, the proof, about 6 minutes);
+% Under pdfLaTeX pgfmath computes and TikZ draws (pure TikZ, the proof, about 9 minutes);
 % under LuaLaTeX florilegium-organs.lua computes the same pgf commands and TikZ draws them
-% (engine=lua, the library's default there): the same PDF, byte for byte, in about 20
+% (engine=lua, the library's default there): the same PDF, byte for byte, in about 35
 % seconds. \pgfkeys{/florilegium/engine=tikz} draws in pure TikZ under LuaLaTeX too.
 % Page 1: two margins' worth of plants, three species each, grown as florilegium-grow.lua
 % grows a margin; page 2: each body plan's flower and leaf close up, and one plant through
-% the seasons.
+% the seasons; page 3: every flower form as its plant holds it; page 4: every kind of
+% cluster, and one cluster through the seasons.
 % Copyright (c) 2026 Kevin Raymond. MIT License.
 %   lualatex specimen-tikz.tex
-%   extra_mem_top=10000000 pdflatex specimen-tikz.tex
-% pdfLaTeX keeps a page's drawing in main memory until the page is shipped out, and one
-% strip of plants in v1.3's detail takes about 7 million words of it, more than pdfTeX's
-% default 5 million: extra_mem_top raises it for the run. LuaLaTeX's memory grows as needed.
+%   extra_mem_top=20000000 pdflatex specimen-tikz.tex
+% pdfLaTeX keeps a page's drawing in main memory until the page is shipped out. One strip
+% of plants in v1.3's detail takes about 7 million words of it, and the fullest page here
+% about 14.5 million, far more than pdfTeX's default 5 million: extra_mem_top raises it
+% for the run. LuaLaTeX's memory grows as needed.
 \documentclass[11pt]{article}
 \usepackage[a4paper,margin=12mm]{geometry}
 \usepackage{tikz}
@@ -29,6 +31,11 @@
     \pic at (3.6,0) {florilegium leaf={seed=#2, role=#1, size=3.4cm}};
   \end{tikzpicture}\par
   \parbox{5.4cm}{\raggedright\scriptsize\traits{#2}{#1}.}}
+\newcommand\held[4]{% #1 role, #2 seed, #3 season, #4 what it is: the species' flowers as it holds them
+  \begin{minipage}[b]{0.245\linewidth}\centering
+    \begin{tikzpicture}\pic {florilegium inflorescence={seed=#2, role=#1, scale=1.3, season=#3}};\end{tikzpicture}\par
+    \smallskip{\scriptsize #4\\ \textit{#1 #2}}\par\medskip
+  \end{minipage}}
 \begin{document}
 {\Large Species in TikZ}\par\smallskip
 {\small Each plant is a species sampled from a genome (body plan, the visitor its flowers are
@@ -62,4 +69,55 @@ room, a pale flower of the first behind them.}\par\medskip
 \end{tikzpicture}\par
 {\footnotesize Rose 17 in spring, summer and autumn: its flowers open from the top of the
 plant down, so the top is the first to open and the first to turn to hips.}
+\newpage
+{\large Every flower form, as its plant holds it}\par\medskip
+{\small A species' flowers face the way its kind holds them: a rose or a daisy face on, a
+pea, a mint or an orchid in profile, bells and columbines nodding, trumpets and lilies at a
+tilt. Each is the inflorescence pic at 1.3 times a margin's scale, labeled with the role
+and seed that draw it; red and orange flowers are painted in the copper.}\par\bigskip
+\held{rose}{6}{0.75}{rose}\hfill
+\held{eudicot}{110}{0.75}{wheel of free petals}\hfill
+\held{eudicot}{12}{0.75}{wheel of fused lobes}\hfill
+\held{daisy}{3}{0.75}{daisy head}\par
+\held{mustard}{1}{0.75}{cross of four petals, along a raceme}\hfill
+\held{pea}{5}{0.75}{pea flowers, along a raceme}\hfill
+\held{mint}{5}{0.75}{two-lipped flowers, along a raceme}\hfill
+\held{columbine}{7}{0.75}{columbine, five spurs}\par
+\held{heath}{20}{0.75}{nodding bells, along a raceme}\hfill
+\held{heath}{8}{0.75}{urns, along a raceme}\hfill
+\held{eudicot}{31}{0.75}{tube}\hfill
+\held{eudicot}{38}{0.75}{trumpet}\par
+\held{eudicot}{16}{0.75}{flat-faced tube}\hfill
+\held{lily}{3}{0.75}{lily}\hfill
+\held{lily}{25}{0.75}{nodding lily}\hfill
+\held{catkin}{1}{0.75}{hanging catkins}\par
+\held{monocot}{230}{0.75}{narcissus, a short cup}\hfill
+\held{monocot}{463}{0.75}{daffodil, a long trumpet}\hfill
+\held{iris}{5}{0.75}{iris, falls and standards}\hfill
+\held{iris}{11}{0.75}{orchid, a broad lip}\par
+\newpage
+{\large Every kind of cluster}\par\medskip
+{\small The plant's flowers grow together as its genome says, and they open in order: from
+the base up along a raceme, a spike, a panicle or a thyrse, from the outside in across a
+corymb, an umbel or a head, from the center out in a forked cyme, and along the coil of a
+coiled cyme as it unrolls.}\par\bigskip
+\held{any}{6}{0.75}{raceme}\hfill
+\held{any}{87}{0.75}{spike}\hfill
+\held{any}{147}{0.75}{panicle}\hfill
+\held{any}{156}{0.75}{thyrse}\par
+\held{any}{34}{0.75}{corymb}\hfill
+\held{any}{31}{0.75}{umbel}\hfill
+\held{any}{14}{0.75}{compound umbel}\hfill
+\held{any}{217}{0.75}{forked cyme (dichasium)}\par
+\held{any}{16}{0.75}{coiled cyme}\hfill
+\held{pea}{27}{0.75}{round head}\hfill
+\begin{minipage}[b]{0.245\linewidth}\mbox{}\end{minipage}\hfill
+\begin{minipage}[b]{0.245\linewidth}\mbox{}\end{minipage}\par\bigskip
+{\large One cluster through the year}\par\medskip
+\held{any}{156}{0.3}{spring}\hfill
+\held{any}{156}{0.75}{summer}\hfill
+\held{any}{156}{1.05}{late summer}\hfill
+\held{any}{156}{1.25}{autumn}\par
+{\footnotesize Thyrse 156 opens from the base up: in spring the lowest flowers open among
+buds, by late summer the lowest have set fruit, and by autumn only the top is still in flower.}
 \end{document}

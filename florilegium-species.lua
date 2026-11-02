@@ -464,13 +464,16 @@ local function n_(k) return NUM[k] or fmt("%d", k) end
 local function a_(word) return (word:match("^[aeiou]") and "an " or "a ") .. word end
 
 local function flower_words(sp)
-  local c, n, f = COLOR[sp.color], sp.merosity, sp.form
+  local n, f = sp.merosity, sp.form
+  local c = (sp.orient == "nodding" and f ~= "none" and "nodding " or "") .. COLOR[sp.color]
   local parts = sp.clade == "monocot" and 2 * n or n     -- a monocot's parts come in two whorls of n
   if f == "head" then return a_(c) .. " daisy head of " .. n_(n) .. " rays"
+  elseif f == "lily" and sp.corona ~= "none" then        -- the narcissus' corona, short or long
+    return a_(c) .. (sp.corona == "cup" and " narcissus of " or " daffodil of ") .. n_(2 * n) .. " tepals around a "
+      .. (sp.corona == "cup" and "short cup" or "long trumpet")
   elseif f == "lily" then
     local shape = sp.reflex < -40 and "swept-back" or sp.cup > 0.6 and "trumpet" or sp.cup < 0.3 and "starry" or "cupped"
-    local cor = sp.corona ~= "none" and (" around a " .. sp.corona) or ""
-    return a_(c) .. " lily of " .. n_(2 * n) .. " " .. shape .. " tepals" .. cor
+    return a_(c) .. " lily of " .. n_(2 * n) .. " " .. shape .. " tepals"
   elseif f == "iris" then return a_(c) .. " iris of three falls and three standards"
   elseif f == "orchid" then return a_(c) .. " orchid with a broad lip"
   elseif f == "papilionaceous" then return a_(c) .. " pea flower"

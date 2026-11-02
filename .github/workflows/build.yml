@@ -79,7 +79,7 @@ jobs:
         with:
           root_file: specimen-tikz.tex
           latexmk_use_lualatex: false
-          pre_compile: export extra_mem_top=10000000
+          pre_compile: export extra_mem_top=20000000
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: florilegium-pdfs
