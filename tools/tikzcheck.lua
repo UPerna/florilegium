@@ -4,6 +4,7 @@
 -- writes their choices), samples the same seeds with florilegium-species.lua, and compares
 -- them, every choice and every real-valued trait exactly (both are pgfmath's numbers).
 --   texlua tools/tikzcheck.lua [FROM TO [ENGINE [ROLE]]]   (from the repo root; default 1 1000 lualatex any)
+--   (ROLE v:<role>, e.g. v:any or v:stem: visitors of that role instead of plants)
 --   tools/in-docker texlua tools/tikzcheck.lua 1 1000 pdflatex
 --
 -- Drawings: builds tools/tikzcheck-draw.tex twice under LuaLaTeX, once with the pure-TikZ
@@ -265,10 +266,12 @@ local pm = require("florilegium-pgfmath")
 local from, to = tonumber(arg[1]) or 1, tonumber(arg[2]) or 1000
 local engine = arg[3] or "lualatex"
 local role = arg[4] or "any"
+local visitor = role:match("^v:(.+)")
+if visitor then role = visitor end
 local job = "tikzcheck-" .. engine
 
-local cmd = fmt([[%s -interaction=batchmode -output-directory=build -jobname=%s "\def\tikzcheckfrom{%d}\def\tikzcheckto{%d}\def\tikzcheckrole{%s}\input{tools/tikzcheck.tex}" >/dev/null]],
-  engine, job, from, to, role)
+local cmd = fmt([[%s -interaction=batchmode -output-directory=build -jobname=%s "%s\def\tikzcheckfrom{%d}\def\tikzcheckto{%d}\def\tikzcheckrole{%s}\input{tools/tikzcheck.tex}" >/dev/null]],
+  engine, job, visitor and "\\def\\tikzcheckvisitor{}" or "", from, to, role)
 local t0 = os.time()
 os.remove("build/" .. job .. ".choices")
 os.execute(cmd)
@@ -289,7 +292,7 @@ local bad = 0
 for i, line in ipairs(tex) do
   local seed = from + i - 1
   local lua = { { "seed", tostring(seed) } }
-  species.sample(seed, role, function(t, v)
+  ;(visitor and species.vsample or species.sample)(seed, role, function(t, v)
     lua[#lua + 1] = { t, math.type(v) == "float" and pm.str(math.floor(v * 65536 + 0.5)) or tostring(v) }
   end)
   local got = fields(line)
@@ -308,5 +311,5 @@ for i, line in ipairs(tex) do
     if bad <= 10 then print(fmt("seed %d: %s", seed, why)) end
   end
 end
-print(fmt("%s: %d species (role %s) in %d s, %d differ", engine, #tex, role, secs, bad))
+print(fmt("%s: %d %s (role %s) in %d s, %d differ", engine, #tex, visitor and "visitors" or "species", role, secs, bad))
 os.exit(bad == 0 and 0 or 1)

@@ -632,6 +632,253 @@ function M.community(pool, rng)
   return { hero, second, mono, spray }
 end
 
+-- ---------------------------------------------------------------- visitors
+-- A visitor is sampled as a plant is, from a genome of its own: its kind first (a
+-- butterfly, a bumblebee, a damselfly ...), which fixes its group, then the traits the
+-- report gives that kind (section 6), each a constant where the kind has no such thing.
+-- size is the real animal's in mm (a wingspan for butterflies and moths, a body length
+-- for the others, a shell's width for a snail); ground the wash it is painted in (the
+-- ink, pale, dark or the copper, which takes orange, red and yellow); pose how it is seen.
+-- The order of the draws; every visitor draws them in this order
+M.VTRAITS = {
+  "kind", "group", "size", "tone", "ground", "pose",
+  -- wings of butterflies and moths: tip, edge, tails; the groundplan's pattern systems
+  -- (bands near the body, a central band or spots with a discal spot, a border band,
+  -- spots or eyespots with their rings and the arcs outside them, lunules at the edge),
+  -- veins; the feelers
+  "apex", "wingedge", "tails", "basal", "central", "discal", "border", "eyes", "rings", "parafocal",
+  "lunules", "veins", "antenna",
+  -- bees and hoverflies: abdomen bands, hair, pollen carried, width for length, a pale tail
+  "bands", "hair", "pollen", "build", "paletail",
+  -- dragonflies and damselflies: tinted wings, the dark spot near each tip
+  "tint", "stigma",
+  -- beetles and ladybirds: the wing cases' pattern and spots
+  "pattern", "spots", "spotsize",
+  -- caterpillars: stripes, hair tufts, a tail horn
+  "stripes", "tufts", "horn",
+  -- snails: whorls, how fast the coil widens, spire height for width, handedness, bands,
+  -- a flared lip, how far the foot is out
+  "whorls", "expansion", "spire", "hand", "shellbands", "lip", "extension",
+  -- birds: the bill, a crest, the tail for the body's length
+  "bill", "crest", "tail",
+}
+-- what a kind does not have: every trait a constant (no draw)
+local VNONE = {
+  pose = C("none"), apex = C("none"), wingedge = C("none"), tails = C(0), basal = C(0), central = C("none"),
+  discal = C(0), border = C("none"), eyes = C(0), rings = C(0), parafocal = C(0), lunules = C(0), veins = C(0),
+  antenna = C("none"), bands = C(0), hair = C(0), pollen = C(0), build = C(0), paletail = C(0), tint = C("none"),
+  stigma = C(0), pattern = C("none"), spots = C(0), spotsize = C(0), stripes = C("none"), tufts = C(0), horn = C(0),
+  whorls = C(0), expansion = C(0), spire = C(0), hand = C("none"), shellbands = C(0), lip = C(0), extension = C(0),
+  bill = C("none"), crest = C(0), tail = C(0),
+}
+-- the wings of butterflies and moths: the groundplan's border system decides the spots
+local BORDER_EYES = BY("border", { eyes = I(1, 6), spots = I(3, 7), _ = C(0) })
+local BORDER_RINGS = BY("border", { eyes = I(1, 3), _ = C(0) })
+local BORDER_ARCS = BY("border", { eyes = W(1, 1, 0, 1), _ = C(0) })
+-- kinds: group; w, the weight among all kinds; roles, the weight in each role (a flower's
+-- pollinator: bee, butterfly, moth, bird, beetle, fly; off the flowers: leaf, stem, perch)
+M.VKINDS = {
+  { name = "butterfly", group = "lepidoptera", w = 6, roles = { butterfly = 1 }, d = {
+    size = R(30, 70), tone = R(0.26, 0.4), ground = W("ink", 5, "copper", 3, "pale", 2, "dark", 1),
+    pose = W("open", 3, "closed", 2),
+    apex = W("rounded", 4, "angular", 3, "falcate", 1), wingedge = W("smooth", 5, "scalloped", 3, "toothed", 1),
+    tails = W(0, 7, 1, 2, 2, 1), basal = W(0, 1, 1, 1), central = W("none", 3, "band", 2, "spots", 1),
+    discal = W(0, 1, 1, 1), border = W("eyes", 3, "spots", 2, "band", 1, "none", 2),
+    eyes = BORDER_EYES, rings = BORDER_RINGS, parafocal = BORDER_ARCS, lunules = I(0, 2), veins = W(1, 3, 0, 1),
+    antenna = C("clubbed"),
+  } },
+  { name = "moth", group = "lepidoptera", w = 3, roles = { moth = 3 }, d = {
+    size = R(25, 60), tone = R(0.3, 0.5), ground = W("pale", 4, "dark", 3, "ink", 2, "copper", 1),
+    pose = W("tent", 3, "flat", 2),
+    apex = W("rounded", 3, "angular", 2), wingedge = W("smooth", 4, "scalloped", 1),
+    basal = W(0, 1, 1, 1), central = W("band", 3, "spots", 1, "none", 1), discal = W(1, 3, 0, 1),
+    border = W("band", 2, "spots", 2, "eyes", 1, "none", 1),
+    eyes = BORDER_EYES, rings = BORDER_RINGS, parafocal = BORDER_ARCS, lunules = I(0, 2), veins = W(0, 2, 1, 1),
+    antenna = W("thread", 3, "feathery", 2), hair = R(0.3, 0.8),
+  } },
+  -- a hawkmoth hovers at a long tube on narrow swept wings
+  { name = "hawkmoth", group = "lepidoptera", w = 1, roles = { moth = 1 }, d = {
+    size = R(40, 90), tone = R(0.3, 0.48), ground = W("dark", 2, "pale", 1, "copper", 1), pose = C("hover"),
+    apex = C("pointed"), wingedge = C("smooth"), basal = W(0, 1, 1, 1), central = W("band", 2, "none", 1),
+    discal = W(1, 1, 0, 1), border = W("band", 2, "none", 1), lunules = I(0, 1), veins = W(0, 2, 1, 1),
+    antenna = C("thread"), bands = I(3, 6), hair = R(0.4, 0.8),
+  } },
+  { name = "honeybee", group = "bee", w = 3, roles = { bee = 3 }, d = {
+    size = R(12, 15), tone = R(0.3, 0.42), ground = W("ink", 3, "copper", 1), pose = W("visit", 2, "fly", 1),
+    antenna = C("elbowed"), bands = I(4, 6), hair = R(0.2, 0.4), pollen = W(1, 1, 0, 1), build = R(0.4, 0.45),
+  } },
+  { name = "bumblebee", group = "bee", w = 3, roles = { bee = 3 }, d = {
+    size = R(14, 23), tone = R(0.28, 0.4), ground = W("ink", 3, "copper", 2), pose = W("visit", 2, "fly", 1),
+    antenna = C("elbowed"), bands = I(1, 4), hair = R(0.7, 1), pollen = W(1, 1, 0, 1), build = R(0.5, 0.6),
+    paletail = W(1, 2, 0, 1),
+  } },
+  { name = "solitarybee", group = "bee", w = 2, roles = { bee = 2 }, d = {
+    size = R(6, 14), tone = R(0.34, 0.5), ground = W("dark", 3, "ink", 2, "copper", 1), pose = W("visit", 2, "fly", 1),
+    antenna = C("elbowed"), bands = I(0, 3), hair = R(0.1, 0.4), pollen = W(1, 1, 0, 2), build = R(0.28, 0.34),
+  } },
+  { name = "hoverfly", group = "fly", w = 3, roles = { fly = 1 }, d = {
+    size = R(8, 15), tone = R(0.3, 0.42), ground = W("ink", 3, "copper", 2), pose = W("hover", 2, "rest", 3),
+    antenna = C("short"), bands = I(3, 4), hair = R(0, 0.3), build = R(0.3, 0.45),
+  } },
+  { name = "dragonfly", group = "odonate", w = 2, roles = { stem = 2 }, d = {
+    size = R(40, 75), tone = R(0.28, 0.42), ground = W("ink", 4, "copper", 1, "dark", 1), pose = C("cross"),
+    bands = I(0, 8), tint = W("clear", 4, "tinted", 1), stigma = W(1, 4, 0, 1),
+  } },
+  { name = "damselfly", group = "odonate", w = 2, roles = { stem = 2 }, d = {
+    size = R(28, 45), tone = R(0.28, 0.42), ground = W("ink", 4, "copper", 1), pose = W("folded", 3, "spread", 1),
+    bands = I(0, 8), tint = W("clear", 3, "tinted", 2), stigma = W(1, 3, 0, 1),
+  } },
+  { name = "beetle", group = "beetle", w = 2, roles = { beetle = 2 }, d = {
+    size = R(6, 20), tone = R(0.3, 0.5), ground = W("dark", 3, "ink", 2, "copper", 1), pose = C("walk"),
+    antenna = W("thread", 3, "clubbed", 1, "comb", 1), build = R(0.45, 0.7),
+    pattern = W("plain", 3, "stripes", 2, "spots", 2), spots = BY("pattern", { spots = I(2, 8), _ = C(0) }),
+    spotsize = BY("pattern", { spots = R(0.08, 0.16), _ = C(0) }),
+  } },
+  { name = "ladybird", group = "beetle", w = 2, roles = { beetle = 1, stem = 1 }, d = {
+    size = R(4, 9), tone = R(0.3, 0.45), ground = W("copper", 5, "dark", 1), pose = C("walk"),
+    antenna = C("clubbed"), build = R(0.8, 0.9), pattern = C("spots"),
+    spots = W(2, 2, 7, 4, 10, 1, 14, 1, 22, 1, 0, 1), spotsize = R(0.08, 0.2),
+  } },
+  { name = "caterpillar", group = "larva", w = 2, roles = { leaf = 1 }, d = {
+    size = R(20, 45), tone = R(0.28, 0.45), ground = W("ink", 3, "pale", 1, "copper", 1),
+    pose = W("straight", 3, "loop", 2, "curl", 2), build = R(0.1, 0.15),
+    stripes = W("none", 2, "side", 2, "back", 1), tufts = W(0, 3, 1, 1), horn = W(0, 3, 1, 1),
+  } },
+  -- most snail species coil to the right (dextral); report section 6d
+  { name = "snail", group = "snail", w = 2, roles = { leaf = 1 }, d = {
+    size = R(12, 30), tone = R(0.28, 0.42), ground = W("ink", 3, "pale", 1, "copper", 1), pose = C("glide"),
+    whorls = R(3.5, 6), expansion = R(1.6, 3.2), spire = R(0.1, 1.2), hand = W("dextral", 19, "sinistral", 1),
+    shellbands = W(0, 3, 5, 2, 1, 1, 2, 1, 3, 1), lip = W(0, 1, 1, 1), extension = R(0.4, 1),
+  } },
+  -- a perching bird with a seed-eater's short conical bill, or a nectar bird (a
+  -- hummingbird or a sunbird) with a long thin one, hovering or perched at the flower
+  { name = "bird", group = "bird", w = 1, roles = { perch = 1 }, d = {
+    size = R(90, 140), tone = R(0.28, 0.42), ground = W("ink", 3, "dark", 1, "copper", 1), pose = C("perch"),
+    bill = C("conical"), crest = W(0, 4, 1, 1), tail = R(0.3, 0.5),
+  } },
+  { name = "hummingbird", group = "bird", w = 1, roles = { bird = 1 }, d = {
+    size = R(70, 110), tone = R(0.28, 0.42), ground = W("ink", 3, "copper", 2), pose = W("hover", 2, "perch", 1),
+    bill = W("curved", 2, "straight", 1), crest = W(0, 5, 1, 1), tail = R(0.3, 0.45),
+  } },
+}
+local VKIND = {}
+for i, k in ipairs(M.VKINDS) do VKIND[k.name] = k k.index = i end
+M.VROLES = { bee = true, butterfly = true, moth = true, bird = true, beetle = true, fly = true, leaf = true,
+  stem = true, perch = true, any = true }
+
+function M.vdist(kind, trait)
+  local k = VKIND[kind]
+  if trait == "group" then return C(k.group) end
+  return k.d[trait] or VNONE[trait]
+end
+-- the kinds a role may draw, as a W over kind names (in M.VKINDS order); a role may
+-- also name one kind ("ladybird"); "any" draws every kind by its weight
+function M.vrolekinds(role)
+  if VKIND[role] and not M.VROLES[role] then return W(role, VKIND[role].w) end
+  local t = {}
+  for _, k in ipairs(M.VKINDS) do
+    local w = role == "any" and k.w or k.roles[role]
+    if w then t[#t + 1] = k.name t[#t + 1] = w end
+  end
+  assert(#t > 0, "florilegium: no visitor for the role " .. tostring(role))
+  return W(table.unpack(t))
+end
+-- a visitor from a pgf seed for a role, as M.sample draws a plant
+function M.vsample(seed, role, log)
+  local rng = ink.pgfrng(seed)
+  for _ = 1, M.WARM do rng.step() end
+  local v = { seed = seed, role = role or "any" }
+  v.kind = draw(M.vrolekinds(v.role), rng, v)
+  if log then log("kind", v.kind) end
+  for i = 2, #M.VTRAITS do
+    local t = M.VTRAITS[i]
+    v[t] = draw(M.vdist(v.kind, t), rng, v)
+    if log then log(t, v[t]) end
+  end
+  return v, rng
+end
+-- the visitor rules; a visitor that breaks one is a bug in the tables
+local WINGED = { lepidoptera = 1 }
+function M.vviolations(v)
+  local out = {}
+  local function check(ok, what) if not ok then out[#out + 1] = what end end
+  local lep = WINGED[v.group]
+  check(lep or (v.apex == "none" and v.border == "none" and v.tails == 0), "wing pattern on a visitor without scaled wings")
+  check(v.kind == "butterfly" or v.tails == 0, "tails on a visitor other than a butterfly")
+  check(v.kind ~= "butterfly" or v.antenna == "clubbed", "a butterfly without clubbed feelers")
+  check(v.group ~= "lepidoptera" or v.kind == "butterfly" or v.antenna ~= "clubbed", "a moth with clubbed feelers")
+  check(v.border == "eyes" or v.rings == 0, "eyespot rings without eyespots")
+  check(v.kind ~= "ladybird" or v.pattern == "spots", "a ladybird without its spots")
+  check(v.group == "beetle" or v.pattern == "none", "wing cases on a visitor that is no beetle")
+  check((v.group == "snail") == (v.whorls > 0), "a shell on something not a snail, or a snail without one")
+  check((v.group == "bird") == (v.bill ~= "none"), "a bill on something not a bird, or a bird without one")
+  check(v.kind ~= "bird" or v.bill == "conical", "a perching seed-eater with a nectar bill")
+  check(v.kind ~= "hummingbird" or v.bill ~= "conical", "a nectar bird with a seed-eater's bill")
+  check(v.group ~= "odonate" or v.tint ~= "none", "a dragonfly or damselfly without its wings' tint")
+  check(v.size > 0, "a visitor of no size")
+  return out
+end
+-- a visitor in words, after "a" or "an": "butterfly with scalloped wings and a row of eyespots"
+-- the ground in the words of the animal's own colors (the copper paints warm ones)
+local GROUNDW = {
+  lepidoptera = { ink = "blue ", pale = "white ", dark = "brown ", copper = "orange " },
+  bee = { ink = "", dark = "dark ", copper = "golden " }, fly = { ink = "", copper = "yellow-banded " },
+  odonate = { ink = "blue ", dark = "dark ", copper = "red " }, beetle = { ink = "blue ", dark = "black ", copper = "red " },
+  larva = { ink = "", pale = "pale ", copper = "orange " }, snail = { ink = "", pale = "pale ", copper = "brown " },
+  bird = { ink = "", dark = "dark ", copper = "russet " },
+}
+local KINDW = { butterfly = "butterfly", moth = "moth", hawkmoth = "hawkmoth", honeybee = "honeybee",
+  bumblebee = "bumblebee", solitarybee = "solitary bee", hoverfly = "hoverfly", dragonfly = "dragonfly",
+  damselfly = "damselfly", beetle = "beetle", ladybird = "ladybird", caterpillar = "caterpillar", snail = "snail",
+  bird = "small bird", hummingbird = "nectar bird" }
+function M.vdescribe(v)
+  local k = v.kind
+  local before, with, after = "", {}, ""
+  local ground = GROUNDW[v.group][v.ground]
+  if v.group == "lepidoptera" and k ~= "butterfly" and v.ground == "ink" then ground = "" end   -- a blue moth is rare
+  if v.group == "lepidoptera" then
+    if v.wingedge ~= "smooth" then with[#with + 1] = v.wingedge .. " wings" end
+    if v.apex == "falcate" then with[#with + 1] = "hooked wingtips" end
+    if v.tails > 0 then with[#with + 1] = v.tails == 1 and "a tail on each hind wing" or "thread tails" end
+    if v.border == "eyes" then with[#with + 1] = "a row of eyespots"
+    elseif v.border == "spots" then with[#with + 1] = "a row of spots along the edge" end
+    if v.antenna == "feathery" then with[#with + 1] = "feathery feelers" end
+    if v.pose == "closed" then after = ", resting with its wings closed"
+    elseif v.pose == "tent" then after = ", resting with its wings folded like a tent"
+    elseif v.pose == "hover" then before = "hovering " end
+  elseif v.group == "bee" or v.group == "fly" then
+    if v.pollen == 1 then with[#with + 1] = "pollen on its legs" end
+    if v.paletail == 1 then with[#with + 1] = "a pale tail" end
+    if v.pose == "hover" then after = ", hanging in the air" elseif v.pose == "fly" then after = ", in flight" end
+  elseif v.group == "odonate" then
+    if v.tint == "tinted" then with[#with + 1] = "tinted wings" end
+    if v.pose == "folded" then after = ", its wings folded along its body" end
+  elseif k == "ladybird" then
+    ground = v.ground == "copper" and "red " or "black "
+    if v.spots > 0 then with[#with + 1] = n_(v.spots) .. (v.ground == "copper" and " black spots" or " red spots")
+    else ground = "plain " .. ground end
+  elseif k == "beetle" then
+    if v.pattern == "stripes" then with[#with + 1] = "striped wing cases"
+    elseif v.pattern == "spots" then with[#with + 1] = "spotted wing cases" end
+  elseif k == "caterpillar" then
+    before = v.pose == "loop" and "looping " or v.pose == "curl" and "curled " or ""
+    if v.stripes ~= "none" then with[#with + 1] = "stripes" end
+    if v.tufts == 1 then with[#with + 1] = "tufts of hair" end
+    if v.horn == 1 then with[#with + 1] = "a horn at its tail" end
+  elseif k == "snail" then
+    if v.shellbands > 0 then with[#with + 1] = "a banded shell" end
+    if v.hand == "sinistral" then with[#with + 1] = "a shell that coils to the left" end
+  elseif v.group == "bird" then
+    with[#with + 1] = v.bill == "conical" and "a short seed-eater's bill" or "a long thin bill"
+    if v.crest == 1 then with[#with + 1] = "a crest" end
+    if v.pose == "hover" then before = "hovering " end
+  end
+  local s = before .. ground .. KINDW[k]
+  if #with == 1 then s = s .. " with " .. with[1]
+  elseif #with > 1 then s = s .. " with " .. concat(with, ", ", 1, #with - 1) .. " and " .. with[#with] end
+  return s .. after
+end
+
 -- ---------------------------------------------------------------- as TeX
 -- the tables for tikzlibraryflorilegium.code.tex: one macro per plan that draws its
 -- traits in M.TRAITS order, and one per role that draws a plan
@@ -643,7 +890,8 @@ local function sorted_keys(t)
   return ks
 end
 -- the TeX for a distribution; a BY map's entries become macros \flo@d@<name>@<value>,
--- appended to out
+-- appended to out; a visitor's (vtex) looks up the earlier trait among the visitor's
+local vtex = false
 local function tex_dist(d, name, out)
   local kind = d[1]
   if kind == "c" then return "\\flo@C{" .. key(d[2]) .. "}"
@@ -659,7 +907,7 @@ local function tex_dist(d, name, out)
       local code = tex_dist(d[3][k], sub, out)
       out[#out + 1] = "\\expandafter\\def\\csname flo@d@" .. sub .. "\\endcsname{" .. code .. "}"
     end
-    return "\\flo@BY{" .. d[2] .. "}{" .. name .. "}"
+    return (vtex and "\\flo@VBY{" or "\\flo@BY{") .. d[2] .. "}{" .. name .. "}"
   end
   error("florilegium: unknown distribution " .. tostring(kind))
 end
@@ -684,6 +932,26 @@ function M.tex()
     out[#out + 1] = "\\expandafter\\def\\csname flo@plan@" .. p.name .. "\\endcsname{%\n  "
       .. concat(body, "%\n  ") .. "}"
   end
+  -- the visitors: \flo@vrole@<role> draws a kind, \flo@vkind@<kind> its traits, into a
+  -- namespace of their own (\flo@VT, \flo@VBY), since visitors and plants share trait names
+  vtex = true
+  out[#out + 1] = "\\def\\flo@vtraits{" .. concat(M.VTRAITS, ",") .. "}"
+  local vroles = { "bee", "butterfly", "moth", "bird", "beetle", "fly", "leaf", "stem", "perch", "any" }
+  for _, k in ipairs(M.VKINDS) do vroles[#vroles + 1] = k.name end
+  for _, role in ipairs(vroles) do
+    out[#out + 1] = "\\expandafter\\def\\csname flo@vrole@" .. role .. "\\endcsname{"
+      .. tex_dist(M.vrolekinds(role), "vrole", out) .. "}"
+  end
+  for _, k in ipairs(M.VKINDS) do
+    local body = {}
+    for i = 2, #M.VTRAITS do
+      local t = M.VTRAITS[i]
+      body[#body + 1] = "\\flo@VT{" .. t .. "}{" .. tex_dist(M.vdist(k.name, t), "vis@" .. k.name .. "@" .. t, out) .. "}"
+    end
+    out[#out + 1] = "\\expandafter\\def\\csname flo@vkind@" .. k.name .. "\\endcsname{%\n  "
+      .. concat(body, "%\n  ") .. "}"
+  end
+  vtex = false
   return concat(out, "\n") .. "\n"
 end
 

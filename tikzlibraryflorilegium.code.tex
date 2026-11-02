@@ -11,6 +11,7 @@
 %
 %   \florilegiumspecies{<seed>}{<role>}   seed 1..2147483646; role hero, spray, monocot or any
 %   \florilegiumtrait{<trait>}            a trait of the species last drawn, e.g. {plan}, {merosity}
+%   \florilegiumvisitor{<seed>}{<role>}   a visitor: a butterfly, a bee, a snail ... (see below)
 
 \ifdefined\ProvidesFile
   \ProvidesFile{tikzlibraryflorilegium.code.tex}[2026/11/01 v1.3 florilegium species in pure TikZ]
@@ -86,6 +87,31 @@
   \csname flo@role@#2\endcsname
   \flo@set{plan}{\flo@val}\flo@logT{plan}%
   \csname flo@plan@\flo@val\endcsname}
+
+% ---------------------------------------------------------------- a visitor
+% A visitor (a butterfly, a bee, a snail ...) is sampled as a plant is, its kind first,
+% then its traits, into a namespace of its own: plants and visitors share trait names.
+%
+%   \florilegiumvisitor{<seed>}{<role>}   role: a flower's visitor (bee, butterfly, moth, bird,
+%                                         beetle, fly), one off the flowers (leaf, stem, perch),
+%                                         any, or a kind (ladybird)
+%   \florilegiumvisitortrait{<trait>}     a trait of the visitor last drawn, e.g. {kind}, {spots}
+\def\flo@xset#1#2{\expandafter\edef\csname flo@x@#1\endcsname{#2}}
+\def\flo@xget#1{\csname flo@x@#1\endcsname}
+\let\florilegiumvisitortrait\flo@xget
+\def\flo@VT#1#2{#2\flo@xset{#1}{\flo@val}\flo@logT{#1}}
+\def\flo@VBY#1#2{%
+  \edef\flo@key{flo@d@#2@\flo@xget{#1}}%
+  \ifcsname\flo@key\endcsname\else\edef\flo@key{flo@d@#2@_}\fi
+  \csname\flo@key\endcsname}
+\def\florilegiumvisitor#1#2{%
+  \pgfmathsetseed{#1}%
+  \pgfmathgeneratepseudorandomnumber\pgfmathgeneratepseudorandomnumber
+  \flo@xset{seed}{#1}\flo@xset{role}{#2}%
+  \edef\florilegiumspecieslog{seed=#1}%
+  \csname flo@vrole@#2\endcsname
+  \flo@xset{kind}{\flo@val}\flo@logT{kind}%
+  \csname flo@vkind@\flo@val\endcsname}
 
 % ================================================================ drawing
 % Everything below draws through pgf's basic layer (\pgfpathmoveto, \pgfpathcurveto,
