@@ -1,0 +1,60 @@
+% specimen-tikz.tex -- florilegium's species drawn in pure TikZ (\usetikzlibrary{florilegium}):
+% pgfmath computes, TikZ draws, under pdfLaTeX or LuaLaTeX. Page 1: two margins' worth of
+% plants, three species each, grown as florilegium-grow.lua grows a margin; page 2: each
+% body plan's flower and leaf close up, and one plant through the seasons.
+% Copyright (c) 2026 Kevin Raymond. MIT License.
+%   lualatex specimen-tikz.tex
+%   extra_mem_top=10000000 pdflatex specimen-tikz.tex
+% pdfLaTeX keeps a page's drawing in main memory until the page is shipped out, and one
+% strip of plants in v1.3's detail takes about 7 million words of it, more than pdfTeX's
+% default 5 million: extra_mem_top raises it for the run. LuaLaTeX's memory grows as needed.
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=12mm]{geometry}
+\usepackage{tikz}
+\usetikzlibrary{florilegium}
+\pagestyle{empty}
+\setlength\parindent{0pt}
+\newcommand\traits[2]{% #1 seed, #2 role: a few of the species' traits, for a caption
+  \florilegiumspecies{#1}{#2}%
+  \florilegiumtrait{plan} #1: \florilegiumtrait{merosity}~parts, \florilegiumtrait{form},
+  \florilegiumtrait{inflo}, \florilegiumtrait{color}, for \florilegiumtrait{syndrome};
+  \florilegiumtrait{compound} \florilegiumtrait{leafmargin} leaves, \florilegiumtrait{arrangement}}
+\newcommand\closeup[2]{% #1 plan, #2 seed: its flower and leaf, and a caption
+  \begin{tikzpicture}
+    \pic at (1.4,1.6) {florilegium flower={seed=#2, role=#1, size=2.6cm}};
+    \pic at (3.6,0) {florilegium leaf={seed=#2, role=#1, size=3.4cm}};
+  \end{tikzpicture}\par
+  \parbox{5.4cm}{\raggedright\scriptsize\traits{#2}{#1}.}}
+\begin{document}
+{\Large Species in pure TikZ}\par\smallskip
+{\small Each plant is a species sampled from a genome (body plan, the visitor its flowers are
+for, the flower, its cluster, the leaf, the fruit) and drawn by pgfmath and TikZ alone, in
+florilegium's v1.3 hand. Three species share a root, as a margin's main stems do: stems and
+the flowers at their tops first, then leaves at the nodes, then branches wherever there is
+room, a pale flower of the first behind them.}\par\medskip
+\begin{tikzpicture}
+  \pic at (0,0) {florilegium plants={plants={3/rose,17/umbellifer,29/mustard}, size=21cm, width=6cm}};
+  \pic at (9.3,0) {florilegium plants={plants={3/daisy,17/lily,29/rose}, size=21cm, width=6cm}};
+\end{tikzpicture}\par\medskip
+{\scriptsize\begin{minipage}[t]{0.48\linewidth}\raggedright
+  \traits{3}{rose}.\\ \traits{17}{umbellifer}.\\ \traits{29}{mustard}.\end{minipage}\hfill
+\begin{minipage}[t]{0.48\linewidth}\raggedright
+  \traits{3}{daisy}.\\ \traits{17}{lily}.\\ \traits{29}{rose}.\end{minipage}}
+\newpage
+{\large Each body plan close up}\par\medskip
+\begin{minipage}[t]{0.32\linewidth}\closeup{rose}{17}\end{minipage}\hfill
+\begin{minipage}[t]{0.32\linewidth}\closeup{mustard}{3}\end{minipage}\hfill
+\begin{minipage}[t]{0.32\linewidth}\closeup{daisy}{29}\end{minipage}\par\bigskip
+\begin{minipage}[t]{0.32\linewidth}\closeup{umbellifer}{3}\end{minipage}\hfill
+\begin{minipage}[t]{0.32\linewidth}\closeup{lily}{29}\end{minipage}\hfill
+\begin{minipage}[t]{0.32\linewidth}\closeup{rose}{29}\end{minipage}\par\bigskip
+{\large One plant through the year}\par\medskip
+\begin{tikzpicture}
+  \foreach \a/\name [count=\k from 0] in {0.3/spring,0.75/summer,1.25/autumn}{
+    \pic at (\k*6.2,0) {florilegium plant={seed=17, role=rose, size=8.5cm, width=5.2cm, season=\a}};
+    \node[font=\footnotesize] at (\k*6.2,-0.4) {\name};
+  }
+\end{tikzpicture}\par
+{\footnotesize Rose 17 in spring, summer and autumn: its flowers open from the top of the
+plant down, so the top is the first to open and the first to turn to hips.}
+\end{document}

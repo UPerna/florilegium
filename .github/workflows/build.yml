@@ -35,9 +35,11 @@ jobs:
         run: sudo apt-get update -qq && sudo apt-get install -y -qq lua5.3 lua5.4 > /dev/null
       - name: the same pages under both
         run: tools/svgcheck.sh lua5.3 lua5.4
+      - name: every sampled species keeps the rules, and the TikZ tables are current
+        run: lua5.3 tools/speciescheck.lua 4000 && lua5.4 tools/speciescheck.lua 4000
 
-  # The four documents, which a release carries, and three pages that are only checked: the
-  # specimen sheets and the ornaments draw through \florilegiumdraw and \florilegiumornament,
+  # The four documents, which a release carries, and pages that are only checked: the
+  # species in pure TikZ (under both engines), and the specimen sheets and the ornaments, which draw through \florilegiumdraw and \florilegiumornament,
   # which read pgf's transform from its internal macros (florilegium.lua: sync_transform), so a
   # pgf that renamed them would fail here and not in someone's document.
   pdfs:
@@ -58,7 +60,17 @@ jobs:
             specimen.tex
             specimen-geometric.tex
             ornaments.tex
+            specimen-tikz.tex
           latexmk_use_lualatex: true
+      # the species in pure TikZ promise pdfLaTeX too; a strip of plants takes more of
+      # pdfTeX's main memory than its default 5 million words (specimen-tikz.tex says why).
+      # pre_compile runs in the shell that then runs latexmk, so the export reaches pdflatex
+      - name: the pure-TikZ species sheet (pdflatex)
+        uses: xu-cheng/latex-action@6549dc21effb2730855a1281407ecfcececc6c1b # 4.1.0
+        with:
+          root_file: specimen-tikz.tex
+          latexmk_use_lualatex: false
+          pre_compile: export extra_mem_top=10000000
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: florilegium-pdfs

@@ -12,7 +12,7 @@ local M = { ink = ink, flora = flora }
 -- a newer florilegium.sty and florilegium.lua beside the document); check_versions
 -- stops such a mix before anything is drawn. A release changes all of them together.
 M.version = "1.3"
-local PARTS = { "ink", "flora", "grow", "authored", "figures", "theme-geometric", "theme-math", "initial", "svg" }
+local PARTS = { "ink", "flora", "grow", "authored", "figures", "theme-geometric", "theme-math", "initial", "svg", "species" }
 
 local function where(file, format, module)     -- " (path)" for the message, if it can be found
   local ok, path = pcall(function() return kpse.find_file(file, format) end)
@@ -29,6 +29,11 @@ function M.check_versions()
     local name = "florilegium-" .. part
     local m = package.loaded[name]
     if type(m) == "table" and m.version ~= M.version then mixed(name .. ".lua" .. where(name .. ".lua", "lua", name), m.version) end
+  end
+  -- the pure-TikZ library, if the document loaded it (\usetikzlibrary{florilegium})
+  local lib = token and token.get_macro and token.get_macro("ver@tikzlibraryflorilegium.code.tex")
+  if lib and lib:match("v(%d[%d.]*)") ~= M.version then
+    mixed("tikzlibraryflorilegium.code.tex" .. where("tikzlibraryflorilegium.code.tex", "tex"), lib:match("v(%d[%d.]*)"))
   end
   local sty = token and token.get_macro and token.get_macro("ver@florilegium.sty")
   if sty then

@@ -44,6 +44,48 @@ function M.rng(seed)
   return r
 end
 
+-- pgf's own generator, replayed step for step, so that a species drawn by TikZ
+-- (tikzlibraryflorilegium.code.tex) and by Lua from the same seed makes the same
+-- choices. pgfmathfunctions.random.code.tex (pgf, LPPL 1.3c / GPL 2): Lehmer's
+-- generator, a = 69621, m = 2^31-1, by Schrage's method (q = 30845, r = 23902).
+-- rnd is (z mod 100001) written as five decimals and read as a TeX dimension,
+-- rand the same over (z mod 200001) - 100000, random(a,b) is a + z mod (b-a+1).
+-- Values are returned as TeX holds them: whole scaled points (1/65536 pt).
+local function decimals_sp(n)               -- TeX's round_decimals of the five digits of n
+  local a = 0
+  for _ = 1, 5 do a = (a + (n % 10) * 131072) // 10 n = n // 10 end
+  return (a + 1) // 2
+end
+function M.pgfrng(seed)
+  local z = floor(seed)
+  assert(z >= 1 and z <= 2147483646, "florilegium: a pgf seed is an integer from 1 to 2147483646")
+  local r = {}
+  local function step()
+    local t = 69621 * (z % 30845) - 23902 * (z // 30845)
+    if t < 0 then t = t + 2147483647 end
+    z = t
+    return t
+  end
+  function r.rnd()                          -- [0, 1]
+    local c = step() % 100001
+    return c == 100000 and 1.0 or decimals_sp(c) / 65536
+  end
+  function r.rand()                         -- [-1, 1]
+    local c = step() % 200001 - 100000
+    if c == 100000 or c == -100000 then return c / 100000 end
+    local v = decimals_sp(c < 0 and -c or c) / 65536
+    return c < 0 and -v or v
+  end
+  function r.random(a, b)                   -- integer in [a, b]
+    if a > b then a, b = b, a end
+    return a + step() % (b - a + 1)
+  end
+  r.step = step                             -- \pgfmathgeneratepseudorandomnumber
+  function r.save() return z end
+  function r.load(v) z = v end
+  return r
+end
+
 -- ---------------------------------------------------------------- noise
 -- 1-D gradient noise with a seeded gradient table, smooth, roughly in [-1,1]
 function M.noise1(rng)
