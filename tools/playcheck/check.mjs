@@ -133,6 +133,7 @@ check('season: summer again', s.sha === base.sha)
 
 // style
 s = await choose('style', 'a plant cut from flat shapes')
+const geo = s
 check('style: geometric', s.sha !== base.sha && /theme=geometric/.test(s.snippet) && /cut from flat shapes/.test(s.text))
 check('seed 7 says no visitors came', /Visitors are welcome, though none came to this seed/.test(base.colophon))
 s = await choose('style', 'a plant cut from flat shapes')
@@ -158,6 +159,44 @@ check('style: math, its equations set by MathJax', s.caps > 0 && /theme=math/.te
 s = await choose('style', 'a flowering plant')
 check('flora: the season comes back as it was', /in autumn/.test(s.colophon) && /florilegiumage\{1\}/.test(s.snippet))
 s = await choose('season', 'summer')
+
+// species (the flowering plant only): each stem a plant of its own species, which the page describes
+{
+  // while it grows (a few seconds), a flower turns in the margin and the text keeps quiet about what grew
+  const before = s.id
+  await page.click('.term[data-k=species]'); await page.waitForSelector('#chooser:not([hidden])')
+  await page.evaluate(() => [...document.querySelectorAll('#chooser [role=option]')].find((o) => /species of its own/.test(o.textContent)).click())
+  await new Promise((r) => setTimeout(r, 900))
+  const mid = await page.evaluate(() => ({ growing: document.querySelector('#proof').classList.contains('growing'),
+    sprout: +getComputedStyle(document.querySelector('#sprout')).opacity, text: document.querySelector('#text').textContent }))
+  check('while it grows, a flower in the margin', mid.growing && mid.sprout > 0.9, `opacity ${mid.sprout}`)
+  check('while it grows, the text tells nothing of the last garden', !/times it found|points of stem/.test(mid.text))
+  s = await grown(before)
+  await new Promise((r) => setTimeout(r, 400))
+  check('grown, the flower goes', +(await page.$eval('#sprout', (e) => getComputedStyle(e).opacity)) === 0)
+}
+const sp7 = s
+{
+  const plants = await page.evaluate(() => window.current.stats.species.filter((p) => p.grew).map((p) => p.text[0].toLowerCase() + p.text.slice(1)))
+  check('species: on', s.sha !== base.sha && /species=1/.test(s.hash) && /\[grown, species\]/.test(s.snippet) && /Each stem is a species of its own\./.test(s.colophon), `${(s.bytes / 1e6).toFixed(1)} MB, ${s.status}`)
+  check('species: the text describes each plant', plants.length === 4 && plants.every((d) => s.text.includes(d)) && /The tallest stem bears a blue daisy head of nineteen rays/.test(s.text)
+    && /this page grows four of them/.test(s.text), s.text.match(/The tallest stem bears[^.]*\./)?.[0])
+  const c = await tab('cli')
+  check('species: the command line', /--seed 7 \\\n\s*--species /.test(c.snippet), c.snippet.replace(/\s*\\\n\s*/g, ' '))
+  await tab('latex')
+}
+s = await choose('style', 'a plant cut from flat shapes')
+check('species: geometric has none (same garden, no term, no option)', s.sha === geo.sha && !(await page.$$eval('#colophon .term', (t) => t.map((x) => x.dataset.k))).includes('species')
+  && !/species/.test(s.snippet + s.colophon + s.text), s.sha + ' vs ' + geo.sha)
+s = await choose('style', 'a cascade of figures')
+check('species: math has none', !(await page.$$eval('#colophon .term', (t) => t.map((x) => x.dataset.k))).includes('species') && !/species/.test(s.snippet + s.colophon))
+s = await choose('style', 'a flowering plant')
+check('species: back with the flowering plant', s.sha === sp7.sha && /Each stem is a species of its own/.test(s.colophon))
+s = await choose('density', 'pared down to a single vine')
+check('species: a single vine grows one of them', /this page grows one of them/.test(s.text) && /The stem bears /.test(s.text) && !/The second bears|along the foot/.test(s.text), s.text.match(/this page grows[^.]*\./)?.[0])
+s = await choose('density', 'at full density')
+s = await choose('species', 'Its stems are all one plant')
+check('species: off, the same garden as before', s.sha === base.sha && !/species/.test(s.hash + s.snippet + s.text), s.sha)
 
 // density, strength
 s = await choose('density', 'at half density')
@@ -266,6 +305,20 @@ await page.click('[data-seen=""]')
   await p2.click('[data-tab=latex]')
   fs.writeFileSync(OUT + '/combined-latex.txt', await p2.$eval('#snippet', (e) => e.textContent))
   check('a shared link restores every setting', /a US Letter page/.test(r.colophon) && /60 mm/.test(r.colophon) && /right/.test(r.colophon) && /autumn/.test(r.colophon) && /teal with ochre/.test(r.colophon), r.colophon.trim())
+  await p2.close()
+}
+// and the same with species (the flowering plant; geometric has none): combined-species.*
+{
+  const states = '#seed=12&paper=letter&margin=60&side=right&season=autumn&species=1&density=0.75&strength=0.7&ink=1D6E7A&accent=C9A227&visitors=0&last=1&end=50&head=0&tab=cli'
+  const p2 = await browser.newPage(); await p2.setViewport({ width: 1440, height: 900 })
+  await p2.goto(BASE + states, { waitUntil: 'load' })
+  await p2.waitForFunction(() => window.current && /grew in/.test(document.querySelector('#grown').textContent), { timeout: 60000 })
+  const r = await p2.evaluate(() => ({ svg: window.current.svg, cli: document.querySelector('#snippet').textContent, colophon: document.querySelector('#colophon').textContent.replace(/\s+/g, ' ') }))
+  fs.writeFileSync(OUT + '/combined-species.svg', r.svg)
+  fs.writeFileSync(OUT + '/combined-species-cli.txt', r.cli)
+  await p2.click('[data-tab=latex]')
+  fs.writeFileSync(OUT + '/combined-species-latex.txt', await p2.$eval('#snippet', (e) => e.textContent))
+  check('a shared link restores species too', /Each stem is a species of its own/.test(r.colophon) && /--species/.test(r.cli) && /autumn/.test(r.colophon) && /teal with ochre/.test(r.colophon), r.cli.split('\n')[0])
   await p2.close()
 }
 check('no errors in the console', errors.length === 0, errors.join(' | '))

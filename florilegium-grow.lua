@@ -192,13 +192,18 @@ local function border(rects, x, y)
   local best = -1
   for _, r in ipairs(rects) do
     if inside(r, x, y) then
-      local d = math.huge
+      local d, near = math.huge, math.huge
       local edges = { { x - r[1], r[1] - 0.05, y }, { r[3] - x, r[3] + 0.05, y }, { y - r[2], x, r[2] - 0.05 }, { r[4] - y, x, r[4] + 0.05 } }
       for _, e in ipairs(edges) do
         local open = false
         for _, o in ipairs(rects) do if o ~= r and inside(o, e[2], e[3]) then open = true end end
         if not open and e[1] < d then d = e[1] end
+        if e[1] < near then near = e[1] end
       end
+      -- every edge open (the point's rect lies wholly among others): its own nearest
+      -- edge, or the free radius would be infinite and the next disc would visit every
+      -- cell there could be (no region of v1.3's makes such a point)
+      if d == math.huge then d = near end
       if d > best then best = d end
     end
   end
@@ -206,16 +211,23 @@ local function border(rects, x, y)
 end
 
 -- the regions a garden may use, in page cm: the margin column, the footer band
--- (its length drawn from `layout`) and, on the last page, the space under the text
+-- (its length drawn from `layout`) and, on the last page, the space under the text.
+-- Species (without a theme): the last page's garden reaches down to the page number's
+-- line, 0.55 cm above its baseline, and the footer band runs the full width under it,
+-- so only the line the number is set on stays clear (about a centimeter, wherever the
+-- class puts the number); v1.3's pages stop 0.6 cm above the foot of the text block.
 function M.regions(g, layout)
   local col = { 0.3, 0.45, g.colright, g.ph - 0.5 }
   local fx1 = g.textleft + (g.textright - g.textleft) * layout.range(0.42, 0.52)
   local foot = { g.colright - 0.01, 0.4, fx1, min(1.75, g.footy - 0.45) }
   local rects = { col, foot }
+  local low = g.species and not g.theme
+  local bottom = low and min(g.ybot + 0.6, g.footy + 0.55) or g.ybot + 0.6
   local spill
-  if g.spill == 1 and (g.spilly - 0.8) - (g.ybot + 0.6) > 2.5 then
-    spill = { g.colright - 0.01, g.ybot + 0.6, g.textright - 0.2, g.spilly - 0.8 }
+  if g.spill == 1 and (g.spilly - 0.8) - bottom > 2.5 then
+    spill = { g.colright - 0.01, bottom, g.textright - 0.2, g.spilly - 0.8 }
     rects[#rects + 1] = spill
+    if low then rects[#rects + 1] = { fx1 - 0.01, 0.4, g.textright - 0.2, foot[4] } end
   end
   return rects, col, foot, spill, fx1
 end
@@ -1329,7 +1341,9 @@ function M.page(g)
     return { rec = ink.take_recording(), total = total }
   end
   local bytes = ink.flush()
-  -- species: who grew, in stem order (hero, spray, monocot, footer), with what they carry
+  -- species: the page's four, in stem order (the hero, a second showy plant, the monocot,
+  -- the footer's spray), with what they carry; grew: it had a stem (low density grows
+  -- fewer main stems, and no footer)
   local plants
   if comm then
     plants = {}
@@ -1337,7 +1351,7 @@ function M.page(g)
       local tally = {}
       for _, m in ipairs(rowsof[sp]) do if m.sp then tally[m.kind] = counts[m.name] end end
       plants[i] = { role = ({ "hero", "showy", "monocot", "spray" })[i], plan = sp.plan, clade = sp.clade,
-        syndrome = sp.syndrome, seed = sp.seed, text = SPC.describe(sp), tally = tally }
+        syndrome = sp.syndrome, seed = sp.seed, text = SPC.describe(sp), tally = tally, grew = topof[sp] ~= nil }
     end
   end
   if texio then
