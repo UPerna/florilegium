@@ -198,13 +198,15 @@
         \flo@blade{\flo@hw}{\flo@t}{\flo@tp}%
       \end{pgfscope}}}%
   \ifnum\flo@get{tendrils}=1
+    % the tip a tendril, often forked, each branch coiling its own way (\flo@vcurl)
     \flo@tone{flo@c}{0.22}{flo@ink}\pgfsetstrokecolor{flo@c}\pgfsetlinewidth{0.25pt}%
-    \pgfpathmoveto{\flo@P01}%
-    \flo@loop{ten}\flo@q{1}{14}{%
-      \flo@calc\flo@a{\the\flo@q*50}\flo@calc\flo@r{0.18*(1-\the\flo@q/16)}%
-      \flo@calc\flo@gx{\flo@r*sin(\flo@a)}\flo@calc\flo@gy{1+0.12+\flo@r*(-cos(\flo@a))}%
-      \pgfpathlineto{\flo@P\flo@gx\flo@gy}}%
-    \pgfusepath{stroke}%
+    \flo@chance{0.4}\ifflo@yes\def\flo@tdn{2}\else\def\flo@tdn{1}\fi
+    \flo@loop{ten}\flo@q{1}{\flo@tdn}{%
+      \begin{pgfscope}\pgftransformshift{\flo@P01}%
+        \ifnum\flo@tdn=1 \flo@sym\flo@t{15}\else\flo@range\flo@t{10}{30}\ifnum\flo@q=2 \flo@calc\flo@t{-\flo@t}\fi\fi
+        \pgftransformrotate{\flo@t}%
+        \flo@range\flo@t{0.35}{0.55}\flo@vcurl\flo@t\flo@smoothopen{45}\pgfusepath{stroke}%
+      \end{pgfscope}}%
   \else
     \begin{pgfscope}%
       \pgftransformshift{\flo@P01}\pgftransformscale{\flo@pl}\flo@calc\flo@t{(#1)*\flo@pl}%
@@ -1251,15 +1253,33 @@
         \flo@range\flo@t{0.008}{0.014}%
         \flo@vfill{flo@c}{0.9}{0}{\pgfpathcircle{\flo@P\flo@xb\flo@yb}{\flo@t pt}}}%
     \fi}}
-% flora.tendril: a tapered logarithmic spiral from the origin, size #1 cm
+% a tendril as a climber grows one, each its own: from the origin along +y it runs out a
+% little bent, then coils to one side, tighter toward its tip, by its own amount, from a
+% loose hook to two and a half turns (most about one). #1 its size: the run is 0.2 to
+% 0.9 of it, the coil starts 0.18 to 0.35 of it in radius and closes to 0.12 to 0.45 of
+% that. Points 1..45 in flo@X/Y
+\newcount\flo@Gt
+\def\flo@vcurl#1{%
+  \edef\flo@tds{#1}%
+  \flo@chance{0.5}\ifflo@yes\def\flo@tdh{1}\else\def\flo@tdh{-1}\fi
+  \flo@range\flo@t{0.2}{0.9}\flo@calc\flo@tdd{\flo@tds*\flo@t/8}\flo@sym\flo@tdb{4}%
+  \flo@rnd\flo@t\flo@calc\flo@tdT{\flo@tdh*(4+21*\flo@t*sqrt(\flo@t))}%
+  \flo@range\flo@t{0.18}{0.35}\flo@calc\flo@tdr{\flo@tds*\flo@t}\flo@range\flo@tdq{0.12}{0.45}%
+  \def\flo@tda{90}\def\flo@tdx{0}\def\flo@tdy{0}\flo@put1{0}{0}%
+  \flo@loop{tdf}\flo@Gt{1}{8}{%
+    \flo@calc\flo@tda{\flo@tda+\flo@tdb}%
+    \flo@calc\flo@tdx{\flo@tdx+\flo@tdd*cos(\flo@tda)}\flo@calc\flo@tdy{\flo@tdy+\flo@tdd*sin(\flo@tda)}%
+    \flo@put{\the\numexpr\flo@Gt+1\relax}\flo@tdx\flo@tdy}%
+  \flo@loop{tdc}\flo@Gt{1}{36}{%
+    \flo@calc\flo@tda{\flo@tda+\flo@tdT}%
+    \flo@calc\flo@t{\flo@tdr*pow(\flo@tdq,\the\flo@Gt/36)*abs(\flo@tdT)*0.0174533}%
+    \flo@calc\flo@tdx{\flo@tdx+\flo@t*cos(\flo@tda)}\flo@calc\flo@tdy{\flo@tdy+\flo@t*sin(\flo@tda)}%
+    \flo@put{\the\numexpr\flo@Gt+9\relax}\flo@tdx\flo@tdy}}
+% a climber's tendril on a stalk of its own, size #1 cm: \flo@vcurl, tapered as
+% flora.tendril
 \def\flo@vtendril#1{%
-  \flo@range\flo@turns{1.6}{2.3}%
-  \flo@loop{tdr}\flo@Gc{0}{50}{%
-    \flo@calc\flo@v{\the\flo@Gc/50}\flo@calc\flo@a{\flo@v*\flo@turns*360}%
-    \flo@calc\flo@r{1-0.92*\flo@v}\flo@calc\flo@r{(#1)*\flo@r*sqrt(\flo@r)}%
-    \flo@calc\flo@xx{\flo@r*cos(\flo@a)-(#1)}\flo@calc\flo@yy{\flo@r*sin(\flo@a)}%
-    \flo@put{\the\numexpr\flo@Gc+1\relax}{\flo@xx}{\flo@yy}}%
-  \flo@vstem{51}{0.022}{0.004}{0.12}}
+  \flo@calc\flo@t{1.6*(#1)}\flo@vcurl\flo@t
+  \flo@vstem{45}{0.022}{0.004}{0.12}}
 
 % ---------------------------------------------------------------- room
 % Which 5 mm cells are taken, kept per walk: a leaf or a branch goes only where the cells

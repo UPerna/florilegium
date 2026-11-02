@@ -1131,13 +1131,19 @@ local function pinnate(lpt, pairs, pl)
   end)
   if tr("tendrils") == U then
     tone("flo@c", K"0.22", "flo@ink") out("\\pgfsetstrokecolor{flo@c}\\pgfsetlinewidth{0.25pt}")
-    moveto(0, U)
-    loop("#q", 1, 14, function()
-      V.a = E"#q*50" V.r = E"0.18*(1-#q/16)"
-      V.gx = E"@r*sin(@a)" V.gy = E"1+0.12+@r*(-cos(@a))"
-      lineto(R.gx, R.gy)
+    if chance(K"0.4") then V.tdn = 2 * U else V.tdn = U end
+    loop("#q", 1, function() return I("tdn") end, function()
+      scope(function()
+        shift(0, U)
+        if R.tdn == U then V.t = sym(15 * U)
+        else
+          V.t = range(10 * U, 30 * U)
+          if R["#q"] == 2 then V.t = E"-@t" end
+        end
+        rotate(R.t)
+        V.t = range(K"0.35", K"0.55") T.vcurl(R.t) T.smoothopen(45) usepath("stroke")
+      end)
     end)
-    usepath("stroke")
   else
     scope(function()
       shift(0, U) scale(R.pl) V.t = E("(%1)*@pl", { arg(lpt) })
@@ -1329,6 +1335,28 @@ local function smoothopen(n)
     V.ca = E("%1+(%2-(%3))/6", { X[i], X[ib], X[ia] }) V.cb = E("%1+(%2-(%3))/6", { Y[i], Y[ib], Y[ia] })
     V.cc = E("%1-(%2-(%3))/6", { X[ib], X[ic], X[i] }) V.cd = E("%1-(%2-(%3))/6", { Y[ib], Y[ic], Y[i] })
     curveto(R.ca, R.cb, R.cc, R.cd, X[ib], Y[ib])
+  end)
+end
+-- \flo@vcurl{size}: a tendril, each its own (run, side, turns, tightness), into X/Y 1..45.
+-- It and smoothopen sit in T, which pinnate (above) can reach: Lua's 200 locals
+T.smoothopen = smoothopen
+function T.vcurl(size)
+  V.tds = size
+  if chance(K"0.5") then V.tdh = U else V.tdh = -U end
+  V.t = range(K"0.2", K"0.9") V.tdd = E"@tds*@t/8" V.tdb = sym(4 * U)
+  V.t = rnd() V.tdT = E"@tdh*(4+21*@t*sqrt(@t))"
+  V.t = range(K"0.18", K"0.35") V.tdr = E"@tds*@t" V.tdq = range(K"0.12", K"0.45")
+  V.tda = 90 * U V.tdx = 0 V.tdy = 0 put(1, 0, 0)
+  loop("#Gt", 1, 8, function()
+    V.tda = E"@tda+@tdb"
+    V.tdx = E"@tdx+@tdd*cos(@tda)" V.tdy = E"@tdy+@tdd*sin(@tda)"
+    put(R["#Gt"] + 1, R.tdx, R.tdy)
+  end)
+  loop("#Gt", 1, 36, function()
+    V.tda = E"@tda+@tdT"
+    V.t = E"@tdr*pow(@tdq,#Gt/36)*abs(@tdT)*0.0174533"
+    V.tdx = E"@tdx+@t*cos(@tda)" V.tdy = E"@tdy+@t*sin(@tda)"
+    put(R["#Gt"] + 9, R.tdx, R.tdy)
   end)
 end
 -- \flo@vstem{n}{w0}{w1}{tone}: a filled ribbon along X/Y 1..n (cm), or a stroke under 0.7 bp
@@ -2273,14 +2301,8 @@ do
 end
 -- \flo@vtendril{size}: a tapered logarithmic spiral from the origin
 local function vtendril(size)
-  V.turns = range(K"1.6", K"2.3")
-  loop("#Gc", 0, 50, function()
-    V.v = E"#Gc/50" V.a = E"@v*@turns*360"
-    V.r = E"1-0.92*@v" V.r = E("(%1)*@r*sqrt(@r)", { size })
-    V.xx = E("@r*cos(@a)-(%1)", { size }) V.yy = E"@r*sin(@a)"
-    put(R["#Gc"] + 1, R.xx, R.yy)
-  end)
-  vstem(51, K"0.022", K"0.004", K"0.12")
+  V.t = E("1.6*(%1)", { size }) T.vcurl(R.t)
+  vstem(45, K"0.022", K"0.004", K"0.12")
 end
 
 -- ---------------------------------------------------------------- room
