@@ -1104,7 +1104,7 @@
 % half-width at #1: \flo@h
 \def\flo@vhalf#1{%
   \ifnum\flo@vp@pointed=1
-    \ifdim#1pt>0pt \flo@calc\flo@h{\flo@pW*2*pow(sin(180*pow(#1,0.8)),0.85)*(1-0.3*(#1))}\else\def\flo@h{0}\fi
+    \ifdim#1pt>0pt \flo@calc\flo@h{\flo@pW*2*pow(max(0,sin(180*pow(#1,0.8))),0.85)*(1-0.3*(#1))}\else\def\flo@h{0}\fi
   \else
     \ifdim#1pt<0.62pt
       \ifdim#1pt>0pt \flo@calc\flo@h{\flo@pW*(0.16+0.84*pow(sin(90*(#1)/0.62),1.3))}\else\flo@calc\flo@h{\flo@pW*0.16}\fi
@@ -1497,7 +1497,7 @@
         \flo@loop{lbw}\flo@kb{0}{11}{%
           \flo@calc\flo@v{\the\flo@kb/11}\edef\flo@q{\the\numexpr\flo@kb+1\relax}%
           \ifdim\flo@v pt>0.2pt \flo@calc\flo@t{\flo@v*1.4+\the\flo@ka}\flo@lteeth\flo@t\flo@calc\flo@e{\flo@th*\flo@lL*4}\else\def\flo@e{0}\fi
-          \ifdim\flo@v pt>0pt \flo@calc\flo@g{pow(sin(180*pow(\flo@v,0.62)),0.75)}\else\def\flo@g{0}\fi
+          \ifdim\flo@v pt>0pt \flo@calc\flo@g{pow(max(0,sin(180*pow(\flo@v,0.62))),0.75)}\else\def\flo@g{0}\fi
           \flo@range\flo@t{0.26}{0.3}\flo@calc\flo@wa{max(0,\flo@lL*\flo@t*\flo@g+\flo@e)}%
           \flo@range\flo@t{0.26}{0.3}\flo@calc\flo@wb{max(0,\flo@lL*\flo@t*\flo@g+\flo@e)}%
           \flo@calc\flo@xl{\flo@x\flo@q+\csname flo@NX\flo@q\endcsname*\flo@wa}\flo@calc\flo@yl{\flo@y\flo@q+\csname flo@NY\flo@q\endcsname*\flo@wa}%
@@ -1750,7 +1750,7 @@
   \flo@normals{19}%
   \flo@loop{bdw}\flo@kb{0}{18}{%
     \flo@calc\flo@v{\the\flo@kb/18}\edef\flo@q{\the\numexpr\flo@kb+1\relax}%
-    \ifdim\flo@v pt>0pt \flo@calc\flo@w{0.3*pow(sin(180*pow(\flo@v,0.6)),0.8)}\else\def\flo@w{0}\fi
+    \ifdim\flo@v pt>0pt \flo@calc\flo@w{0.3*pow(max(0,sin(180*pow(\flo@v,0.6))),0.8)}\else\def\flo@w{0}\fi
     \ifdim\flo@w pt<0pt \def\flo@w{0}\fi
     \flo@calc\flo@xl{\flo@x\flo@q+\csname flo@NX\flo@q\endcsname*\flo@w}\flo@calc\flo@yl{\flo@y\flo@q+\csname flo@NY\flo@q\endcsname*\flo@w}%
     \flo@calc\flo@xr{\flo@x\flo@q-\csname flo@NX\flo@q\endcsname*\flo@w}\flo@calc\flo@yr{\flo@y\flo@q-\csname flo@NY\flo@q\endcsname*\flo@w}%
@@ -1802,15 +1802,15 @@
 \def\flo@vf@star{}\def\flo@vf@tone{}
 % the flower's tone from its color group, as florilegium's ramp sees colors: blue as flora
 % draws it (\flo@vf@tone empty), violet deeper, pink, green, yellow and white paler but
-% never so pale that the finish is lost,
+% close enough to flora's range that a page keeps v1.3's weight of ink,
 % red and orange in the accent's ramp (copper)
 \def\flo@stone{%
   \edef\flo@col{\flo@get{color}}\def\flo@rampname{flo@ramp}\def\flo@vf@tone{}%
   \def\flo@tmp{violet}\ifx\flo@col\flo@tmp\flo@range\flo@vf@tone{0.18}{0.26}\fi
-  \def\flo@tmp{pink}\ifx\flo@col\flo@tmp\flo@range\flo@vf@tone{0.4}{0.48}\fi
-  \def\flo@tmp{white}\ifx\flo@col\flo@tmp\flo@range\flo@vf@tone{0.6}{0.68}\fi
-  \def\flo@tmp{yellow}\ifx\flo@col\flo@tmp\flo@range\flo@vf@tone{0.52}{0.6}\fi
-  \def\flo@tmp{green}\ifx\flo@col\flo@tmp\flo@range\flo@vf@tone{0.46}{0.54}\fi
+  \def\flo@tmp{pink}\ifx\flo@col\flo@tmp\flo@range\flo@vf@tone{0.34}{0.42}\fi
+  \def\flo@tmp{white}\ifx\flo@col\flo@tmp\flo@range\flo@vf@tone{0.46}{0.54}\fi
+  \def\flo@tmp{yellow}\ifx\flo@col\flo@tmp\flo@range\flo@vf@tone{0.4}{0.48}\fi
+  \def\flo@tmp{green}\ifx\flo@col\flo@tmp\flo@range\flo@vf@tone{0.38}{0.46}\fi
   \def\flo@tmp{red}\ifx\flo@col\flo@tmp\def\flo@rampname{flo@aramp}\flo@range\flo@vf@tone{0.3}{0.4}\fi
   \def\flo@tmp{orange}\ifx\flo@col\flo@tmp\def\flo@rampname{flo@aramp}\flo@range\flo@vf@tone{0.42}{0.52}\fi}
 % the species' flower face on, diameter 1 (lily: star at a tilt; head: rays around a disk;

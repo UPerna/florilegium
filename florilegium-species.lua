@@ -349,9 +349,11 @@ function M.dist(plan, trait)
 end
 
 -- the plans a role may draw, as a W over plan names (in M.PLANS order); a role may also
--- name one plan ("rose"), for a specimen of that plan
+-- name one plan ("rose"), for a specimen of that plan. A role's own name comes first:
+-- "monocot" is the role (lily, iris or the generic monocot), not the plan of that name.
+M.ROLES = { hero = true, spray = true, monocot = true, any = true }
 function M.roleplans(role)
-  if PLAN[role] then return W(role, PLAN[role].w) end
+  if PLAN[role] and not M.ROLES[role] then return W(role, PLAN[role].w) end
   local t = {}
   for _, p in ipairs(M.PLANS) do
     if role == "any" or p.roles[role] then t[#t + 1] = p.name t[#t + 1] = p.w end
@@ -508,8 +510,15 @@ function M.describe(sp)
 end
 
 -- ---------------------------------------------------------------- a document's plants
+-- showy: flowers that can carry a page, one at a time or in a loose cluster, not a
+-- raceme, spike, catkin or compound umbel of small ones (those make a page's sprays),
+-- and painted in the ink: red and orange take the copper, which the margin keeps sparing
+local SPRAYS = { cumbel = true, raceme = true, spike = true, panicle = true, thyrse = true, catkin = true, monochasium = true }
+function M.showy(sp) return not SPRAYS[sp.inflo] and sp.color ~= "red" and sp.color ~= "orange" end
+
 -- a pool of eight species for a document (docseed: \florilegiumseed, or 0), each with a
--- role, no body plan twice; ink.rng streams, Lua only (TikZ draws species by seed)
+-- role, no body plan twice, both heroes showy; ink.rng streams, Lua only (TikZ draws
+-- species by seed)
 local SLOTS = { "hero", "hero", "spray", "spray", "monocot", "any", "any", "any" }
 local pools = {}
 function M.pool(docseed)
@@ -518,8 +527,12 @@ function M.pool(docseed)
   local rng = ink.rng(docseed * 104729 + 307)
   local pool, used = {}, {}
   for i, role in ipairs(SLOTS) do
-    local sp
-    repeat sp = M.sample(1 + floor(rng.u() * 2147483645), role) until not used[sp.plan]
+    local sp, tries = nil, 0
+    repeat
+      sp = M.sample(1 + floor(rng.u() * 2147483645), role)
+      tries = tries + 1
+      assert(tries < 10000, "florilegium-species: no body plan left for the role " .. role)
+    until not used[sp.plan] and (role ~= "hero" or M.showy(sp))
     used[sp.plan] = true
     sp.slot = i
     pool[i] = sp
@@ -528,16 +541,19 @@ function M.pool(docseed)
   return pool
 end
 
--- the four that grow on one page (rng: the page's species stream): a hero, a spray,
--- the monocot, and one more; in that order (main stems 1, 2, 3, then the footer)
+-- the four that grow on one page (rng: the page's species stream), in the order of
+-- the stems they grow on: the hero (main stem 1), a second showy plant (2: the other
+-- hero, or a showy one of the rest), the monocot (3) and a spray (the footer)
 function M.community(pool, rng)
   local hero = pool[1 + floor(rng.u() * 2)]
   local spray = pool[3 + floor(rng.u() * 2)]
   local mono = pool[5]
-  local rest = {}
-  for _, sp in ipairs(pool) do if sp ~= hero and sp ~= spray and sp ~= mono then rest[#rest + 1] = sp end end
-  local extra = rest[1 + floor(rng.u() * #rest)]
-  return { hero, spray, mono, extra }
+  local showy = {}
+  for _, sp in ipairs(pool) do
+    if sp ~= hero and sp ~= spray and sp ~= mono and M.showy(sp) then showy[#showy + 1] = sp end
+  end
+  local second = showy[1 + floor(rng.u() * #showy)]   -- never empty: the other hero is showy
+  return { hero, second, mono, spray }
 end
 
 -- ---------------------------------------------------------------- as TeX
@@ -578,7 +594,7 @@ function M.tex()
     "\\def\\flo@traits{" .. concat(M.TRAITS, ",") .. "}",
   }
   local roles = { "hero", "spray", "monocot", "any" }
-  for _, p in ipairs(M.PLANS) do roles[#roles + 1] = p.name end
+  for _, p in ipairs(M.PLANS) do if not M.ROLES[p.name] then roles[#roles + 1] = p.name end end
   for _, role in ipairs(roles) do
     out[#out + 1] = "\\expandafter\\def\\csname flo@role@" .. role .. "\\endcsname{"
       .. tex_dist(M.roleplans(role), "role", out) .. "}"

@@ -312,7 +312,7 @@ end
 -- \flo@vhalf#1 -> \flo@h
 local function vhalf(v)
   if R["vp@pointed"] == U then
-    if v > 0 then V.h = E("@pW*2*pow(sin(180*pow(%1,0.8)),0.85)*(1-0.3*(%1))", { v }) else V.h = 0 end
+    if v > 0 then V.h = E("@pW*2*pow(max(0,sin(180*pow(%1,0.8))),0.85)*(1-0.3*(%1))", { v }) else V.h = 0 end
   else
     if v < K"0.62" then
       if v > 0 then V.h = E("@pW*(0.16+0.84*pow(sin(90*(%1)/0.62),1.3))", { v }) else V.h = E"@pW*0.16" end
@@ -682,7 +682,7 @@ local function vleaf()
         loop("#kb", 0, 11, function()
           V.v = E"#kb/11" V.q = (R["#kb"] + 1) * U
           if R.v > K"0.2" then V.t = E"@v*1.4+#ka" lteeth(R.t) V.e = E"@th*@lL*4" else V.e = 0 end
-          if R.v > 0 then V.g = E"pow(sin(180*pow(@v,0.62)),0.75)" else V.g = 0 end
+          if R.v > 0 then V.g = E"pow(max(0,sin(180*pow(@v,0.62))),0.75)" else V.g = 0 end
           V.t = range(K"0.26", K"0.3") V.wa = E"max(0,@lL*@t*@g+@e)"
           V.t = range(K"0.26", K"0.3") V.wb = E"max(0,@lL*@t*@g+@e)"
           local q = I("q")
@@ -956,7 +956,7 @@ local function vbud(u)
   normals(19)
   loop("#kb", 0, 18, function()
     V.v = E"#kb/18" V.q = (R["#kb"] + 1) * U
-    if R.v > 0 then V.w = E"0.3*pow(sin(180*pow(@v,0.6)),0.8)" else V.w = 0 end
+    if R.v > 0 then V.w = E"0.3*pow(max(0,sin(180*pow(@v,0.6))),0.8)" else V.w = 0 end
     if R.w < 0 then V.w = 0 end
     sides(I("q"), "w")
   end)
@@ -1006,8 +1006,8 @@ end
 -- ================================================================ the species, in v1.3's hand
 local function tr(name) return R["v@" .. name] end
 -- \flo@stone: the flower's tone from its color group
-local STONE = { violet = { "0.18", "0.26" }, pink = { "0.4", "0.48" }, white = { "0.6", "0.68" },
-  yellow = { "0.52", "0.6" }, green = { "0.46", "0.54" }, red = { "0.3", "0.4", true }, orange = { "0.42", "0.52", true } }
+local STONE = { violet = { "0.18", "0.26" }, pink = { "0.34", "0.42" }, white = { "0.46", "0.54" },
+  yellow = { "0.4", "0.48" }, green = { "0.38", "0.46" }, red = { "0.3", "0.4", true }, orange = { "0.42", "0.52", true } }
 local function stone()
   V.col = tr("color") V.rampname = "flo@ramp" V["vf@tone"] = ""
   local s = STONE[R.col]
@@ -2065,6 +2065,180 @@ function M.tex(kind, seed, role, draw, size, width, season, plants, ghost, lib)
   end
   tex.sprint(M.pic(kind, o))
 end
+end
+
+-- ================================================================ the margin
+-- florilegium-grow.lua grows a species page in Lua and paints it with ink, as it paints
+-- everything else: one transform stack, one color ramp (the document's ink, intensity,
+-- copper headings), one output for the PDF and for florilegium-svg.lua. An organ is
+-- computed exactly as its pic (the pgf code above), then read back and painted, so a
+-- margin's plants are the pics' plants to ink's precision (0.1 bp), not to the byte.
+
+-- \flo@unitdisc in Lua's numbers, for the layout (no TikZ twin): the disc an
+-- inflorescence at scale k fills, as the offset of its center along the axis and its
+-- radius, in cm; and its kind (solitary, blossoms, umbel, raceme)
+function M.unitdisc(s, k)
+  local kind = KIND[s.inflo] or "blossoms"
+  local fd = math.min(2.8, 0.7 + 0.032 * s.size) * k
+  if kind == "umbel" then return 0.69 * k, 0.86 * k, kind end
+  if kind == "raceme" then return 0.95 * k, 0.75 * k, kind end
+  if kind == "blossoms" then return 0.5 * fd, 0.8 * fd, kind end
+  return 0, 0.5 * fd, kind
+end
+-- \flo@lateness: how much later than the top an inflorescence at height h (0..1) opens
+function M.lateness(s, h) return BELOW[s.inflo] and 0.4 * h or 0.4 * (1 - h) end
+
+local function fx(x) return math.floor(x * U + 0.5) end      -- a Lua number as TeX holds it
+-- one organ of species s (a table from florilegium-species: seed, role), from pgf seed z,
+-- at the origin with its axis along +y, in cm. o by kind:
+--   unit     k (scale), season, late: the inflorescence (\flo@unit without its room)
+--   budding  k: buds on stalks       tendril  size     bloom  d (diameter cm), stage
+--   leaf     len (cm), bend, lc (0..1, the autumn draw), season
+--   ghost    d: a plain pale flower of the species, as the garden's ghost
+local function organ(kind, s, z, o)
+  reset()
+  florilegiumspecies(s.seed, s.role)
+  drawseed(z)
+  local function body()
+    if kind == "unit" then
+      kindof() V.season = fx(o.season) V.ulate = fx(o.late)
+      V.t = sym(K"0.08") V.ust = E"1.2*@season-@ulate+@t+$phenology"
+      unitdraw(fx(o.k))
+    elseif kind == "budding" then
+      fdiam(fx(o.k)) V.fd = E"min(1.1,@fd)" budding(R.fd)
+    elseif kind == "tendril" then
+      rotate(90 * U) vtendril(fx(o.size))
+    elseif kind == "bloom" then
+      bloom(fx(o.d), fx(o.stage))
+    elseif kind == "leaf" then
+      V.lf = fx(o.len) V.sbend = fx(o.bend) V.lc = fx(o.lc) V.season = fx(o.season)
+      scale(R.lf) autumnleaf()
+      V.t = E"@lf*28.45276" leaf(R.t)
+    elseif kind == "ghost" then
+      V.gdiam = fx(o.d) V.lift = K"0.62" stone()
+      V["v@form"] = "rotate"
+      if tr("merosity") > 6 * U then V["v@merosity"] = 5 * U end
+      scale(R.gdiam) V.t = E"@gdiam*28.45276" sflower(R.t)
+    else
+      error("florilegium-organs: no organ " .. tostring(kind))
+    end
+  end
+  scope(body)
+  assert(level == 0, "florilegium-organs: a group left open")
+  return concat(OUT)
+end
+M.organ = organ                   -- the code itself, for tests
+
+-- the pgf code read back and painted with ink, under ink's current transform: a point
+-- (pt in the code) is a cm; line widths stay absolute
+local KAPPA, PT_BP = 0.55228475, 72 / 72.27
+local BLACK = { 0, 0, 0 }
+local function paint(code)
+  code = code:gsub("\\pgfqpoint{(%-?[%d.]+)pt}{(%-?[%d.]+)pt}", "%1 %2")
+  local st = { fill = BLACK, fop = 1, stroke = BLACK, sop = 1, w = 0.4 * PT_BP, mult = false, colors = {}, clips = 0 }
+  local stack, aramp = {}, {}
+  local function color(spec)
+    local c = st.colors[spec]
+    if c then return c end
+    local n = spec:match("^flo@ramp@(%d+)$")
+    if n then return ink.tone(tonumber(n) / 100) end
+    n = spec:match("^flo@aramp@(%d+)$")
+    if n then
+      c = aramp[n]
+      if not c then ink.in_accent(function() c = ink.tone(tonumber(n) / 100) end) aramp[n] = c end
+      return c
+    end
+    local p, mix = spec:match("^flo@accent!([%d.]+)!(%a+)$")
+    if p then
+      local k = 1 - tonumber(p) / 100
+      return ink.accent(mix == "black" and -k or k)
+    end
+    if spec == "white" then return ink.white end
+    if spec == "black" then return BLACK end
+    error("florilegium-organs: no color '" .. spec .. "'")
+  end
+  local function nums(a)
+    local t = {}
+    for v in a:gmatch("%-?[%d.]+") do t[#t + 1] = tonumber(v) end
+    return t
+  end
+  for name, a in code:gmatch("\\([%a@]+)([^\\]*)") do
+    if name == "pgfpathcurveto" then
+      local v = nums(a) ink.curveto(v[1], v[2], v[3], v[4], v[5], v[6])
+    elseif name == "pgfpathlineto" then
+      local v = nums(a) ink.lineto(v[1], v[2])
+    elseif name == "pgfpathmoveto" then
+      local v = nums(a) ink.moveto(v[1], v[2])
+    elseif name == "pgfpathclose" then ink.close()
+    elseif name == "begin" then
+      ink.push()
+      local c = {}
+      for k, v in pairs(st.colors) do c[k] = v end
+      stack[#stack + 1] = st
+      st = { fill = st.fill, fop = st.fop, stroke = st.stroke, sop = st.sop, w = st.w, mult = st.mult, colors = c, clips = 0 }
+    elseif name == "end" then
+      for _ = 1, st.clips do ink.unclip() end
+      st = table.remove(stack)
+      ink.pop()
+    elseif name == "colorlet" then
+      local k, spec = a:match("^{([^}]*)}{([^}]*)}")
+      st.colors[k] = color(spec)
+    elseif name == "pgfusepath" then
+      local how = a:match("{([^}]*)}")
+      if how == "fill" then ink.fill(st.fill, st.fop, st.mult)
+      elseif how == "stroke" then ink.stroke(st.stroke, st.w, st.sop, st.mult)
+      elseif how == "clip" then ink.clip() st.clips = st.clips + 1
+      else error("florilegium-organs: no path use '" .. tostring(how) .. "'") end
+    elseif name == "pgfsetfillcolor" then st.fill = color(a:match("{([^}]*)}"))
+    elseif name == "pgfsetstrokecolor" then st.stroke = color(a:match("{([^}]*)}"))
+    elseif name == "pgfsetfillopacity" then st.fop = nums(a)[1]
+    elseif name == "pgfsetstrokeopacity" then st.sop = nums(a)[1]
+    elseif name == "pgfsetblendmode" then st.mult = a:match("{([^}]*)}") == "multiply"
+    elseif name == "pgfsetlinewidth" then
+      local v, unit = a:match("{(%-?[%d.]+)(%a%a)}")
+      st.w = tonumber(v) * (unit == "pt" and PT_BP or 1)
+    elseif name == "pgftransformshift" then local v = nums(a) ink.translate(v[1], v[2])
+    elseif name == "pgftransformrotate" then ink.rotate(nums(a)[1])
+    elseif name == "pgftransformscale" then ink.scale(nums(a)[1])
+    elseif name == "pgftransformyscale" then ink.scale(1, nums(a)[1])
+    elseif name == "pgfpathcircle" then
+      local v = nums(a) ink.circle(v[1], v[2], v[3])
+    elseif name == "pgfpathellipse" then
+      local v = nums(a)                                      -- center, first axis, second axis
+      local cx, cy, ax, ay, bx, by, k = v[1], v[2], v[3], v[4], v[5], v[6], KAPPA
+      ink.moveto(cx + ax, cy + ay)
+      ink.curveto(cx + ax + k * bx, cy + ay + k * by, cx + bx + k * ax, cy + by + k * ay, cx + bx, cy + by)
+      ink.curveto(cx + bx - k * ax, cy + by - k * ay, cx - ax + k * bx, cy - ay + k * by, cx - ax, cy - ay)
+      ink.curveto(cx - ax - k * bx, cy - ay - k * by, cx - bx - k * ax, cy - by - k * ay, cx - bx, cy - by)
+      ink.curveto(cx - bx + k * ax, cy - by + k * ay, cx + ax - k * bx, cy + ay - k * by, cx + ax, cy + ay)
+      ink.close()
+    elseif name == "pgfpathrectanglecorners" then
+      local v = nums(a)
+      ink.poly({ { v[1], v[2] }, { v[3], v[2] }, { v[3], v[4] }, { v[1], v[4] } }, true)
+    elseif name == "pgfsetroundcap" or name == "pgfsetroundjoin" then  -- ink's caps and joins are round
+    else
+      error("florilegium-organs: ink cannot paint \\" .. name)
+    end
+  end
+  assert(#stack == 0, "florilegium-organs: a scope left open")
+end
+
+-- draw an organ (see organ() above) with ink. With M.keep set (the growth animation
+-- paints every motif several times), each organ's code is computed once per page.
+M.keep = false
+local kept_code = {}
+function M.forget() kept_code = {} end
+function M.draw(kind, s, z, o)
+  local code
+  if M.keep then
+    local key = table.concat({ kind, s.seed, s.role, z, tostring(o.k), tostring(o.season), tostring(o.late), tostring(o.size),
+      tostring(o.d), tostring(o.stage), tostring(o.len), tostring(o.bend), tostring(o.lc) }, " ")
+    code = kept_code[key]
+    if not code then code = organ(kind, s, z, o) kept_code[key] = code end
+  else
+    code = organ(kind, s, z, o)
+  end
+  paint(code)
 end
 
 return M

@@ -16,6 +16,9 @@
 %%   \usepackage[grown,aging]{florilegium}       the garden ages from spring on the first
 %%                                      page to autumn on the last (two runs: the page
 %%                                      count is read from the .aux of the run before)
+%%   \usepackage[grown,species]{florilegium}     each main stem a plant of its own species,
+%%                                      sampled from a genome (florilegium-species.lua),
+%%                                      four to a page from a pool of eight per document
 %%   \usepackage[grown,theme=geometric]{florilegium} the same plant cut from flat shapes
 %%                                      with straight edges (florilegium-theme-geometric.lua)
 %%   \usepackage[grown,theme=math]{florilegium}  no plant: figures, symbols and equations
@@ -89,12 +92,14 @@
 \newif\ifflorilegium@visitors \florilegium@visitorstrue
 \newif\ifflorilegium@sections
 \newif\ifflorilegium@aging
+\newif\ifflorilegium@species
 \DeclareOption{authored}{\florilegium@grownfalse}
 \DeclareOption{grown}{\florilegium@growntrue}
 \DeclareOption{nomargin}{\florilegium@marginfalse}
 \DeclareOption{novisitors}{\florilegium@visitorsfalse}
 \DeclareOption{sections}{\florilegium@sectionstrue}
 \DeclareOption{aging}{\florilegium@agingtrue}
+\DeclareOption{species}{\florilegium@speciestrue}
 %% key=value options: theme=<name>, density=<0..1>, intensity=<0..1>
 \def\florilegium@theme{}
 \DeclareOption*{\expandafter\florilegium@option\CurrentOption==\@nil}
@@ -121,6 +126,7 @@
   tex.error("florilegium: florilegium.lua is from an earlier release than florilegium.sty",
     {"Copy florilegium.sty and every florilegium*.lua from one release."}) end}
 \ifflorilegium@visitors\else\directlua{florilegium.visitors = false}\fi
+\ifflorilegium@species\directlua{florilegium.use_species()}\fi
 \ifdefined\florilegium@density\directlua{florilegium.density = tonumber("\florilegium@density") or 1}\fi
 \ifdefined\florilegium@intensity\directlua{florilegium.intensity = tonumber("\florilegium@intensity") or 1}\fi
 %% the theme: in the preamble for the whole document; in the text a mark, so that

@@ -81,7 +81,9 @@ end
 
 -- one rng per page; primitives drawn from TeX fork it in call order
 local page_rng = ink.rng(1)
+M.docseed = 0                                 -- \florilegiumseed, or 0: the species pool
 function M.seed(page, fixed)
+  M.docseed = fixed or 0
   local s = fixed and (fixed * 7919 + page * 131) or (page * 97 + 1030)
   page_rng = ink.rng(s)
   return s
@@ -316,7 +318,8 @@ end
 M.last_captions, M.last_stats = nil, nil
 
 local function grown_frame(g)
-  local key = string.format("%d %d %.3f %s %d %s %s %s", g.seed, g.spill, g.spilly, tostring(g.age), #g.marks, tostring(g.theme), tostring(g.mirror), tostring(g.density))
+  local key = string.format("%d %d %.3f %s %d %s %s %s %s", g.seed, g.spill, g.spilly, tostring(g.age), #g.marks, tostring(g.theme),
+    tostring(g.mirror), tostring(g.density), tostring(g.species))
   if not recorded[key] then
     g.anim = true
     recorded = { [key] = require("florilegium-grow").page(g) }      -- keep only the latest garden
@@ -351,6 +354,15 @@ end
 M.density, M.intensity = 1, 1
 local function pale() return 0.85 * (1 - math.max(0, math.min(1, M.intensity))) end
 
+-- option species: the grown margin's plants are species (florilegium-species.lua), drawn
+-- by florilegium-organs.lua; its modules are loaded and checked when the option is set
+M.species = false
+function M.use_species()
+  M.species = true
+  require("florilegium-organs")
+  M.check_versions()
+end
+
 -- the grown composition for this page; M.visitors = false (option novisitors)
 -- leaves out the butterflies, bees, snails and birds
 M.visitors = true
@@ -358,6 +370,7 @@ function M.grown(seed, spill, spilly, box)
   local g = M.geometry()
   g.marks = themes(page_marks(box))
   g.seed, g.spill, g.spilly, g.visitors, g.age, g.theme = seed, spill, spilly, M.visitors, M.age, M.theme
+  if M.species then g.species, g.docseed = true, M.docseed end
   if M.density < 1 then g.density = math.max(0.03, M.density) end
   local old = ink.set_pale(pale())
   if frame then grown_frame(g)

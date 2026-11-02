@@ -231,6 +231,7 @@ function M.page(o)
     fl.density = tonumber(o.density) or 1
     fl.intensity = tonumber(o.intensity) or 1
     fl.visitors = o.visitors ~= false
+    fl.species = o.species and true or false
     local g = fl.geometry()
     fl.last_captions, fl.last_stats = nil, nil
     if o.authored then fl.authored(seed, nil)
@@ -299,6 +300,7 @@ usage: texlua florilegium-svg.lua [options] > page.svg      (lua 5.3 or 5.4 work
   --density X       0.05..1 (default 1)      --intensity X   0..1 (default 1)
   --ink RRGGBB      (default 2456C4)         --accent RRGGBB (default B4662F)
   --novisitors      no butterflies, bees, snails or birds
+  --species         each main stem a plant of its own species (a pool per --seed)
   --nohead          leave out the head rule and its ivy leaf
   --authored        the hand-placed composition (A4, 68 mm left margin)
   --background RRGGBB   paint the paper (default: transparent)
@@ -308,7 +310,7 @@ A length is a number and a unit (mm, cm, in, pt, bp); a bare number is mm.
 
 function M.main(argv)
   local o, file = {}, nil
-  local flags = { twoside = true, novisitors = "visitors", nohead = "head", authored = true }
+  local flags = { twoside = true, novisitors = "visitors", nohead = "head", authored = true, species = true }
   local values = { seed = 1, page = 1, paper = 1, left = 1, right = 1, top = 1, bottom = 1, headsep = 1, headheight = 1,
     footskip = 1, textend = 1, season = 1, theme = 1, density = 1, intensity = 1, ink = 1, accent = 1, background = 1 }
   local i = 1
