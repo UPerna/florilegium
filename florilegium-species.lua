@@ -145,7 +145,11 @@ local EUDICOT = {
   venation = BY("leafmargin", { palmatelobed = C("palmate"),
     _ = BY("leafshape", { orbicular = W("palmate", 2, "pinnate", 1), reniform = C("palmate"),
       cordate = W("palmate", 1, "pinnate", 1), _ = W("pinnate", 7, "arcuate", 2) }) }),
-  attachment = W("petiolate", 7, "sessile", 2, "clasping", 1),
+  -- a blade with basal lobes sits on a stalk (or clasps the stem), never flat on it; one
+  -- draw either way, so the traits after it stay as they were
+  attachment = BY("leafshape", { cordate = W("petiolate", 4, "clasping", 1), reniform = W("petiolate", 4, "clasping", 1),
+    sagittate = W("petiolate", 4, "clasping", 1), hastate = W("petiolate", 4, "clasping", 1),
+    _ = W("petiolate", 7, "sessile", 2, "clasping", 1) }),
   arrangement = W("alternate", 6, "opposite", 3, "whorled", 1),
 }
 

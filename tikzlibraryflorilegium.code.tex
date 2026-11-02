@@ -2339,6 +2339,209 @@
   \flo@loop{blb}\flo@kb{2}{#1}{%
     \flo@put{\the\numexpr2*(#1)+2-\flo@kb\relax}{\csname flo@QX\the\flo@kb\endcsname}{\csname flo@QY\the\flo@kb\endcsname}}}
 
+% ---------------------------------------------------------------- the species' leaf
+% A simple leaf of the species along +y, length 1, in flora's hand (\flo@vleaf, which the
+% v1.3 pic keeps as it was) with the species' own outline. The blade is two superellipse
+% quarters that meet at its widest point \flo@lvm, set by the shape: the base's, from the
+% junction, (1-t^kb)^(1/kb) with kb from the base (1 a wedge, 2 round, more a straight
+% base), and the apex's, to the tip, with ka from the apex. An acuminate apex narrows into
+% a drip tip, an emarginate one is notched and a mucronate one ends in a point. Basal lobes
+% hang below the junction (cordate, reniform, sagittate: \flo@ldrop) or stand out beside it
+% (hastate: \flo@lhl); an oblique base starts higher on one side (\flo@lobl). A petiolate
+% leaf has a stalk below its blade, and stipules sit at its foot. \flo@lW is the
+% half-width at the widest point. Set before: \flo@vl@bend, \flo@vl@lobes, \flo@vl@depth,
+% \flo@vl@tone and \flo@vl@u as for \flo@vleaf.
+% the outline's numbers: the base first, then the shape (which may fix the base), the apex
+\def\flo@sshape{%
+  \flo@calc\flo@lW{max(0.035,min(0.6,0.5/\flo@get{leafaspect}))}%
+  \def\flo@lvm{0.35}\def\flo@ldrop{0}\def\flo@lhl{0}\def\flo@lobl{0}\def\flo@lacu{0}\def\flo@ltip{0}\def\flo@lround{0}%
+  \csname flo@lb@\flo@get{leafbase}\endcsname
+  \csname flo@ls@\flo@get{leafshape}\endcsname
+  \csname flo@la@\flo@get{leafapex}\endcsname
+  % a round or kidney-shaped blade keeps a round tip whatever its apex
+  \ifnum\flo@lround=1 \flo@calc\flo@lka{max(\flo@lka,2.2)}\def\flo@lacu{0}\fi
+  \edef\flo@t{\flo@get{attachment}}\def\flo@tmp{clasping}%
+  \ifx\flo@t\flo@tmp\ifdim\flo@ldrop pt=0pt \def\flo@ldrop{0.7}\flo@calc\flo@lkb{max(\flo@lkb,2)}\fi\fi}
+\def\flo@lb@cuneate{\def\flo@lkb{1.15}}
+\def\flo@lb@rounded{\def\flo@lkb{2}}
+\def\flo@lb@truncate{\def\flo@lkb{3.5}}
+\def\flo@lb@cordate{\def\flo@lkb{2}\def\flo@ldrop{1}}
+\def\flo@lb@auriculate{\def\flo@lkb{1.5}}
+\def\flo@lb@oblique{\def\flo@lkb{1.8}\def\flo@lobl{0.08}}
+\def\flo@ls@linear{\def\flo@lvm{0.45}\flo@calc\flo@lkb{max(\flo@lkb,2.2)}}
+\def\flo@ls@lanceolate{\def\flo@lvm{0.3}}
+\def\flo@ls@elliptic{\def\flo@lvm{0.5}}
+\def\flo@ls@ovate{\def\flo@lvm{0.3}}
+\def\flo@ls@obovate{\def\flo@lvm{0.68}}
+\def\flo@ls@oblong{\def\flo@lvm{0.5}\flo@calc\flo@lkb{max(\flo@lkb,2.4)}}
+\def\flo@ls@orbicular{\def\flo@lvm{0.5}\def\flo@lkb{2}\def\flo@lround{1}}
+\def\flo@ls@cordate{\def\flo@lvm{0.3}}
+\def\flo@ls@reniform{\def\flo@lvm{0.42}\def\flo@lkb{2}\def\flo@ldrop{0.8}\def\flo@lround{1}}
+\def\flo@ls@deltoid{\def\flo@lvm{0.1}\def\flo@lkb{3.5}}
+\def\flo@ls@sagittate{\def\flo@lvm{0.32}\def\flo@lkb{1.8}\def\flo@ldrop{2}}
+\def\flo@ls@hastate{\def\flo@lvm{0.42}\def\flo@lkb{1.3}\def\flo@lhl{1.25}\def\flo@ldrop{0.3}}
+\def\flo@la@acute{\def\flo@lka{1.25}}
+\def\flo@la@acuminate{\def\flo@lka{1.5}\def\flo@lacu{1}}
+\def\flo@la@obtuse{\def\flo@lka{2}}
+\def\flo@la@rounded{\def\flo@lka{2.6}}
+\def\flo@la@emarginate{\def\flo@lka{2.6}\def\flo@ltip{-1}}
+\def\flo@la@mucronate{\def\flo@lka{2.3}\def\flo@ltip{1}}
+% the blade's half-width \flo@h at #1 along the spine, and how far its edge hangs below
+% that point (\flo@dy: basal lobes)
+\def\flo@shw#1{%
+  \edef\flo@shv{#1}%
+  \ifdim\flo@shv pt<\flo@lvm pt
+    \flo@calc\flo@t{(\flo@lvm-(\flo@shv))/\flo@lvm}%
+    \ifdim\flo@t pt>0.9995pt \def\flo@h{0}\else\flo@calc\flo@h{\flo@lW*pow(1-pow(\flo@t,\flo@lkb),1/\flo@lkb)}\fi
+    \flo@calc\flo@dy{\flo@ldrop*\flo@lW*sin(180*(1-\flo@t))*\flo@t}%
+  \else
+    \flo@calc\flo@t{((\flo@shv)-\flo@lvm)/(1-\flo@lvm)}%
+    \ifdim\flo@t pt>0.9995pt \def\flo@h{0}\else\flo@calc\flo@h{\flo@lW*pow(1-pow(\flo@t,\flo@lka),1/\flo@lka)}\fi
+    \ifnum\flo@lacu=1 \ifdim\flo@t pt>0.2pt
+      \flo@calc\flo@t{min(1,(\flo@t-0.2)/0.65)}\flo@calc\flo@h{\flo@h*(1-0.7*\flo@t*\flo@t*(3-2*\flo@t))}\fi\fi
+    \def\flo@dy{0}%
+  \fi
+  \ifdim\flo@lhl pt>0pt
+    \flo@calc\flo@t{max(0,1-abs((\flo@shv)-0.14)/0.14)}%
+    \ifdim\flo@t pt>0pt \flo@calc\flo@h{max(\flo@h,\flo@lhl*\flo@lW*\flo@t)}\fi
+  \fi}
+\def\flo@slenv#1{\flo@shw{#1}\let\flo@env\flo@h}
+\def\flo@sleaf{%
+  \flo@sshape
+  % a broad blade is drawn shorter, so that it stays within the room a leaf is given (about
+  % 0.6 of its length across) and leaves of every shape carry about the same weight
+  \flo@calc\flo@lsc{min(1,0.3/\flo@lW)}%
+  \begin{pgfscope}%
+  \ifdim\flo@lsc pt<1pt \pgftransformscale{\flo@lsc}\flo@calc\flo@vl@u{\flo@vl@u*\flo@lsc}\fi
+  % stipules at the foot, a pair of small leaflets (on leaves a centimeter long or more)
+  \edef\flo@t{\flo@get{stipules}}\def\flo@tmp{none}%
+  \ifx\flo@t\flo@tmp\else\ifdim\flo@vl@u pt>0.8pt
+    \flo@loop{stip}\flo@kc{0}{1}{%
+      \flo@range\flo@t{40}{65}\ifnum\flo@kc=1 \flo@calc\flo@t{-\flo@t}\fi\flo@range\flo@ts{0.1}{0.15}%
+      \begin{pgfscope}%
+        \pgftransformshift{\flo@P0{0.01}}\pgftransformrotate{\flo@t}\pgftransformscale{\flo@ts}%
+        \def\flo@vl@W{0.3}\def\flo@vl@tone{0.3}\flo@calc\flo@vl@u{\flo@vl@u*\flo@ts}\flo@vleaflet
+      \end{pgfscope}}%
+  \fi\fi
+  % a petiolate leaf's stalk, then the blade above it
+  \edef\flo@t{\flo@get{attachment}}\def\flo@tmp{petiolate}%
+  \ifx\flo@t\flo@tmp\flo@range\flo@lpf{0.1}{0.2}\else\def\flo@lpf{0}\fi
+  \ifdim\flo@lpf pt>0pt
+    \flo@vtone{flo@c}{0.16}\def\flo@twa{0.024}\def\flo@twb{0.014}%
+    \flo@calc\flo@lpe{\flo@lpf+0.01}\flo@calc\flo@ta{\flo@lpf/3}\flo@calc\flo@tb{2*\flo@lpf/3}%
+    \flo@vfill{flo@c}{1}{0}{\flo@vtaper{0}{0}{0}\flo@ta{0}\flo@tb{0}\flo@lpe}%
+  \fi
+  \begin{pgfscope}%
+    \ifdim\flo@lpf pt>0pt
+      \pgftransformshift{\flo@P0\flo@lpf}\flo@calc\flo@t{1-\flo@lpf}\pgftransformscale{\flo@t}%
+      \flo@calc\flo@vl@u{\flo@vl@u*\flo@t}%
+    \fi
+    \flo@sblade
+  \end{pgfscope}%
+  \end{pgfscope}}
+\def\flo@sblade{%
+  \ifx\flo@vl@bend\pgfutil@empty\flo@sym\flo@lbend{0.25}\else\edef\flo@lbend{\flo@vl@bend}\fi
+  \edef\flo@llobes{\flo@vl@lobes}\edef\flo@ldepth{\flo@vl@depth}%
+  \ifx\flo@vl@tone\pgfutil@empty\flo@range\flo@lt{0.26}{0.38}\else\edef\flo@lt{\flo@vl@tone}\fi
+  \ifdim\flo@vl@u pt>0.6pt \def\flo@fine{1}\def\flo@bn{36}\else\def\flo@fine{0}\def\flo@bn{24}\fi
+  \ifdim\flo@ldepth pt>0pt \flo@calc\flo@bodyw{1-0.75*\flo@ldepth}\def\flo@lent{0}\else\def\flo@bodyw{1}\def\flo@lent{1}\fi
+  % the body: points closer together toward the base and the tip, where the outline turns
+  \flo@loop{sbs}\flo@kb{0}{\flo@bn}{%
+    \flo@calc\flo@v{0.5-0.5*cos(180*\the\flo@kb/\flo@bn)}\flo@lspine\flo@v
+    \flo@put{\the\numexpr\flo@kb+1\relax}{\flo@sx}{\flo@sy}}%
+  \flo@normals{\the\numexpr\flo@bn+1\relax}%
+  \flo@loop{sbo}\flo@kb{0}{\flo@bn}{%
+    \flo@calc\flo@v{0.5-0.5*cos(180*\the\flo@kb/\flo@bn)}\edef\flo@q{\the\numexpr\flo@kb+1\relax}%
+    \flo@calc\flo@t{\flo@v*3}\flo@lteeth\flo@t
+    \flo@shw\flo@v\flo@calc\flo@e{max(0,\flo@h*\flo@bodyw+\flo@lent*\flo@th)}%
+    \flo@calc\flo@xl{\flo@x\flo@q+\csname flo@NX\flo@q\endcsname*\flo@e}\flo@calc\flo@yl{\flo@y\flo@q+\csname flo@NY\flo@q\endcsname*\flo@e-\flo@dy}%
+    \ifdim\flo@lobl pt>0pt \flo@calc\flo@vo{max(0,(\flo@v-\flo@lobl)/(1-\flo@lobl))}\flo@shw\flo@vo
+      \flo@calc\flo@e{max(0,\flo@h*\flo@bodyw+\flo@lent*\flo@th)}\fi
+    \flo@calc\flo@xr{\flo@x\flo@q-\csname flo@NX\flo@q\endcsname*\flo@e}\flo@calc\flo@yr{\flo@y\flo@q-\csname flo@NY\flo@q\endcsname*\flo@e-\flo@dy}%
+    \expandafter\let\csname flo@RX\flo@q\endcsname\flo@xl\expandafter\let\csname flo@RY\flo@q\endcsname\flo@yl
+    \expandafter\let\csname flo@QX\flo@q\endcsname\flo@xr\expandafter\let\csname flo@QY\flo@q\endcsname\flo@yr}%
+  % the tip: notched (emarginate) or a short point (mucronate)
+  \edef\flo@q{\the\numexpr\flo@bn+1\relax}%
+  \ifnum\flo@ltip<0 \flo@calc\flo@t{\csname flo@RY\flo@q\endcsname-0.25*\flo@lW}\expandafter\let\csname flo@RY\flo@q\endcsname\flo@t\fi
+  \ifnum\flo@ltip>0 \flo@calc\flo@t{\csname flo@RY\flo@q\endcsname+0.04}\expandafter\let\csname flo@RY\flo@q\endcsname\flo@t\fi
+  \flo@bladeassemble{\flo@bn}\flo@smoothprepT{\the\numexpr2*\flo@bn\relax}{0.8}\flo@keep{ls1}%
+  \def\flo@nshapes{1}\def\flo@nveins{0}%
+  % the lobes, grown out of the body along the spine, turned 38..58 degrees outward
+  \ifdim\flo@ldepth pt>0pt
+    \flo@loop{slside}\flo@kc{0}{1}{%
+      \ifnum\flo@kc=0 \def\flo@side{-1}\else\def\flo@side{1}\fi
+      \flo@loop{slobe}\flo@ka{1}{\flo@llobes}{%
+        \flo@calc\flo@lv{0.1+0.72*(\the\flo@ka-(\flo@side>0 ? 0.25 : 0.75))/\flo@llobes}%
+        \flo@lspine\flo@lv\let\flo@lx\flo@sx\let\flo@ly\flo@sy\flo@ltan\flo@lv
+        \flo@calc\flo@t{min(0.95,\flo@lv+0.08)}\flo@slenv\flo@t\flo@range\flo@t{0.95}{1.15}\flo@calc\flo@reach{\flo@env*\flo@t}%
+        \flo@range\flo@lang{38}{58}%
+        \flo@calc\flo@c{cos(\flo@lang)}\flo@calc\flo@sn{sin(\flo@lang)*\flo@side}%
+        \flo@calc\flo@ldx{\flo@tx*\flo@c-\flo@ty*\flo@sn}\flo@calc\flo@ldy{\flo@tx*\flo@sn+\flo@ty*\flo@c}%
+        \flo@calc\flo@lL{\flo@reach/sin(\flo@lang)*0.95}%
+        \flo@sym\flo@t{0.25}\flo@calc\flo@lb{\flo@t-\flo@side*0.15}%
+        \flo@loop{slbp}\flo@kb{0}{11}{%
+          \flo@calc\flo@v{\the\flo@kb/11}%
+          \flo@calc\flo@sx{\flo@lx+\flo@ldx*\flo@lL*\flo@v-\flo@ldy*\flo@lb*\flo@lL*\flo@v*\flo@v}%
+          \flo@calc\flo@sy{\flo@ly+\flo@ldy*\flo@lL*\flo@v+\flo@ldx*\flo@lb*\flo@lL*\flo@v*\flo@v}%
+          \flo@put{\the\numexpr\flo@kb+1\relax}{\flo@sx}{\flo@sy}}%
+        \flo@normals{12}%
+        \flo@loop{slbw}\flo@kb{0}{11}{%
+          \flo@calc\flo@v{\the\flo@kb/11}\edef\flo@q{\the\numexpr\flo@kb+1\relax}%
+          \ifdim\flo@v pt>0.2pt \flo@calc\flo@t{\flo@v*1.4+\the\flo@ka}\flo@lteeth\flo@t\flo@calc\flo@e{\flo@th*\flo@lL*4}\else\def\flo@e{0}\fi
+          \ifdim\flo@v pt>0pt \flo@calc\flo@g{pow(max(0,sin(180*pow(\flo@v,0.62))),0.75)}\else\def\flo@g{0}\fi
+          \flo@range\flo@t{0.26}{0.3}\flo@calc\flo@wa{max(0,\flo@lL*\flo@t*\flo@g+\flo@e)}%
+          \flo@range\flo@t{0.26}{0.3}\flo@calc\flo@wb{max(0,\flo@lL*\flo@t*\flo@g+\flo@e)}%
+          \flo@calc\flo@xl{\flo@x\flo@q+\csname flo@NX\flo@q\endcsname*\flo@wa}\flo@calc\flo@yl{\flo@y\flo@q+\csname flo@NY\flo@q\endcsname*\flo@wa}%
+          \flo@calc\flo@xr{\flo@x\flo@q-\csname flo@NX\flo@q\endcsname*\flo@wb}\flo@calc\flo@yr{\flo@y\flo@q-\csname flo@NY\flo@q\endcsname*\flo@wb}%
+          \expandafter\let\csname flo@RX\flo@q\endcsname\flo@xl\expandafter\let\csname flo@RY\flo@q\endcsname\flo@yl
+          \expandafter\let\csname flo@QX\flo@q\endcsname\flo@xr\expandafter\let\csname flo@QY\flo@q\endcsname\flo@yr}%
+        \edef\flo@nveins{\the\numexpr\flo@nveins+1\relax}%
+        \flo@calc\flo@t{0.45}\flo@calc\flo@mx{\flo@lx+\flo@ldx*\flo@lL*\flo@t-\flo@ldy*\flo@lb*\flo@lL*\flo@t*\flo@t}%
+        \flo@calc\flo@my{\flo@ly+\flo@ldy*\flo@lL*\flo@t+\flo@ldx*\flo@lb*\flo@lL*\flo@t*\flo@t}%
+        \flo@calc\flo@t{0.92}\flo@calc\flo@ex{\flo@lx+\flo@ldx*\flo@lL*\flo@t-\flo@ldy*\flo@lb*\flo@lL*\flo@t*\flo@t}%
+        \flo@calc\flo@ey{\flo@ly+\flo@ldy*\flo@lL*\flo@t+\flo@ldx*\flo@lb*\flo@lL*\flo@t*\flo@t}%
+        \expandafter\edef\csname flo@V\flo@nveins\endcsname{{\flo@lx}{\flo@ly}{\flo@mx}{\flo@my}{\flo@ex}{\flo@ey}}%
+        \flo@bladeassemble{11}\flo@smoothprepT{22}{0.8}%
+        \edef\flo@nshapes{\the\numexpr\flo@nshapes+1\relax}\flo@keep{ls\flo@nshapes}}}%
+  \fi
+  \flo@vtone{flo@c}{\flo@lt}\flo@vfill{flo@c}{1}{0}{\flo@leaftrace}%
+  \begin{pgfscope}%
+    \flo@leaftrace\pgfusepath{clip}%
+    % the darker half
+    \flo@chance{0.5}\ifflo@yes\def\flo@sd{1}\else\def\flo@sd{-1}\fi
+    \flo@loop{slhalf}\flo@kb{0}{30}{%
+      \flo@calc\flo@v{\the\flo@kb/30}\flo@lspine\flo@v
+      \ifnum\flo@kb=0 \pgfpathmoveto{\flo@P\flo@sx\flo@sy}\else\pgfpathlineto{\flo@P\flo@sx\flo@sy}\fi}%
+    \flo@calc\flo@t{\flo@sd*2}\pgfpathlineto{\flo@P\flo@t{1}}\pgfpathlineto{\flo@P\flo@t{-0.3}}%
+    \pgfpathlineto{\flo@P0{-0.3}}\pgfpathclose
+    \begin{pgfscope}\flo@vtone{flo@c}{0.12}\pgfsetfillcolor{flo@c}\pgfsetfillopacity{0.28}\pgfsetblendmode{multiply}\pgfusepath{fill}\end{pgfscope}%
+    \flo@calc\flo@xa{-\flo@lW*2.5}\flo@calc\flo@xb{\flo@lW*2.5}\flo@calc\flo@ta{\flo@lt-0.2}\flo@calc\flo@tb{\flo@lt+0.22}%
+    \ifnum\flo@fine=1 \flo@vmottle\flo@xa{-0.2}\flo@xb{1}{13}{0.11}\flo@ta\flo@tb{12}%
+    \else\flo@vmottle\flo@xa{-0.2}\flo@xb{1}{6}{0.11}\flo@ta\flo@tb{0}\fi
+    \flo@vtone{flo@c}{0.06}\flo@calc\flo@t{1.3*\flo@vl@u}\flo@vstroke{flo@c}{\flo@t}{0.22}{1}{\flo@leaftrace}%
+    % midrib and veins in white
+    \flo@loop{slmid}\flo@kb{0}{10}{\flo@calc\flo@v{\the\flo@kb/10}\flo@lspine\flo@v\flo@put{\the\numexpr\flo@kb+1\relax}{\flo@sx}{\flo@sy}}%
+    \flo@vstreak{11}{0.03}{0.003}{white}{0.78}%
+    \flo@loop{slvein}\flo@ka{1}{\flo@nveins}{%
+      \expandafter\expandafter\expandafter\flo@lveinat\csname flo@V\the\flo@ka\endcsname
+      \def\flo@twa{0.017}\def\flo@twb{0.002}\flo@range\flo@op{0.5}{0.75}%
+      \flo@vfill{white}{\flo@op}{0}{\flo@vtaper\flo@va\flo@vb\flo@mx\flo@my\flo@c\flo@d\flo@ex\flo@ey}}%
+    \ifnum\flo@nveins=0
+      \flo@loop{slsveins}\flo@ka{1}{9}{%
+        \flo@calc\flo@v{(\the\flo@ka-0.3)/10*0.9}\ifodd\flo@ka\def\flo@sg{-1}\else\def\flo@sg{1}\fi
+        \flo@lspine\flo@v\let\flo@lx\flo@sx\let\flo@ly\flo@sy\flo@ltan\flo@v
+        \flo@calc\flo@nx{-\flo@ty*\flo@sg}\flo@calc\flo@ny{\flo@tx*\flo@sg}%
+        \flo@slenv\flo@v\flo@range\flo@t{0.75}{0.95}\flo@calc\flo@lL{\flo@env*\flo@bodyw*\flo@t}%
+        \flo@calc\flo@pa{\flo@lx+\flo@nx*\flo@lL*0.4}\flo@calc\flo@pb{\flo@ly+\flo@ny*\flo@lL*0.4}%
+        \flo@calc\flo@pc{\flo@lx+\flo@nx*\flo@lL*0.75+\flo@tx*\flo@lL*0.3}\flo@calc\flo@pd{\flo@ly+\flo@ny*\flo@lL*0.75+\flo@ty*\flo@lL*0.3}%
+        \flo@calc\flo@pe{\flo@lx+\flo@nx*\flo@lL*0.95+\flo@tx*\flo@lL*0.6}\flo@calc\flo@pf{\flo@ly+\flo@ny*\flo@lL*0.95+\flo@ty*\flo@lL*0.6}%
+        \let\flo@qa\flo@pa\let\flo@qb\flo@pb\let\flo@qc\flo@pc\let\flo@qd\flo@pd\let\flo@qe\flo@pe\let\flo@qf\flo@pf
+        \def\flo@twa{0.014}\def\flo@twb{0.002}\flo@range\flo@op{0.45}{0.7}%
+        \flo@vfill{white}{\flo@op}{0}{\flo@vtaper\flo@lx\flo@ly\flo@qa\flo@qb\flo@qc\flo@qd\flo@qe\flo@qf}}%
+    \fi
+  \end{pgfscope}%
+  \ifnum\flo@lent=1 \flo@vtone{flo@c}{0.05}\flo@vstroke{flo@c}{0.18}{0.4}{0}{\flo@kept{ls1}}\fi}
+
 % \pic {florilegium v13 leaf={seed=7, size=4cm}}: flora's leaf in pure TikZ, size its length
 \tikzset{pics/florilegium v13 leaf/.style={code={\flo@engine{#1}{v13 leaf}{%
   \flo@picsetup{#1}%
@@ -2929,7 +3132,6 @@
     \ifx\flo@ve\flo@tmp
       \flo@calc\flo@lW{max(0.025,min(0.12,0.42/\flo@get{leafaspect}))}\flo@vstrap
     \else
-      \flo@calc\flo@vl@W{max(0.07,min(0.4,0.52/\flo@get{leafaspect}))}%
       \ifdefined\flo@sbend\let\flo@vl@bend\flo@sbend\else\def\flo@vl@bend{}\fi\def\flo@vl@tone{}%
       \edef\flo@lm{\flo@get{leafmargin}}\def\flo@vl@depth{0}\def\flo@vl@lobes{3}%
       \def\flo@tmp{lobed}\ifx\flo@lm\flo@tmp\def\flo@vl@depth{x}\fi
@@ -2938,7 +3140,7 @@
       \def\flo@tmp{x}\ifx\flo@vl@depth\flo@tmp
         \flo@calc\flo@vl@depth{min(0.85,max(0.3,\flo@get{dissection}))}%
         \flo@calc\flo@t{max(2,min(6,\flo@get{teeth}))}\pgfmathtruncatemacro\flo@vl@lobes{\flo@t}\fi
-      \flo@vleaf
+      \flo@sleaf
     \fi
   \else
     \flo@range\flo@lt{0.24}{0.4}%

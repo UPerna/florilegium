@@ -91,6 +91,35 @@ if arg[1] == "draw" then
     end
     pic(fmt("florilegium inflorescence={seed=%d, role=any, scale=1, season=0.75}", seed))
   end
+  -- a simple leaf of every shape, apex, base and attachment, one with stipules and a lobed
+  -- spear-shaped one (the first seed that has each; one pic per seed)
+  do
+    local seen = {}
+    local function simple(sp) return sp.compound == "simple" and sp.venation ~= "parallel" end
+    local wants = {}
+    for _, v in ipairs({ "lanceolate", "elliptic", "ovate", "obovate", "oblong", "orbicular", "cordate", "reniform",
+      "deltoid", "sagittate", "hastate" }) do wants[#wants + 1] = function(sp) return sp.leafshape == v end end
+    for _, v in ipairs({ "acute", "acuminate", "obtuse", "rounded", "emarginate", "mucronate" }) do
+      wants[#wants + 1] = function(sp) return sp.leafapex == v end end
+    for _, v in ipairs({ "cuneate", "rounded", "truncate", "cordate", "auriculate", "oblique" }) do
+      wants[#wants + 1] = function(sp) return sp.leafbase == v end end
+    for _, v in ipairs({ "petiolate", "sessile", "clasping" }) do
+      wants[#wants + 1] = function(sp) return sp.attachment == v end end
+    wants[#wants + 1] = function(sp) return sp.stipules ~= "none" end
+    wants[#wants + 1] = function(sp) return sp.leafshape == "hastate" and sp.leafmargin == "lobed" end
+    for _, want in ipairs(wants) do
+      local seed = 1
+      while true do
+        local sp = species.sample(seed, "any")
+        if simple(sp) and want(sp) then break end
+        seed = seed + 1
+      end
+      if not seen[seed] then
+        seen[seed] = true
+        pic(fmt("florilegium leaf={seed=%d, role=any, size=3.4cm}", seed))
+      end
+    end
+  end
   -- tendrils, each its own: the leaves of a pea whose leaves end in them (three draws, one
   -- of them forked at least), and a climbing pea's plant with tendrils of its own
   do
