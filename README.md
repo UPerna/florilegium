@@ -2,6 +2,8 @@
 
 See the [verified compatibility baseline](docs/project/BASELINE.md) for current build evidence, reproducible commands and sample provenance. Tracked root PDFs are historical snapshots; the baseline links fresh generated PDFs for the tested revision and identifies outdated sample prose.
 
+The experimental common platform now has [shared vector scene rendering](docs/architecture/SCENES.md). Run `texlua tools/scenecheck.lua` then `python3 tools/scene_oracle.py` to generate and independently check six PDF/SVG fixture pairs. This is a positioned-outline text profile; full family migration and shaping retain their numbered gates.
+
 ## Origin
 
 The [Reddit post](https://www.reddit.com/r/LaTeX/comments/1xixznw/how_do_you_make_these_flowers_in_latex/)

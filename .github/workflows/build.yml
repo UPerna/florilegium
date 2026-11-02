@@ -34,6 +34,8 @@ jobs:
             python3 tools/determinism_oracle.py &&
             texlua tools/geometrycheck.lua &&
             python3 tools/geometry_oracle.py &&
+            texlua tools/scenecheck.lua &&
+            python3 tools/scene_oracle.py &&
             texlua tools/layoutcheck.lua &&
             texlua tools/spacecheck.lua &&
             texlua tools/initialcheck.lua &&
@@ -52,6 +54,7 @@ jobs:
             asset-demo.pdf
             folio-demo.pdf
             specimen.pdf
+            build/scenes/
 
   portable:
     runs-on: ubuntu-latest

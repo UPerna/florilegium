@@ -24,7 +24,7 @@ for _,name in ipairs({"floral","graph","tiling"}) do
   check(P.serialize(x)==before and s.clip.bounds[1]==0.2,"crop preserves semantic instance")
   examples[name]={instance=x,scene=scene,definition=d}
 end
-check(#examples.floral.scene.resources[1].variants.pdf.content>1000,"real floral stream")
+check(#examples.floral.scene.resources[1].variants.scene.content>1000,"real backend-neutral floral geometry")
 local gx=examples.graph.instance;local gv=E.view(gx,defs.graph)
 local styled=registry:lower(defs.graph.id,gx,gv,{stroke={1,0,0},stroke_width=0.1},context())
 check(styled.operations[1].paint.stroke[1]==1 and P.serialize(gx)==P.serialize(examples.graph.instance),"independent style")

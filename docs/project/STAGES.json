@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_stage": "05",
+  "current_stage": "06",
   "prompt_sha256": "8D25740D944FC98943FD005737BD825215CFCF6F894218790E140EDE8EE3F09E",
   "stages": [
     {
@@ -143,7 +143,7 @@
     {
       "id": "05",
       "title": "shared numerical geometry and semantic topology",
-      "status": "in_progress",
+      "status": "passed",
       "prerequisites": "04",
       "acceptance_items": [
         "downstream code can inspect connectivity, adjacency and actual bounds without reverse-engineering SVG/PDF paths. Checks detect deliberately corrupted edge incidence, duplicates and crossings. Document unsupported geometric operations explicitly rather than returning plausible empty success."
@@ -155,7 +155,9 @@
         "Additional10000 Fraction orientation comparisons passed;8 naive failures preserved",
         "Existing floral source/fingerprints untouched; required exact-revision Linux CI pending publication",
         "Published ededcd3 with expected-head guard; independently fetched tree13c04807; all30 reviewed file bytes matched; complete-history bundle verified;168 source-kit hashes passed locally. CI41487649902 pending.",
-        "Initial native90-test CI41487649902 passed both required jobs. Follow-up review added non-dyadic interval root cases;91 checks and132 independent cubic cases across local runtimes pass; final follow-up publication/CI pending."
+        "Initial native90-test CI41487649902 passed both required jobs. Follow-up review added non-dyadic interval root cases;91 checks and132 independent cubic cases across local runtimes pass; final follow-up publication/CI pending.",
+        "Follow-up814d772 independently fetched; treebd281d06; all13 changed files matched and complete-history final bundle verified. CI41489619229 pending.",
+        "Final exact-head CI41489619229 success:91 geometry checks, native Fraction/Decimal oracle including non-dyadic intervals, all61 contracts/145 replays/old regressions,173 kit hashes and extracted Lua/Xe builds."
       ],
       "evidence_paths": [
         "docs/architecture/GEOMETRY.md",
@@ -166,27 +168,43 @@
         "artifacts/receipts/05/orientation-oracle.json",
         "artifacts/receipts/05/verification-notes.json",
         "artifacts/receipts/05/local-checks-interval.json",
-        "artifacts/receipts/05/ci-initial.json"
+        "artifacts/receipts/05/ci-initial.json",
+        "artifacts/receipts/05/publication-final.json",
+        "artifacts/receipts/05/remote-byte-verification-final.json",
+        "artifacts/receipts/05/ci-final.json",
+        "artifacts/receipts/05/portable-ci-final.json",
+        "artifacts/receipts/05/source-kit-final.json"
       ],
-      "tested_code_revision": null,
-      "local_commit": "ededcd38dcf83a163f0ca2816d12a5e8a9d37e80",
-      "verified_remote_revision": "ededcd38dcf83a163f0ca2816d12a5e8a9d37e80",
-      "next_action": "Publish follow-up interval-root acceptance coverage with expected ededcd3, independently fetch it and verify its exact CI before05 passes."
+      "tested_code_revision": "814d7723bdb0aed8fd1ef740876a04ab6f0e2820",
+      "local_commit": "814d7723bdb0aed8fd1ef740876a04ab6f0e2820",
+      "verified_remote_revision": "814d7723bdb0aed8fd1ef740876a04ab6f0e2820",
+      "next_action": "Stage06 shared vector scene PDF/SVG lowering"
     },
     {
       "id": "06",
       "title": "lower semantic instances into shared vector scenes",
-      "status": "pending",
+      "status": "in_progress",
       "prerequisites": "05",
       "acceptance_items": [
         "a tiny floral fixture, graph/strand fixture and tiled fixture produce valid PDF/SVG with consistent geometry and correct bounds. Existing floral default regressions still pass. The scene can carry all required text and semantic references without forcing a new generator or a second renderer."
       ],
-      "observed_results": null,
-      "evidence_paths": null,
-      "tested_code_revision": null,
+      "observed_results": [
+        "Shared validated Lua vector plan and actual native PDF/SVG implemented",
+        "Local dual-runtime61 contracts/145 replay/91 geometry/44 scene checks passed; identical PDF/SVG bytes",
+        "Local librsvg/Poppler oracle passed six fixtures, explicit dash/winding and strict overlapping-reservation ROI checks",
+        "Legacy28 fingerprints/backend checks and old/new two-page PDF byte equality passed",
+        "Linux Inkscape and both TeX-host exact-head CI, latest visual review and guarded publication remain pending"
+      ],
+      "evidence_paths": [
+        "docs/architecture/SCENES.md",
+        "tools/scenecheck.lua",
+        "tools/scene_oracle.py",
+        "artifacts/receipts/06/"
+      ],
+      "tested_code_revision": "working tree based on814d772; source-bound scene digest8234d27ad31be92eb0975f6159f91d567ca6d01be372663e86573aa0d3323019",
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+      "next_action": "Inspect latest source-bound PNGs; finish evidence and diff review; guarded publish expected814d772 then exact-head CI before07"
     },
     {
       "id": "07",

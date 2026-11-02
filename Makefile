@@ -18,6 +18,8 @@ check:
 	$(RUN) python3 tools/determinism_oracle.py
 	$(RUN) texlua tools/geometrycheck.lua
 	$(RUN) python3 tools/geometry_oracle.py
+	$(RUN) texlua tools/scenecheck.lua
+	$(RUN) python3 tools/scene_oracle.py
 	$(RUN) texlua tools/layoutcheck.lua
 	$(RUN) texlua tools/spacecheck.lua
 	$(RUN) texlua tools/initialcheck.lua

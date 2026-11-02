@@ -2,7 +2,7 @@
 local P,R=require("pattern"),require("pattern_registry")
 local M={}
 local function definition(id,family,capabilities,metric,parameters)
-  return P.definition({id=id,version="1",family=family,capabilities=capabilities,
+  return P.definition({id=id,version=(id=="example/graph" and "1" or "2"),family=family,capabilities=capabilities,
     parameters=parameters or {},units="cm",transforms={metric_constrained=metric,reflection=not metric,uniform_scale=true},
     assumptions={"Contract fixture only; source-family implementation gates remain pending"}})
 end
@@ -36,40 +36,21 @@ end
 local function style_keys(style,allowed)
   for k in pairs(style) do assert(allowed[k],"unsupported example style control: "..k) end
 end
-local function native_flower(seed,size)
-  -- An explicitly PDF-only interop resource preserves the real existing output.
-  -- Stage 06 adds general scene backends; stage 08 migrates floral structure.
-  local F=require("florilegium");local ink=F.ink;local previous=ink.backend
-  local previous_dimen,previous_macro=F.dimen,F.macro
-  local parts,states={},{}
-  ink.set_backend({literal=function(s) parts[#parts+1]=s end,extgs=function(k,v) states[k]=v end})
-  local ok,err=pcall(function()
-    F.configure("color_mode","color");F.colors(0x24/255,0x56/255,0xC4/255,0xB4/255,0x66/255,0x2F/255)
-    local sp=3*72.27*65536/2.54
-    F.dimen=function() return sp end
-    F.macro=function(k) return (k=="pgf@pt@aa" or k=="pgf@pt@bb") and "1" or "0" end
-    F.seed(1,seed);F.draw("flower",size)
-  end)
-  ink.set_backend(previous);F.dimen,F.macro=previous_dimen,previous_macro;assert(ok,err)
-  local content=table.concat(parts,"\n")
-  assert(#content>1000 and next(states),"existing floral primitive did not produce real paths/resources")
-  return {id="example/floral/resource",kind="symbol",unit="bp",bounds={0,0,6*ink.CM,6*ink.CM},
-    variants={pdf={encoding="utf8",content=content,media_type="application/x-pdf-content-stream",graphics_states=states}}}
-end
+local function native_flower(seed,size) return require("pattern_ink").flower(seed,size) end
 function M.registry()
   local registry=R.new();local defs=M.definitions()
   registry:register(defs.floral,{
     generate=function(s,c)
       c:consume("objects",1)
       return instance(defs.floral,{growth={nodes={{id="floral/root",point={3,3},motif="flower",parameters={size=s.parameters.size}}},roots={"floral/root"}}},
-        {resource=native_flower(s.seed,s.parameters.size),interop={pdf=true,svg=false}})
+        {resource=native_flower(s.seed,s.parameters.size),interop={pdf=true,svg=true,neutral=true}})
     end,
-    validate=function(x) return {ok=#x.structures.growth.nodes==1 and #x.extensions.resource.variants.pdf.content>1000,checks={"actual existing floral primitive emitted paths and graphics resources"}} end,
+    validate=function(x) return {ok=#x.structures.growth.nodes==1 and #x.extensions.resource.variants.scene.content>1000,checks={"actual existing floral primitive emitted paths and graphics resources"}} end,
     lower=function(x,v,s)
       style_keys(s,{})
-      local m=v.transform;local k=72/2.54
+      local m=v.transform
       return scene(x,v,{{op="symbol",semantic_ref="floral/root",resource_ref=x.extensions.resource.id,
-        transform={m[1]/k,m[2]/k,m[3]/k,m[4]/k,m[5],m[6]}}},{P.plain(x.extensions.resource)})
+        transform={m[1],m[2],m[3],m[4],m[5],m[6]}}},{P.plain(x.extensions.resource)})
     end,
   })
   registry:register(defs.graph,{
@@ -134,7 +115,12 @@ function M.registry()
           local px,py=point(v,z);commands[#commands+1]={"L",px,py}
         end
         commands[#commands+1]={"Z"}
-        ops[#ops+1]={op="path",semantic_ref=cell.id,commands=commands,paint={fill=s.fill or {0.3,0.5,0.8},stroke=s.stroke or {0.1,0.1,0.1},stroke_width=s.stroke_width or 0.02}}
+        ops[#ops+1]={op="path",semantic_ref=cell.id,commands=commands,paint={fill=s.fill or {0.3,0.5,0.8}}}
+      end
+      -- Stroke each globally owned edge once after painting the cells.
+      for _,e in ipairs(t.edges)do
+        local ax,ay=point(v,vs[e.from]);local bx,by=point(v,vs[e.to])
+        ops[#ops+1]={op="path",semantic_ref=e.id,commands={{"M",ax,ay},{"L",bx,by}},paint={stroke=s.stroke or {0.1,0.1,0.1},stroke_width=s.stroke_width or 0.02}}
       end
       return scene(x,v,ops)
     end,

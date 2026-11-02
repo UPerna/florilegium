@@ -264,42 +264,13 @@ function M.view_settings(t,d,dimension)
 end
 local function scene(s,x,v,d)
   view(v,x,d)
-  header(s,"scene");fields(s,"instance_ref view_ref unit operations resources validity clip","scene")
+  header(s,"scene");fields(s,"instance_ref view_ref unit operations resources validity clip reading_order","scene")
   need(s.instance_ref==x.id and s.view_ref==v.id,"scene","wrong semantic source")
   need(s.unit==v.unit and s.validity==v.validity,"scene","unit or validity scope mismatch")
   need(type(s.clip)=="table","scene.clip","clip metadata required")
   bounds(s.clip.bounds,"scene.clip.bounds");seq(s.clip.protected_regions,"scene.clip.protected_regions")
   need(M.serialize(s.clip.bounds)==M.serialize(v.crop) and M.serialize(s.clip.protected_regions)==M.serialize(v.protected_regions),"scene.clip","view crop/protected regions must survive lowering")
-  local ids=instance(x,d);local resources={}
-  for _,r in ipairs(seq(s.resources,"scene.resources")) do
-    id(r.id,"resource.id");need(not resources[r.id],"resource","duplicate resource");resources[r.id]=r
-    need(r.kind=="symbol" or r.kind=="font","resource.kind","unsupported resource kind")
-    if r.kind=="symbol" then bounds(r.bounds,"resource.bounds");need(r.unit=="cm" or r.unit=="bp","resource.unit","explicit resource units required") end
-    need(type(r.variants)=="table" and next(r.variants),"resource","no usable resource variant")
-    for format,variant in pairs(r.variants) do
-      need(format=="pdf" or format=="svg" or format=="opentype","resource.variant","unsupported resource format")
-      need(type(variant)=="table" and type(variant.content)=="string" and #variant.content>0,"resource.variant","actual resource bytes required")
-      need(variant.encoding=="utf8" or variant.encoding=="base64","resource.variant","explicit content encoding required")
-    end
-  end
-  need(#seq(s.operations,"scene.operations")>0,"scene.operations","empty scene is not an accepted lowering")
-  for _,op in ipairs(s.operations) do
-    need(ids[op.semantic_ref],"scene.operation","missing semantic source")
-    if op.op=="path" then
-      need(#seq(op.commands,"path.commands")>0,"path","empty path")
-      for _,p in ipairs(op.commands) do local counts={M=3,L=3,C=7,Z=1};need(counts[p[1]]==#p,"path.command","unsupported command/arity");for i=2,#p do need(finite(p[i]),"path.command","nonfinite coordinate") end end
-      need(type(op.paint)=="table" and (op.paint.fill or op.paint.stroke),"path.paint","actual fill or stroke required")
-      for _,key in ipairs({"fill","stroke"}) do if op.paint[key] then numbers(op.paint[key],3,"paint."..key);for _,n in ipairs(op.paint[key]) do need(n>=0 and n<=1,"paint","RGB out of range") end end end
-      if op.paint.stroke then need(finite(op.paint.stroke_width) and op.paint.stroke_width>0,"paint.stroke_width","positive width required") end
-      if op.paint.opacity~=nil then need(finite(op.paint.opacity) and op.paint.opacity>=0 and op.paint.opacity<=1,"paint.opacity","opacity out of range") end
-      if op.paint.blend~=nil then need(op.paint.blend=="normal" or op.paint.blend=="multiply","paint.blend","unsupported blend mode") end
-    elseif op.op=="symbol" then need(resources[op.resource_ref] and resources[op.resource_ref].kind=="symbol","symbol","missing symbol resource");numbers(op.transform,6,"symbol.transform")
-    elseif op.op=="text" then
-      need(x.structures.text and type(op.text)=="string" and resources[op.font_ref] and resources[op.font_ref].kind=="font","text operation","text semantics/font resource required")
-      local found=false;for _,run in ipairs(x.structures.text.runs) do if run.id==op.semantic_ref and run.text==op.text then found=true end end
-      need(found,"text operation","text differs from semantic run");numbers(op.origin,2,"text.origin")
-    else fail("scene.operation","unsupported operation "..tostring(op.op)) end
-  end
+  require("pattern_draw").validate_scene(s,instance(x,d),x.structures.text)
 end
 local function build(r)
   header(r,"build_record");fields(r,"status inputs source runtime seed dependencies lineage validation outputs diagnostics budgets","build_record")
