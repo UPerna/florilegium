@@ -70,13 +70,18 @@ if arg[1] == "draw" then
     end
   end
   -- every view of a flower: each form drawn in profile, a flat-faced tube held sideways,
-  -- flowers at a tilt and from behind, a nodding lily
+  -- flowers at a tilt and from behind, a nodding lily, pea flowers (with guides, and in a
+  -- head) and two-lipped flowers (with dots, with lines and stamens that stand out):
+  -- form, orient, guides, stamens, inflorescence
   for _, v in ipairs({ { "campanulate" }, { "urceolate" }, { "tubular" }, { "funnelform" }, { "salverform", "horizontal" },
-    { "rotate", "horizontal" }, { "rosaceous", "nodding" }, { "lily", "nodding" } }) do
+    { "rotate", "horizontal" }, { "rosaceous", "nodding" }, { "lily", "nodding" },
+    { "papilionaceous", nil, "lines" }, { "papilionaceous", nil, nil, nil, "head" },
+    { "bilabiate", nil, "dots" }, { "bilabiate", nil, "lines", "exserted" } }) do
     local seed = 1
     while true do
       local sp = species.sample(seed, "any")
-      if sp.form == v[1] and (not v[2] or sp.orient == v[2]) then break end
+      if sp.form == v[1] and (not v[2] or sp.orient == v[2]) and (not v[3] or sp.guides == v[3])
+        and (not v[4] or sp.stamens == v[4]) and (not v[5] or sp.inflo == v[5]) then break end
       seed = seed + 1
     end
     pic(fmt("florilegium inflorescence={seed=%d, role=any, scale=1, season=0.75}", seed))

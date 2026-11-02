@@ -441,6 +441,12 @@
         \flo@calc\flo@oarg{0.8*\flo@bd}\pgftransformscale{\flo@oarg}\flo@vtube\flo@oarg{}%
       \else\ifx\flo@vw\flo@Vsalver
         \pgftransformscale{\flo@bd}\flo@vsalver\flo@bd
+      \else\ifx\flo@vw\flo@Vpea
+        \flo@calc\flo@oarg{0.8*\flo@bd}\pgftransformscale{\flo@oarg}%
+        \ifdim\flo@bturn pt<0pt \pgftransformxscale{-1}\fi\flo@vpea\flo@oarg
+      \else\ifx\flo@vw\flo@Vlips
+        \let\flo@oarg\flo@bd\pgftransformscale{\flo@oarg}%
+        \ifdim\flo@bturn pt<0pt \pgftransformxscale{-1}\fi\flo@vlips\flo@oarg
       \else
         \def\flo@ys{1}%
         \ifx\flo@vw\flo@Vtilt\flo@range\flo@ys{0.5}{0.7}\fi
@@ -450,17 +456,20 @@
         \pgftransformrotate{\flo@t}\pgftransformscale{\flo@bd}%
         \flo@calc\flo@t{\flo@bd*28.45276}\flo@sflower\flo@t
         \ifx\flo@vw\flo@Vback\flo@vcalyx\fi
-      \fi\fi
+      \fi\fi\fi\fi
     \end{pgfscope}%
   \fi\fi}
 % how a flower of the species is seen, \flo@vw: face (held erect), tilt (sideways), back
 % (nodding), lily (a lily held sideways or nodding: flora's lily is drawn at a tilt
-% already), tube (bells, urns, tubes and trumpets, always in profile) or salver (a
-% flat-faced tube held sideways or nodding); and how far it turns from its stalk,
+% already), tube (bells, urns, tubes and trumpets, always in profile), salver (a
+% flat-faced tube held sideways or nodding), pea or lips (pea and two-lipped flowers,
+% always in profile, their upper side toward the way they turn); and how far it turns from its stalk,
 % \flo@bturn degrees: a little for an erect tube, 50 to 80 when held sideways, 100 to 140
-% when it nods, toward \flo@bside (1 its stalk's left, -1 its right; empty: one draw)
+% when it nods, toward \flo@bside (1 its stalk's left, -1 its right; empty: one draw);
+% in a head (\flo@bfan 1), where each flower already points away from the center, 5 to 25
 \def\flo@Vface{face}\def\flo@Vtilt{tilt}\def\flo@Vback{back}\def\flo@Vlily{lily}\def\flo@Vtube{tube}
-\def\flo@Vsalver{salver}\def\flo@Oerect{erect}\def\flo@Onod{nodding}\def\flo@bside{}
+\def\flo@Vsalver{salver}\def\flo@Vpea{pea}\def\flo@Vlips{lips}\def\flo@Oerect{erect}\def\flo@Onod{nodding}\def\flo@bside{}
+\def\flo@bfan{0}
 \def\flo@bview{%
   \edef\flo@or{\flo@get{orient}}\edef\flo@fm{\flo@get{form}}\def\flo@bturn{0}%
   \ifx\flo@or\flo@Oerect\def\flo@vw{face}\else\ifx\flo@or\flo@Onod\def\flo@vw{back}\else\def\flo@vw{tilt}\fi
@@ -470,12 +479,15 @@
   \def\flo@tmp{urceolate}\ifx\flo@fm\flo@tmp\def\flo@vw{tube}\fi
   \def\flo@tmp{tubular}\ifx\flo@fm\flo@tmp\def\flo@vw{tube}\fi
   \def\flo@tmp{funnelform}\ifx\flo@fm\flo@tmp\def\flo@vw{tube}\fi
+  \def\flo@tmp{papilionaceous}\ifx\flo@fm\flo@tmp\def\flo@vw{pea}\fi
+  \def\flo@tmp{bilabiate}\ifx\flo@fm\flo@tmp\def\flo@vw{lips}\fi
   \ifx\flo@or\flo@Oerect
     \ifx\flo@vw\flo@Vtube\flo@sym\flo@bturn{15}\fi
   \else
     \ifx\flo@bside\pgfutil@empty\flo@chance{0.5}\ifflo@yes\def\flo@bsd{1}\else\def\flo@bsd{-1}\fi
     \else\let\flo@bsd\flo@bside\fi
-    \ifx\flo@or\flo@Onod\flo@range\flo@t{100}{140}\else\flo@range\flo@t{50}{80}\fi
+    \ifnum\flo@bfan=1 \flo@range\flo@t{5}{25}%
+    \else\ifx\flo@or\flo@Onod\flo@range\flo@t{100}{140}\else\flo@range\flo@t{50}{80}\fi\fi
     \flo@calc\flo@bturn{\flo@bsd*\flo@t}%
   \fi}
 % the calyx of a flower seen from behind, in its diameter-1 units: sepals radiating from
@@ -499,7 +511,7 @@
 % \flo@tua+\flo@tub*v^\flo@tuc+\flo@tuw*sin(180*min(1,v/0.92)^0.85)
 \def\flo@vtube#1#2{%
   \edef\flo@tufm{#2}\ifx\flo@tufm\pgfutil@empty\edef\flo@tufm{\flo@get{form}}\fi
-  \def\flo@tua{0.1}\def\flo@tub{0.24}\def\flo@tuc{1.3}\def\flo@tuw{0}\def\flo@tuL{0.85}\def\flo@tut{0.14}%
+  \def\flo@tua{0.1}\def\flo@tub{0.24}\def\flo@tuc{1.3}\def\flo@tuw{0}\def\flo@tuL{0.85}\def\flo@tut{0.14}\def\flo@tusep{1}%
   \flo@range\flo@tuf{0.06}{0.12}\flo@calc\flo@tun{int(\flo@get{merosity}/2+1.5)}\flo@sym\flo@tubd{0.08}%
   \def\flo@tmp{urceolate}\ifx\flo@tufm\flo@tmp
     \def\flo@tua{0.09}\def\flo@tub{0}\def\flo@tuw{0.25}\def\flo@tuL{0.8}\def\flo@tut{0.08}\def\flo@tuf{0.07}\fi
@@ -509,6 +521,9 @@
     \def\flo@tua{0.05}\def\flo@tub{0.4}\def\flo@tuc{2.4}\def\flo@tuL{0.85}\def\flo@tut{0.1}\def\flo@tuf{0.1}\fi
   \def\flo@tmp{salvertube}\ifx\flo@tufm\flo@tmp
     \def\flo@tua{0.035}\def\flo@tub{0.02}\def\flo@tuc{1}\def\flo@tuL{0.55}\def\flo@tun{0}\fi
+  \def\flo@tmp{liptube}\ifx\flo@tufm\flo@tmp
+    \def\flo@tua{0.04}\def\flo@tub{0.06}\def\flo@tuc{1.6}\let\flo@tuL\flo@lpL\def\flo@tun{0}\let\flo@tubd\flo@lpb
+    \def\flo@tusep{0}\fi
   \edef\flo@t{\flo@get{apex}}\def\flo@tutk{0.7}%
   \def\flo@tmp{rounded}\ifx\flo@t\flo@tmp\def\flo@tutk{1}\flo@calc\flo@tut{0.7*\flo@tut}\fi
   \def\flo@tmp{emarginate}\ifx\flo@t\flo@tmp\def\flo@tutk{1}\flo@calc\flo@tut{0.7*\flo@tut}\fi
@@ -576,14 +591,16 @@
       \flo@vtone{flo@c}{0.12}\flo@vstroke{flo@c}{0.25}{0.85}{0}{\pgfpathmoveto{\flo@P\flo@xa\flo@ya}\pgfpathlineto{\flo@P\flo@xb\flo@yb}}%
       \flo@vtone{flo@c}{0.05}\flo@vfill{flo@c}{1}{0}{\pgfpathcircle{\flo@P\flo@xb\flo@yb}{0.018pt}}}%
   \fi\fi
-  % the sepals, hugging the base
-  \def\flo@twa{0.07}\def\flo@twb{0.004}\flo@vtone{flo@c}{0.1}%
-  \flo@loop{tuc}\flo@ka{-1}{1}{%
-    \flo@sym\flo@t{0.03}%
-    \flo@calc\flo@xa{\the\flo@ka*0.04}\flo@calc\flo@xb{\the\flo@ka*0.07}%
-    \flo@calc\flo@xd{\the\flo@ka*(\flo@tua+0.07)+\flo@t}\flo@calc\flo@xc{0.9*\flo@xd}%
-    \flo@vfill{flo@c}{0.95}{0}{\flo@vtaper\flo@xa{-0.03}\flo@xb{0.06}\flo@xc{0.14}\flo@xd{0.22}}}%
-  \flo@vtone{flo@c}{0.08}\flo@vfill{flo@c}{1}{0}{\pgfpathcircle{\flo@P0{-0.02}}{0.05pt}}}
+  % the sepals, hugging the base (a two-lipped flower's calyx is its own)
+  \ifnum\flo@tusep=1
+    \def\flo@twa{0.07}\def\flo@twb{0.004}\flo@vtone{flo@c}{0.1}%
+    \flo@loop{tuc}\flo@ka{-1}{1}{%
+      \flo@sym\flo@t{0.03}%
+      \flo@calc\flo@xa{\the\flo@ka*0.04}\flo@calc\flo@xb{\the\flo@ka*0.07}%
+      \flo@calc\flo@xd{\the\flo@ka*(\flo@tua+0.07)+\flo@t}\flo@calc\flo@xc{0.9*\flo@xd}%
+      \flo@vfill{flo@c}{0.95}{0}{\flo@vtaper\flo@xa{-0.03}\flo@xb{0.06}\flo@xc{0.14}\flo@xd{0.22}}}%
+    \flo@vtone{flo@c}{0.08}\flo@vfill{flo@c}{1}{0}{\pgfpathcircle{\flo@P0{-0.02}}{0.05pt}}%
+  \fi}
 % the half-width of \flo@vtube's body at #1 (0..1): \flo@tur
 \def\flo@turad#1{%
   \edef\flo@tur{\flo@tua}%
@@ -598,6 +615,117 @@
   \flo@range\flo@t{0.3}{0.45}%
   \begin{pgfscope}\pgftransformshift{\flo@P0{0.55}}\pgftransformyscale{\flo@t}\flo@sym\flo@t{30}\pgftransformrotate{\flo@t}%
     \flo@calc\flo@t{\flo@sva*28.45276}\flo@sflower\flo@t\end{pgfscope}}
+% a pea flower in profile (papilionaceous), in \flo@vtube's units: its base at the origin,
+% toward +y, about 1 long, its standard on the +x side (the upper side: \flo@bloom
+% mirrors it). Flora's petals: the standard broad and notched, raised and bent back, the
+% keel a pointed boat that curves up to its beak, the near wing over it, a toothed calyx
+% in front; #1 cm per unit
+\def\flo@vpea#1{%
+  \edef\flo@pvu{#1}%
+  \ifx\flo@vf@tone\pgfutil@empty\flo@range\flo@pvq{0.3}{0.4}\else\edef\flo@pvq{\flo@vf@tone}\fi
+  \def\flo@vp@ns{}\def\flo@vp@heart{0}%
+  % the standard
+  \flo@range\flo@pva{8}{28}\flo@range\flo@pvl{0.55}{0.7}\flo@range\flo@pvw{0.75}{0.95}%
+  \begin{pgfscope}\pgftransformshift{\flo@P{0.04}{0.2}}\flo@calc\flo@t{-90-\flo@pva}\pgftransformrotate{\flo@t}%
+    \pgftransformscale{\flo@pvl}\pgftransformxscale{\flo@pvw}%
+    \def\flo@vp@pointed{0}\def\flo@vp@W{0.5}\def\flo@vp@bend{}\def\flo@vp@heart{1}%
+    \def\flo@vp@notchp{0.8}\def\flo@vp@notchk{1.4}\edef\flo@vp@tone{\flo@pvq}%
+    \flo@calc\flo@vp@u{\flo@pvu*\flo@pvl}\flo@vpetal
+    % guides: dark lines from its base
+    \edef\flo@t{\flo@get{guides}}\def\flo@tmp{none}%
+    \ifx\flo@t\flo@tmp\else\ifdim\flo@vp@u pt>0.12pt
+      \flo@vtone{flo@c}{0.06}\def\flo@twb{0.004}%
+      \flo@loop{pvg}\flo@ka{-2}{2}{%
+        \flo@sym\flo@t{0.03}\flo@calc\flo@f{\the\flo@ka*0.1+\flo@t}\flo@range\flo@len{0.3}{0.45}%
+        \flo@calc\flo@len{\flo@len*(1-1.5*\flo@f*\flo@f)}\def\flo@twa{0.04}%
+        \flo@calc\flo@xa{0.2*\flo@f}\flo@calc\flo@xb{0.6*\flo@f}\flo@calc\flo@xc{0.9*\flo@f}\flo@calc\flo@xd{1.1*\flo@f}%
+        \flo@calc\flo@yb{0.35*\flo@len+0.05}\flo@calc\flo@yc{0.7*\flo@len+0.05}\flo@calc\flo@yd{\flo@len+0.05}%
+        \flo@vfill{flo@c}{0.45}{1}{\flo@vtaper\flo@xa{0.05}\flo@xb\flo@yb\flo@xc\flo@yc\flo@xd\flo@yd}}%
+    \fi\fi
+  \end{pgfscope}%
+  % the keel, paler
+  \flo@range\flo@pvk{0.58}{0.68}\flo@range\flo@t{8}{16}%
+  \begin{pgfscope}\pgftransformshift{\flo@P{-0.03}{0.2}}\pgftransformrotate{\flo@t}\pgftransformscale{\flo@pvk}%
+    \def\flo@vp@pointed{1}\def\flo@vp@W{0.12}\flo@range\flo@vp@bend{0.22}{0.32}%
+    \flo@calc\flo@vp@tone{\flo@pvq+0.12}\flo@calc\flo@vp@u{\flo@pvu*\flo@pvk}\flo@vpetal\end{pgfscope}%
+  % the near wing, along the keel
+  \flo@range\flo@pvn{0.44}{0.52}\flo@range\flo@t{0}{8}%
+  \begin{pgfscope}\pgftransformshift{\flo@P{0.02}{0.21}}\pgftransformrotate{\flo@t}\pgftransformscale{\flo@pvn}%
+    \def\flo@vp@pointed{0}\def\flo@vp@W{0.26}\flo@range\flo@vp@bend{0}{0.08}\def\flo@vp@notchp{0}\def\flo@vp@ns{3}%
+    \flo@calc\flo@vp@tone{\flo@pvq-0.03}\flo@calc\flo@vp@u{\flo@pvu*\flo@pvn}\flo@vpetal\end{pgfscope}%
+  \flo@vcup\flo@pvu{0.9}}
+% the calyx of a flower in profile: a cup, three of its five teeth seen, from the
+% origin toward +y, about 0.27 long times #2; #1 cm per unit
+\def\flo@vcup#1#2{%
+  \edef\flo@cuy{#2}%
+  \flo@calc\flo@ya{0.08*\flo@cuy}\flo@calc\flo@yb{0.17*\flo@cuy}\flo@calc\flo@yc{0.2*\flo@cuy}%
+  \flo@put1{0.03}{-0.03}\flo@put2{0.068}\flo@ya\flo@put3{0.085}\flo@yb
+  \flo@sym\flo@t{0.02}\flo@calc\flo@yd{0.25*\flo@cuy+\flo@t}\flo@put4{0.11}\flo@yd
+  \flo@put5{0.055}\flo@yc
+  \flo@sym\flo@t{0.02}\flo@calc\flo@yd{0.27*\flo@cuy+\flo@t}\flo@put6{0.013}\flo@yd
+  \flo@put7{-0.03}\flo@yc
+  \flo@sym\flo@t{0.02}\flo@calc\flo@yd{0.26*\flo@cuy+\flo@t}\flo@put8{-0.08}\flo@yd
+  \flo@calc\flo@yd{0.15*\flo@cuy}\flo@put9{-0.085}\flo@yd\flo@calc\flo@yd{0.06*\flo@cuy}\flo@put{10}{-0.064}\flo@yd
+  \flo@put{11}{-0.03}{-0.03}%
+  \flo@smoothprepT{11}{0.7}\flo@keep{cup}%
+  \flo@vtone{flo@c}{0.12}\flo@vfill{flo@c}{0.95}{0}{\flo@kept{cup}}%
+  \ifdim#1pt>0.15pt
+    \def\flo@twa{0.03}\def\flo@twb{0.004}\flo@calc\flo@yb{0.08*\flo@cuy}\flo@calc\flo@yc{0.14*\flo@cuy}\flo@calc\flo@yd{0.22*\flo@cuy}%
+    \flo@vfill{white}{0.4}{0}{\flo@vtaper{0.034}{0.01}{0.055}\flo@yb{0.068}\flo@yc{0.085}\flo@yd}%
+    \flo@vtone{flo@c}{0.06}\flo@vstroke{flo@c}{0.18}{0.4}{0}{\flo@kept{cup}}%
+  \fi
+  \flo@vtone{flo@c}{0.08}\flo@vfill{flo@c}{1}{0}{\pgfpathcircle{\flo@P0{-0.02}}{0.045pt}}}
+% a two-lipped flower in profile (bilabiate), in \flo@vtube's units, its hood on the +x
+% side: flora's petals, a broad lower lip that spreads forward and droops, with the
+% species' guides on it, and a hood that arches forward over the mouth, stamens under it
+% when they stand out; then the tube and the calyx (\flo@vtube's liptube, as long as
+% \flo@lpL); #1 cm per unit
+\def\flo@vlips#1{%
+  \edef\flo@lpu{#1}%
+  \ifx\flo@vf@tone\pgfutil@empty\flo@range\flo@lpq{0.3}{0.4}\else\edef\flo@lpq{\flo@vf@tone}\fi
+  \flo@range\flo@lpL{0.55}{0.68}\flo@sym\flo@lpb{0.06}%
+  \def\flo@vp@ns{}\def\flo@vp@heart{0}\def\flo@vp@pointed{0}%
+  % the lower lip
+  \flo@range\flo@lpa{35}{55}\flo@range\flo@lpl{0.3}{0.4}%
+  \begin{pgfscope}\flo@calc\flo@xa{\flo@lpb-0.05}\flo@calc\flo@ya{\flo@lpL-0.03}\pgftransformshift{\flo@P\flo@xa\flo@ya}%
+    \pgftransformrotate{\flo@lpa}\pgftransformscale{\flo@lpl}%
+    \def\flo@vp@W{0.42}\flo@range\flo@vp@bend{-0.25}{-0.1}\def\flo@vp@notchp{0.6}\def\flo@vp@notchk{1.4}\def\flo@vp@ns{5}%
+    \flo@calc\flo@vp@tone{\flo@lpq+0.05}\flo@calc\flo@vp@u{\flo@lpu*\flo@lpl}\flo@vpetal
+    \edef\flo@t{\flo@get{guides}}%
+    \ifdim\flo@vp@u pt>0.1pt
+      \def\flo@tmp{dots}\ifx\flo@t\flo@tmp
+        \flo@spk={}%
+        \flo@loop{lpd}\flo@ka{1}{7}{%
+          \flo@sym\flo@xa{0.22}\flo@range\flo@ya{0.12}{0.55}\flo@range\flo@r{0.025}{0.045}%
+          \edef\flo@tmp{\noexpand\pgfpathcircle{\noexpand\flo@P{\flo@xa}{\flo@ya}}{\flo@r pt}}%
+          \flo@spk\expandafter\expandafter\expandafter{\expandafter\the\expandafter\flo@spk\flo@tmp}}%
+        \flo@vtone{flo@c}{0.06}\flo@vfill{flo@c}{0.7}{1}{\the\flo@spk}\fi
+      \def\flo@tmp{lines}\ifx\flo@t\flo@tmp
+        \flo@vtone{flo@c}{0.06}\def\flo@twa{0.035}\def\flo@twb{0.004}%
+        \flo@loop{lpg}\flo@ka{-1}{1}{%
+          \flo@sym\flo@t{0.03}\flo@calc\flo@f{\the\flo@ka*0.12+\flo@t}\flo@range\flo@len{0.35}{0.5}%
+          \flo@calc\flo@xb{0.5*\flo@f}\flo@calc\flo@xc{0.8*\flo@f}\flo@calc\flo@xd{\flo@f}%
+          \flo@calc\flo@yb{0.35*\flo@len+0.05}\flo@calc\flo@yc{0.7*\flo@len+0.05}\flo@calc\flo@yd{\flo@len+0.05}%
+          \flo@vfill{flo@c}{0.5}{1}{\flo@vtaper{0}{0.05}\flo@xb\flo@yb\flo@xc\flo@yc\flo@xd\flo@yd}}\fi
+    \fi
+  \end{pgfscope}%
+  % the hood
+  \flo@range\flo@lpa{-80}{-68}\flo@range\flo@lph{0.36}{0.44}%
+  \begin{pgfscope}\flo@calc\flo@xa{\flo@lpb+0.05}\flo@calc\flo@ya{\flo@lpL-0.04}\pgftransformshift{\flo@P\flo@xa\flo@ya}%
+    \pgftransformrotate{\flo@lpa}\pgftransformscale{\flo@lph}%
+    \def\flo@vp@W{0.26}\flo@range\flo@vp@bend{-1.1}{-0.85}\def\flo@vp@notchp{0.4}\def\flo@vp@notchk{1}\def\flo@vp@ns{3}%
+    \edef\flo@vp@tone{\flo@lpq}\flo@calc\flo@vp@u{\flo@lpu*\flo@lph}\flo@vpetal\end{pgfscope}%
+  % stamens that stand out, under the hood
+  \edef\flo@t{\flo@get{stamens}}\def\flo@tmp{exserted}%
+  \ifx\flo@t\flo@tmp
+    \flo@loop{lps}\flo@ka{0}{1}{%
+      \flo@calc\flo@xa{\flo@lpb+0.02}\flo@calc\flo@ya{\flo@lpL}%
+      \flo@range\flo@t{0.1}{0.2}\flo@calc\flo@xb{\flo@xa+\flo@t+0.04*\the\flo@ka}%
+      \flo@range\flo@t{0.3}{0.42}\flo@calc\flo@yb{\flo@ya+\flo@t-0.05*\the\flo@ka}%
+      \flo@vtone{flo@c}{0.12}\flo@vstroke{flo@c}{0.25}{0.85}{0}{\pgfpathmoveto{\flo@P\flo@xa\flo@ya}\pgfpathlineto{\flo@P\flo@xb\flo@yb}}%
+      \flo@vtone{flo@c}{0.05}\flo@vfill{flo@c}{1}{0}{\pgfpathcircle{\flo@P\flo@xb\flo@yb}{0.018pt}}}%
+  \fi
+  \flo@vtube\flo@lpu{liptube}\flo@vcup\flo@lpu{1.1}}
 % the species' flower diameter on the page, cm, times #1
 \def\flo@fdiam#1{\flo@calc\flo@fd{min(2.8,0.7+0.032*\flo@get{size})*(#1)}}
 % v1.3's blossoms: two to five flowers of the species on curved stalks from the origin,
@@ -1046,9 +1174,9 @@
   \flo@fdraw}
 
 % a head: many small flowers packed into a ball at the end of a stalk of #1 cm, as a
-% clover's; the outermost open first
+% clover's, each pointing away from its center; the outermost open first
 \def\flo@headunit#1{%
-  \edef\flo@bst{\flo@ust}\edef\flo@clL{#1}\flo@stone\def\flo@fnum{0}%
+  \edef\flo@bst{\flo@ust}\edef\flo@clL{#1}\flo@stone\def\flo@fnum{0}\def\flo@bfan{1}%
   \flo@axis\flo@clL{18}{0.024}%
   \def\flo@clf{1}\flo@axisat
   \flo@range\flo@t{0.9}{1.1}\flo@calc\flo@clr{(0.26+0.006*\flo@get{count})*\flo@t}%
@@ -1057,11 +1185,11 @@
   \flo@loop{hd}\flo@Gd{1}{\flo@clm}{%
     \edef\flo@clk{\the\numexpr\flo@clm+1-\flo@Gd\relax}%
     \flo@calc\flo@v{sqrt(\flo@clk/\flo@clm)}\flo@calc\flo@a{137.508*\flo@clk}%
-    \flo@calc\flo@xa{\flo@clx+\flo@clr*\flo@v*cos(\flo@a)}\flo@calc\flo@ya{\flo@cly+0.9*\flo@clr*\flo@v*sin(\flo@a)}%
-    \flo@range\flo@t{0.9}{1.1}\flo@calc\flo@s{\flo@clr*0.5*(0.7+0.3*\flo@v)*\flo@t}%
+    \flo@calc\flo@xa{\flo@clx+0.8*\flo@clr*\flo@v*cos(\flo@a)}\flo@calc\flo@ya{\flo@cly+0.72*\flo@clr*\flo@v*sin(\flo@a)}%
+    \flo@range\flo@t{0.9}{1.1}\flo@calc\flo@s{\flo@clr*0.65*(0.7+0.3*\flo@v)*\flo@t}%
     \flo@calc\flo@t{\flo@bst-0.45*(1-\flo@v)}\flo@calc\flo@a{\flo@a-90}%
     \flo@fadd\flo@xa\flo@ya\flo@a\flo@s\flo@t}%
-  \flo@fdraw}
+  \flo@fdraw\def\flo@bfan{0}}
 
 % catkins: two to four hanging from a short twig of #1 cm, each a stalk that bends over
 % and a tapering tassel of scales with anthers at their edges, short and tight while

@@ -1408,13 +1408,16 @@ do
     V.tmp = "urceolate" if R.fm == R.tmp then V.vw = "tube" end
     V.tmp = "tubular" if R.fm == R.tmp then V.vw = "tube" end
     V.tmp = "funnelform" if R.fm == R.tmp then V.vw = "tube" end
+    V.tmp = "papilionaceous" if R.fm == R.tmp then V.vw = "pea" end
+    V.tmp = "bilabiate" if R.fm == R.tmp then V.vw = "lips" end
     if R["or"] == "erect" then
       if R.vw == "tube" then V.bturn = sym(15 * U) end
     else
       if R.bside == "" then
         if chance(K"0.5") then V.bsd = U else V.bsd = -U end
       else V.bsd = R.bside end
-      if R["or"] == "nodding" then V.t = range(100 * U, 140 * U) else V.t = range(50 * U, 80 * U) end
+      if R.bfan == U then V.t = range(5 * U, 25 * U)
+      elseif R["or"] == "nodding" then V.t = range(100 * U, 140 * U) else V.t = range(50 * U, 80 * U) end
       V.bturn = E"@bsd*@t"
     end
   end
@@ -1441,7 +1444,7 @@ do
   function VW.vtube(u, form)
     V.tufm = form
     if R.tufm == "" then V.tufm = tr("form") end
-    V.tua = K"0.1" V.tub = K"0.24" V.tuc = K"1.3" V.tuw = 0 V.tuL = K"0.85" V.tut = K"0.14"
+    V.tua = K"0.1" V.tub = K"0.24" V.tuc = K"1.3" V.tuw = 0 V.tuL = K"0.85" V.tut = K"0.14" V.tusep = U
     V.tuf = range(K"0.06", K"0.12") V.tun = E"int($merosity/2+1.5)" V.tubd = sym(K"0.08")
     V.tmp = "urceolate"
     if R.tufm == R.tmp then V.tua = K"0.09" V.tub = 0 V.tuw = K"0.25" V.tuL = K"0.8" V.tut = K"0.08" V.tuf = K"0.07" end
@@ -1451,6 +1454,11 @@ do
     if R.tufm == R.tmp then V.tua = K"0.05" V.tub = K"0.4" V.tuc = K"2.4" V.tuL = K"0.85" V.tut = K"0.1" V.tuf = K"0.1" end
     V.tmp = "salvertube"
     if R.tufm == R.tmp then V.tua = K"0.035" V.tub = K"0.02" V.tuc = U V.tuL = K"0.55" V.tun = 0 end
+    V.tmp = "liptube"
+    if R.tufm == R.tmp then
+      V.tua = K"0.04" V.tub = K"0.06" V.tuc = K"1.6" V.tuL = R.lpL V.tun = 0 V.tubd = R.lpb
+      V.tusep = 0
+    end
     V.t = tr("apex") V.tutk = K"0.7"
     V.tmp = "rounded" if R.t == R.tmp then V.tutk = U V.tut = E"0.7*@tut" end
     V.tmp = "emarginate" if R.t == R.tmp then V.tutk = U V.tut = E"0.7*@tut" end
@@ -1521,14 +1529,16 @@ do
         vtone("flo@c", K"0.05") vfill("flo@c", U, 0, function() circle(R.xb, R.yb, K"0.018") end)
       end)
     end
-    V.twa = K"0.07" V.twb = K"0.004" vtone("flo@c", K"0.1")
-    loop("#ka", -1, 1, function()
-      V.t = sym(K"0.03")
-      V.xa = E"#ka*0.04" V.xb = E"#ka*0.07"
-      V.xd = E"#ka*(@tua+0.07)+@t" V.xc = E"0.9*@xd"
-      vfill("flo@c", K"0.95", 0, function() vtaper(R.xa, K"-0.03", R.xb, K"0.06", R.xc, K"0.14", R.xd, K"0.22") end)
-    end)
-    vtone("flo@c", K"0.08") vfill("flo@c", U, 0, function() circle(0, K"-0.02", K"0.05") end)
+    if R.tusep == U then
+      V.twa = K"0.07" V.twb = K"0.004" vtone("flo@c", K"0.1")
+      loop("#ka", -1, 1, function()
+        V.t = sym(K"0.03")
+        V.xa = E"#ka*0.04" V.xb = E"#ka*0.07"
+        V.xd = E"#ka*(@tua+0.07)+@t" V.xc = E"0.9*@xd"
+        vfill("flo@c", K"0.95", 0, function() vtaper(R.xa, K"-0.03", R.xb, K"0.06", R.xc, K"0.14", R.xd, K"0.22") end)
+      end)
+      vtone("flo@c", K"0.08") vfill("flo@c", U, 0, function() circle(0, K"-0.02", K"0.05") end)
+    end
   end
   function VW.vsalver(d)
     V.sva = d VW.vtube(R.sva, "salvertube")
@@ -1537,6 +1547,123 @@ do
       shift(0, K"0.55") yscale(R.t) V.t = sym(30 * U) rotate(R.t)
       V.t = E"@sva*28.45276" sflower(R.t)
     end)
+  end
+  local function xscale(s) out("\\pgftransformxscale{" .. str(s) .. "}") end
+  VW.xscale = xscale
+  -- \flo@vcup{u}{k}: a calyx in profile, about 0.27 long times k
+  function VW.vcup(u, k)
+    V.cuy = k
+    V.ya = E"0.08*@cuy" V.yb = E"0.17*@cuy" V.yc = E"0.2*@cuy"
+    put(1, K"0.03", K"-0.03") put(2, K"0.068", R.ya) put(3, K"0.085", R.yb)
+    V.t = sym(K"0.02") V.yd = E"0.25*@cuy+@t" put(4, K"0.11", R.yd)
+    put(5, K"0.055", R.yc)
+    V.t = sym(K"0.02") V.yd = E"0.27*@cuy+@t" put(6, K"0.013", R.yd)
+    put(7, K"-0.03", R.yc)
+    V.t = sym(K"0.02") V.yd = E"0.26*@cuy+@t" put(8, K"-0.08", R.yd)
+    V.yd = E"0.15*@cuy" put(9, K"-0.085", R.yd) V.yd = E"0.06*@cuy" put(10, K"-0.064", R.yd)
+    put(11, K"-0.03", K"-0.03")
+    smoothprepT(11, K"0.7") keep("cup")
+    vtone("flo@c", K"0.12") vfill("flo@c", K"0.95", 0, function() kept("cup") end)
+    if u > K"0.15" then
+      V.twa = K"0.03" V.twb = K"0.004" V.yb = E"0.08*@cuy" V.yc = E"0.14*@cuy" V.yd = E"0.22*@cuy"
+      vfill("white", K"0.4", 0, function() vtaper(K"0.034", K"0.01", K"0.055", R.yb, K"0.068", R.yc, K"0.085", R.yd) end)
+      vtone("flo@c", K"0.06") vstroke("flo@c", K"0.18", K"0.4", 0, function() kept("cup") end)
+    end
+    vtone("flo@c", K"0.08") vfill("flo@c", U, 0, function() circle(0, K"-0.02", K"0.045") end)
+  end
+  -- \flo@vpea{u}: a pea flower in profile, the standard on the +x side
+  function VW.vpea(u)
+    V.pvu = u
+    if R["vf@tone"] == "" then V.pvq = range(K"0.3", K"0.4") else V.pvq = R["vf@tone"] end
+    V["vp@ns"] = "" V["vp@heart"] = 0
+    V.pva = range(8 * U, 28 * U) V.pvl = range(K"0.55", K"0.7") V.pvw = range(K"0.75", K"0.95")
+    scope(function()
+      shift(K"0.04", K"0.2") V.t = E"-90-@pva" rotate(R.t)
+      scale(R.pvl) xscale(R.pvw)
+      V["vp@pointed"] = 0 V["vp@W"] = K"0.5" V["vp@bend"] = "" V["vp@heart"] = U
+      V["vp@notchp"] = K"0.8" V["vp@notchk"] = K"1.4" V["vp@tone"] = R.pvq
+      V["vp@u"] = E"@pvu*@pvl" vpetal()
+      V.t = tr("guides") V.tmp = "none"
+      if R.t ~= R.tmp and R["vp@u"] > K"0.12" then
+        vtone("flo@c", K"0.06") V.twb = K"0.004"
+        loop("#ka", -2, 2, function()
+          V.t = sym(K"0.03") V.f = E"#ka*0.1+@t" V.len = range(K"0.3", K"0.45")
+          V.len = E"@len*(1-1.5*@f*@f)" V.twa = K"0.04"
+          V.xa = E"0.2*@f" V.xb = E"0.6*@f" V.xc = E"0.9*@f" V.xd = E"1.1*@f"
+          V.yb = E"0.35*@len+0.05" V.yc = E"0.7*@len+0.05" V.yd = E"@len+0.05"
+          vfill("flo@c", K"0.45", 1, function() vtaper(R.xa, K"0.05", R.xb, R.yb, R.xc, R.yc, R.xd, R.yd) end)
+        end)
+      end
+    end)
+    V.pvk = range(K"0.58", K"0.68") V.t = range(8 * U, 16 * U)
+    scope(function()
+      shift(K"-0.03", K"0.2") rotate(R.t) scale(R.pvk)
+      V["vp@pointed"] = U V["vp@W"] = K"0.12" V["vp@bend"] = range(K"0.22", K"0.32")
+      V["vp@tone"] = E"@pvq+0.12" V["vp@u"] = E"@pvu*@pvk" vpetal()
+    end)
+    V.pvn = range(K"0.44", K"0.52") V.t = range(0, 8 * U)
+    scope(function()
+      shift(K"0.02", K"0.21") rotate(R.t) scale(R.pvn)
+      V["vp@pointed"] = 0 V["vp@W"] = K"0.26" V["vp@bend"] = range(0, K"0.08") V["vp@notchp"] = 0 V["vp@ns"] = 3 * U
+      V["vp@tone"] = E"@pvq-0.03" V["vp@u"] = E"@pvu*@pvn" vpetal()
+    end)
+    VW.vcup(R.pvu, K"0.9")
+  end
+  -- \flo@vlips{u}: a two-lipped flower in profile, the hood on the +x side
+  function VW.vlips(u)
+    V.lpu = u
+    if R["vf@tone"] == "" then V.lpq = range(K"0.3", K"0.4") else V.lpq = R["vf@tone"] end
+    V.lpL = range(K"0.55", K"0.68") V.lpb = sym(K"0.06")
+    V["vp@ns"] = "" V["vp@heart"] = 0 V["vp@pointed"] = 0
+    V.lpa = range(35 * U, 55 * U) V.lpl = range(K"0.3", K"0.4")
+    scope(function()
+      V.xa = E"@lpb-0.05" V.ya = E"@lpL-0.03" shift(R.xa, R.ya)
+      rotate(R.lpa) scale(R.lpl)
+      V["vp@W"] = K"0.42" V["vp@bend"] = range(K"-0.25", K"-0.1") V["vp@notchp"] = K"0.6" V["vp@notchk"] = K"1.4"
+      V["vp@ns"] = 5 * U
+      V["vp@tone"] = E"@lpq+0.05" V["vp@u"] = E"@lpu*@lpl" vpetal()
+      V.t = tr("guides")
+      if R["vp@u"] > K"0.1" then
+        V.tmp = "dots"
+        if R.t == R.tmp then
+          local spk = {}
+          loop("#ka", 1, 7, function()
+            V.xa = sym(K"0.22") V.ya = range(K"0.12", K"0.55") V.r = range(K"0.025", K"0.045")
+            spk[#spk + 1] = "\\pgfpathcircle{" .. P(R.xa, R.ya) .. "}{" .. str(R.r) .. "pt}"
+          end)
+          vtone("flo@c", K"0.06") vfill("flo@c", K"0.7", 1, function() out(concat(spk)) end)
+        end
+        V.tmp = "lines"
+        if R.t == R.tmp then
+          vtone("flo@c", K"0.06") V.twa = K"0.035" V.twb = K"0.004"
+          loop("#ka", -1, 1, function()
+            V.t = sym(K"0.03") V.f = E"#ka*0.12+@t" V.len = range(K"0.35", K"0.5")
+            V.xb = E"0.5*@f" V.xc = E"0.8*@f" V.xd = E"@f"
+            V.yb = E"0.35*@len+0.05" V.yc = E"0.7*@len+0.05" V.yd = E"@len+0.05"
+            vfill("flo@c", K"0.5", 1, function() vtaper(0, K"0.05", R.xb, R.yb, R.xc, R.yc, R.xd, R.yd) end)
+          end)
+        end
+      end
+    end)
+    V.lpa = range(-80 * U, -68 * U) V.lph = range(K"0.36", K"0.44")
+    scope(function()
+      V.xa = E"@lpb+0.05" V.ya = E"@lpL-0.04" shift(R.xa, R.ya)
+      rotate(R.lpa) scale(R.lph)
+      V["vp@W"] = K"0.26" V["vp@bend"] = range(K"-1.1", K"-0.85") V["vp@notchp"] = K"0.4" V["vp@notchk"] = U
+      V["vp@ns"] = 3 * U
+      V["vp@tone"] = R.lpq V["vp@u"] = E"@lpu*@lph" vpetal()
+    end)
+    V.t = tr("stamens") V.tmp = "exserted"
+    if R.t == R.tmp then
+      loop("#ka", 0, 1, function()
+        V.xa = E"@lpb+0.02" V.ya = E"@lpL"
+        V.t = range(K"0.1", K"0.2") V.xb = E"@xa+@t+0.04*#ka"
+        V.t = range(K"0.3", K"0.42") V.yb = E"@ya+@t-0.05*#ka"
+        vtone("flo@c", K"0.12") vstroke("flo@c", K"0.25", K"0.85", 0, function() moveto(R.xa, R.ya) lineto(R.xb, R.yb) end)
+        vtone("flo@c", K"0.05") vfill("flo@c", U, 0, function() circle(R.xb, R.yb, K"0.018") end)
+      end)
+    end
+    VW.vtube(R.lpu, "liptube") VW.vcup(R.lpu, K"1.1")
   end
 end
 -- \flo@bloom{diameter cm}{stage}: a bud below 0.3, the fruit above 1.15, past its best
@@ -1562,6 +1689,14 @@ local function bloom(d, st)
         V.oarg = E"0.8*@bd" scale(R.oarg) VW.vtube(R.oarg, "")
       elseif R.vw == "salver" then
         scale(R.bd) VW.vsalver(R.bd)
+      elseif R.vw == "pea" then
+        V.oarg = E"0.8*@bd" scale(R.oarg)
+        if R.bturn < 0 then VW.xscale(-U) end
+        VW.vpea(R.oarg)
+      elseif R.vw == "lips" then
+        V.oarg = R.bd scale(R.oarg)
+        if R.bturn < 0 then VW.xscale(-U) end
+        VW.vlips(R.oarg)
       else
         V.ys = U
         if R.vw == "tilt" then V.ys = range(K"0.5", K"0.7") end
@@ -2058,7 +2193,7 @@ do
   end
   -- \flo@headunit{stalk cm}
   local function headunit(len)
-    V.bst = R.ust V.clL = len stone() V.fnum = 0
+    V.bst = R.ust V.clL = len stone() V.fnum = 0 V.bfan = U
     axis(R.clL, 18 * U, K"0.024")
     V.clf = U axisat()
     V.t = range(K"0.9", K"1.1") V.clr = E"(0.26+0.006*$count)*@t"
@@ -2067,12 +2202,12 @@ do
     loop("#Gd", 1, function() return I("clm") end, function()
       V.clk = (I("clm") + 1 - R["#Gd"]) * U
       V.v = E"sqrt(@clk/@clm)" V.a = E"137.508*@clk"
-      V.xa = E"@clx+@clr*@v*cos(@a)" V.ya = E"@cly+0.9*@clr*@v*sin(@a)"
-      V.t = range(K"0.9", K"1.1") V.s = E"@clr*0.5*(0.7+0.3*@v)*@t"
+      V.xa = E"@clx+0.8*@clr*@v*cos(@a)" V.ya = E"@cly+0.72*@clr*@v*sin(@a)"
+      V.t = range(K"0.9", K"1.1") V.s = E"@clr*0.65*(0.7+0.3*@v)*@t"
       V.t = E"@bst-0.45*(1-@v)" V.a = E"@a-90"
       fadd(R.xa, R.ya, R.a, R.s, R.t)
     end)
-    fdraw()
+    fdraw() V.bfan = 0
   end
   -- \flo@catkinunit{twig cm}
   local function catkinunit(len)
@@ -2580,7 +2715,7 @@ local function reset()
     for k in pairs(t) do t[k] = nil end
   end
   R.lift = 0 R.zero = 0 R["vp@notchp"] = K"0.4" R["vp@notchk"] = U
-  R["vf@star"] = "" R["vf@tone"] = "" R.rampname = "flo@ramp" R.layer = 0 R.filling = 0 R.bside = ""
+  R["vf@star"] = "" R["vf@tone"] = "" R.rampname = "flo@ramp" R.layer = 0 R.filling = 0 R.bside = "" R.bfan = 0
   OUT = {}
 end
 -- \flo@picsetup: the species, then the drawing's own stream (draw=, or the seed + 1)
@@ -2810,6 +2945,7 @@ local function paint(code)
     elseif name == "pgftransformrotate" then ink.rotate(nums(a)[1])
     elseif name == "pgftransformscale" then ink.scale(nums(a)[1])
     elseif name == "pgftransformyscale" then ink.scale(1, nums(a)[1])
+    elseif name == "pgftransformxscale" then ink.scale(nums(a)[1], 1)
     elseif name == "pgfpathcircle" then
       local v = nums(a) ink.circle(v[1], v[2], v[3])
     elseif name == "pgfpathellipse" then
