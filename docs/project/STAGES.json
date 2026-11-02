@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_stage": "04",
+  "current_stage": "05",
   "prompt_sha256": "8D25740D944FC98943FD005737BD825215CFCF6F894218790E140EDE8EE3F09E",
   "stages": [
     {
@@ -110,7 +110,7 @@
     {
       "id": "04",
       "title": "deterministic recipes, identities and build provenance",
-      "status": "in_progress",
+      "status": "passed",
       "prerequisites": "03",
       "acceptance_items": [
         "recipes round-trip, fixed PRNG vectors pass on supported runtimes available now, malformed input fails usefully, cache dependency mutations invalidate the correct layer, and build records bind outputs to the exact source/input digests. Future browser parity remains a named gate until actually run there."
@@ -120,7 +120,9 @@
         "Independent Python oracle validates SHA256, canonical number and named PRNG vectors",
         "Actual floral primitive visitor isolation; real recipe generation/replay; palette/crop instance preservation; verified input bytes affect geometry",
         "Dependency mutation, budget/cancel/lowering-failure records and actual atomic filesystem fault checks pass",
-        "Exact-revision Linux CI still pending publication; browser parity pending31"
+        "Exact-revision Linux CI still pending publication; browser parity pending31",
+        "Atomic publication e7e7e32 independently fetched; tree f5b6d96e03ed4f6b7d29d9ea59df5da4613538ca; all28 changed files matched reviewed bytes; complete-history bundle verified;147 source-kit hashes passed locally.",
+        "Exact-revision CI41476967379 success:145 replay checks,61 contracts, independent oracle, all baseline regressions,147 source-kit hashes and extracted Lua/Xe builds. Native texlua124, Lua5.3, LFS1.7.0, int64/binary64."
       ],
       "evidence_paths": [
         "docs/architecture/RECIPES.md",
@@ -128,27 +130,44 @@
         "tools/replaycheck.lua",
         "tools/determinism_oracle.py",
         "artifacts/receipts/04/local-checks.json",
-        "artifacts/receipts/04/verification-notes.json"
+        "artifacts/receipts/04/verification-notes.json",
+        "artifacts/receipts/04/ci-final.json",
+        "artifacts/receipts/04/portable-ci.json",
+        "artifacts/receipts/04/remote-byte-verification.json"
       ],
-      "tested_code_revision": null,
-      "local_commit": null,
-      "verified_remote_revision": null,
-      "next_action": "Publish reviewed stage04 checkpoint to pattern/common-platform with expected e9793c9; independently fetch bytes and verify required exact-revision CI before stage05."
+      "tested_code_revision": "e7e7e32e90b151e7d51e02ad4582207d6ad52174",
+      "local_commit": "e7e7e32e90b151e7d51e02ad4582207d6ad52174",
+      "verified_remote_revision": "e7e7e32e90b151e7d51e02ad4582207d6ad52174",
+      "next_action": "Stage05 shared numerical geometry and semantic topology"
     },
     {
       "id": "05",
       "title": "shared numerical geometry and semantic topology",
-      "status": "pending",
+      "status": "in_progress",
       "prerequisites": "04",
       "acceptance_items": [
         "downstream code can inspect connectivity, adjacency and actual bounds without reverse-engineering SVG/PDF paths. Checks detect deliberately corrupted edge incidence, duplicates and crossings. Document unsupported geometric operations explicitly rather than returning plausible empty success."
       ],
-      "observed_results": null,
-      "evidence_paths": null,
+      "observed_results": [
+        "Implemented shared geometry/topology services with explicit units/tolerances, exact orientation/rational coordinates and conservative ink bounds",
+        "90 analytical/adversarial tests plus61 contracts and145 replay checks passed on Lua5.3/5.4",
+        "Independent oracle passed4000 orientations,1000 segments,128 known-factored cubics and256 affine bounds across two current-source reports; cross-runtime corpora equal",
+        "Additional10000 Fraction orientation comparisons passed;8 naive failures preserved",
+        "Existing floral source/fingerprints untouched; required exact-revision Linux CI pending publication"
+      ],
+      "evidence_paths": [
+        "docs/architecture/GEOMETRY.md",
+        "tools/geometrycheck.lua",
+        "tools/geometry_oracle.py",
+        "docs/validation/fixtures/geometry-v1.json",
+        "artifacts/receipts/05/local-checks.json",
+        "artifacts/receipts/05/orientation-oracle.json",
+        "artifacts/receipts/05/verification-notes.json"
+      ],
       "tested_code_revision": null,
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+      "next_action": "Publish reviewed stage05 changes to pattern/common-platform with expected e7e7e32; independently fetch/verify tree bytes and both exact-revision CI jobs. Do not advance06 before success."
     },
     {
       "id": "06",

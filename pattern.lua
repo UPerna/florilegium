@@ -9,12 +9,22 @@ local function finite(n) return type(n)=="number" and n==n and math.abs(n)<math.
 local function id(v,p) need(type(v)=="string" and #v>0 and #v<=256,p,"expected a nonempty stable ID") end
 local function seq(t,p)
   need(type(t)=="table",p,"expected an array")
+  local data=stored[t] or t;local mt=getmetatable(data)
+  need(not mt or mt.__jsontype~="object",p,"expected an array; use array() for an empty array")
   local n=#t; for k in pairs(t) do need(type(k)=="number" and k%1==0 and k>=1 and k<=n,p,"expected a dense array") end
+  for i=1,n do need(t[i]~=nil,p,"expected a dense array") end
   return t
 end
 local function numbers(t,n,p)
   seq(t,p);need(#t==n,p,"wrong coordinate count")
   for _,v in ipairs(t) do need(finite(v),p,"nonfinite coordinate") end
+end
+local function coordinates(v,n,p)
+  if v.exact then
+    need(v.point==nil,p,"point and exact coordinates cannot both be authoritative")
+    local ok,err=pcall(require("pattern_exact").validate_point,v.exact,n)
+    need(ok,p,"invalid exact coordinate: "..tostring(err))
+  else numbers(v.point,n,p) end
 end
 local function bounds(t,p)
   numbers(t,4,p);need(t[3]>t[1] and t[4]>t[2],p,"expected positive bounds")
@@ -37,7 +47,9 @@ local function clone(v,seen,depth,count)
   seen[v]=true
   local mt=getmetatable(v)
   need(mt==nil or (type(mt)=="table" and (mt.__jsontype=="array" or mt.__jsontype=="object")),"data","unsupported data metatable")
-  local array=(mt and mt.__jsontype=="array") or #v>0
+  if mt then for k in pairs(mt) do need(k=="__jsontype","data","executable/unknown data metatable field") end end
+  local array=(mt and mt.__jsontype=="array") or (not mt and #v>0)
+  if array then for i=1,#v do need(rawget(v,i)~=nil,"data","sparse array") end end
   local out=setmetatable({},{__jsontype=array and "array" or "object"})
   for k,x in pairs(v) do
     if array then need(type(k)=="number" and k%1==0 and k>=1 and k<=#v,"data","sparse or mixed array")
@@ -144,14 +156,14 @@ local function instance(x,d)
   local g=x.structures.graph
   if g then
     local vertices=add(g.vertices,"graph.vertices");local edges=add(g.edges,"graph.edges")
-    for _,v in pairs(vertices) do numbers(v.point,x.frame.dimension,"graph.vertex.point") end
+    for _,v in pairs(vertices) do coordinates(v,x.frame.dimension,"graph.vertex.point") end
     for _,e in pairs(edges) do exists(e.from,vertices,"graph.edge");exists(e.to,vertices,"graph.edge");need(e.from~=e.to,"graph.edge","self-loop needs a separately declared representation") end
   end
   local t=x.structures.tiling
   if t then
     need(x.frame.dimension==2,"tiling","expected 2D construction")
     local vs=add(t.vertices,"tiling.vertices");local es=add(t.edges,"tiling.edges");local cs=add(t.cells,"tiling.cells");local use={}
-    for _,v in pairs(vs) do numbers(v.point,2,"tiling.vertex.point") end
+    for _,v in pairs(vs) do coordinates(v,2,"tiling.vertex.point") end
     for _,e in pairs(es) do exists(e.from,vs,"tiling.edge");exists(e.to,vs,"tiling.edge");exists(e.owner,cs,"tiling.edge.owner");need(e.role=="interior" or e.role=="patch_boundary","tiling.edge.role","unknown boundary role") end
     for _,c in pairs(cs) do
       id(c.prototype,"cell.prototype");need(c.chirality==1 or c.chirality==-1,"cell.chirality","expected signed orientation")
@@ -177,15 +189,15 @@ local function instance(x,d)
     for k in pairs(roots) do exists(k,ns,"growth.root") end
     for k,n in pairs(ns) do
       if n.parent then exists(n.parent,ns,"growth.parent");need(not roots[k],"growth","root has a parent") else need(roots[k],"growth","unlisted root") end
-      numbers(n.point,x.frame.dimension,"growth.point")
+      coordinates(n,x.frame.dimension,"growth.point")
       local seen={};local p=k;while p do need(not seen[p],"growth","cyclic growth hierarchy");seen[p]=true;p=ns[p].parent end
     end
   end
   local strands=x.structures.strands
   if strands then
     local ss=add(strands.components,"strands.components");local crossings=add(strands.crossings,"strands.crossings");local ports=add(strands.ports,"strands.ports");local visits={}
-    for _,p in pairs(ports) do exists(p.component,ss,"strand.port");numbers(p.point,x.frame.dimension,"strand.port.point") end
-    for _,c in pairs(crossings) do exists(c.over,ss,"crossing.over");exists(c.under,ss,"crossing.under");need(c.over~=c.under or c.self_crossing==true,"crossing","self crossing must be explicit");numbers(c.point,2,"crossing.point") end
+    for _,p in pairs(ports) do exists(p.component,ss,"strand.port");coordinates(p,x.frame.dimension,"strand.port.point") end
+    for _,c in pairs(crossings) do exists(c.over,ss,"crossing.over");exists(c.under,ss,"crossing.under");need(c.over~=c.under or c.self_crossing==true,"crossing","self crossing must be explicit");coordinates(c,2,"crossing.point") end
     for _,s in pairs(ss) do
       need(type(s.closed)=="boolean" and type(s.alternating)=="boolean","strand","closure and alternation policy required")
       local ends=list_ids(s.endpoints,"strand.endpoints");need(#s.endpoints==(s.closed and 0 or 2),"strand","wrong endpoint count")
@@ -209,12 +221,12 @@ local function instance(x,d)
     need(#text.reading_order==n,"text.reading_order","duplicate, missing or foreign run")
   end
   local curves=x.structures.curve3d
-  if curves then need(x.frame.dimension==3,"curve3d","3D frame required");local vs=add(curves.vertices,"curve3d.vertices");local cs=add(curves.curves,"curve3d.curves");for _,v in pairs(vs) do numbers(v.point,3,"curve3d.point") end;for _,c in pairs(cs) do exists(c.from,vs,"curve3d.from");exists(c.to,vs,"curve3d.to") end end
+  if curves then need(x.frame.dimension==3,"curve3d","3D frame required");local vs=add(curves.vertices,"curve3d.vertices");local cs=add(curves.curves,"curve3d.curves");for _,v in pairs(vs) do coordinates(v,3,"curve3d.point") end;for _,c in pairs(cs) do exists(c.from,vs,"curve3d.from");exists(c.to,vs,"curve3d.to") end end
   local field=x.structures.field
   if field then
     need(field.representation=="samples","field.representation","unsupported representation in contract v1")
     need(type(field.domain)=="table","field.domain","domain required");bounds(field.domain.bounds,"field.domain.bounds")
-    local samples=add(field.samples,"field.samples");for _,s in pairs(samples) do numbers(s.point,2,"field.point");numbers(s.vector,2,"field.vector");need(finite(s.density) and s.density>=0,"field.density","invalid density") end
+    local samples=add(field.samples,"field.samples");for _,s in pairs(samples) do coordinates(s,2,"field.point");numbers(s.vector,2,"field.vector");need(finite(s.density) and s.density>=0,"field.density","invalid density") end
   end
   return ids
 end

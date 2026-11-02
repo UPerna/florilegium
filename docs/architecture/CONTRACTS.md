@@ -143,3 +143,5 @@ these rather than selecting by API familiarity. A JavaScript port of geometry
 is excluded. Lupa 2.8/Lua 5.3 on this Windows host is a development-only check
 runner, not the selected browser runtime or a substitute for TeX CI. Browser
 parity stays unverified until the same implementations actually run there.
+
+Stage05 extends spatial semantic records with mutually exclusive numeric point or validated rational exact coordinates. See GEOMETRY.md for the bounded coordinate profile, explicit rendering conversion and supported geometry operations. Empty arrays require array(); sparse arrays and executable/unknown data metatable fields fail. No new universal geometry object replaces capability semantics.

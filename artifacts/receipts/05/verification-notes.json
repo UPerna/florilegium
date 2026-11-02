@@ -1,0 +1,35 @@
+{
+  "stage": "05",
+  "local_status": "passed",
+  "ci_status": "pending publication",
+  "runtimes": [
+    "Lupa2.8 Lua5.3",
+    "Lupa2.8 Lua5.4"
+  ],
+  "python": "3.12.14",
+  "analytical_checks_per_runtime": 90,
+  "contract_checks_per_runtime": 61,
+  "replay_checks_per_runtime": 145,
+  "independent_current_corpus": {
+    "reports": 2,
+    "orientations": 4000,
+    "segments": 1000,
+    "cubics": 128,
+    "affine_bounds": 256
+  },
+  "raw_local_source_digest": "faffd3f21d17633d2a6c977d011bd1e3b756c52993b42182469eb528b9f191bd",
+  "oracle": "Fraction exact binary64 input arithmetic;70-digit extrema; cross-runtime corpus equality excluding runtime label",
+  "repaired_failures": [
+    "clip distance aggregation accidentally included second Lua return; analytic hole fixture now guards it",
+    "zero-dimensional clip contacts were previously reported empty; contacts are retained",
+    "sparse arrays and executable data metatable fields now reject before traversal",
+    "new strand test syntax corrected before acceptance"
+  ],
+  "scope_limits": [
+    "general cubic/cubic and NURBS unsupported",
+    "non-dyadic repeated cubic roots may remain unresolved",
+    "polygon Boolean operations outside this module",
+    "native Windows TeX unavailable; real Linux CI mandatory",
+    "browser parity pending31"
+  ]
+}
