@@ -1,0 +1,19 @@
+% The TeX side of tools/pgfmathcheck.lua: evaluates each line of build/pgfmathcheck.in
+% with \pgfmathparse and writes \pgfmathresult, one per line, to <jobname>.out in the output directory.
+\documentclass{article}
+\usepackage{pgfmath}
+\begin{document}
+\newread\pmin \newwrite\pmout
+\openin\pmin=build/pgfmathcheck.in
+\immediate\openout\pmout=\jobname.out
+{\endlinechar=-1
+\loop
+  \read\pmin to \pmline
+  \unless\ifx\pmline\empty
+    \pgfmathparse{\pmline}%
+    \immediate\write\pmout{\pgfmathresult}%
+  \fi
+\unless\ifeof\pmin\repeat}
+\immediate\closeout\pmout
+done
+\end{document}

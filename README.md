@@ -449,6 +449,10 @@ yet done.
   Tommy Ettinger's public-domain generator. The PostScript port uses the "minimal standard"
   generator of Park and Miller (Communications of the ACM, 1988) by Schrage's method (ACM
   Transactions on Mathematical Software, 1979).
+- The TikZ library draws with pgf's own random generator and arithmetic, and Lua replays
+  them exactly (`florilegium-ink.lua`'s `pgfrng`, `florilegium-pgfmath.lua`), including pgfmath's
+  lookup tables for cosine and arctangent: [PGF/TikZ](https://github.com/pgf-tikz/pgf) by Till
+  Tantau, Christian Feuersänger, Henri Menke and others (LPPL 1.3c or GPL 2).
 - `\florilegiumornament`, its `ink` and `seed=random` keys, and the `density` option answer
   [issue #4](https://github.com/kevinraymond/florilegium/issues/4) from rubyFeedback.
 - The playground runs the Lua in the browser with [wasmoon](https://github.com/ceifa/wasmoon)

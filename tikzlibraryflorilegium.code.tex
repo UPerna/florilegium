@@ -878,7 +878,21 @@
   seed/.store in=\flo@o@seed, role/.store in=\flo@o@role, size/.store in=\flo@o@size,
   draw/.store in=\flo@o@draw, season/.store in=\flo@o@season,
   plants/.store in=\flo@o@plants, width/.store in=\flo@o@width, ghost/.store in=\flo@o@ghost,
-  seed=1, role=any, size=2cm, draw=, season=0.75, plants=, width=6cm, ghost=true}
+  engine/.store in=\flo@o@engine,
+  seed=1, role=any, size=2cm, draw=, season=0.75, plants=, width=6cm, ghost=true, engine=tikz}
+% engine=lua (LuaLaTeX only): the hybrid. florilegium-organs.lua computes the pic and writes
+% the pgf commands this file would run for it, the same commands for the same seed, and
+% TikZ draws them, in a fraction of the time
+\def\flo@lua{lua}
+\def\flo@luapic#1#2{%
+  \pgfkeys{/florilegium,#2}\flo@colors
+  \pgfmathsetlength\pgf@x{\flo@o@size}\pgfmathsetlength\pgf@y{\flo@o@width}%
+  \directlua{require("florilegium-organs").tex("#1", "\luaescapestring{\flo@o@seed}",
+    "\luaescapestring{\flo@o@role}", "\luaescapestring{\flo@o@draw}", \number\pgf@x, \number\pgf@y,
+    "\luaescapestring{\flo@o@season}", "\luaescapestring{\flo@o@plants}", "\luaescapestring{\flo@o@ghost}",
+    "\ifcsname ver@tikzlibraryflorilegium.code.tex\endcsname\luaescapestring{\csname ver@tikzlibraryflorilegium.code.tex\endcsname}\fi")}}
+% #1 the pic's keys, #2 its kind for Lua, #3 the TikZ code
+\def\flo@engine#1#2#3{\pgfkeys{/florilegium,#1}\ifx\flo@o@engine\flo@lua\flo@luapic{#2}{#1}\else#3\fi}
 % sample the species, then reseed for the drawing (draw=, or the species seed + 1)
 \def\flo@picsetup#1{%
   \pgfkeys{/florilegium,#1}\flo@colors
@@ -888,15 +902,15 @@
   \flo@drawseed\flo@o@draw
   \pgfmathsetlength\pgf@x{\flo@o@size}\edef\flo@sizept{\pgf@sys@tonumber\pgf@x}}
 % \pic {florilegium flower={seed=7, size=2cm}}: one flower face on, size its diameter
-\tikzset{pics/florilegium flower/.style={code={%
+\tikzset{pics/florilegium flower/.style={code={\flo@engine{#1}{flower}{%
   \flo@picsetup{#1}%
   \pgftransformscale{\flo@sizept}%
-  \flo@stone\flo@sflower\flo@sizept}}}
+  \flo@stone\flo@sflower\flo@sizept}}}}
 % \pic {florilegium leaf={seed=7, size=4cm}}: one leaf from its base along +y, size its length
-\tikzset{pics/florilegium leaf/.style={code={%
+\tikzset{pics/florilegium leaf/.style={code={\flo@engine{#1}{leaf}{%
   \flo@picsetup{#1}%
   \pgftransformscale{\flo@sizept}%
-  \flo@leaf\flo@sizept}}}
+  \flo@leaf\flo@sizept}}}}
 % the list plants={seed/role, ...} into \flo@pp@s<k>, \flo@pp@r<k>, k = 1..\flo@Np
 \def\flo@parseplants#1{\flo@Np=0 \flo@parseplant#1,\relax/\relax,}
 \def\flo@parseplant#1/#2,{%
@@ -948,23 +962,23 @@
 \def\flo@true{true}
 % \pic {florilegium plant={seed=7, role=rose, size=14cm, width=6cm, season=0.75}}: one
 % plant from its root, size its height, its branches reaching about width
-\tikzset{pics/florilegium plant/.style={code={%
+\tikzset{pics/florilegium plant/.style={code={\flo@engine{#1}{plant}{%
   \flo@picsetup{#1}%
   \flo@Np=1 \expandafter\edef\csname flo@pp@s1\endcsname{\flo@o@seed}%
   \expandafter\edef\csname flo@pp@r1\endcsname{\flo@o@role}%
   \flo@calc\flo@gH{\flo@sizept/28.45276}\def\flo@gghost{false}%
   \pgfmathsetlength\pgf@x{\flo@o@width}\flo@calc\flo@gW{\pgf@x/28.45276}%
-  \flo@garden}}}
+  \flo@garden}}}}
 % \pic {florilegium plants={plants={3/rose, 17/umbellifer, 29/mustard}, size=20cm, width=6cm}}:
 % plants from one root, like a margin's main stems; the first reaches size, the others
 % 60-72% and 36-48% of it; a pale flower of the first behind them (ghost=false: none)
-\tikzset{pics/florilegium plants/.style={code={%
+\tikzset{pics/florilegium plants/.style={code={\flo@engine{#1}{plants}{%
   \pgfkeys{/florilegium,#1}\flo@colors
   \expandafter\flo@parseplants\expandafter{\flo@o@plants}
   \pgfmathsetlength\pgf@x{\flo@o@size}\flo@calc\flo@gH{\pgf@x/28.45276}%
   \pgfmathsetlength\pgf@x{\flo@o@width}\flo@calc\flo@gW{\pgf@x/28.45276}%
   \edef\flo@gghost{\flo@o@ghost}%
-  \flo@garden}}}
+  \flo@garden}}}}
 
 % ================================================================ v1.3's hand
 % florilegium-flora.lua's petal, heart and flower, line for line in pgfmath: the same
@@ -1265,10 +1279,10 @@
   \begin{pgfscope}\pgftransformrotate{\flo@spin}\flo@vheart{\flo@np}\end{pgfscope}}
 % \pic {florilegium v13 flower={seed=7, size=1.9cm}}: flora's flower in pure TikZ, size the
 % petal length (a test of the port, against \florilegiumdraw{flower}{1.9})
-\tikzset{pics/florilegium v13 flower/.style={code={%
+\tikzset{pics/florilegium v13 flower/.style={code={\flo@engine{#1}{v13 flower}{%
   \flo@picsetup{#1}%
   \pgftransformscale{\flo@sizept}%
-  \def\flo@vf@tone{}\flo@calc\flo@vs{\flo@sizept/28.45276}\flo@vflower\flo@vs{5}}}}
+  \def\flo@vf@tone{}\flo@calc\flo@vs{\flo@sizept/28.45276}\flo@vflower\flo@vs{5}}}}}
 
 
 % ---------------------------------------------------------------- the tone ramp (OKLCH)
@@ -1547,11 +1561,11 @@
     \flo@put{\the\numexpr2*(#1)+2-\flo@kb\relax}{\csname flo@QX\the\flo@kb\endcsname}{\csname flo@QY\the\flo@kb\endcsname}}}
 
 % \pic {florilegium v13 leaf={seed=7, size=4cm}}: flora's leaf in pure TikZ, size its length
-\tikzset{pics/florilegium v13 leaf/.style={code={%
+\tikzset{pics/florilegium v13 leaf/.style={code={\flo@engine{#1}{v13 leaf}{%
   \flo@picsetup{#1}%
   \pgftransformscale{\flo@sizept}%
   \def\flo@vl@W{}\def\flo@vl@bend{}\def\flo@vl@lobes{}\def\flo@vl@depth{}\def\flo@vl@tone{}%
-  \flo@calc\flo@vl@u{\flo@sizept/28.45276}\flo@vleaf}}}
+  \flo@calc\flo@vl@u{\flo@sizept/28.45276}\flo@vleaf}}}}
 
 % ---------------------------------------------------------------- leaflet, lily, floret, bud
 % flora.leaflet: a small entire leaf, +y, length 1; \flo@vl@u as for the leaf, tone

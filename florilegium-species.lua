@@ -10,8 +10,9 @@
 -- The same tables drive the TikZ library (tikzlibraryflorilegium.code.tex): M.tex()
 -- writes them as TeX (tools/tikztables.lua), and both sides draw from pgf's generator
 -- (ink.pgfrng), so one seed gives one species in either. Every choice is an integer
--- draw (pgf's random(a,b)); the real-valued traits only shape the drawing and are
--- never compared, so rounding cannot make the two sides choose differently.
+-- draw (pgf's random(a,b)), and a real-valued trait is the very number pgfmath computes
+-- (florilegium-pgfmath.lua), so the organs that compare one (a stage from the phenology)
+-- choose as the TikZ library does.
 --
 -- The botany follows the trait tables in Florilegium Genomes (2026, the author's
 -- research notes): body plans and their bundles, the hard rules (e.g. variable petal
@@ -19,6 +20,7 @@
 -- pollination syndromes of the U.S. Forest Service (public domain).
 
 local ink = require("florilegium-ink")
+local pm = require("florilegium-pgfmath")
 local M = {}
 M.version = "1.3"                 -- the release; florilegium.lua checks that every file has the same
 
@@ -363,7 +365,10 @@ local function draw(d, rng, sp)
   local kind = d[1]
   if kind == "c" then return d[2]
   elseif kind == "i" then return rng.random(d[2], d[3])
-  elseif kind == "r" then return d[2] + (d[3] - d[2]) * rng.rnd()
+  elseif kind == "r" then
+    -- as \flo@R{a}{b-a} computes it: \pgfmathparse{a+(b-a)*rnd}, to the scaled point
+    local a, w = pm.sp(tostring(d[2])), pm.sp(tostring(d[3] - d[2]))
+    return pm.add(a, pm.mulf(w, math.floor(rng.rnd() * 65536 + 0.5))) / 65536
   elseif kind == "w" then
     local total = 0
     for i = 3, #d, 2 do total = total + d[i] end
@@ -382,7 +387,9 @@ local function draw(d, rng, sp)
 end
 
 -- a species from a pgf seed (1 .. 2^31-2) for a role ("hero", "spray", "monocot",
--- "any"); log, if given, is a function(trait, value) called after every draw
+-- "any"); log, if given, is a function(trait, value) called after every draw. Returns the
+-- species and the generator, left where \florilegiumspecies leaves pgf's (organs go on
+-- from there). A real-valued trait is the number pgfmath computes, a multiple of 2^-16.
 -- Lehmer's generator answers seeds 1, 2, 3 ... with nearly proportional first values,
 -- so the first two are thrown away (TikZ: \pgfmathgeneratepseudorandomnumber twice).
 M.WARM = 2
@@ -397,7 +404,7 @@ function M.sample(seed, role, log)
     sp[t] = draw(M.dist(sp.plan, t), rng, sp)
     if log then log(t, sp[t]) end
   end
-  return sp
+  return sp, rng
 end
 
 -- ---------------------------------------------------------------- the rules

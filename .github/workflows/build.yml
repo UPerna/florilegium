@@ -62,6 +62,14 @@ jobs:
             ornaments.tex
             specimen-tikz.tex
           latexmk_use_lualatex: true
+          # the hybrid (engine=lua) draws what pure TikZ draws, stream for stream: Lua replays
+          # pgfmath exactly (pgfmathcheck), samples the same species (tikzcheck) and writes
+          # the same pgf commands for a flower and a leaf of every body plan and a plant in
+          # three seasons (tikzcheck draw)
+          post_compile: >-
+            texlua tools/pgfmathcheck.lua 20000 &&
+            texlua tools/tikzcheck.lua 1 1000 &&
+            texlua tools/tikzcheck.lua draw quick
       # the species in pure TikZ promise pdfLaTeX too; a strip of plants takes more of
       # pdfTeX's main memory than its default 5 million words (specimen-tikz.tex says why).
       # pre_compile runs in the shell that then runs latexmk, so the export reaches pdflatex
