@@ -1,7 +1,11 @@
-% specimen-tikz.tex -- florilegium's species drawn in pure TikZ (\usetikzlibrary{florilegium}):
-% pgfmath computes, TikZ draws, under pdfLaTeX or LuaLaTeX. Page 1: two margins' worth of
-% plants, three species each, grown as florilegium-grow.lua grows a margin; page 2: each
-% body plan's flower and leaf close up, and one plant through the seasons.
+% specimen-tikz.tex -- florilegium's species drawn in TikZ (\usetikzlibrary{florilegium}).
+% Under pdfLaTeX pgfmath computes and TikZ draws (pure TikZ, the proof, about 6 minutes);
+% under LuaLaTeX florilegium-organs.lua computes the same pgf commands and TikZ draws them
+% (engine=lua, the library's default there): the same PDF, byte for byte, in about 20
+% seconds. \pgfkeys{/florilegium/engine=tikz} draws in pure TikZ under LuaLaTeX too.
+% Page 1: two margins' worth of plants, three species each, grown as florilegium-grow.lua
+% grows a margin; page 2: each body plan's flower and leaf close up, and one plant through
+% the seasons.
 % Copyright (c) 2026 Kevin Raymond. MIT License.
 %   lualatex specimen-tikz.tex
 %   extra_mem_top=10000000 pdflatex specimen-tikz.tex
@@ -26,10 +30,11 @@
   \end{tikzpicture}\par
   \parbox{5.4cm}{\raggedright\scriptsize\traits{#2}{#1}.}}
 \begin{document}
-{\Large Species in pure TikZ}\par\smallskip
+{\Large Species in TikZ}\par\smallskip
 {\small Each plant is a species sampled from a genome (body plan, the visitor its flowers are
-for, the flower, its cluster, the leaf, the fruit) and drawn by pgfmath and TikZ alone, in
-florilegium's v1.3 hand. Three species share a root, as a margin's main stems do: stems and
+for, the flower, its cluster, the leaf, the fruit) and drawn by TikZ in florilegium's v1.3
+hand. Under pdfLaTeX, pgfmath computes every point; under LuaLaTeX, Lua computes the same pgf
+commands, to the byte, and sooner. Three species share a root, as a margin's main stems do: stems and
 the flowers at their tops first, then leaves at the nodes, then branches wherever there is
 room, a pale flower of the first behind them.}\par\medskip
 \begin{tikzpicture}

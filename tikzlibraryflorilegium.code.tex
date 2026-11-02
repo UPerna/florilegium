@@ -882,11 +882,22 @@
   draw/.store in=\flo@o@draw, season/.store in=\flo@o@season,
   plants/.store in=\flo@o@plants, width/.store in=\flo@o@width, ghost/.store in=\flo@o@ghost,
   engine/.store in=\flo@o@engine,
-  seed=1, role=any, size=2cm, draw=, season=0.75, plants=, width=6cm, ghost=true, engine=tikz}
-% engine=lua (LuaLaTeX only): the hybrid. florilegium-organs.lua computes the pic and writes
-% the pgf commands this file would run for it, the same commands for the same seed, and
-% TikZ draws them, in a fraction of the time
-\def\flo@lua{lua}
+  seed=1, role=any, size=2cm, draw=, season=0.75, plants=, width=6cm, ghost=true, engine=auto}
+% engine=lua: the hybrid. florilegium-organs.lua computes the pic and writes the pgf
+% commands this file would run for it, the same commands for the same seed (the same PDF,
+% byte for byte), and TikZ draws them, about 18 times faster. engine=tikz: pgfmath
+% computes and TikZ draws, under any engine. engine=auto (the default): lua under LuaLaTeX
+% when florilegium-organs.lua can be found, tikz otherwise
+\def\flo@lua{lua}\def\flo@auto{auto}
+\ifdefined\directlua
+  \edef\flo@autoengine{\directlua{
+    local ok, f = pcall(kpse.find_file, "florilegium-organs.lua", "lua")
+    tex.sprint(ok and f and "lua" or "tikz")}}
+\else
+  \def\flo@autoengine{tikz}
+\fi
+\def\flo@nolua{\pgfutil@packagewarning{florilegium}{engine=lua needs LuaLaTeX; drawing in pure TikZ}%
+  \global\let\flo@nolua\relax}
 \def\flo@luapic#1#2{%
   \pgfkeys{/florilegium,#2}\flo@colors
   \pgfmathsetlength\pgf@x{\flo@o@size}\pgfmathsetlength\pgf@y{\flo@o@width}%
@@ -895,7 +906,9 @@
     "\luaescapestring{\flo@o@season}", "\luaescapestring{\flo@o@plants}", "\luaescapestring{\flo@o@ghost}",
     "\ifcsname ver@tikzlibraryflorilegium.code.tex\endcsname\luaescapestring{\csname ver@tikzlibraryflorilegium.code.tex\endcsname}\fi")}}
 % #1 the pic's keys, #2 its kind for Lua, #3 the TikZ code
-\def\flo@engine#1#2#3{\pgfkeys{/florilegium,#1}\ifx\flo@o@engine\flo@lua\flo@luapic{#2}{#1}\else#3\fi}
+\def\flo@engine#1#2#3{\pgfkeys{/florilegium,#1}%
+  \ifx\flo@o@engine\flo@auto\let\flo@o@engine\flo@autoengine\fi
+  \ifx\flo@o@engine\flo@lua\ifdefined\directlua\flo@luapic{#2}{#1}\else\flo@nolua#3\fi\else#3\fi}
 % sample the species, then reseed for the drawing (draw=, or the species seed + 1)
 \def\flo@picsetup#1{%
   \pgfkeys{/florilegium,#1}\flo@colors
