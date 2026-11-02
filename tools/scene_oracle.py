@@ -57,6 +57,13 @@ def inspect(folder,existing=False):
             assert all(low>=254 for ex in extrema for low,high in ex),'Actual protected-region ink; average image error cannot waive this'
             protected.append({'bounds':a,'pixel_box':box,'minimum_channel':[min(low for low,high in ex) for ex in extrema]})
         if name=='clipstress':
+            # Source-over multiply, derived independently from the numeric colors:
+            # B=.3*(.8,.9,.95)+.7*(.2,.5,.8); C=B*(.4+.6*(.9,.2,.1)).
+            # Inkscape's clipped-ancestor blend issue is invisible to an average
+            # error threshold, so require the actual interior color in each image.
+            for im in images:
+                p=pixel(im,b,0.9,1.0);expected=(91,82,99)
+                assert all(abs(a-e)<=3 for a,e in zip(p,expected)),('multiply with clipped backdrop',p,expected)
             # Analytic dash intervals away from transitions; catches a sign error
             # that a whole-image average can conceal.
             for im in images:

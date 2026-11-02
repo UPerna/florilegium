@@ -193,7 +193,9 @@
         "Local dual-runtime61 contracts/145 replay/91 geometry/44 scene checks passed; identical PDF/SVG bytes",
         "Local librsvg/Poppler oracle passed six fixtures, explicit dash/winding and strict overlapping-reservation ROI checks",
         "Legacy28 fingerprints/backend checks and old/new two-page PDF byte equality passed",
-        "Linux Inkscape and both TeX-host exact-head CI, latest visual review and guarded publication remain pending"
+        "Linux Inkscape and both TeX-host exact-head CI, latest visual review and guarded publication remain pending",
+        "Initial07f3fdb CI41502953750 passed all required jobs/196 kit hashes, then actual CI visual inspection rejected an Inkscape clipped multiply mismatch; stage remains in_progress",
+        "Follow-up isolates each clipped paint inside its outer blend group and adds analytic interior-color checks;44 scenes perLua runtime and local independent oracle pass sourcecad26079"
       ],
       "evidence_paths": [
         "docs/architecture/SCENES.md",
@@ -201,10 +203,10 @@
         "tools/scene_oracle.py",
         "artifacts/receipts/06/"
       ],
-      "tested_code_revision": "working tree based on814d772; source-bound scene digest8234d27ad31be92eb0975f6159f91d567ca6d01be372663e86573aa0d3323019",
+      "tested_code_revision": "working tree at07f3fdb; source digestcad26079ee23ce1e6c8103dce7940fbd11c7bb42a0aea2e4c620081052e47618",
       "local_commit": null,
-      "verified_remote_revision": null,
-      "next_action": "Inspect latest source-bound PNGs; finish evidence and diff review; guarded publish expected814d772 then exact-head CI before07"
+      "verified_remote_revision": "07f3fdb3f44dc82707d2f0d9320eb652410e1130",
+      "next_action": "Publish corrected blend follow-up guarded by07f3fdb; exact-head required CI and visual QA before07"
     },
     {
       "id": "07",

@@ -51,25 +51,31 @@ local function color(c,gray)
 end
 function M.svg(plan)
   local b=plan.bounds;local w,h=b[3]-b[1],b[4]-b[2];local defs,out={},{}
-  local index=0
+  local index,clips=0,{}
   for _,o in ipairs(plan.operations)do
     if o.op=="push_clip"then
       index=index+1;defs[#defs+1]='<clipPath clipPathUnits="userSpaceOnUse" id="c'..index..'"><path clip-rule="'..o.fill_rule..'" d="'..path(o.commands,false)..'"/></clipPath>'
-      out[#out+1]='<g clip-path="url(#c'..index..')">'
-    elseif o.op=="pop_clip"then out[#out+1]='</g>'
+      clips[#clips+1]=index
+    elseif o.op=="pop_clip"then assert(table.remove(clips),"render clip underflow")
     elseif o.op=="path"then
       local p=o.paint
       for _,kind in ipairs({"fill","stroke"})do if p[kind]then
-        local attrs={'data-semantic-ref="'..B.xml(o.semantic_ref)..'"','d="'..path(o.commands,false)..'"','transform="matrix('..nums(o.transform)..')"','opacity="'..n(p.opacity or 1)..'"','style="mix-blend-mode:'..(p.blend or "normal")..'"'}
+        local attrs={'data-semantic-ref="'..B.xml(o.semantic_ref)..'"','d="'..path(o.commands,false)..'"','transform="matrix('..nums(o.transform)..')"'}
         if kind=="fill"then attrs[#attrs+1]='fill="'..color(p.fill,p.color_space=="gray")..'" fill-rule="'..(p.fill_rule or "nonzero")..'" stroke="none"'
         else
           attrs[#attrs+1]='fill="none" stroke="'..color(p.stroke,p.color_space=="gray")..'" stroke-width="'..n(p.stroke_width)..'" stroke-linecap="'..(p.cap or "butt")..'" stroke-linejoin="'..(p.join or "miter")..'" stroke-miterlimit="'..n(p.miter_limit or 10)..'"'
           if p.dash and #p.dash.array>0 then attrs[#attrs+1]='stroke-dasharray="'..nums(p.dash.array)..'" stroke-dashoffset="'..n(p.dash.phase)..'"'end
         end
+        -- Blend the single clipped paint with the actual page backdrop. Keeping
+        -- a long-lived clipped ancestor loses that backdrop in Inkscape1.4.2.
+        out[#out+1]='<g opacity="'..n(p.opacity or 1)..'" style="mix-blend-mode:'..(p.blend or "normal")..'">'
+        for _,clip in ipairs(clips)do out[#out+1]='<g clip-path="url(#c'..clip..')">'end
         out[#out+1]='<path '..table.concat(attrs," ")..'/>'
+        for _=1,#clips+1 do out[#out+1]='</g>'end
       end end
     end
   end
+  assert(#clips==0,"render clips not balanced")
   local fonts={}
   for i,f in ipairs(plan.fonts)do
     assert(f.variants.opentype,"SVG searchable profile needs embedded OpenType bytes")

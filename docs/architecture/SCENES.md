@@ -99,3 +99,5 @@ required Linux Inkscape check. Inspect the actual rendered fixture pages as well
 The legacy layout fingerprints and both TeX-host workflows remain required.
 Finite fixture agreement is measured evidence for this profile; it is not a proof
 of equivalence for every possible vector scene or PDF/SVG viewer.
+
+A visual audit of initial CI41502953750 found that Inkscape1.4.2 lost the page backdrop for multiply paints inside clipped ancestor groups, even though the average error was within the fixed bounds. The corrected SVG serializer wraps each single paint and its active clip stack in an outer blend/opacity group. The group therefore blends against the page, matching PDF per-paint composition without filters or rasterization. The independent oracle now derives the interior multiply RGB color analytically and requires each channel within3/255; initial PDF90/81/98 passed, initial SVG177/94/101 failed against expected91/82/99. These local probes cannot be waived by a low global average.
