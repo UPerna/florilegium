@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_stage": "01",
+  "current_stage": "02",
   "prompt_sha256": "8D25740D944FC98943FD005737BD825215CFCF6F894218790E140EDE8EE3F09E",
   "stages": [
     {
@@ -27,7 +27,7 @@
     {
       "id": "01",
       "title": "establish the recoverable baseline",
-      "status": "in_progress",
+      "status": "passed",
       "prerequisites": "00",
       "acceptance_items": [
         "a newcomer can identify the authoritative branch, rebuild the baseline, locate the verified visual/structural evidence, see every known limitation, and resume stage 02. Unexpected regressions are investigated before marking this stage passed. Record the precise compatibility baseline rather than claiming compatibility with an untested moving upstream."
@@ -38,7 +38,8 @@
         "Local package reproducibility and 107 hashes passed after including baseline records",
         "Historical sample differences investigated: two stale prose documents; showcase/specimen NFKC text equal; specimen visually inspected",
         "Current upstream head recorded separately; compatibility pinned to 138f9f2; no merge",
-        "Local TeX initialization failure retained; no Windows compatibility claim"
+        "Local TeX initialization failure retained; no Windows compatibility claim",
+        "Both required jobs passed for exact checkpoint b8ab612, CI run 41443273221, including extracted-kit builds after documentation inclusion."
       ],
       "evidence_paths": [
         "docs/project/BASELINE.md",
@@ -46,25 +47,36 @@
         "docs/validation/fixtures/floral-baseline.json",
         "artifacts/receipts/01/"
       ],
-      "tested_code_revision": "a77e32057da52d44b9baa8c0c1bce55865a45bf7",
-      "local_commit": null,
-      "verified_remote_revision": null,
-      "next_action": "Publish stage 01 checkpoint; independently verify new remote tree and exact-revision full CI including extracted source-kit builds; then stage 02 capability ledger."
+      "tested_code_revision": "b8ab6123891fd4f36e726b3fe4ef53bdd13136c3",
+      "local_commit": "b8ab6123891fd4f36e726b3fe4ef53bdd13136c3",
+      "verified_remote_revision": "b8ab6123891fd4f36e726b3fe4ef53bdd13136c3",
+      "next_action": "Stage 02 complete literature capability ledger"
     },
     {
       "id": "02",
       "title": "turn the literature into a complete capability ledger",
-      "status": "pending",
+      "status": "in_progress",
       "prerequisites": "01",
       "acceptance_items": [
         "every discussed paper and family maps to a concrete implementation and validation task. Explain which targets reproduce a specified method and which add new capabilities. There are no anonymous 'inspired by' substitutes counted as complete, unsupported universal-reproduction claims or hidden backlog items required by the agreed scope."
       ],
-      "observed_results": null,
-      "evidence_paths": null,
-      "tested_code_revision": null,
+      "observed_results": [
+        "26 source records and 51 capabilities (45 mandatory, 6 optional) audited for unique IDs, known references, owners and required fields",
+        "All mandatory families and source papers mapped; no new implementation passes claimed",
+        "R12 author/venue and paper/code licenses reconciled from actual PDF and pinned code",
+        "Primary text recovery obligations explicit for R08/R10a/R16b/R19a/R19b/R04c before owning implementation gates"
+      ],
+      "evidence_paths": [
+        "docs/research/BIBLIOGRAPHY.json",
+        "docs/research/COVERAGE.csv",
+        "docs/research/SOURCES.md",
+        "docs/research/OPEN_OBLIGATIONS.json",
+        "artifacts/receipts/02/ledger-audit.json"
+      ],
+      "tested_code_revision": "b8ab6123891fd4f36e726b3fe4ef53bdd13136c3",
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+      "next_action": "Inspect diff, verify new source-kit hashes, publish ledger with expected-head protection; verify exact-revision CI; then begin stage 03 contracts."
     },
     {
       "id": "03",

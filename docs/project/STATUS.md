@@ -1,9 +1,9 @@
 # Florilegium execution status
 
-Stage 00 passed under user-approved replacement-baseline amendment; original 96545fa is lost and was not recovered. Published checkpoint a77e32057da52d44b9baa8c0c1bce55865a45bf7 independently verified, both required jobs passed in CI run 41439783001.
+Stages 00 and 01 passed; original lost delivery recovery was explicitly replaced by user-approved verified GitHub baseline. Current authoritative code baseline b8ab6123891fd4f36e726b3fe4ef53bdd13136c3 has both required CI jobs successful in run 41443273221.
 
-Current stage 01 in progress: baseline inventory, exact upstream compatibility pin, scope, claims, durable fixtures, dependency limits and sample freshness investigation completed. Source kit includes baseline docs/receipts; local reproducibility and 107 file hashes passed before this checkpoint-status edit.
+Stage 02 in progress. Literature/capability ledger prepared and locally audited: 26 sources, 51 capabilities, 45 mandatory and six explicit optional variants; all mandatory families and source papers map to owning stages and independent acceptance tasks. No new family implementation is claimed. Restricted paper copies stay outside the repository/outputs.
 
-Local native TeX initialization failed before tests. Linux TeX Live 2026 CI is the reproduced engine baseline; native Windows/macOS remain unverified. Historical root PDFs are labeled; fresh CI outputs are authoritative for current examples. No baseline image was silently refreshed.
+Open source recovery obligations remain for R08, R10a, R16b, R19a/b and original R04c. OPEN_OBLIGATIONS.json gives recovery plans and owning gates; related sources do not substitute for a reproduction. This is a visible source-access obligation, not a waived mandatory capability. Local Windows TeX initialization limitation remains; Linux TeX Live 2026 CI is the engine baseline.
 
-Exact next action: publish intended stage 01 changes with expected-head protection, verify resulting remote object and full CI for that revision (especially extracted-kit builds after packaging changes), then mark stage 01 passed and immediately start stage 02. Stages 02–39 remain pending. See BASELINE.md and artifacts/receipts/01 for evidence and limitations.
+Exact next action: inspect diff, verify package hashes and inclusion, publish stage 02 checkpoint with expected-head protection; independently verify resulting object/tree and full exact-revision CI; mark stage 02 passed only then and immediately begin stage 03 contracts. Stages 03–39 remain pending.
