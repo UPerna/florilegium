@@ -12,7 +12,9 @@
 -- the same order and every number within 0.05 bp; the streams are expected to be equal.
 --   texlua tools/tikzcheck.lua draw [quick|full]      (quick: one flower, one leaf and one
 --   inflorescence of every body plan, one inflorescence of every kind and of every view,
---   a pea's leaves and plant with tendrils, the v1.3 pics, a plant in three seasons; full: also two strips of three plants, as specimen-tikz.tex
+--   a pea's leaves and plant with tendrils, compound leaves of every kind, plants whose
+--   leaves come in crossed pairs or sheathe the stem, the v1.3 pics, a plant in three
+--   seasons; full: also two strips of three plants, as specimen-tikz.tex
 --   draws them, several minutes in pure TikZ)
 package.path = "./?.lua;" .. package.path
 local fmt = string.format
@@ -136,6 +138,43 @@ if arg[1] == "draw" then
     end
     for d = 1, 3 do pic(fmt("florilegium leaf={seed=%d, draw=%d, size=3.4cm}", seed, d)) end
     pic(fmt("florilegium plant={seed=%d, role=any, size=8.5cm, width=5.2cm, season=0.75}", seed))
+  end
+  -- compound leaves: pinnate with a terminal leaflet (many pairs, two pairs, leafy
+  -- stipules, toothed or lobed leaflets), twice pinnate, palmate (many leaflets and few),
+  -- trifoliate (one with lobed leaflets), and small ones whose leaflets are drawn simpler;
+  -- then plants whose leaves come in crossed pairs (a mint) or sheathe the stem (a lily,
+  -- an umbellifer)
+  do
+    local cwants = {
+      { function(sp) return sp.compound == "pinnate" and sp.tendrils == 0 and sp.leaflets >= 6 end },
+      { function(sp) return sp.compound == "pinnate" and sp.leaflets == 2 end },
+      { function(sp) return sp.compound == "pinnate" and sp.stipules == "leafy" end },
+      { function(sp) return sp.compound == "pinnate" and sp.leafmargin == "serrate" end },
+      { function(sp) return sp.compound == "pinnate" and sp.leafmargin == "lobed" end },
+      { function(sp) return sp.compound == "pinnate" end, "1.1cm" },
+      { function(sp) return sp.compound == "bipinnate" end },
+      { function(sp) return sp.compound == "bipinnate" and sp.leafmargin == "pinnatifid" end },
+      { function(sp) return sp.compound == "bipinnate" end, "1.6cm" },
+      { function(sp) return sp.compound == "palmate" and sp.leaflets >= 8 end },
+      { function(sp) return sp.compound == "palmate" and sp.leaflets <= 6 end },
+      { function(sp) return sp.compound == "trifoliate" end },
+      { function(sp) return sp.compound == "trifoliate" and sp.leafmargin == "lobed" end },
+      { function(sp) return sp.compound == "trifoliate" end, "0.9cm" },
+    }
+    local cseen = {}
+    for _, w in ipairs(cwants) do
+      local seed = 1
+      while not w[1](species.sample(seed, "any")) do seed = seed + 1 end
+      local size = w[2] or "3.4cm"
+      if not cseen[seed .. size] then
+        cseen[seed .. size] = true
+        pic(fmt("florilegium leaf={seed=%d, role=any, size=%s}", seed, size))
+      end
+    end
+    for _, p in ipairs({ "5/mint", "17/lily", "17/umbellifer" }) do
+      local seed, role = p:match("(%d+)/(%a+)")
+      pic(fmt("florilegium plant={seed=%s, role=%s, size=8.5cm, width=5.2cm, season=0.75}", seed, role))
+    end
   end
   pic("florilegium v13 flower={seed=7, size=1.9cm}")
   pic("florilegium v13 leaf={seed=7, size=4cm}")

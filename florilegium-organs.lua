@@ -1114,85 +1114,9 @@ function vboss()
     circle(K"0.014", K"0.009", K"0.009") circle(K"-0.012", K"0.013", K"0.009") circle(K"-0.002", K"-0.015", K"0.009")
   end)
 end
--- \flo@blade{halfwidth}{length pt}{tone}: a leaflet of a compound leaf
-local function blade(w, len, t)
-  V["vl@W"] = w V["vl@tone"] = t V["vl@u"] = E("(%1)/28.45276", { len }) vleaflet()
-end
--- \flo@pinnate{leaf pt}{pairs}{leaflet length}: the leaf pt may be a macro name (read late)
-local function pinnate(lpt, pairs, pl)
-  moveto(0, 0) lineto(0, U) usepath("stroke")
-  V.pk = pairs V.pl = pl
-  loop("#j", 1, function() return I("pk") end, function()
-    V.v = E"0.22+0.66*(#j-1)/max(1,@pk-1)"
-    V.ll = E"@pl*(1-0.3*(#j-1)/max(1,@pk))"
-    loop("#n", 0, 1, function()
-      V.ang = range(45 * U, 65 * U) V.dv = sym(K"0.02")
-      scope(function()
-        V.t = E"@v+@dv" shift(0, R.t)
-        if R["#n"] == 0 then rotate(R.ang) else rotate(-R.ang) end
-        scale(R.ll) V.t = E("(%1)*@ll", { arg(lpt) })
-        V.tp = range(E"@lt-0.07", E"@lt+0.07")
-        blade(R.hw, R.t, R.tp)
-      end)
-    end)
-  end)
-  if tr("tendrils") == U then
-    tone("flo@c", K"0.22", "flo@ink") out("\\pgfsetstrokecolor{flo@c}\\pgfsetlinewidth{0.25pt}")
-    if chance(K"0.4") then V.tdn = 2 * U else V.tdn = U end
-    loop("#q", 1, function() return I("tdn") end, function()
-      scope(function()
-        shift(0, U)
-        if R.tdn == U then V.t = sym(15 * U)
-        else
-          V.t = range(10 * U, 30 * U)
-          if R["#q"] == 2 then V.t = E"-@t" end
-        end
-        rotate(R.t)
-        V.t = range(K"0.35", K"0.55") T.vcurl(R.t) T.smoothopen(45) usepath("stroke")
-      end)
-    end)
-  else
-    scope(function()
-      shift(0, U) scale(R.pl) V.t = E("(%1)*@pl", { arg(lpt) })
-      blade(R.hw, R.t, R.lt)
-    end)
-  end
-end
--- \flo@bipinnate{leaf pt}: pinnae that are themselves pinnate
-local function bipinnate(lpt)
-  moveto(0, 0) lineto(0, U) usepath("stroke")
-  V.bk = E"int(min(4,$leaflets))" V.bl = int(2, 4) V.lt = E"@lt+0.08"
-  loop("#m", 1, function() return I("bk") end, function()
-    V.bv = E"0.15+0.75*(#m-1)/max(1,@bk-1)"
-    V.bs = E"0.45*(1-0.55*(#m-1)/max(1,@bk))"
-    loop("#p", 0, 1, function()
-      V.bang = range(40 * U, 60 * U)
-      scope(function()
-        shift(0, R.bv)
-        if R["#p"] == 0 then rotate(R.bang) else rotate(-R.bang) end
-        scale(R.bs) V.t = E("(%1)*@bs", { lpt })
-        pinnate("t", R.bl, K"0.42")
-      end)
-    end)
-  end)
-end
--- \flo@palmate{leaf pt}{n}: leaflets from the tip of a petiole (length 0.35)
-local function palmate(lpt, n)
-  moveto(0, 0) lineto(0, K"0.35") usepath("stroke")
-  V.pk = n
-  loop("#j", 1, function() return I("pk") end, function()
-    V.f = E"(#j-(@pk+1)/2)/max(1,(@pk-1)/2)"
-    V.dv = sym(6 * U)
-    V.ang = E"-@f*(@pk>3 ? 95 : 55)+@dv" V.ll = E"0.65*(1-0.3*abs(@f))"
-    scope(function()
-      shift(0, K"0.35") rotate(R.ang) scale(R.ll)
-      V.t = E("(%1)*@ll", { lpt }) blade(R.hw, R.t, R.lt)
-    end)
-  end)
-end
 -- ---------------------------------------------------------------- the species' leaf
 -- in a block of its own: the main chunk is near Lua's 200 locals
-local sleaf
+local sleaf, compoundleaf
 do
 -- \flo@sshape: the outline's numbers, the base first, then the shape (which may fix the
 -- base), then the apex (\flo@lb@..., \flo@ls@..., \flo@la@...)
@@ -1226,12 +1150,16 @@ local LAPEX = {
   emarginate = function() V.lka = K"2.6" V.ltip = -U end,
   mucronate = function() V.lka = K"2.3" V.ltip = U end,
 }
-local function sshape()
+-- \flo@sshape@ (a leaflet's: no attachment)
+local function sshape_()
   V.lW = E"max(0.035,min(0.6,0.5/$leafaspect))"
   V.lvm = K"0.35" V.ldrop = 0 V.lhl = 0 V.lobl = 0 V.lacu = 0 V.ltip = 0 V.lround = 0
   LBASE[tr("leafbase")]() LSHAPE[tr("leafshape")]() LAPEX[tr("leafapex")]()
   -- a round or kidney-shaped blade keeps a round tip whatever its apex
   if R.lround == U then V.lka = E"max(@lka,2.2)" V.lacu = 0 end
+end
+local function sshape()
+  sshape_()
   if tr("attachment") == "clasping" and R.ldrop == 0 then V.ldrop = K"0.7" V.lkb = E"max(@lkb,2)" end
 end
 -- \flo@shw#1: the blade's half-width \flo@h at v along the spine, and the drop \flo@dy
@@ -1273,6 +1201,7 @@ local TOOTH = {                   -- \flo@lt@...: each point's phase and profile
 }
 local function smargin()
   V.lmk = 0 MS.n = 0 V.ltk = K"0.8" V.ldep = 0 V.lmn = tr("leafmargin")
+  if R.lmover and R.lmover ~= "" then V.lmn = R.lmover end
   if R.ldepth <= 0 and LMARGIN[R.lmn] then LMARGIN[R.lmn]() end
   if R.lmk < 2 * U then
     if R.lmk == U then V.lwn = int(3, 5) V.ldep = E"(0.05+$dissection)*@lW*2.4" end
@@ -1282,7 +1211,8 @@ local function smargin()
       sadd(R.v, R.t, U, U)
     end)
   else
-    V.ldep = E"$dissection*@lW*@ltd"
+    if R.lmover and R.lmover ~= "" then V.ldep = E"min(0.25,$dissection)*@lW*@ltd"
+    else V.ldep = E"$dissection*@lW*@ltd" end
     V.t = E"min($teeth,max(4,round(4+8*@vl@u)))" V.ltn = pm.int(R.t)
     V.tw = E"0.81/@ltn"
     loop("#kb", 0, 4, function() V.v = E"0.12*(1-cos(90*#kb/5))" sadd(R.v, U, U, U) end)
@@ -1302,6 +1232,13 @@ local function sblade()
   V.llobes = R["vl@lobes"] V.ldepth = R["vl@depth"]
   if R["vl@tone"] == "" then V.lt = range(K"0.26", K"0.38") else V.lt = R["vl@tone"] end
   if R["vl@u"] > K"0.6" then V.fine = U V.bn = 36 * U else V.fine = 0 V.bn = 24 * U end
+  -- a leaflet's level of detail: under 1.4 cm a coarser edge, no mottle or side veins,
+  -- under 4 mm a flat shape
+  V.lod = 2 * U
+  if R.lleaflet == U and R["vl@u"] < K"1.4" then
+    V.lod = U V.fine = 0 V.bn = 16 * U
+    if R["vl@u"] < K"0.4" then V.lod = 0 V.bn = 12 * U end
+  end
   if R.ldepth > 0 then V.bodyw = E"1-0.75*@ldepth" V.lent = 0 else V.bodyw = U V.lent = U end
   -- the body along its margin's samples
   smargin()
@@ -1398,6 +1335,7 @@ local function sblade()
     end)
   end
   vtone("flo@c", R.lt) vfill("flo@c", U, 0, leaftrace)
+  if R.lod == 0 then return end
   scope(function()
     leaftrace() usepath("clip")
     -- the darker half
@@ -1412,8 +1350,10 @@ local function sblade()
       usepath("fill")
     end)
     V.xa = E"-@lW*2.5" V.xb = E"@lW*2.5" V.ta = E"@lt-0.2" V.tb = E"@lt+0.22"
-    if R.fine == U then vmottle("xa", K"-0.2", "xb", U, 13, K"0.11", R.ta, R.tb, 12)
-    else vmottle("xa", K"-0.2", "xb", U, 6, K"0.11", R.ta, R.tb, 0) end
+    if R.lod == 2 * U then
+      if R.fine == U then vmottle("xa", K"-0.2", "xb", U, 13, K"0.11", R.ta, R.tb, 12)
+      else vmottle("xa", K"-0.2", "xb", U, 6, K"0.11", R.ta, R.tb, 0) end
+    end
     vtone("flo@c", K"0.06") V.t = E"1.3*@vl@u" vstroke("flo@c", R.t, K"0.22", 1, leaftrace)
     -- midrib and veins in white
     loop("#kb", 0, 10, function() V.v = E"#kb/10" lspine(R.v) put(R["#kb"] + 1, R.sx, R.sy) end)
@@ -1426,7 +1366,7 @@ local function sblade()
       vfill("white", R.op, 0, function() vtaper(R.va, R.vb, R.mx, R.my, R.c, R.d, R.ex, R.ey) end)
     end)
     -- veins: pinnate, arcuate (curving up toward the tip) or palmate (two each side from the base)
-    if R.nveins == 0 then
+    if R.nveins == 0 and R.lod == 2 * U then
       V.vn = tr("venation") V.vka = U V.varc = 0
       if R.vn == "arcuate" then V.varc = U end
       if R.vn == "palmate" then
@@ -1504,10 +1444,187 @@ function sleaf()
   end)
   end)
 end
+
+-- \flo@sleaflet{tone}: a leaflet in the species' hand, no stalk or stipules, two or three
+-- lobes a side; +y, length 1, \flo@vl@u its length on the page in cm
+local function sleaflet(lt)
+  V["vl@bend"] = "" V["vl@tone"] = lt V["vl@depth"] = 0 V["vl@lobes"] = 3 * U
+  V.lm = tr("leafmargin") V.lmover = ""
+  if R.lm == "lobed" or R.lm == "pinnatifid" or R.lm == "palmatelobed" then
+    -- under 7 mm, scallops instead of lobes (a pinnatifid leaflet's: deep teeth)
+    if R["vl@u"] < K"0.7" then
+      V["vl@depth"] = 0 V.lmover = "crenate"
+      if R.lm == "pinnatifid" then V.lmover = "dentate" end
+    else
+      V["vl@depth"] = E"min(0.85,max(0.3,$dissection))"
+      V.t = E"max(2,min(3,$teeth))" V["vl@lobes"] = pm.int(R.t)
+    end
+  end
+  sshape_()
+  V.lsc = E"min(1,0.3/@lW)"
+  if R.lm == "palmatelobed" then V.lsc = E"min(1,0.3/max(@lW,0.55))" end
+  scope(function()
+    if R.lsc < U then scale(R.lsc) V["vl@u"] = E"@vl@u*@lsc" end
+    V.lleaflet = U sblade()
+  end)
+end
+-- \flo@pinnate{leaf pt}{pairs}{longest leaflet}: pairs sized to peak mid-rachis, then a
+-- terminal leaflet or (\flo@ptend) a tendril
+local function pinnate(lpt, pairs, pl)
+  V.plpt = lpt V.pk = pairs V.pl = pl
+  V.plw = E"max(0.035,min(0.6,0.5/$leafaspect))"
+  if R.ptend == U then
+    V.pend = K"0.92" V.pgap = E"0.68/max(1,@pk-1)"
+    V.pmax = E"min(@pl,0.45*@pgap/@plw)"
+  else
+    V.pmax = E"min(@pl,0.3465/(max(1,@pk-1)*@plw+0.495))"
+    V.pterm = E"min(@pl,1.1*@pmax)" V.pend = E"1-@pterm"
+    V.pgap = E"(@pend-0.23)/max(1,@pk-1)"
+  end
+  moveto(0, 0) lineto(0, R.pend) usepath("stroke")
+  loop("#j", 1, function() return I("pk") end, function()
+    V.v = E"0.2+@pgap*(#j-1)"
+    V.ll = E"@pmax*(0.72+0.28*sin(180*(#j-0.5)/@pk))"
+    loop("#n", 0, 1, function()
+      V.ang = range(50 * U, 68 * U) V.ang = E"@ang-14*(#j-1)/@pk" V.dv = sym(K"0.015")
+      scope(function()
+        V.t = E"@v+@dv" shift(0, R.t)
+        if R["#n"] == 0 then rotate(R.ang) else rotate(-R.ang) end
+        scale(R.ll) V["vl@u"] = E"@plpt*@ll/28.45276"
+        V.tp = range(E"@lt-0.07", E"@lt+0.07") sleaflet(R.tp)
+      end)
+    end)
+  end)
+  if R.ptend == U then
+    tone("flo@c", K"0.22", "flo@ink") out("\\pgfsetstrokecolor{flo@c}\\pgfsetlinewidth{0.25pt}")
+    if chance(K"0.4") then V.tdn = 2 * U else V.tdn = U end
+    loop("#q", 1, function() return I("tdn") end, function()
+      scope(function()
+        shift(0, R.pend)
+        if R.tdn == U then V.t = sym(15 * U)
+        else
+          V.t = range(10 * U, 30 * U)
+          if R["#q"] == 2 then V.t = E"-@t" end
+        end
+        rotate(R.t)
+        V.t = range(K"0.35", K"0.55") T.vcurl(R.t) T.smoothopen(45) usepath("stroke")
+      end)
+    end)
+  else
+    scope(function()
+      shift(0, R.pend) scale(R.pterm) V["vl@u"] = E"@plpt*@pterm/28.45276"
+      sleaflet(R.lt)
+    end)
+  end
+end
+-- \flo@bipinnate{leaf pt}: pinnae that are themselves odd-pinnate, and a terminal pinna
+local function bipinnate(lpt)
+  V.bpt = lpt V.ptend = 0
+  V.bk = E"int(min(3,max(2,($leaflets+1)/3)))" V.bl = E"int(min(7,max(3,$leaflets)))"
+  V.lt = E"@lt+0.06"
+  moveto(0, 0) lineto(0, K"0.7") usepath("stroke")
+  loop("#m", 1, function() return I("bk") end, function()
+    V.bv = E"0.16+0.44*(#m-1)/max(1,@bk-1)"
+    V.bs = E"0.48*(1-0.5*(#m-1)/@bk)"
+    V.bpn = E"int(max(2,@bl-#m+1))"
+    loop("#p", 0, 1, function()
+      V.bang = range(48 * U, 64 * U) V.bang = E"@bang-12*(#m-1)/@bk"
+      scope(function()
+        shift(0, R.bv)
+        if R["#p"] == 0 then rotate(R.bang) else rotate(-R.bang) end
+        scale(R.bs) V.t = E"@bpt*@bs"
+        pinnate(R.t, R.bpn, K"0.4")
+      end)
+    end)
+  end)
+  scope(function()
+    shift(0, K"0.66") scale(K"0.34") V.t = E"@bpt*0.34"
+    V.bpn = E"int(max(2,@bl-@bk))" pinnate(R.t, R.bpn, K"0.4")
+  end)
+end
+-- \flo@palmate{leaf pt}{n}: leaflets from a petiole's tip, the center one the largest,
+-- drawn from the outside in
+local function palmate(lpt, n)
+  V.plpt = lpt V.pk = n V.pp = range(K"0.3", K"0.38")
+  moveto(0, 0) lineto(0, R.pp) usepath("stroke")
+  V.hs = E"min(135,20*@pk-10)"
+  loop("#n", 1, function() return I("pk") end, function()
+    local q = R["#n"]
+    if q % 2 == 1 then V.pj = ((q + 1) // 2) * U else V.pj = (I("pk") + 1 - q // 2) * U end
+    V.f = E"(@pj-(@pk+1)/2)/max(1,(@pk-1)/2)"
+    V.dv = sym(6 * U) V.ang = E"-@f*@hs+@dv" V.ll = E"(1-@pp)*(1-0.45*@f*@f)"
+    scope(function()
+      shift(0, R.pp) rotate(R.ang) scale(R.ll)
+      V["vl@u"] = E"@plpt*@ll/28.45276"
+      V.tp = range(E"@lt-0.06", E"@lt+0.06") sleaflet(R.tp)
+    end)
+  end)
+end
+-- \flo@trifoliate{leaf pt}: two side leaflets and a larger end one on a short stalk
+local function trifoliate(lpt)
+  V.plpt = lpt V.pp = range(K"0.3", K"0.4") V.pst = range(0, K"0.1")
+  V.t = E"@pp+@pst" moveto(0, 0) lineto(0, R.t) usepath("stroke")
+  loop("#n", 0, 2, function()
+    if R["#n"] < 2 then
+      V.ang = range(48 * U, 68 * U)
+      if R["#n"] == 1 then V.ang = E"-@ang" end
+      V.ll = E"0.8*(1-@pp)" V.pv = R.pp
+    else
+      V.ang = 0 V.ll = E"1-@pp-@pst" V.pv = E"@pp+@pst"
+    end
+    scope(function()
+      shift(0, R.pv) rotate(R.ang) scale(R.ll)
+      V["vl@u"] = E"@plpt*@ll/28.45276"
+      V.tp = range(E"@lt-0.06", E"@lt+0.06") sleaflet(R.tp)
+    end)
+  end)
+end
+-- the compound branch of \flo@leaf: stipules, the stroke for rachis and stalks, the leaf
+function compoundleaf()
+  V.lt = range(K"0.24", K"0.4")
+  if tr("stipules") ~= "none" then
+    if tr("stipules") == "leafy" then V.sta = K"0.1" V.stb = K"0.16" V["vl@W"] = K"0.36"
+    else V.sta = K"0.05" V.stb = K"0.08" V["vl@W"] = K"0.3" end
+    loop("#kc", 0, 1, function()
+      V.t = range(55 * U, 80 * U)
+      if R["#kc"] == 1 then V.t = E"-@t" end
+      V.ts = range(R.sta, R.stb)
+      scope(function()
+        shift(0, K"0.01") rotate(R.t) scale(R.ts)
+        V["vl@tone"] = K"0.3" V["vl@u"] = E"@lfpt*@ts/28.45276" vleaflet()
+      end)
+    end)
+  end
+  tone("flo@c", K"0.07", "flo@ink") out("\\pgfsetstrokecolor{flo@c}")
+  V.lw = E"max(0.25,0.006*(@lfpt))"
+  out("\\pgfsetlinewidth{" .. str(R.lw) .. "bp}\\pgfsetroundcap")
+  V.ptend = tr("tendrils")
+  if R.cp == "pinnate" then V.t = E"int(min(7,$leaflets))" pinnate(R.lfpt, R.t, K"0.4") end
+  if R.cp == "bipinnate" then bipinnate(R.lfpt) end
+  if R.cp == "palmate" then palmate(R.lfpt, tr("leaflets")) end
+  if R.cp == "trifoliate" then trifoliate(R.lfpt) end
+end
 end
 
--- \flo@leaf{length pt}: the species' leaf along +y, length 1
+-- \flo@sheath: a sheathing leaf's base along the stem (\flo@lsd degrees from the leaf's
+-- axis, \flo@lsw wide, in the leaf's units); its top \flo@shx,\flo@shy
+local function sheath()
+  V.shl = range(K"0.14", K"0.22")
+  V.shx = E"-@shl*sin(@lsd)" V.shy = E"@shl*cos(@lsd)"
+  V.twa = R.lsw V.twb = E"0.8*@lsw"
+  V.xa = E"@shx/3" V.ya = E"@shy/3" V.xb = E"2*@shx/3" V.yb = E"2*@shy/3"
+  vtone("flo@c", K"0.34") vfill("flo@c", U, 0, function() vtaper(0, 0, R.xa, R.ya, R.xb, R.yb, R.shx, R.shy) end)
+  vtone("flo@c", K"0.08") vstroke("flo@c", K"0.2", K"0.6", 0, function() vtaper(0, 0, R.xa, R.ya, R.xb, R.yb, R.shx, R.shy) end)
+  V.shd = U
+end
+-- \flo@leaf{length pt}: the species' leaf along +y, length 1, from a sheath's top where it has one
+local leaf_
 local function leaf(len)
+  V.shd = 0
+  if R.lsd ~= "" and tr("attachment") == "sheathing" then sheath() end
+  if R.shd == U then scope(function() shift(R.shx, R.shy) leaf_(len) end) else leaf_(len) end
+end
+function leaf_(len)
   V.lfpt = len V.cp = tr("compound") V.ve = tr("venation")
   V["vl@u"] = E"(@lfpt)/28.45276"
   if R.cp == "simple" then
@@ -1525,15 +1642,7 @@ local function leaf(len)
       sleaf()
     end
   else
-    V.lt = range(K"0.24", K"0.4")
-    V.hw = E"0.5/min(4,max(1.6,$leafaspect))"
-    tone("flo@c", K"0.07", "flo@ink") out("\\pgfsetstrokecolor{flo@c}")
-    V.lw = E"max(0.25,0.006*(@lfpt))"
-    out("\\pgfsetlinewidth{" .. str(R.lw) .. "bp}\\pgfsetroundcap")
-    if R.cp == "pinnate" then V.t = E"int(min(5,$leaflets))" pinnate(R.lfpt, R.t, K"0.36") end
-    if R.cp == "bipinnate" then bipinnate(R.lfpt) end
-    if R.cp == "palmate" then V.hw = E"0.5/max(2.6,$leafaspect)" palmate(R.lfpt, tr("leaflets")) end
-    if R.cp == "trifoliate" then palmate(R.lfpt, 3 * U) end
+    compoundleaf()
   end
 end
 -- \flo@vblossom{r}{n}: flora.blossom, n round petals, radius 1; r its radius in cm
@@ -3048,7 +3157,7 @@ local function placeleaf(x, y)
   V.lx = x V.ly = y V.ok = 0
   loop("#Gd", 1, 3, function()
     if R.ok == 0 then
-      V.mx = E"@lx+cos(@la)*@lf*0.55" V.my = E"@ly+sin(@la)*@lf*0.55"
+      V.mx = E"@lx+cos(@la)*@lf*@fore*0.55" V.my = E"@ly+sin(@la)*@lf*@fore*0.55"
       V.t = E"0.24*@lf" takenat(R.mx, R.my, R.t)
       if R.taken < K"0.2" then V.ok = U else V.lf = E"0.75*@lf" end
     end
@@ -3056,18 +3165,22 @@ local function placeleaf(x, y)
   if R.lf < K"0.45" then V.ok = 0 end
   if R.ok == U then
     loop("#Gd", 1, 3, function()
-      V.t = E"(0.05+0.25*#Gd)*@lf"
+      V.t = E"(0.05+0.25*#Gd)*@lf*@fore"
       V.mx = E"@lx+cos(@la)*@t" V.my = E"@ly+sin(@la)*@t"
       V.t = E"0.2*@lf" room(1, R.mx, R.my, R.t)
     end)
     if at(LLEAF) then
       organ(function()
         shift(R.lx, R.ly) V.t = E"@la-90" rotate(R.t)
-        scale(R.lf) autumnleaf()
+        scale(R.lf)
+        if R.fore < U then yscale(R.fore) end
+        autumnleaf()
+        if R.lsd ~= "" then V.lsw = E"1.8*@nw/@lf" end
         V.t = E"@lf*28.45276" leaf(R.t)
       end)
     end
   end
+  V.fore = U V.lsd = ""
 end
 local function nodeleaves()
   nodeat()
@@ -3077,8 +3190,10 @@ local function nodeleaves()
     if R["#Gb"] == 2 then V.ls = E"-1*(@side)" else V.ls = R.side end
     V.t = range(35 * U, 60 * U)
     if R["#Gb"] == 3 then V.t = range(8 * U, 20 * U) end
-    V.la = E"@ta+@ls*@t"
-    V.t = range(K"0.85", K"1.1") V.lf = E"(2.6-1.2*@u)*@t*@leafk*@leafc*(#Gb==3 ? 0.7 : 1)"
+    -- decussate: every other opposite pair close to the stem, foreshortened
+    if I("per") == 2 and R["#Ge"] % 2 == 0 then V.t = E"0.55*@t" V.fore = K"0.55" end
+    V.la = E"@ta+@ls*@t" V.lsd = E"@ta-@la"
+    V.t = range(K"0.85", K"1.1") V.lf = E"2.6*(1-(1-$taper)*@u)*@t*@leafk*@leafc*(#Gb==3 ? 0.7 : 1)"
     V.t = range(K"0.05", K"0.3") V.sbend = E"@ls*@t"
     V.lc = rnd()
     seedorgan()
@@ -3323,6 +3438,7 @@ local function reset()
   end
   R.lift = 0 R.zero = 0 R["vp@notchp"] = K"0.4" R["vp@notchk"] = U
   R["vf@star"] = "" R["vf@tone"] = "" R.rampname = "flo@ramp" R.layer = 0 R.filling = 0 R.bside = "" R.bfan = 0 R.ivc = 0 R.ivpt = 0
+  R.fore = U R.lsd = "" R.lleaflet = 0 R.lmover = ""
   OUT = {}
 end
 -- \flo@picsetup: the species, then the drawing's own stream (draw=, or the seed + 1)
@@ -3465,7 +3581,12 @@ local function organ(kind, s, z, o)
       bloom(fx(o.d), fx(o.stage))
     elseif kind == "leaf" then
       V.lf = fx(o.len) V.sbend = fx(o.bend) V.lc = fx(o.lc) V.season = fx(o.season)
-      scale(R.lf) autumnleaf()
+      scale(R.lf)
+      if o.fore then V.fore = fx(o.fore) yscale(R.fore) end
+      autumnleaf()
+      -- a sheath along the stem (o.sheath: its direction from the leaf's, degrees, and its
+      -- width in the leaf's units)
+      if o.sheath then V.lsd = fx(o.sheath[1]) V.lsw = fx(o.sheath[2]) end
       V.t = E"@lf*28.45276" leaf(R.t)
     elseif kind == "ghost" then
       V.gdiam = fx(o.d) V.lift = K"0.62" stone()
@@ -3591,7 +3712,8 @@ function M.draw(kind, s, z, o)
   local code
   if M.keep then
     local key = table.concat({ kind, s.seed, s.role, z, tostring(o.k), tostring(o.season), tostring(o.late), tostring(o.size),
-      tostring(o.d), tostring(o.stage), tostring(o.len), tostring(o.bend), tostring(o.lc) }, " ")
+      tostring(o.d), tostring(o.stage), tostring(o.len), tostring(o.bend), tostring(o.lc), tostring(o.fore),
+      o.sheath and (o.sheath[1] .. "/" .. o.sheath[2]) or "" }, " ")
     code = kept_code[key]
     if not code then code = organ(kind, s, z, o) kept_code[key] = code end
   else

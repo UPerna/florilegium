@@ -670,7 +670,7 @@ function M.page(g)
   -- on the last page, branches arch out of the main stems into the space under
   -- the text, each ending in a flower
   local leafy = {}
-  for k = 1, NSTEM do leafy[k] = { pts = mains[k], big = true, ev = mainev[k], sp = comm and comm[k] } end
+  for k = 1, NSTEM do leafy[k] = { pts = mains[k], big = true, ev = mainev[k], sp = comm and comm[k], w0 = k == 1 and 0.085 or 0.065 } end
   local arcs, arcev, arcsp = {}, {}, {}
   if spill then
     local sh = spill[4] - spill[2]
@@ -695,7 +695,7 @@ function M.page(g)
       local e = event({ kind = "stem", parent = mainev[si], at = sa[bi] / La })
       stem(pts, 0.06, 0.025)
       add_stem_points(pts, 0.06, 0.025, nil, comm and comm[si])
-      leafy[#leafy + 1] = { pts = pts, big = true, ev = e, sp = comm and comm[si] }
+      leafy[#leafy + 1] = { pts = pts, big = true, ev = e, sp = comm and comm[si], w0 = 0.06, w1 = 0.025 }
       arcs[#arcs + 1] = pts
       arcev[#arcs] = e
       arcsp[#arcs] = comm and comm[si]
@@ -1009,24 +1009,34 @@ function M.page(g)
   -- footer gets leaflets that thin out toward its end
   if FOOTER then leafy[#leafy + 1] = { pts = footpts, big = false, ev = footev } end
   -- species: the plant's own leaves (its arrangement: one, two or three at a node; a
-  -- basal rosette; a monocot's straps from the base and two leaves up the stem)
+  -- basal rosette; a monocot's straps from the base and two leaves up the stem), smaller
+  -- up the stem by the species' taper
   local function species_leaves(st)
     local sp, pts = st.sp, st.pts
-    local function leafat(x, y, a, Lf, u, side)
+    -- a leaf at (x, y) along a; fore: foreshortened (a decussate pair's), sa, w: the stem's
+    -- direction and width at a node, for a sheathing leaf's sheath
+    local function leafat(x, y, a, Lf, u, side, fore, sa, w)
+      fore = fore or 1
       local ux, uy = cos(a * rad), sin(a * rad)
       local ok = false
       for _ = 1, 3 do
-        if free_at(x + ux * Lf * 0.55, y + uy * Lf * 0.55) >= 0.24 * Lf then ok = true break end
+        if free_at(x + ux * Lf * fore * 0.55, y + uy * Lf * fore * 0.55) >= 0.24 * Lf * fore then ok = true break end
         Lf = Lf * 0.75
       end
       if not (ok and Lf > 0.7) then return end
       local bend, lc = side * layout.range(0.05, 0.3), layout.u()
+      local sheath = sa and sp.attachment == "sheathing" and { sa - a, 1.8 * w / Lf } or nil
       event({ kind = "bloom", parent = st.ev, at = u, size = 0.4 * Lf })
       place(L_LEAF, x, y, a, function()
-        ORG.draw("leaf", sp, pgfseed(rng.fork()), { len = Lf, bend = bend, lc = lc, season = osea })
+        ORG.draw("leaf", sp, pgfseed(rng.fork()), { len = Lf, bend = bend, lc = lc, season = osea,
+          fore = fore < 1 and fore or nil, sheath = sheath })
       end)
-      for _, f in ipairs({ 0.3, 0.55, 0.8 }) do disc(x + ux * Lf * f, y + uy * Lf * f, 0.24 * Lf, 0.85) end
+      for _, f in ipairs({ 0.3, 0.55, 0.8 }) do disc(x + ux * Lf * fore * f, y + uy * Lf * fore * f, 0.24 * Lf * fore, 0.85) end
     end
+    local w0, w1 = st.w0 or 0.06, st.w1 or 0.028
+    -- the taper by the height on the plant, so a branch under the text keeps the leaves of
+    -- the height it leaves the stem at
+    local function sized(y) return 2.4 * (1 - (1 - sp.taper) * min(1, y / topof[sp])) end
     local total, cum = 0, { 0 }
     for i = 2, #pts do total = total + dist(pts[i][1], pts[i][2], pts[i - 1][1], pts[i - 1][2]) cum[i] = total end
     local function tangent_at(i)
@@ -1050,8 +1060,8 @@ function M.page(g)
         while i < #pts and cum[i] < u * total do i = i + 1 end
         side = -side
         local tx, ty = tangent_at(i)
-        local Lf = lerp(2.4, 1.3, pts[i][2] / g.ph) * layout.range(0.85, 1.1) * 0.75 * young
-        leafat(pts[i][1], pts[i][2], deg(tx, ty) + side * layout.range(35, 60), Lf, u, side)
+        local Lf = sized(pts[i][2]) * layout.range(0.85, 1.1) * 0.75 * young
+        leafat(pts[i][1], pts[i][2], deg(tx, ty) + side * layout.range(35, 60), Lf, u, side, 1, deg(tx, ty), lerp(w0, w1, u))
       end
       return
     end
@@ -1068,18 +1078,24 @@ function M.page(g)
       end
       gap, leafk = 1.6, 0.4
     end
-    local acc, side = layout.range(0.6, 1.3) * gap, layout.chance(0.5) and 1 or -1
+    local acc, side, node = layout.range(0.6, 1.3) * gap, layout.chance(0.5) and 1 or -1, 0
     for i = 2, #pts - 4 do
       if cum[i] >= acc then
         local u = cum[i] / total
         acc = acc + layout.range(1.4, 2.2) * gap / D ^ 0.6
         side = -side
+        node = node + 1
         local tx, ty = tangent_at(i)
         for b = 1, per do
           local ls = b == 2 and -side or side
-          local a = deg(tx, ty) + ls * (b == 3 and layout.range(8, 20) or layout.range(35, 60))
-          local Lf = lerp(2.4, 1.3, pts[i][2] / g.ph) * layout.range(0.85, 1.1) * leafk * leafc * (b == 3 and 0.7 or 1) * young
-          leafat(pts[i][1], pts[i][2], a, Lf, u, ls)
+          local t = b == 3 and layout.range(8, 20) or layout.range(35, 60)
+          -- decussate: every other opposite pair, turned across the last, points toward the
+          -- viewer and away: close to the stem and foreshortened
+          local fore = 1
+          if per == 2 and node % 2 == 0 then t, fore = 0.55 * t, 0.55 end
+          local a = deg(tx, ty) + ls * t
+          local Lf = sized(pts[i][2]) * layout.range(0.85, 1.1) * leafk * leafc * (b == 3 and 0.7 or 1) * young
+          leafat(pts[i][1], pts[i][2], a, Lf, u, ls, fore, deg(tx, ty), lerp(w0, w1, u))
         end
       end
     end
