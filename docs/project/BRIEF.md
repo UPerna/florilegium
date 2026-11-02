@@ -4,3 +4,5 @@ Execute the user-supplied 40-stage sequence in order, applying its Governing pro
 
 The prompt is copied in this checkpoint. STATUS.md describes the actual recovery gap; STAGES.json must never infer passes from prose or earlier claims.
 
+
+Mandatory family scope: floral; arbitrary-planar-graph Celtic; classical and freeform Islamic; Penrose, Spectre, Ammann–Beenker and Hat aperiodic tilings; Gothic tracery; periodic/aperiodic Escherization; mosaics; hatching/stippling; image-guided mazes; micrography; DecoBrush-style example synthesis; and projected Gothic microarchitecture curve networks. Cross-family designs, deterministic recipes, CLI, both TeX adapters, shared browser runtime/editor, adversarial validation, performance, vector/print quality, gallery, packaging and verified publication remain required. Two-dimensional output and projected 3D curve networks do not imply general solid modeling or manufacturing.

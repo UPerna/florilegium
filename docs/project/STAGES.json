@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "current_stage": "00",
+  "current_stage": "01",
   "prompt_sha256": "8D25740D944FC98943FD005737BD825215CFCF6F894218790E140EDE8EE3F09E",
   "stages": [
     {
       "id": "00",
       "title": "recover and publish the existing verified delivery",
-      "status": "in_progress",
+      "status": "passed",
       "prerequisites": null,
       "acceptance_items": [
         "fetch/read the resulting remote commit independently; verify expected parent/history, full tree identity or documented equivalent tree, binary hashes, branch head and PR association. Confirm relevant CI for the published revision, not older green runs. Preserve the dirty checkout exactly. Save a Git recovery receipt and report the usable branch/commit for stage 01. If credentials/capabilities or CI prevent completion, preserve a verifiable recovery bundle and remain blocked at stage 00; do not claim success or start architecture work."
@@ -15,28 +15,41 @@
         "Missing delivery GitHub lookup 422",
         "Remote dd8ee95 independently read; exact-revision CI success",
         "Original checkouts unavailable",
-        "User approved replacement baseline dd8ee95; all 99 blobs verified including binary SHA-256; full Git clone recovered through system proxy with OpenSSL backend."
+        "User approved replacement baseline dd8ee95; all 99 blobs verified including binary SHA-256; full Git clone recovered through system proxy with OpenSSL backend.",
+        "CI build #11 run 41439783001 completed success for published revision. User-approved replacement gate passed; no claim to recover lost commit."
       ],
       "evidence_paths": "artifacts/receipts/00/",
-      "tested_code_revision": null,
-      "local_commit": null,
-      "verified_remote_revision": "dd8ee951523072d4eca414e4bdfd9dff57cee8b0",
-      "next_action": "Publish amended stage 00 checkpoint and verify exact-revision CI before marking passed."
+      "tested_code_revision": "a77e32057da52d44b9baa8c0c1bce55865a45bf7",
+      "local_commit": "a77e32057da52d44b9baa8c0c1bce55865a45bf7",
+      "verified_remote_revision": "a77e32057da52d44b9baa8c0c1bce55865a45bf7",
+      "next_action": "Stage 01 baseline recovery"
     },
     {
       "id": "01",
       "title": "establish the recoverable baseline",
-      "status": "pending",
+      "status": "in_progress",
       "prerequisites": "00",
       "acceptance_items": [
         "a newcomer can identify the authoritative branch, rebuild the baseline, locate the verified visual/structural evidence, see every known limitation, and resume stage 02. Unexpected regressions are investigated before marking this stage passed. Record the precise compatibility baseline rather than claiming compatibility with an untested moving upstream."
       ],
-      "observed_results": null,
-      "evidence_paths": null,
-      "tested_code_revision": null,
+      "observed_results": [
+        "Source/module/host/tool/license inventory recovered from actual repository",
+        "Current baseline CI run 41439783001 passed both required jobs",
+        "Local package reproducibility and 107 hashes passed after including baseline records",
+        "Historical sample differences investigated: two stale prose documents; showcase/specimen NFKC text equal; specimen visually inspected",
+        "Current upstream head recorded separately; compatibility pinned to 138f9f2; no merge",
+        "Local TeX initialization failure retained; no Windows compatibility claim"
+      ],
+      "evidence_paths": [
+        "docs/project/BASELINE.md",
+        "docs/validation/CLAIMS.md",
+        "docs/validation/fixtures/floral-baseline.json",
+        "artifacts/receipts/01/"
+      ],
+      "tested_code_revision": "a77e32057da52d44b9baa8c0c1bce55865a45bf7",
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+      "next_action": "Publish stage 01 checkpoint; independently verify new remote tree and exact-revision full CI including extracted source-kit builds; then stage 02 capability ledger."
     },
     {
       "id": "02",

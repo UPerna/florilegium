@@ -15,7 +15,9 @@ def package(output=None):
     for directory, extensions in (("tools", {".py", ".lua"}),
                                   ("examples", {".tex", ".md", ".pdf", ".svg"}),
                                   ("gallery", {".png", ".gif", ".jpg", ".jpeg"}),
-                                  ("postscript", {".ps"})):
+                                  ("postscript", {".ps"}),
+                                  ("docs", {".md", ".json", ".csv"}),
+                                  ("artifacts/receipts", {".json"})):
         paths.update(p for p in (ROOT / directory).rglob("*") if p.suffix in extensions)
     paths.update(ROOT / "tools" / name for name in ("Dockerfile", "in-docker"))
     paths = sorted(p for p in paths if p.is_file() and not p.is_symlink() and not p.name.endswith("-flo.tex"))

@@ -1,5 +1,7 @@
 # florilegium
 
+See the [verified compatibility baseline](docs/project/BASELINE.md) for current build evidence, reproducible commands and sample provenance. Tracked root PDFs are historical snapshots; the baseline links fresh generated PDFs for the tested revision and identifies outdated sample prose.
+
 ## Origin
 
 The [Reddit post](https://www.reddit.com/r/LaTeX/comments/1xixznw/how_do_you_make_these_flowers_in_latex/)
