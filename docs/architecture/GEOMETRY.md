@@ -127,7 +127,7 @@ The saved oracle receipt records10000 Python Fraction comparisons, seed504031,
 including2414 exact-expansion paths and eight cases where a naive determinant
 has the wrong sign. Small counterexamples are committed in geometry-v1.json.
 The required Lua suite emits a fresh seeded corpus of2000 orientations,500
-segments,64 known-factored cubics and128 affine stroke bounds per runtime.
+segments,64 dyadic-root plus two non-dyadic-root cubics and128 affine stroke bounds per runtime.
 Immutable content-addressed reports bind current source bytes; the Python oracle
 checks exact input Fractions, exact segment coordinates/error bounds, factored
 root counts/multiplicities and70-digit extrema plus rational stroke samples.

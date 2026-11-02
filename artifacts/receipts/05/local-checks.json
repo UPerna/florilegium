@@ -6,37 +6,37 @@
       "runtime": "lua53",
       "check": "contractcheck",
       "status": "passed",
-      "seconds": 0.282
+      "seconds": 0.328
     },
     {
       "runtime": "lua53",
       "check": "replaycheck",
       "status": "passed",
-      "seconds": 3.375
+      "seconds": 3.562
     },
     {
       "runtime": "lua53",
       "check": "geometrycheck",
       "status": "passed",
-      "seconds": 1.234
+      "seconds": 1.297
     },
     {
       "runtime": "lua54",
       "check": "contractcheck",
       "status": "passed",
-      "seconds": 0.234
+      "seconds": 0.219
     },
     {
       "runtime": "lua54",
       "check": "replaycheck",
       "status": "passed",
-      "seconds": 2.703
+      "seconds": 2.656
     },
     {
       "runtime": "lua54",
       "check": "geometrycheck",
       "status": "passed",
-      "seconds": 1.078
+      "seconds": 1.094
     }
   ],
   "source_lf_sha256": {
@@ -61,8 +61,8 @@
     "tools/fixtures/replay-floral.lua": "7a622fdeb5486c03afb004d9254f1e6e4a84faf6c0a6f1e8f2bfb8016f7b95b4",
     "tools/determinism_oracle.py": "ba2d8477e8c78605ab13e59c6b59fa2eb5a246dc3a4aa2aff0765f4c3876da53",
     "docs/validation/fixtures/determinism-v1.json": "645812b9fba12042ae76df449298f47d0b619d47d5751415f5b577a3047c4fe8",
-    "tools/geometrycheck.lua": "ff9dc335180e254d8891f43331a1524fdc87bf5e7d33a30c633b317d2dfe694d",
-    "tools/geometry_oracle.py": "d479a260ca371efe3f4ff8fbe3a3d89a2492aed099f2a0162d8000433b1a7be0",
+    "tools/geometrycheck.lua": "f16ea2d69de726d33d27866f1e16ea48a0ddfd19ff7375b1d1ea65fe3f8fd352",
+    "tools/geometry_oracle.py": "5298b47d801b43c49a0b2f802cfad997c39015a1cdd095902adc715b1a1beb72",
     "docs/validation/fixtures/geometry-v1.json": "0c5ec2a091ab024ffd4b7e3f677592f6534bff354ed5c8abf352eba2ea9a657f"
   }
 }

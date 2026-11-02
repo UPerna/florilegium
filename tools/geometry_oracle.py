@@ -61,13 +61,22 @@ for path in sorted((ROOT/'build/geometry-oracle').glob('*.json')):
         if point is not None:
             assert within_error(case['result']['point'],point,case['result']['error_bound']),case
         totals['segments']+=1
-    for case in report['curves']:
-        r,s,t=map(F,case['factored_roots']);controls=[[F(x),F(y)] for x,y in case['controls']]
+    curve_cases=[(case,collections.Counter(map(F,case['factored_roots']))) for case in report['curves']]
+    curve_cases.extend((case,collections.Counter(F(n,d) for n,d in case['rational_roots'])) for case in report['general_curves'])
+    for case,roots in curve_cases:
+        controls=[[F(x),F(y)] for x,y in case['controls']]
         y=[p[1] for p in controls]
         actual=[y[0],3*(y[1]-y[0]),3*(y[0]-2*y[1]+y[2]),-y[0]+3*y[1]-3*y[2]+y[3]]
-        expected=[-3*r*s*t,3*(r*s+r*t+s*t),-3*(r+s+t),F(3)]
+        degree=max(i for i,value in enumerate(actual) if value)
+        expected=[actual[degree]]
+        for root,multiplicity in roots.items():
+            for _ in range(multiplicity):
+                product=[F(0)]*(len(expected)+1)
+                for i,value in enumerate(expected):product[i]-=root*value;product[i+1]+=value
+                expected=product
+        expected+= [F(0)]*(4-len(expected))
         assert actual==expected,'Known factored polynomial changed during fixture construction'
-        roots=collections.Counter((r,s,t));events=case['result']['events']
+        events=case['result']['events']
         assert case['result']['status']=='complete' and len(events)==len(roots),case
         matched=set()
         for event in events:

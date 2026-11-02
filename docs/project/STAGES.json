@@ -153,7 +153,9 @@
         "90 analytical/adversarial tests plus61 contracts and145 replay checks passed on Lua5.3/5.4",
         "Independent oracle passed4000 orientations,1000 segments,128 known-factored cubics and256 affine bounds across two current-source reports; cross-runtime corpora equal",
         "Additional10000 Fraction orientation comparisons passed;8 naive failures preserved",
-        "Existing floral source/fingerprints untouched; required exact-revision Linux CI pending publication"
+        "Existing floral source/fingerprints untouched; required exact-revision Linux CI pending publication",
+        "Published ededcd3 with expected-head guard; independently fetched tree13c04807; all30 reviewed file bytes matched; complete-history bundle verified;168 source-kit hashes passed locally. CI41487649902 pending.",
+        "Initial native90-test CI41487649902 passed both required jobs. Follow-up review added non-dyadic interval root cases;91 checks and132 independent cubic cases across local runtimes pass; final follow-up publication/CI pending."
       ],
       "evidence_paths": [
         "docs/architecture/GEOMETRY.md",
@@ -162,12 +164,14 @@
         "docs/validation/fixtures/geometry-v1.json",
         "artifacts/receipts/05/local-checks.json",
         "artifacts/receipts/05/orientation-oracle.json",
-        "artifacts/receipts/05/verification-notes.json"
+        "artifacts/receipts/05/verification-notes.json",
+        "artifacts/receipts/05/local-checks-interval.json",
+        "artifacts/receipts/05/ci-initial.json"
       ],
       "tested_code_revision": null,
-      "local_commit": null,
-      "verified_remote_revision": null,
-      "next_action": "Publish reviewed stage05 changes to pattern/common-platform with expected e7e7e32; independently fetch/verify tree bytes and both exact-revision CI jobs. Do not advance06 before success."
+      "local_commit": "ededcd38dcf83a163f0ca2816d12a5e8a9d37e80",
+      "verified_remote_revision": "ededcd38dcf83a163f0ca2816d12a5e8a9d37e80",
+      "next_action": "Publish follow-up interval-root acceptance coverage with expected ededcd3, independently fetch it and verify its exact CI before05 passes."
     },
     {
       "id": "06",

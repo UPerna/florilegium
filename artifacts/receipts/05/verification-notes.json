@@ -7,17 +7,17 @@
     "Lupa2.8 Lua5.4"
   ],
   "python": "3.12.14",
-  "analytical_checks_per_runtime": 90,
+  "analytical_checks_per_runtime": 91,
   "contract_checks_per_runtime": 61,
   "replay_checks_per_runtime": 145,
   "independent_current_corpus": {
     "reports": 2,
     "orientations": 4000,
     "segments": 1000,
-    "cubics": 128,
+    "cubics": 132,
     "affine_bounds": 256
   },
-  "raw_local_source_digest": "faffd3f21d17633d2a6c977d011bd1e3b756c52993b42182469eb528b9f191bd",
+  "raw_local_source_digest": "08affa40d42a24785c3f7d79e2b3d3b11b089faa4af319977e9452216226dd79",
   "oracle": "Fraction exact binary64 input arithmetic;70-digit extrema; cross-runtime corpus equality excluding runtime label",
   "repaired_failures": [
     "clip distance aggregation accidentally included second Lua return; analytic hole fixture now guards it",
@@ -31,5 +31,6 @@
     "polygon Boolean operations outside this module",
     "native Windows TeX unavailable; real Linux CI mandatory",
     "browser parity pending31"
-  ]
+  ],
+  "followup": "Review added non-dyadic simple roots1/3 and1/5,2/5,3/5 to exercise interval refinement and exact error bounds; all pass on both runtimes. Initial published90-test CI passed; follow-up exact-head CI required."
 }

@@ -50,6 +50,8 @@ reject(function()G.region(outer,{hole,{{1.5,1.5},{1.5,2.5},{2.5,2.5},{2.5,1.5}}}
 local crossing={{-3,-3},{-1,-1},{1,1},{3,3}};local tangent={{-3,3},{-1,-1},{1,-1},{3,3}}
 local hit=C.intersect_segment(crossing,{-4,0},{4,0},policy)
 check(hit.status=="complete" and #hit.events==1 and hit.events[1].curve_parameter==0.5 and hit.events[1].classification=="crossing","certified cubic-line crossing")
+local fractional=C.intersect_segment({{0,-1},{0.25,0},{0.75,1},{1,2}},{-1,0},{2,0},policy)
+check(fractional.status=="complete" and #fractional.events==1 and fractional.events[1].curve_interval[1]<fractional.events[1].curve_interval[2],"non-dyadic simple root uses interval refinement")
 hit=C.intersect_segment(tangent,{-4,0},{4,0},policy)
 check(hit.status=="complete" and #hit.events==1 and hit.events[1].classification=="tangent" and hit.events[1].multiplicity==2,"exact dyadic tangency")
 check(C.intersect_segment({{-3,3},{-1,-3},{1,0},{3,12}},{-4,0},{4,0},policy).status=="unresolved","non-dyadic repeated root stays explicit")
@@ -115,12 +117,16 @@ local tree=P.plain(floral);tree.structures.growth.nodes[2]={id="branch",parent="
 tree=P.instance(tree,defs.floral);local lineage=T.ancestors(tree,"leaf")
 check(#lineage==2 and lineage[1]=="branch" and lineage[2]=="floral/root","multi-level growth ancestry")
 -- Deterministic fresh corpus; Python checks exact Fractions of the emitted binary64 inputs.
-local report={schema_version=1,seed=505031,runtime=_VERSION,orientations=P.array(),segments=P.array(),curves=P.array(),bounds=P.array()};local rng=D.new(505031)
+local report={schema_version=1,seed=505031,runtime=_VERSION,orientations=P.array(),segments=P.array(),curves=P.array(),general_curves=P.array(),bounds=P.array()};local rng=D.new(505031)
 for i=1,2000 do
   local scale=10.0^rng.int(-30,30);local a={rng.range(-3,3)*scale,rng.range(-3,3)*scale};local b={rng.range(-3,3)*scale,rng.range(-3,3)*scale};local c
   if i%2==0 then local t=rng.u();c={a[1]+t*(b[1]-a[1]),a[2]+t*(b[2]-a[2])}else c={rng.range(-3,3)*scale,rng.range(-3,3)*scale}end
   local sign=N.orient2d(a,b,c);report.orientations[#report.orientations+1]={points={a,b,c},sign=sign}
 end
+for _,case in ipairs({
+  {controls={{0,-1},{0.25,0},{0.75,1},{1,2}},roots={{1,3}}},
+  {controls={{0,-18},{0.25,37},{0.75,-58},{1,72}},roots={{1,5},{2,5},{3,5}}},
+})do report.general_curves[#report.general_curves+1]={controls=case.controls,rational_roots=case.roots,result=C.intersect_segment(case.controls,{-1,0},{2,0},policy)}end
 for i=1,500 do
   local a,b,c,d={rng.int(-1000,1000),rng.int(-1000,1000)},{rng.int(-1000,1000),rng.int(-1000,1000)},{rng.int(-1000,1000),rng.int(-1000,1000)},{rng.int(-1000,1000),rng.int(-1000,1000)}
   if i%5==0 then a[2]=0;b[2]=0;c[2]=0;d[2]=0 elseif i%7==0 then c={b[1],b[2]}elseif i%17==0 then b={a[1],a[2]}end
@@ -143,4 +149,4 @@ for _,name in ipairs({"tools/geometrycheck.lua","tools/geometry_oracle.py","docs
 report.source_digest=H.sha256(P.serialize(source));report.analytical_checks=count
 local bytes=P.serialize(report);lfs.mkdir("build");lfs.mkdir("build/geometry-oracle")
 local key=H.sha256(bytes);assert(require("pattern_store").new("build/geometry-oracle"):put(key,bytes))
-print("geometrycheck: "..count.." analytical/adversarial checks passed; oracle corpus2000 orientations/500 segments/64 cubics/128 bounds, source "..report.source_digest..", cache "..key)
+print("geometrycheck: "..count.." analytical/adversarial checks passed; oracle corpus2000 orientations/500 segments/66 cubics/128 bounds, source "..report.source_digest..", cache "..key)
