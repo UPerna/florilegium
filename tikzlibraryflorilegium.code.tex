@@ -2267,7 +2267,53 @@
 % ---------------------------------------------------------------- the leaf (flora.leaf)
 % along +y, length 1. Set before (empty: drawn as flora draws it): \flo@vl@W, \flo@vl@bend,
 % \flo@vl@lobes, \flo@vl@depth, \flo@vl@tone; and \flo@vl@u (cm per unit, no random part)
-\def\flo@lspine#1{\flo@calc\flo@sx{\flo@lbend*(#1)*(#1)-0.3*\flo@lbend*(#1)}\edef\flo@sy{#1}}
+\def\flo@lspine#1{\ifnum\flo@hk=1 \ifdim#1pt>\flo@hv pt \flo@lhook{#1}\else\flo@lspine@{#1}\fi\else\flo@lspine@{#1}\fi}
+\def\flo@lspine@#1{\flo@calc\flo@sx{\flo@lbend*(#1)*(#1)-0.3*\flo@lbend*(#1)}\edef\flo@sy{#1}}
+\def\flo@hk{0}
+% A curled tip, as the reference's leaves curl: beyond \flo@hv the spine turns \flo@hth
+% degrees along a circle, toward the side the leaf bends, as tight as the blade allows
+% (its radius at least twice the half-width there), so a narrow leaf hooks right over and
+% shows its underside while a broad one only bends its tip aside; none under 35 degrees.
+% Draws: its length, its turn
+\def\flo@hookset{%
+  \flo@range\flo@hl{0.25}{0.4}\flo@calc\flo@hv{1-\flo@hl}\flo@shw\flo@hv
+  \flo@range\flo@t{120}{190}\flo@calc\flo@hth{min(\flo@t,\flo@hl/(1.8*max(0.01,\flo@h))*57.29578)}%
+  \ifdim\flo@hth pt>45pt
+    \def\flo@hk{1}%
+    \ifdim\flo@lbend pt<0pt \def\flo@hs{-1}\else\def\flo@hs{1}\fi
+    \flo@lspine@\flo@hv\let\flo@hpx\flo@sx\let\flo@hpy\flo@sy
+    \flo@calc\flo@htx{2*\flo@lbend*\flo@hv-0.3*\flo@lbend}\flo@calc\flo@t{veclen(\flo@htx,1)}%
+    \flo@calc\flo@htx{\flo@htx/\flo@t}\flo@calc\flo@hty{1/\flo@t}%
+    \flo@calc\flo@hnx{\flo@hs*\flo@hty}\flo@calc\flo@hny{-\flo@hs*\flo@htx}%
+    \flo@calc\flo@hr{\flo@hl/\flo@hth*57.29578}%
+  \fi}
+% the spine along the curl, at #1 beyond \flo@hv
+\def\flo@lhook#1{\flo@calc\flo@hph{((#1)-\flo@hv)/\flo@hl*\flo@hth}%
+  \flo@calc\flo@sx{\flo@hpx+\flo@hr*(sin(\flo@hph)*\flo@htx+(1-cos(\flo@hph))*\flo@hnx)}%
+  \flo@calc\flo@sy{\flo@hpy+\flo@hr*(sin(\flo@hph)*\flo@hty+(1-cos(\flo@hph))*\flo@hny)}}
+% the curl's underside, where it turns past 100 degrees: the blade from just past the curl's
+% middle to the tip, drawn again over it from the same margin samples, paler, its midrib
+% white and its edge dark
+\def\flo@hookunder{%
+  \flo@calc\flo@hva{\flo@hv+0.45*\flo@hl}\def\flo@hka{0}%
+  \flo@loop{hka}\flo@kb{1}{\flo@mn}{\ifnum\flo@hka=0
+    \ifdim\csname flo@sv\the\flo@kb\endcsname pt>\flo@hva pt \edef\flo@hka{\the\flo@kb}\fi\fi}%
+  \ifnum\flo@hka>1 \ifnum\flo@hka<\flo@mn
+    \def\flo@hun{0}%
+    \flo@loop{hkl}\flo@kb{\flo@hka}{\flo@mn}{\edef\flo@hun{\the\numexpr\flo@hun+1\relax}%
+      \flo@put\flo@hun{\csname flo@RX\the\flo@kb\endcsname}{\csname flo@RY\the\flo@kb\endcsname}}%
+    \flo@loop{hkr}\flo@kb{1}{\flo@mn-\flo@hka}{\edef\flo@hun{\the\numexpr\flo@hun+1\relax}%
+      \edef\flo@q{\the\numexpr\flo@mn-\flo@kb\relax}%
+      \flo@put\flo@hun{\csname flo@QX\flo@q\endcsname}{\csname flo@QY\flo@q\endcsname}}%
+    \flo@smoothprepT\flo@hun\flo@ltk\flo@keep{lsu}%
+    \flo@calc\flo@t{min(0.64,\flo@lt+0.26)}\flo@vtone{flo@c}{\flo@t}\flo@vfill{flo@c}{1}{0}{\flo@kept{lsu}}%
+    \begin{pgfscope}\flo@kept{lsu}\pgfusepath{clip}%
+      \flo@loop{hkm}\flo@kb{0}{10}{\flo@calc\flo@v{\flo@hva+(1-\flo@hva)*\the\flo@kb/10}%
+        \flo@lspine\flo@v\flo@put{\the\numexpr\flo@kb+1\relax}{\flo@sx}{\flo@sy}}%
+      \flo@vstreak{11}{0.02}{0.003}{white}{0.6}%
+      \flo@vtone{flo@c}{0.06}\flo@calc\flo@t{1.3*\flo@vl@u}\flo@vstroke{flo@c}{\flo@t}{0.3}{1}{\flo@kept{lsu}}%
+    \end{pgfscope}%
+  \fi\fi}
 \def\flo@ltan#1{%
   \flo@calc\flo@t{max(0,(#1)-0.01)}\flo@lspine\flo@t\let\flo@ta\flo@sx\let\flo@tb\flo@sy
   \flo@calc\flo@t{min(1,(#1)+0.01)}\flo@lspine\flo@t
@@ -2549,6 +2595,14 @@
   \def\flo@lod{2}\ifnum\flo@lleaflet=1 \ifdim\flo@vl@u pt<1.4pt \def\flo@lod{1}\def\flo@fine{0}\def\flo@bn{16}%
     \ifdim\flo@vl@u pt<0.4pt \def\flo@lod{0}\def\flo@bn{12}\fi\fi\fi
   \ifdim\flo@ldepth pt>0pt \flo@calc\flo@bodyw{1-0.75*\flo@ldepth}\def\flo@lent{0}\else\def\flo@bodyw{1}\def\flo@lent{1}\fi
+  % a curled tip (\flo@hookset), on an unlobed leaf drawn in full 8 mm long or more,
+  % hairless unless it is broad (a narrow hairy one curled reads as a caterpillar), up to
+  % one in two as the species' leaves curl
+  \def\flo@hk{0}\def\flo@hok{1}\ifnum\flo@get{hairy}=1 \ifdim\flo@lW pt<0.15pt \def\flo@hok{0}\fi\fi
+  \ifnum\flo@lod=2 \ifnum\flo@lent=1 \ifnum\flo@hok=1 \ifdim\flo@vl@u pt>0.8pt
+    \flo@calc\flo@t{min(0.55,max(0,\flo@get{curl}+0.25))}\flo@chance\flo@t
+    \ifflo@yes\flo@hookset\fi
+  \fi\fi\fi\fi
   % the body along its margin's samples (\flo@smargin)
   \flo@smargin
   \flo@loop{sbs}\flo@kb{1}{\flo@mn}{%
@@ -2557,10 +2611,14 @@
   \flo@loop{sbo}\flo@kb{1}{\flo@mn}{%
     \edef\flo@q{\the\flo@kb}\edef\flo@v{\csname flo@sv\flo@q\endcsname}\edef\flo@sdd{\csname flo@sd\flo@q\endcsname}%
     \flo@shw\flo@v\flo@calc\flo@cut{\flo@ldep*min(1,\flo@h/(0.45*\flo@lW))*(1-\flo@sdd)}%
-    \flo@calc\flo@e{max(0,\flo@h*\flo@bodyw-\flo@cut*\csname flo@sjl\flo@q\endcsname)}%
+    % a curled tip narrows as it turns edge-on, the more the species' leaves twist
+    \def\flo@hwf{1}\ifnum\flo@hk=1 \ifdim\flo@v pt>\flo@hv pt
+      \flo@calc\flo@hwt{min(1,(\flo@v-\flo@hv)/\flo@hl)}%
+      \flo@calc\flo@hwf{1-(0.25+0.008*\flo@get{twist})*min(1,\flo@hth/150)*\flo@hwt*\flo@hwt*(3-2*\flo@hwt)}\fi\fi
+    \flo@calc\flo@e{max(0,\flo@h*\flo@bodyw-\flo@cut*\csname flo@sjl\flo@q\endcsname)*\flo@hwf}%
     \flo@calc\flo@xl{\flo@x\flo@q+\csname flo@NX\flo@q\endcsname*\flo@e}\flo@calc\flo@yl{\flo@y\flo@q+\csname flo@NY\flo@q\endcsname*\flo@e-\flo@dy}%
     \ifdim\flo@lobl pt>0pt \flo@calc\flo@vo{max(0,(\flo@v-\flo@lobl)/(1-\flo@lobl))}\flo@shw\flo@vo\fi
-    \flo@calc\flo@e{max(0,\flo@h*\flo@bodyw-\flo@cut*\csname flo@sjr\flo@q\endcsname)}%
+    \flo@calc\flo@e{max(0,\flo@h*\flo@bodyw-\flo@cut*\csname flo@sjr\flo@q\endcsname)*\flo@hwf}%
     \flo@calc\flo@xr{\flo@x\flo@q-\csname flo@NX\flo@q\endcsname*\flo@e}\flo@calc\flo@yr{\flo@y\flo@q-\csname flo@NY\flo@q\endcsname*\flo@e-\flo@dy}%
     \expandafter\let\csname flo@RX\flo@q\endcsname\flo@xl\expandafter\let\csname flo@RY\flo@q\endcsname\flo@yl
     \expandafter\let\csname flo@QX\flo@q\endcsname\flo@xr\expandafter\let\csname flo@QY\flo@q\endcsname\flo@yr}%
@@ -2698,7 +2756,8 @@
     \fi\fi
   \end{pgfscope}%
   \ifnum\flo@lent=1 \flo@vtone{flo@c}{0.05}\flo@vstroke{flo@c}{0.18}{0.4}{0}{\flo@kept{ls1}}\fi
-  \fi}
+  \fi
+  \ifnum\flo@hk=1 \ifdim\flo@hth pt>95pt \flo@hookunder\fi\fi}
 \def\flo@lleaflet{0}\def\flo@lmover{}
 
 % \pic {florilegium v13 leaf={seed=7, size=4cm}}: flora's leaf in pure TikZ, size its length

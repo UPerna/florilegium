@@ -614,8 +614,15 @@ local function bladeassemble(n)
 end
 
 -- ---------------------------------------------------------------- the leaf (flora.leaf)
-local function lspine(v)                 -- \flo@lspine#1 -> \flo@sx, \flo@sy
+local function lspine_(v)                -- \flo@lspine@#1 -> \flo@sx, \flo@sy
   V.sx = E("@lbend*(%1)*(%1)-0.3*@lbend*(%1)", { v }) V.sy = v
+end
+local function lspine(v)                 -- \flo@lspine#1: along a curled tip's circle beyond \flo@hv
+  if R.hk == U and v > R.hv then
+    V.hph = E("((%1)-@hv)/@hl*@hth", { v })
+    V.sx = E"@hpx+@hr*(sin(@hph)*@htx+(1-cos(@hph))*@hnx)"
+    V.sy = E"@hpy+@hr*(sin(@hph)*@hty+(1-cos(@hph))*@hny)"
+  else lspine_(v) end
 end
 local function ltan(v)                   -- \flo@ltan#1 -> \flo@tx, \flo@ty
   V.t = E("max(0,(%1)-0.01)", { v }) lspine(R.t) V.ta = R.sx V.tb = R.sy
@@ -1227,6 +1234,49 @@ local function smargin()
   V.mn = MS.n * U
 end
 -- \flo@sblade: the blade along +y, length 1 (\flo@vleaf with the species' outline)
+-- \flo@hookset: a curled tip, its spine turning \flo@hth degrees along a circle beyond
+-- \flo@hv toward the side the leaf bends, as tight as the blade allows; none under 35
+local function hookset()
+  V.hl = range(K"0.25", K"0.4") V.hv = E"1-@hl" shw(R.hv)
+  V.t = range(120 * U, 190 * U) V.hth = E"min(@t,@hl/(1.8*max(0.01,@h))*57.29578)"
+  if R.hth > 45 * U then
+    V.hk = U
+    if R.lbend < 0 then V.hs = -U else V.hs = U end
+    lspine_(R.hv) V.hpx = R.sx V.hpy = R.sy
+    V.htx = E"2*@lbend*@hv-0.3*@lbend" V.t = E"veclen(@htx,1)"
+    V.htx = E"@htx/@t" V.hty = E"1/@t"
+    V.hnx = E"@hs*@hty" V.hny = E"-@hs*@htx"
+    V.hr = E"@hl/@hth*57.29578"
+  end
+end
+-- \flo@hookunder: the curl's underside, the blade from just past its middle to the tip,
+-- drawn again from the same margin samples, paler
+local function hookunder()
+  V.hva = E"@hv+0.45*@hl" V.hka = 0
+  local mn = MS.n
+  loop("#kb", 1, mn, function()
+    if R.hka == 0 and MS[R["#kb"]][1] > R.hva then V.hka = R["#kb"] * U end
+  end)
+  local ka = I("hka")
+  if ka > 1 and ka < mn then
+    V.hun = 0
+    loop("#kb", ka, mn, function() V.hun = R.hun + U put(I("hun"), RX[R["#kb"]], RY[R["#kb"]]) end)
+    loop("#kb", 1, mn - ka, function()
+      V.hun = R.hun + U V.q = (mn - R["#kb"]) * U
+      put(I("hun"), QX[I("q")], QY[I("q")])
+    end)
+    smoothprepT(I("hun"), R.ltk) keep("lsu")
+    V.t = E"min(0.64,@lt+0.26)" vtone("flo@c", R.t) vfill("flo@c", U, 0, function() kept("lsu") end)
+    scope(function()
+      kept("lsu") usepath("clip")
+      loop("#kb", 0, 10, function()
+        V.v = E"@hva+(1-@hva)*#kb/10" lspine(R.v) put(R["#kb"] + 1, R.sx, R.sy)
+      end)
+      vstreak(11, K"0.02", K"0.003", "white", K"0.6")
+      vtone("flo@c", K"0.06") V.t = E"1.3*@vl@u" vstroke("flo@c", R.t, K"0.3", 1, function() kept("lsu") end)
+    end)
+  end
+end
 local function sblade()
   if R["vl@bend"] == "" then V.lbend = sym(K"0.25") else V.lbend = R["vl@bend"] end
   V.llobes = R["vl@lobes"] V.ldepth = R["vl@depth"]
@@ -1240,6 +1290,12 @@ local function sblade()
     if R["vl@u"] < K"0.4" then V.lod = 0 V.bn = 12 * U end
   end
   if R.ldepth > 0 then V.bodyw = E"1-0.75*@ldepth" V.lent = 0 else V.bodyw = U V.lent = U end
+  -- a curled tip, on an unlobed leaf drawn in full 8 mm long or more, hairless unless broad
+  V.hk = 0
+  if R.lod == 2 * U and R.lent == U and (tr("hairy") == 0 or R.lW >= K"0.15") and R["vl@u"] > K"0.8" then
+    V.t = E"min(0.55,max(0,$curl+0.25))"
+    if chance(R.t) then hookset() end
+  end
   -- the body along its margin's samples
   smargin()
   local mn = MS.n
@@ -1250,10 +1306,15 @@ local function sblade()
     local m = MS[q]
     V.q = q * U V.v = m[1] V.sdd = m[2]
     shw(R.v) V.cut = E"@ldep*min(1,@h/(0.45*@lW))*(1-@sdd)"
-    V.e = E("max(0,@h*@bodyw-@cut*%1)", { m[3] })
+    -- a curled tip narrows as it turns edge-on, the more the species' leaves twist
+    V.hwf = U
+    if R.hk == U and R.v > R.hv then
+      V.hwt = E"min(1,(@v-@hv)/@hl)" V.hwf = E"1-(0.25+0.008*$twist)*min(1,@hth/150)*@hwt*@hwt*(3-2*@hwt)"
+    end
+    V.e = E("max(0,@h*@bodyw-@cut*%1)*@hwf", { m[3] })
     V.xl = E("%1+%2*@e", { X[q], NX[q] }) V.yl = E("%1+%2*@e-@dy", { Y[q], NY[q] })
     if R.lobl > 0 then V.vo = E"max(0,(@v-@lobl)/(1-@lobl))" shw(R.vo) end
-    V.e = E("max(0,@h*@bodyw-@cut*%1)", { m[4] })
+    V.e = E("max(0,@h*@bodyw-@cut*%1)*@hwf", { m[4] })
     V.xr = E("%1-%2*@e", { X[q], NX[q] }) V.yr = E("%1-%2*@e-@dy", { Y[q], NY[q] })
     setv(RX, q, R.xl) setv(RY, q, R.yl) setv(QX, q, R.xr) setv(QY, q, R.yr)
   end)
@@ -1410,6 +1471,7 @@ local function sblade()
     end
   end)
   if R.lent == U then vtone("flo@c", K"0.05") vstroke("flo@c", K"0.18", K"0.4", 0, function() kept("ls1") end) end
+  if R.hk == U and R.hth > 95 * U then hookunder() end
 end
 -- \flo@sleaf: stipules, a petiolate leaf's stalk, then the blade
 function sleaf()
@@ -3438,7 +3500,7 @@ local function reset()
   end
   R.lift = 0 R.zero = 0 R["vp@notchp"] = K"0.4" R["vp@notchk"] = U
   R["vf@star"] = "" R["vf@tone"] = "" R.rampname = "flo@ramp" R.layer = 0 R.filling = 0 R.bside = "" R.bfan = 0 R.ivc = 0 R.ivpt = 0
-  R.fore = U R.lsd = "" R.lleaflet = 0 R.lmover = ""
+  R.fore = U R.lsd = "" R.lleaflet = 0 R.lmover = "" R.hk = 0
   OUT = {}
 end
 -- \flo@picsetup: the species, then the drawing's own stream (draw=, or the seed + 1)
