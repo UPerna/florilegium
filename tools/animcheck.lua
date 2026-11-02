@@ -3,8 +3,9 @@
 -- without the spill under the text; in summer, in spring, and in autumn with a
 -- heading and a \florilegiumbloom marked in the text; with the geometric theme, with the
 -- geometric theme in autumn on a mirrored page, at density 0.4 and 0.05, and the math
--- theme with marks and mirrored at density 0.3; species in summer, in autumn with marks
--- on a mirrored page, and at density 0.05). Runs without TeX:
+-- theme with marks and mirrored at density 0.3; species in summer, in spring (a page with
+-- a fern unrolls its fiddleheads), in autumn with marks on a mirrored page, and at density
+-- 0.05). Runs without TeX:
 --   texlua tools/animcheck.lua 1 2 3      (or: tools/in-docker texlua tools/animcheck.lua)
 tex = { sprint = function() end }
 luatexbase = { registernumber = function() return 0 end }
@@ -26,6 +27,7 @@ local CASES = {
   { name = "math, marks", theme = "math", marks = { { kind = "heading", arg = 1, y = 20 }, { kind = "bloom", arg = "knot", y = 9 } } },
   { name = "math, mirrored, density 0.3", theme = "math", mirror = true, density = 0.3 },
   { name = "species", species = true },
+  { name = "species, spring", species = true, age = 0.05 },
   { name = "species, autumn, marks, mirrored", species = true, age = 0.95, mirror = true,
     marks = { { kind = "heading", arg = 1, y = 20 }, { kind = "heading", arg = 2, y = 14 }, { kind = "bloom", arg = "monocot", y = 9 } } },
   { name = "species, density 0.05", species = true, density = 0.05 },

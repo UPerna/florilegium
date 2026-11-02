@@ -18,6 +18,7 @@ pages='--seed 7
 --seed 5 --density 0.05 --intensity 0.5 --nohead
 --seed 9 --theme math --textend 90mm
 --seed 4 --species --page 2 --twoside --left 25mm --right 65mm --season autumn
+--seed 3 --species --season spring
 --authored'
 
 status=0

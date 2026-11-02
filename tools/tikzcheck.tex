@@ -1,5 +1,5 @@
 % The TikZ side of tools/tikzcheck.lua: draws species \tikzcheckfrom..\tikzcheckto (role
-% any), or the "seed role" lines of the file \tikzchecklist, with the pure-TikZ library
+% \tikzcheckrole, or any), or the "seed role" lines of the file \tikzchecklist, with the pure-TikZ library
 % and writes each one's choices, one line per species, to <jobname>.choices in the output
 % directory. Runs under pdflatex and lualatex.
 \documentclass{article}
@@ -26,7 +26,7 @@
   \newcount\tikzcheckseed
   \tikzcheckseed=\tikzcheckfrom\relax
   \loop
-    \florilegiumspecies{\the\tikzcheckseed}{any}%
+    \florilegiumspecies{\the\tikzcheckseed}{\ifdefined\tikzcheckrole\tikzcheckrole\else any\fi}%
     \immediate\write\tikzcheckout{\florilegiumspecieslog}%
     \advance\tikzcheckseed by 1
   \ifnum\tikzcheckseed>\tikzcheckto\relax\else\repeat

@@ -69,7 +69,7 @@ local X, Y, A, B, C, D = {}, {}, {}, {}, {}, {}
 local NX, NY, RX, RY, QX, QY, S = {}, {}, {}, {}, {}, {}, {}
 local G = { {}, {}, {} }          -- \flo@G<k>@<i>, the noise gradients
 local T = { TX = {}, TY = {}, MX = {}, MY = {}, MU = {}, MV = {},   -- the rarer ones (Lua's
-  AX = {}, AY = {}, AN = {}, AM = {}, O = {}, VEIN = {}, Z = {} }     -- 200 locals)
+  AX = {}, AY = {}, AN = {}, AM = {}, O = {}, VEIN = {}, Z = {}, FX = {}, FY = {} }   -- 200 locals)
 local KEPT = {}                   -- \flo@<name>@N, @X<i> ... (\flo@keep)
 local ROOM = {}                   -- \flo@rm<roomid>@<i>@<j>
 local PP = {}                     -- \flo@pp@... of a garden (some global)
@@ -1703,6 +1703,8 @@ function leaf_(len)
       end
       sleaf()
     end
+  elseif R.cp == "frond" then
+    T.frond(R.lfpt)
   else
     compoundleaf()
   end
@@ -3151,6 +3153,353 @@ local function autumnleaf()
   if R.season < K"0.5" then V.lift = E"0.3*(1-@season/0.5)" end
 end
 
+-- ---------------------------------------------------------------- ferns
+-- \flo@frond{length pt}: a fern's frond along +y, length 1 (stipe, rachis, pinnae in the
+-- outline, combs of pinnules, the crozier while it unrolls, scales, sori, beads), and
+-- \flo@ferncrown: three to five fronds and a fertile one from a crown. In T (Lua's 200
+-- locals); the spine in T.FX/T.FY (\flo@feX<k>/\flo@feY<k>)
+do
+  local function feput(i, x, y) setv(T.FX, i, x) setv(T.FY, i, y) end
+  local function xscale(s) out("\\pgftransformxscale{" .. str(s) .. "}") end
+  local function pts(spk) return function() out(concat(spk)) end end
+  local OL = {                      -- \flo@feol@<outline>
+    lanceolate = function() V.febm = K"0.3" V.felo = K"0.45" V.fekx = K"0.8" V.fewr = K"0.26" end,
+    oblong = function() V.febm = K"0.12" V.felo = K"0.7" V.fekx = K"0.35" V.fewr = K"0.2" end,
+    ovate = function() V.febm = K"0.2" V.felo = K"0.75" V.fekx = K"0.9" V.fewr = K"0.32" end,
+    deltoid = function() V.febm = K"0.04" V.felo = K"0.9" V.fekx = K"1.3" V.fewr = K"0.42" end,
+  }
+  local AP = {                      -- \flo@feap@<apex>
+    acute = function() V.fekp = K"1.6" V.fekq = K"0.9" end,
+    obtuse = function() V.fekp = 3 * U V.fekq = K"0.6" end,
+    rounded = function() V.fekp = 5 * U V.fekq = K"0.45" end,
+  }
+  local MG = { entire = 0, crenate = K"0.2", serrate = K"0.26" }   -- \flo@fem@<margin>: \flo@fetd
+  -- \flo@feribbon{n}{w0}{w1}: a filled ribbon along X/Y 1..n, in flo@c
+  local function feribbon(n, w0, w1)
+    V.sn = n * U
+    normals(n)
+    arclengths(n)
+    loop("#kb", 1, n, function()
+      local kb = R["#kb"]
+      V.w = E("((%1)+((%2)-(%1))*%3/@acc)/2", { w0, w1, S[kb] })
+      sides(kb, "w")
+    end)
+    ribbonsides(n)
+    smoothprep(2 * n) vfill("flo@c", U, 0, smoothpath)
+  end
+  -- \flo@fehalf{name}{n}: the left half of a kept shape, then down the midrib
+  local function fehalf(name, n)
+    local k = KEPT[name]
+    V.kn = k.N * U V.fehn = n * U
+    moveto(k.X[1], k.Y[1])
+    loop("#i", 1, function() return I("fehn") end, function()
+      local i = R["#i"]
+      V.ib = (i + 1) * U
+      curveto(k.A[i], k.B[i], k.C[i], k.D[i], k.X[i + 1], k.Y[i + 1])
+    end)
+    loop("#i", 1, 8, function() V.v = E"1-#i/8" V.sx = E"@fefb*@v*@v" lineto(R.sx, R.v) end)
+    closepath()
+  end
+  -- \flo@fesori{name}: under a pinna
+  local function fesori(name)
+    V.fesr = tr("sori") vaccent("flo@c", K"-0.35")
+    if R.fesr == "marginal" then
+      V.t = E"min(0.5,0.3*@fepcm)" vstroke("flo@c", R.t, K"0.75", 0, function() kept(name) end)
+    end
+    if R.fesr == "dots" then
+      local spk = {}
+      V.t = E"int(min(7,2+4*@fepcm))" V.fend = pm.int(R.t)
+      loop("#kb", 1, function() return I("fend") end, function()
+        V.v = E"0.14+0.66*(#kb-1)/max(1,@fend-1)" V.sx = E"@fefb*@v*@v"
+        V.w = E"0.5*@feW*(1-0.5*@v)" V.t = E"0.3*@feW*(1-0.4*@v)"
+        V.xa = E"@sx-@w" V.xb = E"@sx+@w"
+        spk[#spk + 1] = "\\pgfpathcircle{" .. P(R.xa, R.v) .. "}{" .. str(R.t) .. "pt}\\pgfpathcircle{"
+          .. P(R.xb, R.v) .. "}{" .. str(R.t) .. "pt}"
+      end)
+      vfill("flo@c", K"0.9", 0, pts(spk))
+    end
+    if R.fesr == "lines" then
+      local spk = {}
+      V.t = E"int(min(6,2+3*@fepcm))" V.fend = pm.int(R.t)
+      loop("#kb", 1, function() return I("fend") end, function()
+        V.v = E"0.12+0.62*(#kb-1)/max(1,@fend-1)" V.sx = E"@fefb*@v*@v"
+        V.w = E"0.7*@feW*(1-0.5*@v)"
+        V.xa = E"@sx-0.15*@w" V.xb = E"@sx-@w" V.ya = E"@v+0.6*@w"
+        V.xc = E"@sx+0.15*@w" V.xd = E"@sx+@w"
+        spk[#spk + 1] = "\\pgfpathmoveto{" .. P(R.xa, R.v) .. "}\\pgfpathlineto{" .. P(R.xb, R.ya)
+          .. "}\\pgfpathmoveto{" .. P(R.xc, R.v) .. "}\\pgfpathlineto{" .. P(R.xd, R.ya) .. "}"
+      end)
+      vstroke("flo@c", K"0.45", K"0.85", 0, pts(spk))
+    end
+  end
+  -- \flo@fepinna: a pinna along +y, length 1, \flo@feW its half-width
+  local function fepinna()
+    V.fefb = range(K"0.05", K"0.16") V.t = sym(K"0.03") V.fet = E"@fetone+@t"
+    V.fenp = 10 * U V.fetk = 0
+    if R.fepcm < K"0.3" then V.fenp = 6 * U end
+    if R.fepcm > K"0.6" and R.fetd > 0 then
+      V.fetk = R.fetd V.fenp = E"2*int(min(9,3+4*@fepcm))" V.fenp = pm.int(R.fenp)
+    end
+    V.fecs = 0 V.tmp = "serrate" V.t = tr("leafmargin")
+    if R.fetk > 0 and R.t == R.tmp then V.fecs = E"0.35/@fenp" end
+    loop("#kb", 0, function() return I("fenp") end, function()
+      local kb = R["#kb"]
+      V.v = E"#kb/@fenp"
+      if kb % 2 == 1 and kb < I("fenp") then V.v = E"@v+@fecs" end
+      V.sx = E"@fefb*@v*@v" put(kb + 1, R.sx, R.v)
+    end)
+    normals(I("fenp") + 1)
+    loop("#kb", 0, function() return I("fenp") end, function()
+      V.q = (R["#kb"] + 1) * U
+      local q = I("q")
+      V.v = Y[q]
+      if R.v > 0 and R.v < U then
+        V.w = E"@feW*pow(min(1,@v/0.12),0.45)*pow(max(0.0001,1-pow(@v,@fekp)),@fekq)*(1-@fenar*@v)"
+        if R["#kb"] % 2 == 0 then V.w = E"@w*(1-@fetk)" end
+      else V.w = 0 end
+      sides(q, "w")
+    end)
+    bladeassemble(I("fenp")) smoothprep(2 * I("fenp")) keep("fep")
+    vtone("flo@c", R.fet) vfill("flo@c", U, 0, function() kept("fep") end)
+    if R.fepcm > K"0.2" then vtone("flo@c", K"0.08") vfill("flo@c", K"0.28", 1, function() fehalf("fep", I("fenp")) end) end
+    if R.fepcm > K"0.35" then
+      V.twa = K"0.03" V.twb = K"0.004"
+      V.xb = E"@fefb*0.82*0.82/3" V.xc = E"@fefb*0.82*0.82"
+      vfill("white", K"0.6", 0, function() vtaper(0, 0, 0, K"0.2733", R.xb, K"0.5467", R.xc, K"0.82") end)
+    end
+    if R.feund == U and R.fepcm > K"0.35" then fesori("fep") end
+  end
+  -- \flo@fecpt{x expr}{v expr}: a comb's point, left of the midrib
+  local function fecpt(x, v)
+    V.fecp = R.fecp + U V.t = E(v)
+    V.xl = E("@fefb*@t*@t-(" .. x .. ")")
+    setv(RX, I("fecp"), R.xl) setv(RY, I("fecp"), R.t)
+  end
+  -- \flo@fesorc: the sori of a comb
+  local function fesorc()
+    V.fesr = tr("sori") vaccent("flo@c", K"-0.35")
+    if R.fesr == "marginal" then
+      V.t = E"min(0.4,0.22*@fepcm)" vstroke("flo@c", R.t, K"0.75", 0, function() kept("fec") end)
+    else
+      local spk = {}
+      loop("#kb", 1, function() return I("fecn") end, function()
+        V.v = E"0.05+@fecd*(#kb-0.5)" V.fecl = E"@feW*(1-0.72*pow(@v,1.5))"
+        V.ya = E"@v+0.35*@fecs" V.sx = E"@fefb*@ya*@ya"
+        V.xa = E"@sx-0.45*@fecl" V.xb = E"@sx+0.45*@fecl"
+        if R.fesr == "dots" then
+          V.t = E"0.16*min(@fecd,@fecl)"
+          spk[#spk + 1] = "\\pgfpathcircle{" .. P(R.xa, R.ya) .. "}{" .. str(R.t) .. "pt}\\pgfpathcircle{"
+            .. P(R.xb, R.ya) .. "}{" .. str(R.t) .. "pt}"
+        else
+          V.xc = E"@sx-0.7*@fecl" V.xd = E"@sx+0.7*@fecl" V.yb = E"@ya+0.6*@fecs"
+          spk[#spk + 1] = "\\pgfpathmoveto{" .. P(R.xa, R.ya) .. "}\\pgfpathlineto{" .. P(R.xc, R.yb)
+            .. "}\\pgfpathmoveto{" .. P(R.xb, R.ya) .. "}\\pgfpathlineto{" .. P(R.xd, R.yb) .. "}"
+        end
+      end)
+      if R.fesr == "dots" then vfill("flo@c", K"0.9", 0, pts(spk))
+      elseif R.fesr == "lines" then vstroke("flo@c", K"0.45", K"0.85", 0, pts(spk)) end
+    end
+  end
+  -- \flo@fecomb: a pinna cut into pinnules, along +y, length 1
+  local function fecomb()
+    V.fefb = range(K"0.04", K"0.12") V.t = sym(K"0.03") V.fet = E"@fetone+@t"
+    V.t = E"int(max(3,min(9,@fepcm/0.15)))" V.fecn = pm.int(R.t)
+    V.fecd = E"0.9/@fecn" V.fecs = E"0.35*@fecd"
+    V.fecp = U setv(RX, 1, 0) setv(RY, 1, 0)
+    loop("#kb", 1, function() return I("fecn") end, function()
+      V.v = E"0.05+@fecd*(#kb-0.5)" V.t = range(K"0.9", K"1.06")
+      V.fecl = E"@feW*(1-0.72*pow(@v,1.5))*@t"
+      if R.fediv > 2 * U then
+        fecpt("0.12*@feW", "@v-0.5*@fecd") fecpt("0.5*@fecl", "@v-0.4*@fecd+0.3*@fecs")
+        fecpt("0.62*@fecl", "@v-0.2*@fecd+0.55*@fecs") fecpt("@fecl", "@v+@fecs")
+        fecpt("0.66*@fecl", "@v+0.24*@fecd+0.7*@fecs") fecpt("0.52*@fecl", "@v+0.38*@fecd+0.5*@fecs")
+      else
+        fecpt("0.12*@feW", "@v-0.5*@fecd") fecpt("0.58*@fecl", "@v-0.36*@fecd+0.5*@fecs")
+        fecpt("@fecl", "@v+@fecs") fecpt("0.62*@fecl", "@v+0.36*@fecd+0.6*@fecs")
+      end
+    end)
+    V.fech = R.fecp V.fecp = R.fecp + U
+    setv(RX, I("fecp"), R.fefb) setv(RY, I("fecp"), U)
+    loop("#kb", 2, function() return I("fech") end, function()
+      local kb = R["#kb"]
+      V.q = (I("fech") + 2 - kb) * U V.ia = (I("fecp") + kb - 1) * U
+      local q = I("q")
+      V.t = E("%1", { RY[q] }) V.xl = E("2*@fefb*@t*@t-(%1)", { RX[q] })
+      setv(RX, I("ia"), R.xl) setv(RY, I("ia"), R.t)
+    end)
+    V.fecp = 2 * R.fech
+    loop("#kb", 1, function() return I("fecp") end, function() put(R["#kb"], RX[R["#kb"]], RY[R["#kb"]]) end)
+    smoothprep(I("fecp")) keep("fec")
+    vtone("flo@c", R.fet) vfill("flo@c", U, 0, function() kept("fec") end)
+    vtone("flo@c", K"0.08") vfill("flo@c", K"0.28", 1, function() fehalf("fec", I("fech")) end)
+    V.twa = K"0.025" V.twb = K"0.004"
+    V.xb = E"@fefb*0.9*0.9/3" V.xc = E"@fefb*0.9*0.9"
+    vfill("white", K"0.55", 0, function() vtaper(0, 0, 0, K"0.3", R.xb, K"0.6", R.xc, K"0.9") end)
+    if R.feund == U then fesorc() end
+  end
+  -- \flo@febeads: a fertile pinna, a row of beads along +y, length 1
+  local function febeads()
+    V.fefb = range(K"0.02", K"0.08") V.t = E"int(max(2,min(7,2+5*@fepcm)))" V.fend = pm.int(R.t)
+    vtone("flo@c", K"0.12") V.xb = E"@fefb*0.9*0.9/3" V.xc = E"@fefb*0.9*0.9"
+    vstroke("flo@c", K"0.3", K"0.8", 0, function() moveto(0, 0) curveto(0, K"0.3", R.xb, K"0.6", R.xc, K"0.9") end)
+    local spk = {}
+    loop("#kb", 1, function() return I("fend") end, function()
+      V.v = E"0.95*(#kb-0.3)/@fend" V.sx = E"@fefb*@v*@v"
+      V.t = range(K"0.85", K"1.1") V.t = E"0.6/@fend*(1-0.4*@v)*@t"
+      spk[#spk + 1] = "\\pgfpathcircle{" .. P(R.sx, R.v) .. "}{" .. str(R.t) .. "pt}"
+    end)
+    V.t = sym(K"0.04") vtone("flo@c", E"0.32+@t") vfill("flo@c", U, 0, pts(spk))
+    vtone("flo@c", K"0.08") vstroke("flo@c", K"0.25", K"0.45", 1, pts(spk))
+  end
+  -- where a pinna (or the tip) leaves the rachis at \flo@fes: \flo@fpx, \flo@fpy
+  local function rachisat()
+    V.fei = pm.int(R.t) V.fef = E"@t-@fei"
+    V.fia = (I("fei") + 1) * U V.fib = (I("fei") + 2) * U
+    local ia, ib = I("fia"), I("fib")
+    V.fpx = E("%1+(%2-(%1))*@fef", { T.FX[ia], T.FX[ib] })
+    V.fpy = E("%1+(%2-(%1))*@fef", { T.FY[ia], T.FY[ib] })
+  end
+  -- \flo@frond{length pt}
+  function T.frond(len)
+    V.fept = len V.fecm = E("(%1)/28.45276", { len })
+    if R.fearch == "" then V.t = sym(U) V.fearch = E"@t*(20+70*$curl)" end
+    if R.feun >= K"0.97" then V.feun = U end
+    if R.fefert == U then V.rampname = "flo@aramp" end
+    V.fest = tr("stipe") V.fen = tr("pinnae") V.fediv = tr("division")
+    OL[tr("outline")]() AP[tr("leafapex")]() V.fetd = MG[tr("leafmargin")]
+    V.fesh = tr("leafshape") V.tmp = "lanceolate"
+    if R.fesh == R.tmp then V.fenar = K"0.3" else V.fenar = 0 end
+    V.feo = E"@fest+(1-@fest)*(@feun<1 ? 0.3+0.7*@feun : 1)"
+    V.fex = 0 V.fey = 0 feput(1, 0, 0)
+    loop("#kb", 1, 32, function()
+      V.t = E"@feo*(#kb-0.5)/32" V.fea = E"90+@fearch*pow(@t,1.5)"
+      V.fex = E"@fex+@feo/32*cos(@fea)" V.fey = E"@fey+@feo/32*sin(@fea)"
+      feput(R["#kb"] + 1, R.fex, R.fey)
+    end)
+    if R.feun < U then
+      if R.fearch < 0 then V.fesg = -U else V.fesg = U end
+      V.fecT = E"100+440*(1-@feun)"
+      V.fecr = E"0.65*(1-@feo)/(@fecT*0.0174533*0.541)"
+      V.fea = E"90+@fearch*pow(@feo,1.5)"
+      loop("#kb", 1, 24, function()
+        V.fea = E"@fea+@fesg*@fecT/24"
+        V.t = E"@fecr*pow(0.25,(#kb-0.5)/24)*@fecT/24*0.0174533"
+        V.fex = E"@fex+@t*cos(@fea)" V.fey = E"@fey+@t*sin(@fea)"
+        feput(R["#kb"] + 33, R.fex, R.fey)
+      end)
+    end
+    V.t = range(K"0.9", K"1.1") V.fepm = E"(1-@fest)*@fewr*@t"
+    if R.fefert == U then V.fepm = E"0.45*@fepm" end
+    V.fetone = range(K"0.24", K"0.34")
+    if R.feund == U then V.fetone = E"@fetone+0.14" end
+    loop("#Gd", 1, function() return I("fen") end, function()
+      loop("#Ge", 0, 1, function()
+        V.feb = E"0.93*pow((#Gd-0.5+0.42*#Ge)/@fen,0.85)"
+        V.fes = E"@fest+(1-@fest)*@feb"
+        if R.feb < R.febm then V.fee = E"@felo+(1-@felo)*sin(90*@feb/@febm)"
+        else V.fee = E"pow(max(0.0001,cos(90*(@feb-@febm)/(1-@febm))),@fekx)" end
+        if R.feun < U then V.fee = E"@fee*max(0,min(1,0.3+0.7*(@feo-@fes)/0.15))" end
+        V.t = range(K"0.92", K"1.06") V.fel = E"@fepm*@fee*@t"
+        V.t = sym(4 * U) V.fal = E"70-30*@feb+@t"
+        V.fepcm = E"@fel*@fecm"
+        V.t = E"@fes<@feo-0.004 && @fepcm>0.08 ? 1 : 0"
+        if R.t > K"0.5" then
+          V.t = E"0.93*(1-@fest)*(pow((#Gd+0.5)/@fen,0.85)-pow((#Gd-0.5)/@fen,0.85))"
+          V.feW = E"min(0.22,0.34*@t*sin(@fal)/@fel)"
+          V.t = E"@fes/@feo*32" rachisat()
+          V.fea = E"90+@fearch*pow(@fes,1.5)"
+          scope(function()
+            shift(R.fpx, R.fpy)
+            if R["#Ge"] == 0 then V.t = E"@fea+@fal-90" else V.t = E"@fea-@fal-90" end
+            rotate(R.t)
+            if R["#Ge"] == 1 then xscale(-U) end
+            scale(R.fel)
+            if R.fefert == U then febeads()
+            elseif R.fediv > U then if R.fepcm > K"0.45" then fecomb() else fepinna() end
+            else fepinna() end
+          end)
+        end
+      end)
+    end)
+    if R.feun >= U and R.fefert == 0 then
+      V.fes = E"@fest+0.91*(1-@fest)" V.fel = E"0.1*(1-@fest)"
+      V.t = E"@fes*32" rachisat()
+      V.fea = E"90+@fearch*pow(@fes,1.5)" V.feW = K"0.13" V.fepcm = E"@fel*@fecm"
+      scope(function() shift(R.fpx, R.fpy) V.t = E"@fea-90" rotate(R.t) scale(R.fel) fepinna() end)
+    end
+    loop("#kb", 1, 33, function() put(R["#kb"], T.FX[R["#kb"]], T.FY[R["#kb"]]) end)
+    V.fewb = E"0.0025+0.006*(1-@feun)" vtone("flo@c", K"0.1") feribbon(33, K"0.012", R.fewb)
+    if tr("hairy") == U then
+      local spk = {}
+      loop("#kb", 2, 32, function()
+        V.t = E"@feo*(#kb-1)/32<0.9*@fest && mod(#kb,2)==0 ? 1 : 0"
+        if R.t > K"0.5" then
+          local kb = R["#kb"]
+          V.fia = (kb + 1) * U
+          V.da = E("%1-(%2)", { T.FX[kb + 1], T.FX[kb] }) V.db = E("%1-(%2)", { T.FY[kb + 1], T.FY[kb] })
+          nrm(R.da, R.db, "nax", "nay")
+          V.t = E"mod(#kb,4)==0 ? 1 : -1" V.ts = range(K"0.012", K"0.02")
+          V.xa = E("%1+@t*@nax*0.005", { T.FX[kb] }) V.ya = E("%1+@t*@nay*0.005", { T.FY[kb] })
+          V.xb = E"@xa+@t*@nax*@ts+@da*12*@ts" V.yb = E"@ya+@t*@nay*@ts+@db*12*@ts"
+          spk[#spk + 1] = "\\pgfpathmoveto{" .. P(R.xa, R.ya) .. "}\\pgfpathlineto{" .. P(R.xb, R.yb) .. "}"
+        end
+      end)
+      vaccent("flo@c", K"-0.3") vstroke("flo@c", K"0.35", K"0.85", 0, pts(spk))
+    end
+    if R.feun < U then
+      loop("#kb", 1, 25, function() put(R["#kb"], T.FX[R["#kb"] + 32], T.FY[R["#kb"] + 32]) end)
+      normals(25)
+      local spk = {}
+      loop("#kb", 2, 24, function()
+        local kb = R["#kb"]
+        V.r = E"@fecr*pow(0.25,(#kb-1)/24)"
+        V.xa = E("%1-@fesg*%2*0.33*@r", { X[kb], NX[kb] })
+        V.ya = E("%1-@fesg*%2*0.33*@r", { Y[kb], NY[kb] })
+        V.t = E(kb % 2 == 1 and "(0.15)*@r" or "(0.21)*@r")
+        spk[#spk + 1] = "\\pgfpathcircle{" .. P(R.xa, R.ya) .. "}{" .. str(R.t) .. "pt}"
+      end)
+      V.fewa = E"0.56*@fecr" V.fewb = E"0.16*@fecr"
+      vtone("flo@c", K"0.27") feribbon(25, R.fewa, R.fewb)
+      vtone("flo@c", K"0.2") vfill("flo@c", U, 0, pts(spk))
+      vtone("flo@c", K"0.06") vstroke("flo@c", K"0.25", K"0.35", 1, pts(spk))
+      loop("#kb", 1, 22, function() put(R["#kb"], T.FX[R["#kb"] + 32], T.FY[R["#kb"] + 32]) end)
+      V.fewa = E"0.14*@fecr" vstreak(22, R.fewa, K"0.002", "white", K"0.5")
+    end
+  end
+  -- \flo@ferncrown: three to five fronds from a crown at the origin (cm), \flo@gH the longest
+  function T.ferncrown()
+    out("\\pgfsetroundcap\\pgfsetroundjoin") scale(K"28.45276")
+    V.season = R["o@season"] V.fenf = int(3, 5)
+    loop("#Ga", 1, function() return I("fenf") end, function()
+      V.f = E"(#Ga-(@fenf+1)/2)/((@fenf-1)/2)"
+      V.t = sym(8 * U) V.fela = E"90-44*@f+@t"
+      V.t = range(K"0.8", K"1.2") V.feac = E"(@f<0 ? 1 : -1)*(20+70*$curl)*@t*(0.4+0.6*abs(@f))"
+      V.t = range(K"0.85", U) V.fell = E"@gH*(1-0.22*abs(@f))*@t"
+      V.t = range(0, K"0.3") V.feuu = E"max(0,min(1,(@season-0.1-$phenology-@t)/0.4))"
+      if chance(K"0.4") then V.feuf = U else V.feuf = 0 end
+      V.lc = rnd() V.fexx = E"0.06*@f"
+      seedorgan()
+      organ(function()
+        V.feun = R.feuu V.fearch = R.feac
+        if R.feun < K"0.97" then V.feund = 0 else V.feund = R.feuf end
+        shift(R.fexx, 0) V.t = E"@fela-90" rotate(R.t)
+        scale(R.fell) autumnleaf()
+        V.t = E"@fell*28.45276" T.frond(R.t)
+      end)
+    end)
+    if tr("dimorphic") == U and R.season > K"0.55" then
+      V.t = sym(6 * U) V.fela = E"90+@t" V.feac = sym(12 * U)
+      V.t = range(K"0.55", K"0.7") V.fell = E"@gH*@t"
+      seedorgan()
+      organ(function()
+        V.fefert = U V.fearch = R.feac V.feun = U
+        V.t = E"@fela-90" rotate(R.t) scale(R.fell)
+        V.t = E"@fell*28.45276" T.frond(R.t)
+      end)
+    end
+  end
+end
+
 -- ---------------------------------------------------------------- the main stem
 local function stemx(h)                                      -- -> \flo@sx
   local a = { h }
@@ -3495,12 +3844,13 @@ local function reset()
   for k in pairs(R) do R[k] = nil end
   level, saves = 0, {}
   for _, t in ipairs({ X, Y, A, B, C, D, NX, NY, RX, RY, QX, QY, S, T.TX, T.TY, T.MX, T.MY, T.MU, T.MV,
-    T.AX, T.AY, T.AN, T.AM, T.O, T.VEIN, T.Z, KEPT, ROOM, G[1], G[2], G[3] }) do
+    T.AX, T.AY, T.AN, T.AM, T.O, T.VEIN, T.Z, T.FX, T.FY, KEPT, ROOM, G[1], G[2], G[3] }) do
     for k in pairs(t) do t[k] = nil end
   end
   R.lift = 0 R.zero = 0 R["vp@notchp"] = K"0.4" R["vp@notchk"] = U
   R["vf@star"] = "" R["vf@tone"] = "" R.rampname = "flo@ramp" R.layer = 0 R.filling = 0 R.bside = "" R.bfan = 0 R.ivc = 0 R.ivpt = 0
   R.fore = U R.lsd = "" R.lleaflet = 0 R.lmover = "" R.hk = 0
+  R.feun = U R.fefert = 0 R.feund = 0 R.fearch = ""
   OUT = {}
 end
 -- \flo@picsetup: the species, then the drawing's own stream (draw=, or the seed + 1)
@@ -3535,10 +3885,16 @@ function M.pic(kind, o)
     unitdraw(o.scale)
   elseif kind == "plant" then
     picsetup(o)
-    V["#Np"] = 1 V["pp@s1"] = o.seed V["pp@r1"] = o.role or "any"
-    V.gH = sizecm(o.size) V.gghost = "false"
-    V.gW = sizecm(o.width) V["o@season"] = o.season or K"0.75"
-    garden()
+    V.gH = sizecm(o.size) V["o@season"] = o.season or K"0.75"
+    if tr("clade") == "fern" then T.ferncrown() else
+      V["#Np"] = 1 V["pp@s1"] = o.seed V["pp@r1"] = o.role or "any"
+      V.gghost = "false" V.gW = sizecm(o.width)
+      garden()
+    end
+  elseif kind == "fern" then
+    o.role = "fern" picsetup(o)
+    V.gH = sizecm(o.size) V["o@season"] = o.season or K"0.75"
+    T.ferncrown()
   elseif kind == "plants" then
     V["#Np"] = #o.plants
     for k, p in ipairs(o.plants) do V["pp@s" .. k] = p[1] V["pp@r" .. k] = p[2] end
@@ -3625,6 +3981,7 @@ local function fx(x) return math.floor(x * U + 0.5) end      -- a Lua number as 
 --   unit     k (scale), season, late: the inflorescence (\flo@unit without its room)
 --   budding  k: buds on stalks       tendril  size     bloom  d (diameter cm), stage
 --   leaf     len (cm), bend, lc (0..1, the autumn draw), season
+--   frond    len (cm), unroll (0..1), arch (degrees), fertile, under, lc, season: a fern's
 --   ghost    d: a plain pale flower of the species, as the garden's ghost
 local function organ(kind, s, z, o)
   reset()
@@ -3650,6 +4007,12 @@ local function organ(kind, s, z, o)
       -- width in the leaf's units)
       if o.sheath then V.lsd = fx(o.sheath[1]) V.lsw = fx(o.sheath[2]) end
       V.t = E"@lf*28.45276" leaf(R.t)
+    elseif kind == "frond" then
+      -- a fern's frond: len (cm), unroll (0..1), arch (degrees), fertile, under, lc, season
+      V.lf = fx(o.len) V.lc = fx(o.lc) V.season = fx(o.season)
+      scale(R.lf) autumnleaf()
+      V.feun = fx(o.unroll) V.fearch = fx(o.arch) V.fefert = o.fertile and U or 0 V.feund = o.under and U or 0
+      V.t = E"@lf*28.45276" T.frond(R.t)
     elseif kind == "ghost" then
       V.gdiam = fx(o.d) V.lift = K"0.62" stone()
       V["v@form"] = "rotate"
@@ -3775,6 +4138,7 @@ function M.draw(kind, s, z, o)
   if M.keep then
     local key = table.concat({ kind, s.seed, s.role, z, tostring(o.k), tostring(o.season), tostring(o.late), tostring(o.size),
       tostring(o.d), tostring(o.stage), tostring(o.len), tostring(o.bend), tostring(o.lc), tostring(o.fore),
+      tostring(o.unroll), tostring(o.arch), tostring(o.fertile), tostring(o.under),
       o.sheath and (o.sheath[1] .. "/" .. o.sheath[2]) or "" }, " ")
     code = kept_code[key]
     if not code then code = organ(kind, s, z, o) kept_code[key] = code end

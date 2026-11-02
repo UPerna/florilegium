@@ -3,19 +3,20 @@
 -- Choices: compiles tools/tikzcheck.tex (the pure-TikZ library draws species FROM..TO and
 -- writes their choices), samples the same seeds with florilegium-species.lua, and compares
 -- them, every choice and every real-valued trait exactly (both are pgfmath's numbers).
---   texlua tools/tikzcheck.lua [FROM TO [ENGINE]]   (from the repo root; default 1 1000 lualatex)
+--   texlua tools/tikzcheck.lua [FROM TO [ENGINE [ROLE]]]   (from the repo root; default 1 1000 lualatex any)
 --   tools/in-docker texlua tools/tikzcheck.lua 1 1000 pdflatex
 --
 -- Drawings: builds tools/tikzcheck-draw.tex twice under LuaLaTeX, once with the pure-TikZ
 -- library and once with the hybrid (engine=lua: florilegium-organs.lua computes, TikZ
 -- draws), uncompressed, and compares each page's content stream: the same operators in
 -- the same order and every number within 0.05 bp; the streams are expected to be equal.
---   texlua tools/tikzcheck.lua draw [quick|full]      (quick: one flower, one leaf and one
+--   texlua tools/tikzcheck.lua draw [quick|full|fern] (quick: fronds of every division,
+--   outline and edge, fern crowns in three seasons, then one flower, one leaf and one
 --   inflorescence of every body plan, one inflorescence of every kind and of every view,
 --   a pea's leaves and plant with tendrils, compound leaves of every kind, curled tips,
 --   plants whose leaves come in crossed pairs or sheathe the stem, the v1.3 pics, a plant in three
 --   seasons; full: also two strips of three plants, as specimen-tikz.tex
---   draws them, several minutes in pure TikZ)
+--   draws them, several minutes in pure TikZ; fern: the ferns alone)
 package.path = "./?.lua;" .. package.path
 local fmt = string.format
 os.execute("mkdir -p build")
@@ -51,14 +52,43 @@ local function compare(a, b, tol)
 end
 
 if arg[1] == "draw" then
-  local full = arg[2] == "full"
+  local full, fernonly = arg[2] == "full", arg[2] == "fern"
   local species = require("florilegium-species")
   local pics = {}
   local function pic(spec) pics[#pics + 1] = spec end
+  -- ferns: fronds of every division, outline and edge, scaly and bare; crowns in spring,
+  -- summer and autumn (fiddleheads, fronds unrolling, some turned over to show each kind of
+  -- sori, copper in autumn), a dimorphic fern's fertile frond, a fern as a plant pic
+  local function fern(want)
+    local seed = 1
+    while not want(species.sample(seed, "fern")) do seed = seed + 1 end
+    return seed
+  end
+  for _, w in ipairs({
+      function(f) return f.division == 1 and f.outline == "oblong" end,
+      function(f) return f.division == 1 and f.leafmargin == "serrate" and f.hairy == 1 end,
+      function(f) return f.division == 1 and f.leafmargin == "crenate" and f.leafapex == "rounded" end,
+      function(f) return f.division == 2 and f.outline == "deltoid" end,
+      function(f) return f.division == 2 and f.outline == "ovate" end,
+      function(f) return f.division == 3 and f.outline == "lanceolate" end }) do
+    pic(fmt("florilegium leaf={seed=%d, role=fern, size=7cm}", fern(w)))
+  end
+  for _, w in ipairs({
+      function(f) return f.dimorphic == 1 and f.sori == "dots" and f.turns == 1 end,
+      function(f) return f.division == 1 and f.sori == "lines" end,
+      function(f) return f.division == 2 and f.sori == "marginal" end,
+      function(f) return f.division == 3 and f.sori == "dots" end }) do
+    local seed = fern(w)
+    for _, season in ipairs({ "0.3", "0.75", "1.25" }) do
+      pic(fmt("florilegium fern={seed=%d, size=6cm, season=%s}", seed, season))
+    end
+  end
+  pic(fmt("florilegium plant={seed=%d, role=fern, size=5cm, season=0.6}", fern(function(f) return f.hairy == 1 end)))
+  if not fernonly then
   for i, p in ipairs(species.PLANS) do
-    pic(fmt("florilegium flower={seed=%d, role=%s, size=2.6cm}", 10 + 7 * i, p.name))
+    if not p.apart then pic(fmt("florilegium flower={seed=%d, role=%s, size=2.6cm}", 10 + 7 * i, p.name)) end
     pic(fmt("florilegium leaf={seed=%d, role=%s, size=3.4cm}", 11 + 7 * i, p.name))
-    pic(fmt("florilegium inflorescence={seed=%d, role=%s, scale=1, season=0.85}", 12 + 7 * i, p.name))
+    if not p.apart then pic(fmt("florilegium inflorescence={seed=%d, role=%s, scale=1, season=0.85}", 12 + 7 * i, p.name)) end
   end
   -- an inflorescence of every kind (the first seed that has it), a few also in bud and in fruit
   local SEASONS = { monochasium = { "0.3", "1.3" }, dichasium = { "1.3" }, catkin = { "0.3", "1.3" }, umbel = { "0.3" },
@@ -197,6 +227,7 @@ if arg[1] == "draw" then
     pic("florilegium plants={plants={3/rose,17/umbellifer,29/mustard}, size=21cm, width=6cm}")
     pic("florilegium plants={plants={3/daisy,17/lily,29/rose}, size=21cm, width=6cm}")
   end
+  end
   local f = assert(io.open("build/tikzcheck-draw.pics", "w"))
   for _, p in ipairs(pics) do f:write("\\begin{tikzpicture}\\pic {", p, "};\\end{tikzpicture}\\newpage\n") end
   f:close()
@@ -233,10 +264,11 @@ local species = require("florilegium-species")
 local pm = require("florilegium-pgfmath")
 local from, to = tonumber(arg[1]) or 1, tonumber(arg[2]) or 1000
 local engine = arg[3] or "lualatex"
+local role = arg[4] or "any"
 local job = "tikzcheck-" .. engine
 
-local cmd = fmt([[%s -interaction=batchmode -output-directory=build -jobname=%s "\def\tikzcheckfrom{%d}\def\tikzcheckto{%d}\input{tools/tikzcheck.tex}" >/dev/null]],
-  engine, job, from, to)
+local cmd = fmt([[%s -interaction=batchmode -output-directory=build -jobname=%s "\def\tikzcheckfrom{%d}\def\tikzcheckto{%d}\def\tikzcheckrole{%s}\input{tools/tikzcheck.tex}" >/dev/null]],
+  engine, job, from, to, role)
 local t0 = os.time()
 os.remove("build/" .. job .. ".choices")
 os.execute(cmd)
@@ -257,7 +289,7 @@ local bad = 0
 for i, line in ipairs(tex) do
   local seed = from + i - 1
   local lua = { { "seed", tostring(seed) } }
-  species.sample(seed, "any", function(t, v)
+  species.sample(seed, role, function(t, v)
     lua[#lua + 1] = { t, math.type(v) == "float" and pm.str(math.floor(v * 65536 + 0.5)) or tostring(v) }
   end)
   local got = fields(line)
@@ -276,5 +308,5 @@ for i, line in ipairs(tex) do
     if bad <= 10 then print(fmt("seed %d: %s", seed, why)) end
   end
 end
-print(fmt("%s: %d species in %d s, %d differ", engine, #tex, secs, bad))
+print(fmt("%s: %d species (role %s) in %d s, %d differ", engine, #tex, role, secs, bad))
 os.exit(bad == 0 and 0 or 1)

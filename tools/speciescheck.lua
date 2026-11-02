@@ -1,7 +1,7 @@
 -- Check the species tables without TeX: every sampled species keeps the rules of
 -- florilegium-species.lua, the body plans and traits are spread as intended, and the
 -- generated TikZ tables are current.
---   texlua tools/speciescheck.lua [N]          (from the repo root; N species, default 10000)
+--   texlua tools/speciescheck.lua [N]          (from the repo root; N species and N/10 ferns, default 10000)
 --   texlua tools/speciescheck.lua --pools K     K documents' pools, in words
 --   texlua tools/speciescheck.lua --log a b     choice logs of seeds a..b, role any (for tikzcheck)
 package.path = "./?.lua;" .. package.path
@@ -55,13 +55,28 @@ for seed = 1, N do
   end
   species.describe(sp)
 end
-for _, t in ipairs({ "plan", "syndrome", "form", "merosity", "inflo", "compound", "leafmargin", "venation", "arrangement", "fruit" }) do
+-- ferns (only the role fern draws them), one for every ten flowering plants
+local NF = math.max(1, N // 10)
+for seed = 1, NF do
+  local sp = species.sample(seed, "fern")
+  local v = species.violations(sp)
+  if sp.plan ~= "fern" then v[#v + 1] = "the role fern drew " .. sp.plan end
+  if #v > 0 then
+    bad = bad + 1
+    if bad <= 10 then print(fmt("seed %d (fern): %s", seed, table.concat(v, "; "))) end
+  end
+  for _, t in ipairs({ "division", "pinnae", "outline", "sori", "dimorphic" }) do count("fern " .. t, sp[t]) end
+  species.describe(sp)
+end
+for _, t in ipairs({ "plan", "syndrome", "form", "merosity", "inflo", "compound", "leafmargin", "venation", "arrangement", "fruit",
+  "fern division", "fern pinnae", "fern outline", "fern sori", "fern dimorphic" }) do
   local ks = {}
   for k in pairs(hist[t]) do ks[#ks + 1] = k end
   table.sort(ks, function(a, b) return hist[t][a] > hist[t][b] or (hist[t][a] == hist[t][b] and tostring(a) < tostring(b)) end)
   local parts = {}
-  for _, k in ipairs(ks) do parts[#parts + 1] = fmt("%s %.1f%%", tostring(k), 100 * hist[t][k] / N) end
-  print(fmt("%-12s %s", t, table.concat(parts, ", ")))
+  local n = t:match("^fern ") and NF or N
+  for _, k in ipairs(ks) do parts[#parts + 1] = fmt("%s %.1f%%", tostring(k), 100 * hist[t][k] / n) end
+  print(fmt("%-15s %s", t, table.concat(parts, ", ")))
 end
 
 -- the generated TeX must match the tables
@@ -70,5 +85,5 @@ local stale = not f or f:read("a") ~= species.tex()
 if f then f:close() end
 if stale then print("tikzlibraryflorilegium.tables.code.tex is stale: texlua tools/tikztables.lua") end
 
-print(fmt("%d species, %d broke a rule", N, bad))
+print(fmt("%d species and %d ferns, %d broke a rule", N, NF, bad))
 os.exit((bad == 0 and not stale) and 0 or 1)

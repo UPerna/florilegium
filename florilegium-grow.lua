@@ -667,6 +667,59 @@ function M.page(g)
     add_stem_points(footpts, 0.065, 0.012, nil, comm and comm[4])
     if comm then topof[comm[4]] = g.ph * 0.3 end         -- a low plant: its flowers open as a stem's lower ones
   end
+  -- species: on some pages the document's fern grows at the root beside the four plants
+  -- (a stream of its own decides, as the visitors' does, so a page without one is as it
+  -- was): two to four fronds arching out of a crown, most into the column, the left ones
+  -- shorter (the paper's edge is near); in spring still unrolling from fiddleheads, each a
+  -- little behind or ahead of the season; two in five of the open ones turned to show the
+  -- sori; a dimorphic fern's fertile frond upright among them from midsummer. Their discs
+  -- along each frond keep the plants' leaves and branches out of it
+  local fern, nfronds = nil, 0
+  if comm then
+    local fs = ink.rng(g.seed * 7919 + 401)
+    if fs.chance(0.4) and D >= 0.35 then
+      fern = SPC.fern(g.docseed or 0)
+      local n = fs.int(2, 4)
+      local fronds = {}
+      for i = 1, n do
+        local f = n == 1 and 0 or -1 + 2 * (i - 1) / (n - 1)
+        local a = 70 - 38 * f + fs.sym(8)
+        local arch = (f < 0 and 1 or -1) * (25 + 60 * fern.curl) * (0.5 + 0.5 * abs(f)) * fs.range(0.8, 1.2)
+        local L = min(7.5, g.ph * 0.24) * (f < 0 and 0.75 or 1) * (1 - 0.15 * abs(f)) * fs.range(0.85, 1)
+        local un = max(0, min(1, (osea - 0.1 - fern.phenology - fs.range(0, 0.3)) / 0.4))
+        fronds[#fronds + 1] = { a = a, arch = arch, L = L, un = un, under = un >= 0.97 and fs.chance(0.4), lc = fs.u() }
+      end
+      if fern.dimorphic == 1 and osea > 0.55 then
+        table.insert(fronds, 1 + n // 2, { a = 84 + fs.sym(6), arch = fs.sym(12), L = min(7.5, g.ph * 0.24) * fs.range(0.55, 0.7),
+          un = 1, fertile = true, lc = fs.u() })
+      end
+      local x0, y0 = root[1] + 0.3, root[2] + 0.02
+      for i, fr in ipairs(fronds) do
+        -- the spine as the frond draws it, in page cm, for its discs
+        local fo = fr.un < 1 and fern.stipe + (1 - fern.stipe) * (0.3 + 0.7 * fr.un) or 1
+        local px, py, rot = 0, 0, (fr.a - 90) * rad
+        local reach = (1 - fern.stipe) * ({ lanceolate = 0.26, oblong = 0.2, ovate = 0.32, deltoid = 0.42 })[fern.outline]
+        if fr.fertile then reach = 0.45 * reach end
+        for k = 1, 32 do
+          local sk = fo * (k - 0.5) / 32
+          local th = (90 + fr.arch * sk ^ 1.5) * rad
+          px, py = px + fo / 32 * cos(th), py + fo / 32 * sin(th)
+          if k % 3 == 0 then
+            local x = x0 + fr.L * (px * cos(rot) - py * sin(rot))
+            local y = y0 + fr.L * (px * sin(rot) + py * cos(rot))
+            disc(x, y, sk > fern.stipe and 0.75 * reach * fr.L or 0.12, 0.7)
+          end
+        end
+        event({ kind = "bloom", phase = "stems", off = 0.5 + 0.3 * i, size = 1 })
+        place(L_LEAF, x0, y0, fr.a, function()
+          ORG.draw("frond", fern, pgfseed(rng.fork()), { len = fr.L, unroll = fr.un, arch = fr.arch, fertile = fr.fertile,
+            under = fr.under, lc = fr.lc, season = osea })
+        end)
+      end
+      nfronds = #fronds
+    end
+  end
+
   -- on the last page, branches arch out of the main stems into the space under
   -- the text, each ending in a flower
   local leafy = {}
@@ -708,6 +761,7 @@ function M.page(g)
   -- ---------------------------------------------------------- 2. terminal flowers and ghosts
   local counts = {}
   for _, m in ipairs(motifs) do counts[m.name] = 0 end
+  if fern then counts.fern = nfronds end
   -- species: plant sp's inflorescence at (x, y) along `a` (degrees), its disc as close to
   -- radius `target` as its scale range [kmin, kmax] allows; returns the disc
   local function top(sp, x, y, a, target, kmin, kmax, ev, single)
@@ -1380,7 +1434,9 @@ function M.page(g)
     end
   end
   -- what grew, for a page that describes its own garden (florilegium-svg.lua and the playground)
-  return { stats = { motifs = n, counts = counts, stems = #spts, cells = #gx, species = plants } }
+  -- the fern, if the page has one (not among the four: it has no stem of its own)
+  local fernstat = fern and { plan = fern.plan, seed = fern.seed, text = SPC.describe(fern), fronds = nfronds } or nil
+  return { stats = { motifs = n, counts = counts, stems = #spts, cells = #gx, species = plants, fern = fernstat } }
 end
 
 return M

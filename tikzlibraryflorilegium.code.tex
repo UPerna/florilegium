@@ -1792,11 +1792,18 @@
 % plant from its root, size its height, its branches reaching about width
 \tikzset{pics/florilegium plant/.style={code={\flo@engine{#1}{plant}{%
   \flo@picsetup{#1}%
+  \flo@calc\flo@gH{\flo@sizept/28.45276}%
+  \edef\flo@t{\flo@get{clade}}\def\flo@tmp{fern}%
+  \ifx\flo@t\flo@tmp\flo@ferncrown\else
   \flo@Np=1 \expandafter\edef\csname flo@pp@s1\endcsname{\flo@o@seed}%
   \expandafter\edef\csname flo@pp@r1\endcsname{\flo@o@role}%
-  \flo@calc\flo@gH{\flo@sizept/28.45276}\def\flo@gghost{false}%
+  \def\flo@gghost{false}%
   \pgfmathsetlength\pgf@x{\flo@o@width}\flo@calc\flo@gW{\pgf@x/28.45276}%
-  \flo@garden}}}}
+  \flo@garden\fi}}}}
+% \pic {florilegium fern={seed=7, size=8cm, season=0.75}}: a fern (role fern) as a margin
+% grows one at its root, size its longest frond
+\tikzset{pics/florilegium fern/.style={code={\flo@engine{#1,role=fern}{fern}{%
+  \flo@picsetup{#1,role=fern}\flo@calc\flo@gH{\flo@sizept/28.45276}\flo@ferncrown}}}}
 % \pic {florilegium plants={plants={3/rose, 17/umbellifer, 29/mustard}, size=20cm, width=6cm}}:
 % plants from one root, like a margin's main stems; the first reaches size, the others
 % 60-72% and 36-48% of it; a pale flower of the first behind them (ghost=false: none)
@@ -3339,8 +3346,8 @@
   \flo@vtone{flo@c}{0.2}\flo@vfill{flo@c}{0.9}{0}{\pgfpathcircle{\flo@P{0.014}{0.009}}{0.009pt}%
     \pgfpathcircle{\flo@P{-0.012}{0.013}}{0.009pt}\pgfpathcircle{\flo@P{-0.002}{-0.015}}{0.009pt}}}
 % the leaf of the species along +y, length 1: flora's leaf (lobed or toothed), a strap
-% leaf for parallel veins, leaflets (flora's leaflet) for a compound leaf; #1 its length on
-% the page in pt
+% leaf for parallel veins, leaflets (flora's leaflet) for a compound leaf, a fern's frond;
+% #1 its length on the page in pt
 \def\flo@leaf#1{%
   \edef\flo@lfpt{#1}\def\flo@shd{0}%
   \ifx\flo@lsd\pgfutil@empty\else\edef\flo@t{\flo@get{attachment}}\def\flo@tmp{sheathing}%
@@ -3377,7 +3384,7 @@
         \flo@calc\flo@t{max(2,min(6,\flo@get{teeth}))}\pgfmathtruncatemacro\flo@vl@lobes{\flo@t}\fi
       \flo@sleaf
     \fi
-  \else
+  \else\def\flo@tmp{frond}\ifx\flo@cp\flo@tmp\flo@frond\flo@lfpt\else
     \flo@range\flo@lt{0.24}{0.4}%
     % stipules at the foot, small or (a pea's) leafy
     \edef\flo@t{\flo@get{stipules}}\def\flo@tmp{none}%
@@ -3398,7 +3405,7 @@
     \def\flo@tmp{bipinnate}\ifx\flo@cp\flo@tmp\flo@bipinnate\flo@lfpt\fi
     \def\flo@tmp{palmate}\ifx\flo@cp\flo@tmp\flo@palmate\flo@lfpt{\flo@get{leaflets}}\fi
     \def\flo@tmp{trifoliate}\ifx\flo@cp\flo@tmp\flo@trifoliate\flo@lfpt\fi
-  \fi}
+  \fi\fi}
 % a leaflet of a compound leaf in the species' hand (\flo@sblade): its shape, apex, base
 % and margin, with no stalk or stipules, two or three lobes a side (under 7 mm, scallops
 % instead, or a pinnatifid leaflet's deep teeth: \flo@lmover); along +y, length 1; #1 its
@@ -3450,3 +3457,356 @@
   \flo@vfill{white}{0.85}{0}{\pgfpathcircle{\flo@P00}{0.22pt}}%
   \flo@vtone{flo@c}{0.08}\flo@vfill{flo@c}{1}{0}{\pgfpathcircle{\flo@P00}{0.09pt}}}
 
+
+% ================================================================ ferns
+% A fern's frond along +y, length 1: the stipe from the origin, then the rachis through the
+% blade, turning \flo@fearch degrees by its tip (+ to the left; empty: drawn from the
+% species' curl), as fronds arch over. Its pinnae come in pairs, a little alternate, inside
+% the blade's outline, spread at the foot and swept forward toward the tip, as wide as their
+% spacing allows and curving toward the tip; once divided, each pinna is a blade with the
+% species' tip and edge; twice, a comb of pinnules; three times, pinnules lobed in turn. Set
+% before: \flo@feun, how far it has unrolled (1 open; below 0.97 the rest of the blade is
+% still rolled in a crozier at the top, the pinnae just below it still small);
+% \flo@fefert 1 for a dimorphic fern's fertile frond (narrow, its pinnae rows of beads, in
+% the accent); \flo@feund 1 for a frond turned to show its underside (paler, with the sori
+% in the accent, darkened). #1 its length on the page in pt
+\def\flo@feun{1}\def\flo@fefert{0}\def\flo@feund{0}\def\flo@fearch{}
+\def\flo@feput#1#2#3{\expandafter\edef\csname flo@feX#1\endcsname{#2}\expandafter\edef\csname flo@feY#1\endcsname{#3}}
+\def\flo@fex@#1{\csname flo@feX#1\endcsname}\def\flo@fey@#1{\csname flo@feY#1\endcsname}
+% the outline: its widest point, the share of the longest pinna at the foot, how the tip
+% narrows, the longest pinna to the blade
+\def\flo@feol@lanceolate{\def\flo@febm{0.3}\def\flo@felo{0.45}\def\flo@fekx{0.8}\def\flo@fewr{0.26}}
+\def\flo@feol@oblong{\def\flo@febm{0.12}\def\flo@felo{0.7}\def\flo@fekx{0.35}\def\flo@fewr{0.2}}
+\def\flo@feol@ovate{\def\flo@febm{0.2}\def\flo@felo{0.75}\def\flo@fekx{0.9}\def\flo@fewr{0.32}}
+\def\flo@feol@deltoid{\def\flo@febm{0.04}\def\flo@felo{0.9}\def\flo@fekx{1.3}\def\flo@fewr{0.42}}
+% a pinna's tip (how its sides close) and edge (scallops or teeth, their depth)
+\def\flo@feap@acute{\def\flo@fekp{1.6}\def\flo@fekq{0.9}}
+\def\flo@feap@obtuse{\def\flo@fekp{3}\def\flo@fekq{0.6}}
+\def\flo@feap@rounded{\def\flo@fekp{5}\def\flo@fekq{0.45}}
+\def\flo@fem@entire{\def\flo@fetd{0}}\def\flo@fem@crenate{\def\flo@fetd{0.2}}\def\flo@fem@serrate{\def\flo@fetd{0.26}}
+\def\flo@frond#1{%
+  \edef\flo@fept{#1}\flo@calc\flo@fecm{(#1)/28.45276}%
+  \ifx\flo@fearch\pgfutil@empty\flo@sym\flo@t{1}\flo@calc\flo@fearch{\flo@t*(20+70*\flo@get{curl})}\fi
+  \ifdim\flo@feun pt<0.97pt \else\def\flo@feun{1}\fi
+  \ifnum\flo@fefert=1 \def\flo@rampname{flo@aramp}\fi
+  \edef\flo@fest{\flo@get{stipe}}\edef\flo@fen{\flo@get{pinnae}}\edef\flo@fediv{\flo@get{division}}%
+  \csname flo@feol@\flo@get{outline}\endcsname\csname flo@feap@\flo@get{leafapex}\endcsname
+  \csname flo@fem@\flo@get{leafmargin}\endcsname
+  \edef\flo@fesh{\flo@get{leafshape}}\def\flo@tmp{lanceolate}%
+  \ifx\flo@fesh\flo@tmp\def\flo@fenar{0.3}\else\def\flo@fenar{0}\fi
+  % the open part: the stipe and the blade up to \flo@feo (a young frond's axis lengthens
+  % before its blade unrolls); its spine in 32 steps
+  \flo@calc\flo@feo{\flo@fest+(1-\flo@fest)*(\flo@feun<1 ? 0.3+0.7*\flo@feun : 1)}%
+  \def\flo@fex{0}\def\flo@fey{0}\flo@feput1{0}{0}%
+  \flo@loop{fesp}\flo@kb{1}{32}{%
+    \flo@calc\flo@t{\flo@feo*(\the\flo@kb-0.5)/32}\flo@calc\flo@fea{90+\flo@fearch*pow(\flo@t,1.5)}%
+    \flo@calc\flo@fex{\flo@fex+\flo@feo/32*cos(\flo@fea)}\flo@calc\flo@fey{\flo@fey+\flo@feo/32*sin(\flo@fea)}%
+    \flo@feput{\the\numexpr\flo@kb+1\relax}\flo@fex\flo@fey}%
+  % the crozier: the rest of the blade rolled toward the side the frond arches, a spiral of
+  % 24 steps closing to a quarter of its radius, \flo@fecT degrees in all (fewer as it
+  % unrolls), as long as two thirds of the blade it holds; points 34..57
+  \ifdim\flo@feun pt<1pt
+    \ifdim\flo@fearch pt<0pt \def\flo@fesg{-1}\else\def\flo@fesg{1}\fi
+    \flo@calc\flo@fecT{100+440*(1-\flo@feun)}%
+    \flo@calc\flo@fecr{0.65*(1-\flo@feo)/(\flo@fecT*0.0174533*0.541)}%
+    \flo@calc\flo@fea{90+\flo@fearch*pow(\flo@feo,1.5)}%
+    \flo@loop{fecl}\flo@kb{1}{24}{%
+      \flo@calc\flo@fea{\flo@fea+\flo@fesg*\flo@fecT/24}%
+      \flo@calc\flo@t{\flo@fecr*pow(0.25,(\the\flo@kb-0.5)/24)*\flo@fecT/24*0.0174533}%
+      \flo@calc\flo@fex{\flo@fex+\flo@t*cos(\flo@fea)}\flo@calc\flo@fey{\flo@fey+\flo@t*sin(\flo@fea)}%
+      \flo@feput{\the\numexpr\flo@kb+33\relax}\flo@fex\flo@fey}%
+  \fi
+  % the pinnae, pair by pair from the foot; the longest \flo@fepm, the frond's tone
+  \flo@range\flo@t{0.9}{1.1}\flo@calc\flo@fepm{(1-\flo@fest)*\flo@fewr*\flo@t}%
+  \ifnum\flo@fefert=1 \flo@calc\flo@fepm{0.45*\flo@fepm}\fi
+  \flo@range\flo@fetone{0.24}{0.34}\ifnum\flo@feund=1 \flo@calc\flo@fetone{\flo@fetone+0.14}\fi
+  \flo@loop{fepn}\flo@Gd{1}{\flo@fen}{%
+    \flo@loop{feps}\flo@Ge{0}{1}{%
+      \flo@calc\flo@feb{0.93*pow((\the\flo@Gd-0.5+0.42*\the\flo@Ge)/\flo@fen,0.85)}%
+      \flo@calc\flo@fes{\flo@fest+(1-\flo@fest)*\flo@feb}%
+      \ifdim\flo@feb pt<\flo@febm pt \flo@calc\flo@fee{\flo@felo+(1-\flo@felo)*sin(90*\flo@feb/\flo@febm)}%
+      \else\flo@calc\flo@fee{pow(max(0.0001,cos(90*(\flo@feb-\flo@febm)/(1-\flo@febm))),\flo@fekx)}\fi
+      \ifdim\flo@feun pt<1pt \flo@calc\flo@fee{\flo@fee*max(0,min(1,0.3+0.7*(\flo@feo-\flo@fes)/0.15))}\fi
+      \flo@range\flo@t{0.92}{1.06}\flo@calc\flo@fel{\flo@fepm*\flo@fee*\flo@t}%
+      \flo@sym\flo@t{4}\flo@calc\flo@fal{70-30*\flo@feb+\flo@t}%
+      \flo@calc\flo@fepcm{\flo@fel*\flo@fecm}%
+      \flo@calc\flo@t{\flo@fes<\flo@feo-0.004 && \flo@fepcm>0.08 ? 1 : 0}%
+      \ifdim\flo@t pt>0.5pt
+        % two thirds as wide as the gap to the next pinna on its side
+        \flo@calc\flo@t{0.93*(1-\flo@fest)*(pow((\the\flo@Gd+0.5)/\flo@fen,0.85)-pow((\the\flo@Gd-0.5)/\flo@fen,0.85))}%
+        \flo@calc\flo@feW{min(0.22,0.34*\flo@t*sin(\flo@fal)/\flo@fel)}%
+        % where it leaves the rachis, and the rachis' direction there
+        \flo@calc\flo@t{\flo@fes/\flo@feo*32}\pgfmathtruncatemacro\flo@fei{\flo@t}\flo@calc\flo@fef{\flo@t-\flo@fei}%
+        \edef\flo@fia{\the\numexpr\flo@fei+1\relax}\edef\flo@fib{\the\numexpr\flo@fei+2\relax}%
+        \flo@calc\flo@fpx{\flo@fex@\flo@fia+(\flo@fex@\flo@fib-(\flo@fex@\flo@fia))*\flo@fef}%
+        \flo@calc\flo@fpy{\flo@fey@\flo@fia+(\flo@fey@\flo@fib-(\flo@fey@\flo@fia))*\flo@fef}%
+        \flo@calc\flo@fea{90+\flo@fearch*pow(\flo@fes,1.5)}%
+        \begin{pgfscope}%
+          \pgftransformshift{\flo@P\flo@fpx\flo@fpy}%
+          \ifnum\flo@Ge=0 \flo@calc\flo@t{\flo@fea+\flo@fal-90}\else\flo@calc\flo@t{\flo@fea-\flo@fal-90}\fi
+          \pgftransformrotate{\flo@t}\ifnum\flo@Ge=1 \pgftransformxscale{-1}\fi\pgftransformscale{\flo@fel}%
+          \ifnum\flo@fefert=1 \flo@febeads
+          \else\ifnum\flo@fediv>1 \ifdim\flo@fepcm pt>0.45pt \flo@fecomb\else\flo@fepinna\fi\else\flo@fepinna\fi\fi
+        \end{pgfscope}%
+      \fi}}%
+  % an open frond ends in a pinna-like tip along the rachis
+  \ifdim\flo@feun pt<1pt\else\ifnum\flo@fefert=0
+    \flo@calc\flo@fes{\flo@fest+0.91*(1-\flo@fest)}\flo@calc\flo@fel{0.1*(1-\flo@fest)}%
+    \flo@calc\flo@t{\flo@fes*32}\pgfmathtruncatemacro\flo@fei{\flo@t}\flo@calc\flo@fef{\flo@t-\flo@fei}%
+    \edef\flo@fia{\the\numexpr\flo@fei+1\relax}\edef\flo@fib{\the\numexpr\flo@fei+2\relax}%
+    \flo@calc\flo@fpx{\flo@fex@\flo@fia+(\flo@fex@\flo@fib-(\flo@fex@\flo@fia))*\flo@fef}%
+    \flo@calc\flo@fpy{\flo@fey@\flo@fia+(\flo@fey@\flo@fib-(\flo@fey@\flo@fia))*\flo@fef}%
+    \flo@calc\flo@fea{90+\flo@fearch*pow(\flo@fes,1.5)}\def\flo@feW{0.13}\flo@calc\flo@fepcm{\flo@fel*\flo@fecm}%
+    \begin{pgfscope}\pgftransformshift{\flo@P\flo@fpx\flo@fpy}\flo@calc\flo@t{\flo@fea-90}\pgftransformrotate{\flo@t}%
+      \pgftransformscale{\flo@fel}\flo@fepinna\end{pgfscope}%
+  \fi\fi
+  % the stipe and rachis, dark, over the pinnae's feet
+  \flo@loop{fecp}\flo@kb{1}{33}{\flo@put{\the\flo@kb}{\flo@fex@{\the\flo@kb}}{\flo@fey@{\the\flo@kb}}}%
+  \flo@calc\flo@fewb{0.0025+0.006*(1-\flo@feun)}\flo@vtone{flo@c}{0.1}\flo@feribbon{33}{0.012}\flo@fewb
+  % scales on the stipe, brown, on a scaly fern
+  \ifnum\flo@get{hairy}=1
+    \flo@spk={}%
+    \flo@loop{fesc}\flo@kb{2}{32}{%
+      \flo@calc\flo@t{\flo@feo*(\the\flo@kb-1)/32<0.9*\flo@fest && mod(\the\flo@kb,2)==0 ? 1 : 0}%
+      \ifdim\flo@t pt>0.5pt
+        \edef\flo@fia{\the\numexpr\flo@kb+1\relax}%
+        \flo@calc\flo@da{\flo@fex@\flo@fia-(\flo@fex@{\the\flo@kb})}\flo@calc\flo@db{\flo@fey@\flo@fia-(\flo@fey@{\the\flo@kb})}%
+        \flo@nrm\flo@da\flo@db\flo@nax\flo@nay
+        \flo@calc\flo@t{mod(\the\flo@kb,4)==0 ? 1 : -1}\flo@range\flo@ts{0.012}{0.02}%
+        \flo@calc\flo@xa{\flo@fex@{\the\flo@kb}+\flo@t*\flo@nax*0.005}\flo@calc\flo@ya{\flo@fey@{\the\flo@kb}+\flo@t*\flo@nay*0.005}%
+        \flo@calc\flo@xb{\flo@xa+\flo@t*\flo@nax*\flo@ts+\flo@da*12*\flo@ts}\flo@calc\flo@yb{\flo@ya+\flo@t*\flo@nay*\flo@ts+\flo@db*12*\flo@ts}%
+        \edef\flo@tmp{\noexpand\pgfpathmoveto{\noexpand\flo@P{\flo@xa}{\flo@ya}}\noexpand\pgfpathlineto{\noexpand\flo@P{\flo@xb}{\flo@yb}}}%
+        \flo@spk\expandafter\expandafter\expandafter{\expandafter\the\expandafter\flo@spk\flo@tmp}%
+      \fi}%
+    \flo@vaccent{flo@c}{-0.3}\flo@vstroke{flo@c}{0.35}{0.85}{0}{\the\flo@spk}%
+  \fi
+  % the crozier: a coil thick with the pinnae rolled in it, scalloped along its outside,
+  % a pale line along it
+  \ifdim\flo@feun pt<1pt
+    \flo@loop{fecc}\flo@kb{1}{25}{\flo@put{\the\flo@kb}{\flo@fex@{\the\numexpr\flo@kb+32\relax}}{\flo@fey@{\the\numexpr\flo@kb+32\relax}}}%
+    \flo@normals{25}\flo@spk={}%
+    \flo@loop{fecb}\flo@kb{2}{24}{%
+      \flo@calc\flo@r{\flo@fecr*pow(0.25,(\the\flo@kb-1)/24)}%
+      \flo@calc\flo@xa{\flo@x{\the\flo@kb}-\flo@fesg*\csname flo@NX\the\flo@kb\endcsname*0.33*\flo@r}%
+      \flo@calc\flo@ya{\flo@y{\the\flo@kb}-\flo@fesg*\csname flo@NY\the\flo@kb\endcsname*0.33*\flo@r}%
+      \flo@calc\flo@t{(\ifodd\flo@kb 0.15\else 0.21\fi)*\flo@r}%
+      \edef\flo@tmp{\noexpand\pgfpathcircle{\noexpand\flo@P{\flo@xa}{\flo@ya}}{\flo@t pt}}%
+      \flo@spk\expandafter\expandafter\expandafter{\expandafter\the\expandafter\flo@spk\flo@tmp}}%
+    \flo@calc\flo@fewa{0.56*\flo@fecr}\flo@calc\flo@fewb{0.16*\flo@fecr}%
+    \flo@vtone{flo@c}{0.27}\flo@feribbon{25}\flo@fewa\flo@fewb
+    \flo@vtone{flo@c}{0.2}\flo@vfill{flo@c}{1}{0}{\the\flo@spk}%
+    \flo@vtone{flo@c}{0.06}\flo@vstroke{flo@c}{0.25}{0.35}{1}{\the\flo@spk}%
+    \flo@loop{fecd}\flo@kb{1}{22}{\flo@put{\the\flo@kb}{\flo@fex@{\the\numexpr\flo@kb+32\relax}}{\flo@fey@{\the\numexpr\flo@kb+32\relax}}}%
+    \flo@calc\flo@fewa{0.14*\flo@fecr}\flo@vstreak{22}\flo@fewa{0.002}{white}{0.5}%
+  \fi}
+% a filled ribbon along points 1..#1 of flo@X/Y, widths #2 to #3 in the drawing's units
+% (read at each point: not \flo@t, which \flo@normals takes), in the color flo@c
+% (\flo@vstem's ribbon)
+\def\flo@feribbon#1#2#3{%
+  \edef\flo@sn{\the\numexpr#1\relax}\flo@normals\flo@sn
+  \def\flo@acc{0}\expandafter\def\csname flo@S1\endcsname{0}%
+  \flo@loop{fera}\flo@kb{2}{\flo@sn}{%
+    \edef\flo@ia{\the\numexpr\flo@kb-1\relax}%
+    \flo@calc\flo@acc{\flo@acc+veclen(\flo@x{\the\flo@kb}-(\flo@x\flo@ia),\flo@y{\the\flo@kb}-(\flo@y\flo@ia))}%
+    \expandafter\let\csname flo@S\the\flo@kb\endcsname\flo@acc}%
+  \flo@loop{ferr}\flo@kb{1}{\flo@sn}{%
+    \flo@calc\flo@w{((#2)+((#3)-(#2))*\csname flo@S\the\flo@kb\endcsname/\flo@acc)/2}%
+    \flo@calc\flo@xl{\flo@x{\the\flo@kb}+\csname flo@NX\the\flo@kb\endcsname*\flo@w}%
+    \flo@calc\flo@yl{\flo@y{\the\flo@kb}+\csname flo@NY\the\flo@kb\endcsname*\flo@w}%
+    \flo@calc\flo@xr{\flo@x{\the\flo@kb}-\csname flo@NX\the\flo@kb\endcsname*\flo@w}%
+    \flo@calc\flo@yr{\flo@y{\the\flo@kb}-\csname flo@NY\the\flo@kb\endcsname*\flo@w}%
+    \expandafter\let\csname flo@RX\the\flo@kb\endcsname\flo@xl\expandafter\let\csname flo@RY\the\flo@kb\endcsname\flo@yl
+    \expandafter\let\csname flo@QX\the\flo@kb\endcsname\flo@xr\expandafter\let\csname flo@QY\the\flo@kb\endcsname\flo@yr}%
+  \flo@loop{fero}\flo@kb{1}{\flo@sn}{%
+    \flo@put{\the\flo@kb}{\csname flo@RX\the\flo@kb\endcsname}{\csname flo@RY\the\flo@kb\endcsname}%
+    \flo@put{\the\numexpr2*\flo@sn+1-\flo@kb\relax}{\csname flo@QX\the\flo@kb\endcsname}{\csname flo@QY\the\flo@kb\endcsname}}%
+  \flo@smoothprep{\the\numexpr2*\flo@sn\relax}\flo@vfill{flo@c}{1}{0}{\flo@smoothpath}}
+% a pinna (or pinnule, or a frond's tip) along +y, length 1, \flo@feW its half-width, curving
+% toward the frond's tip (+x); \flo@fepcm its length in cm. Its sides close by the species'
+% tip, narrow toward it if lanceolate, and on a pinna 6 mm long or more go in and out by
+% the species' edge (2 points a tooth, a tooth's crest set forward if serrate). Then the
+% darker half away from the tip, the white midrib, and the sori on an underside
+\def\flo@fepinna{%
+  \flo@range\flo@fefb{0.05}{0.16}\flo@sym\flo@t{0.03}\flo@calc\flo@fet{\flo@fetone+\flo@t}%
+  \def\flo@fenp{10}\def\flo@fetk{0}%
+  \ifdim\flo@fepcm pt<0.3pt \def\flo@fenp{6}\fi
+  \ifdim\flo@fepcm pt>0.6pt \ifdim\flo@fetd pt>0pt
+    \edef\flo@fetk{\flo@fetd}\flo@calc\flo@fenp{2*int(min(9,3+4*\flo@fepcm))}\pgfmathtruncatemacro\flo@fenp{\flo@fenp}\fi\fi
+  \def\flo@fecs{0}\def\flo@tmp{serrate}\edef\flo@t{\flo@get{leafmargin}}%
+  \ifdim\flo@fetk pt>0pt \ifx\flo@t\flo@tmp\flo@calc\flo@fecs{0.35/\flo@fenp}\fi\fi
+  \flo@loop{fpsp}\flo@kb{0}{\flo@fenp}{%
+    \flo@calc\flo@v{\the\flo@kb/\flo@fenp}%
+    \ifodd\flo@kb\ifnum\flo@kb<\flo@fenp \flo@calc\flo@v{\flo@v+\flo@fecs}\fi\fi
+    \flo@calc\flo@sx{\flo@fefb*\flo@v*\flo@v}\flo@put{\the\numexpr\flo@kb+1\relax}{\flo@sx}{\flo@v}}%
+  \flo@normals{\the\numexpr\flo@fenp+1\relax}%
+  \flo@loop{fpsw}\flo@kb{0}{\flo@fenp}{%
+    \edef\flo@q{\the\numexpr\flo@kb+1\relax}\edef\flo@v{\flo@y\flo@q}%
+    \ifdim\flo@v pt>0pt \ifdim\flo@v pt<1pt
+      \flo@calc\flo@w{\flo@feW*pow(min(1,\flo@v/0.12),0.45)*pow(max(0.0001,1-pow(\flo@v,\flo@fekp)),\flo@fekq)*(1-\flo@fenar*\flo@v)}%
+      \ifodd\flo@kb\else\flo@calc\flo@w{\flo@w*(1-\flo@fetk)}\fi
+    \else\def\flo@w{0}\fi\else\def\flo@w{0}\fi
+    \flo@calc\flo@xl{\flo@x\flo@q+\csname flo@NX\flo@q\endcsname*\flo@w}\flo@calc\flo@yl{\flo@y\flo@q+\csname flo@NY\flo@q\endcsname*\flo@w}%
+    \flo@calc\flo@xr{\flo@x\flo@q-\csname flo@NX\flo@q\endcsname*\flo@w}\flo@calc\flo@yr{\flo@y\flo@q-\csname flo@NY\flo@q\endcsname*\flo@w}%
+    \expandafter\let\csname flo@RX\flo@q\endcsname\flo@xl\expandafter\let\csname flo@RY\flo@q\endcsname\flo@yl
+    \expandafter\let\csname flo@QX\flo@q\endcsname\flo@xr\expandafter\let\csname flo@QY\flo@q\endcsname\flo@yr}%
+  \flo@bladeassemble\flo@fenp\flo@smoothprep{\the\numexpr2*\flo@fenp\relax}\flo@keep{fep}%
+  \flo@vtone{flo@c}{\flo@fet}\flo@vfill{flo@c}{1}{0}{\flo@kept{fep}}%
+  \ifdim\flo@fepcm pt>0.2pt \flo@vtone{flo@c}{0.08}\flo@vfill{flo@c}{0.28}{1}{\flo@fehalf{fep}\flo@fenp}\fi
+  \ifdim\flo@fepcm pt>0.35pt
+    \def\flo@twa{0.03}\def\flo@twb{0.004}%
+    \flo@calc\flo@xb{\flo@fefb*0.82*0.82/3}\flo@calc\flo@xc{\flo@fefb*0.82*0.82}%
+    \flo@vfill{white}{0.6}{0}{\flo@vtaper{0}{0}{0}{0.2733}\flo@xb{0.5467}\flo@xc{0.82}}%
+  \fi
+  \ifnum\flo@feund=1 \ifdim\flo@fepcm pt>0.35pt \flo@fesori{fep}\fi\fi}
+% the half of kept shape #1 (#2 points a side) on its left, from its base to its tip, then
+% back down the midrib (\flo@fefb's parabola)
+\def\flo@fehalf#1#2{%
+  \edef\flo@kn{\csname flo@#1@N\endcsname}\edef\flo@fehn{#2}%
+  \pgfpathmoveto{\flo@P{\csname flo@#1@X1\endcsname}{\csname flo@#1@Y1\endcsname}}%
+  \flo@loop{feh}\flo@i{1}{\flo@fehn}{%
+    \edef\flo@ib{\the\numexpr\flo@i+1\relax}%
+    \pgfpathcurveto{\flo@P{\csname flo@#1@A\the\flo@i\endcsname}{\csname flo@#1@B\the\flo@i\endcsname}}%
+      {\flo@P{\csname flo@#1@C\the\flo@i\endcsname}{\csname flo@#1@D\the\flo@i\endcsname}}%
+      {\flo@P{\csname flo@#1@X\flo@ib\endcsname}{\csname flo@#1@Y\flo@ib\endcsname}}}%
+  \flo@loop{fehm}\flo@i{1}{8}{\flo@calc\flo@v{1-\the\flo@i/8}\flo@calc\flo@sx{\flo@fefb*\flo@v*\flo@v}%
+    \pgfpathlineto{\flo@P\flo@sx\flo@v}}%
+  \pgfpathclose}
+% the sori under kept shape #1 (a pinna): two rows of dots beside the midrib, lines slanting
+% out from it, or a band along the edge; the accent, darkened
+\def\flo@fesori#1{%
+  \edef\flo@fesr{\flo@get{sori}}\flo@vaccent{flo@c}{-0.35}%
+  \def\flo@tmp{marginal}\ifx\flo@fesr\flo@tmp
+    \flo@calc\flo@t{min(0.5,0.3*\flo@fepcm)}\flo@vstroke{flo@c}{\flo@t}{0.75}{0}{\flo@kept{#1}}\fi
+  \def\flo@tmp{dots}\ifx\flo@fesr\flo@tmp
+    \flo@spk={}\flo@calc\flo@t{int(min(7,2+4*\flo@fepcm))}\pgfmathtruncatemacro\flo@fend{\flo@t}%
+    \flo@loop{fesd}\flo@kb{1}{\flo@fend}{%
+      \flo@calc\flo@v{0.14+0.66*(\the\flo@kb-1)/max(1,\flo@fend-1)}\flo@calc\flo@sx{\flo@fefb*\flo@v*\flo@v}%
+      \flo@calc\flo@w{0.5*\flo@feW*(1-0.5*\flo@v)}\flo@calc\flo@t{0.3*\flo@feW*(1-0.4*\flo@v)}%
+      \flo@calc\flo@xa{\flo@sx-\flo@w}\flo@calc\flo@xb{\flo@sx+\flo@w}%
+      \edef\flo@tmp{\noexpand\pgfpathcircle{\noexpand\flo@P{\flo@xa}{\flo@v}}{\flo@t pt}\noexpand\pgfpathcircle{\noexpand\flo@P{\flo@xb}{\flo@v}}{\flo@t pt}}%
+      \flo@spk\expandafter\expandafter\expandafter{\expandafter\the\expandafter\flo@spk\flo@tmp}}%
+    \flo@vfill{flo@c}{0.9}{0}{\the\flo@spk}%
+  \fi
+  \def\flo@tmp{lines}\ifx\flo@fesr\flo@tmp
+    \flo@spk={}\flo@calc\flo@t{int(min(6,2+3*\flo@fepcm))}\pgfmathtruncatemacro\flo@fend{\flo@t}%
+    \flo@loop{fesl}\flo@kb{1}{\flo@fend}{%
+      \flo@calc\flo@v{0.12+0.62*(\the\flo@kb-1)/max(1,\flo@fend-1)}\flo@calc\flo@sx{\flo@fefb*\flo@v*\flo@v}%
+      \flo@calc\flo@w{0.7*\flo@feW*(1-0.5*\flo@v)}%
+      \flo@calc\flo@xa{\flo@sx-0.15*\flo@w}\flo@calc\flo@xb{\flo@sx-\flo@w}\flo@calc\flo@ya{\flo@v+0.6*\flo@w}%
+      \flo@calc\flo@xc{\flo@sx+0.15*\flo@w}\flo@calc\flo@xd{\flo@sx+\flo@w}%
+      \edef\flo@tmp{\noexpand\pgfpathmoveto{\noexpand\flo@P{\flo@xa}{\flo@v}}\noexpand\pgfpathlineto{\noexpand\flo@P{\flo@xb}{\flo@ya}}%
+        \noexpand\pgfpathmoveto{\noexpand\flo@P{\flo@xc}{\flo@v}}\noexpand\pgfpathlineto{\noexpand\flo@P{\flo@xd}{\flo@ya}}}%
+      \flo@spk\expandafter\expandafter\expandafter{\expandafter\the\expandafter\flo@spk\flo@tmp}}%
+    \flo@vstroke{flo@c}{0.45}{0.85}{0}{\the\flo@spk}%
+  \fi}
+% a pinna cut into pinnules (twice divided): a comb along +y, length 1, \flo@feW the longest
+% pinnule, \flo@fecn pinnules a side, each set forward and shorter toward the pinna's tip,
+% joined by a narrow wing; three times divided, each pinnule's sides go in once (lobed).
+% The darker half, the midrib, the sori as for a pinna
+\def\flo@fecomb{%
+  \flo@range\flo@fefb{0.04}{0.12}\flo@sym\flo@t{0.03}\flo@calc\flo@fet{\flo@fetone+\flo@t}%
+  \flo@calc\flo@t{int(max(3,min(9,\flo@fepcm/0.15)))}\pgfmathtruncatemacro\flo@fecn{\flo@t}%
+  \flo@calc\flo@fecd{0.9/\flo@fecn}\flo@calc\flo@fecs{0.35*\flo@fecd}%
+  % one side's points into flo@RX/RY (x < 0, base to tip), the other mirrored
+  \def\flo@fecp{1}\expandafter\def\csname flo@RX1\endcsname{0}\expandafter\def\csname flo@RY1\endcsname{0}%
+  \flo@loop{fecm}\flo@kb{1}{\flo@fecn}{%
+    \flo@calc\flo@v{0.05+\flo@fecd*(\the\flo@kb-0.5)}\flo@range\flo@t{0.9}{1.06}%
+    \flo@calc\flo@fecl{\flo@feW*(1-0.72*pow(\flo@v,1.5))*\flo@t}%
+    \ifnum\flo@fediv>2
+      \flo@fecpt{0.12*\flo@feW}{\flo@v-0.5*\flo@fecd}\flo@fecpt{0.5*\flo@fecl}{\flo@v-0.4*\flo@fecd+0.3*\flo@fecs}%
+      \flo@fecpt{0.62*\flo@fecl}{\flo@v-0.2*\flo@fecd+0.55*\flo@fecs}\flo@fecpt{\flo@fecl}{\flo@v+\flo@fecs}%
+      \flo@fecpt{0.66*\flo@fecl}{\flo@v+0.24*\flo@fecd+0.7*\flo@fecs}\flo@fecpt{0.52*\flo@fecl}{\flo@v+0.38*\flo@fecd+0.5*\flo@fecs}%
+    \else
+      \flo@fecpt{0.12*\flo@feW}{\flo@v-0.5*\flo@fecd}\flo@fecpt{0.58*\flo@fecl}{\flo@v-0.36*\flo@fecd+0.5*\flo@fecs}%
+      \flo@fecpt{\flo@fecl}{\flo@v+\flo@fecs}\flo@fecpt{0.62*\flo@fecl}{\flo@v+0.36*\flo@fecd+0.6*\flo@fecs}%
+    \fi}%
+  % the tip, then the other side back down
+  \edef\flo@fech{\flo@fecp}\edef\flo@fecp{\the\numexpr\flo@fecp+1\relax}%
+  \expandafter\edef\csname flo@RX\flo@fecp\endcsname{\flo@fefb}\expandafter\def\csname flo@RY\flo@fecp\endcsname{1}%
+  \flo@loop{fecr}\flo@kb{2}{\flo@fech}{%
+    \edef\flo@q{\the\numexpr\flo@fech+2-\flo@kb\relax}\edef\flo@ia{\the\numexpr\flo@fecp+\flo@kb-1\relax}%
+    \flo@calc\flo@t{\csname flo@RY\flo@q\endcsname}\flo@calc\flo@xl{2*\flo@fefb*\flo@t*\flo@t-(\csname flo@RX\flo@q\endcsname)}%
+    \expandafter\let\csname flo@RX\flo@ia\endcsname\flo@xl\expandafter\let\csname flo@RY\flo@ia\endcsname\flo@t}%
+  \edef\flo@fecp{\the\numexpr2*\flo@fech\relax}%
+  \flo@loop{fecx}\flo@kb{1}{\flo@fecp}{\flo@put{\the\flo@kb}{\csname flo@RX\the\flo@kb\endcsname}{\csname flo@RY\the\flo@kb\endcsname}}%
+  \flo@smoothprep\flo@fecp\flo@keep{fec}%
+  \flo@vtone{flo@c}{\flo@fet}\flo@vfill{flo@c}{1}{0}{\flo@kept{fec}}%
+  \flo@vtone{flo@c}{0.08}\flo@vfill{flo@c}{0.28}{1}{\flo@fehalf{fec}\flo@fech}%
+  \def\flo@twa{0.025}\def\flo@twb{0.004}%
+  \flo@calc\flo@xb{\flo@fefb*0.9*0.9/3}\flo@calc\flo@xc{\flo@fefb*0.9*0.9}%
+  \flo@vfill{white}{0.55}{0}{\flo@vtaper{0}{0}{0}{0.3}\flo@xb{0.6}\flo@xc{0.9}}%
+  \ifnum\flo@feund=1 \flo@fesorc\fi}
+% a comb's point at #1 out from the midrib (to the left), #2 along it
+\def\flo@fecpt#1#2{%
+  \edef\flo@fecp{\the\numexpr\flo@fecp+1\relax}\flo@calc\flo@t{#2}%
+  \flo@calc\flo@xl{\flo@fefb*\flo@t*\flo@t-(#1)}%
+  \expandafter\let\csname flo@RX\flo@fecp\endcsname\flo@xl\expandafter\let\csname flo@RY\flo@fecp\endcsname\flo@t}
+% the sori of a comb: a dot in each pinnule, a line along it, or a band along the edge
+\def\flo@fesorc{%
+  \edef\flo@fesr{\flo@get{sori}}\flo@vaccent{flo@c}{-0.35}%
+  \def\flo@tmp{marginal}\ifx\flo@fesr\flo@tmp
+    \flo@calc\flo@t{min(0.4,0.22*\flo@fepcm)}\flo@vstroke{flo@c}{\flo@t}{0.75}{0}{\flo@kept{fec}}\else
+    \flo@spk={}%
+    \flo@loop{fesq}\flo@kb{1}{\flo@fecn}{%
+      \flo@calc\flo@v{0.05+\flo@fecd*(\the\flo@kb-0.5)}\flo@calc\flo@fecl{\flo@feW*(1-0.72*pow(\flo@v,1.5))}%
+      \flo@calc\flo@ya{\flo@v+0.35*\flo@fecs}\flo@calc\flo@sx{\flo@fefb*\flo@ya*\flo@ya}%
+      \flo@calc\flo@xa{\flo@sx-0.45*\flo@fecl}\flo@calc\flo@xb{\flo@sx+0.45*\flo@fecl}%
+      \def\flo@tmp{dots}\ifx\flo@fesr\flo@tmp
+        \flo@calc\flo@t{0.16*min(\flo@fecd,\flo@fecl)}%
+        \edef\flo@tmp{\noexpand\pgfpathcircle{\noexpand\flo@P{\flo@xa}{\flo@ya}}{\flo@t pt}\noexpand\pgfpathcircle{\noexpand\flo@P{\flo@xb}{\flo@ya}}{\flo@t pt}}%
+      \else
+        \flo@calc\flo@xc{\flo@sx-0.7*\flo@fecl}\flo@calc\flo@xd{\flo@sx+0.7*\flo@fecl}\flo@calc\flo@yb{\flo@ya+0.6*\flo@fecs}%
+        \edef\flo@tmp{\noexpand\pgfpathmoveto{\noexpand\flo@P{\flo@xa}{\flo@ya}}\noexpand\pgfpathlineto{\noexpand\flo@P{\flo@xc}{\flo@yb}}%
+          \noexpand\pgfpathmoveto{\noexpand\flo@P{\flo@xb}{\flo@ya}}\noexpand\pgfpathlineto{\noexpand\flo@P{\flo@xd}{\flo@yb}}}%
+      \fi
+      \flo@spk\expandafter\expandafter\expandafter{\expandafter\the\expandafter\flo@spk\flo@tmp}}%
+    \def\flo@tmp{dots}\ifx\flo@fesr\flo@tmp\flo@vfill{flo@c}{0.9}{0}{\the\flo@spk}\else
+    \def\flo@tmp{lines}\ifx\flo@fesr\flo@tmp\flo@vstroke{flo@c}{0.45}{0.85}{0}{\the\flo@spk}\fi\fi
+  \fi}
+% a fertile pinna of a dimorphic fern: a row of beads (the pinna rolled round its sori)
+% along +y, length 1, smaller toward its tip, on a thin midrib
+\def\flo@febeads{%
+  \flo@range\flo@fefb{0.02}{0.08}\flo@calc\flo@t{int(max(2,min(7,2+5*\flo@fepcm)))}\pgfmathtruncatemacro\flo@fend{\flo@t}%
+  \flo@vtone{flo@c}{0.12}\flo@calc\flo@xb{\flo@fefb*0.9*0.9/3}\flo@calc\flo@xc{\flo@fefb*0.9*0.9}%
+  \flo@vstroke{flo@c}{0.3}{0.8}{0}{\pgfpathmoveto{\flo@P00}\pgfpathcurveto{\flo@P0{0.3}}{\flo@P\flo@xb{0.6}}{\flo@P\flo@xc{0.9}}}%
+  \flo@spk={}%
+  \flo@loop{febd}\flo@kb{1}{\flo@fend}{%
+    \flo@calc\flo@v{0.95*(\the\flo@kb-0.3)/\flo@fend}\flo@calc\flo@sx{\flo@fefb*\flo@v*\flo@v}%
+    \flo@range\flo@t{0.85}{1.1}\flo@calc\flo@t{0.6/\flo@fend*(1-0.4*\flo@v)*\flo@t}%
+    \edef\flo@tmp{\noexpand\pgfpathcircle{\noexpand\flo@P{\flo@sx}{\flo@v}}{\flo@t pt}}%
+    \flo@spk\expandafter\expandafter\expandafter{\expandafter\the\expandafter\flo@spk\flo@tmp}}%
+  \flo@sym\flo@t{0.04}\flo@vtone{flo@c}{0.32+\flo@t}\flo@vfill{flo@c}{1}{0}{\the\flo@spk}%
+  \flo@vtone{flo@c}{0.08}\flo@vstroke{flo@c}{0.25}{0.45}{1}{\the\flo@spk}}
+% A fern's crown at the origin, in centimeters, \flo@gH the longest frond, in the season
+% \flo@o@season: three to five fronds fanning out and arching away from the middle, the
+% middle ones longest; in spring still unrolling from fiddleheads, each a little behind
+% the season or ahead of it; two in five of the open ones turned to show the sori beneath;
+% a dimorphic fern's fertile frond upright in the middle from midsummer. Each frond draws
+% from its own stream (\flo@seedorgan)
+\def\flo@ferncrown{%
+  \pgfsetroundcap\pgfsetroundjoin\pgftransformscale{28.45276}%
+  \edef\flo@season{\flo@o@season}\flo@int\flo@fenf{3}{5}%
+  \flo@loop{fecu}\flo@Ga{1}{\flo@fenf}{%
+    \flo@calc\flo@f{(\the\flo@Ga-(\flo@fenf+1)/2)/((\flo@fenf-1)/2)}%
+    \flo@sym\flo@t{8}\flo@calc\flo@fela{90-44*\flo@f+\flo@t}%
+    \flo@range\flo@t{0.8}{1.2}\flo@calc\flo@feac{(\flo@f<0 ? 1 : -1)*(20+70*\flo@get{curl})*\flo@t*(0.4+0.6*abs(\flo@f))}%
+    \flo@range\flo@t{0.85}{1}\flo@calc\flo@fell{\flo@gH*(1-0.22*abs(\flo@f))*\flo@t}%
+    \flo@range\flo@t{0}{0.3}\flo@calc\flo@feuu{max(0,min(1,(\flo@season-0.1-\flo@get{phenology}-\flo@t)/0.4))}%
+    \flo@chance{0.4}\ifflo@yes\def\flo@feuf{1}\else\def\flo@feuf{0}\fi
+    \flo@rnd\flo@lc\flo@calc\flo@fexx{0.06*\flo@f}%
+    \flo@seedorgan
+    \flo@organ{%
+      \edef\flo@feun{\flo@feuu}\edef\flo@fearch{\flo@feac}%
+      \ifdim\flo@feun pt<0.97pt \def\flo@feund{0}\else\edef\flo@feund{\flo@feuf}\fi
+      \pgftransformshift{\flo@P\flo@fexx{0}}\flo@calc\flo@t{\flo@fela-90}\pgftransformrotate{\flo@t}%
+      \pgftransformscale{\flo@fell}\flo@autumnleaf
+      \flo@calc\flo@t{\flo@fell*28.45276}\flo@frond\flo@t}}%
+  \ifnum\flo@get{dimorphic}=1 \ifdim\flo@season pt>0.55pt
+    \flo@sym\flo@t{6}\flo@calc\flo@fela{90+\flo@t}\flo@sym\flo@feac{12}%
+    \flo@range\flo@t{0.55}{0.7}\flo@calc\flo@fell{\flo@gH*\flo@t}%
+    \flo@seedorgan
+    \flo@organ{%
+      \def\flo@fefert{1}\edef\flo@fearch{\flo@feac}\def\flo@feun{1}%
+      \flo@calc\flo@t{\flo@fela-90}\pgftransformrotate{\flo@t}\pgftransformscale{\flo@fell}%
+      \flo@calc\flo@t{\flo@fell*28.45276}\flo@frond\flo@t}%
+  \fi\fi}

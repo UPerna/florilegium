@@ -45,6 +45,8 @@ M.TRAITS = {
   "compound", "leaflets", "leafshape", "leafaspect", "leafmargin", "teeth", "dissection",
   "leafapex", "leafbase", "venation", "attachment", "stipules", "arrangement",
   "curl", "twist", "taper", "turns", "habit", "section", "hairy", "tendrils", "fruit", "phenology",
+  -- a fern's own, last, so that the flowering plans (constants here: no draws) are as they were
+  "division", "pinnae", "outline", "stipe", "sori", "dimorphic",
 }
 
 -- ---------------------------------------------------------------- defaults
@@ -130,6 +132,7 @@ local COMMON = {
   hairy = W(0, 3, 1, 1),
   tendrils = C(0),
   phenology = R(-0.15, 0.15),
+  division = C(0), pinnae = C(0), outline = C("none"), stipe = C(0), sori = C("none"), dimorphic = C(0),
 }
 
 local EUDICOT = {
@@ -164,6 +167,20 @@ local MONOCOT = {
   arrangement = W("alternate", 2, "distichous", 2, "rosette", 1),
   hairy = W(0, 9, 1, 1),
 }
+
+-- a fern bears no flowers: every flower trait is a constant (no draw); its fronds are
+-- leaves of their own kind (compound "frond"), from a crown at the root
+local FERN = {
+  syndrome = C("none"), color = C("green"), form = C("none"), symmetry = C("none"), fused = C(0),
+  merosity = C(0), petalshape = C("none"), petalaspect = C(1), apex = C("none"), petalmargin = C("none"),
+  petalamp = C(0), claw = C(0), reflex = C(0), overlap = C(0), cup = C(0), guides = C("none"), guidecount = C(0),
+  picotee = C(0), spurs = C("none"), stamens = C("none"), orient = C("erect"), inflo = C("none"), count = C(0),
+  rays = C(0), depth = C(0), openorder = C("none"), siderule = C("none"), coil = C(0), size = C(0),
+  compound = C("frond"), leaflets = C(0), leafaspect = C(1), teeth = C(0), dissection = C(0),
+  leafbase = C("truncate"), venation = C("forked"), attachment = C("none"), stipules = C("none"),
+  arrangement = C("crown"), twist = C(0), taper = C(1), habit = C("erect"), tendrils = C(0), fruit = C("spores"),
+}
+local CLADE = { monocot = MONOCOT, eudicot = EUDICOT, fern = FERN }
 
 -- ---------------------------------------------------------------- body plans
 -- w: weight in a pool; roles: which places on a page it can fill (hero: a big flower
@@ -341,6 +358,23 @@ M.PLANS = {
     venation = W("parallel", 9, "arcuate", 1),
     fruit = W("capsule", 4, "berry", 1),
   } },
+  -- a fern (report section 4d): fronds divided once to three times (pinnae, pinnules, their
+  -- lobes), in an outline, on a bare stipe; spores in sori under the pinnae; in a dimorphic
+  -- fern the fertile fronds are narrow and beaded. Only the role "fern" draws it (apart):
+  -- a page's ferns grow at the root beside its four flowering plants. Leaf traits: the
+  -- pinna's (or pinnule's) taper, tip and edge; curl: how far the fronds arch over
+  { name = "fern", clade = "fern", w = 1, roles = {}, apart = true, d = {
+    leafshape = W("lanceolate", 3, "oblong", 2), leafapex = W("acute", 3, "obtuse", 2, "rounded", 1),
+    leafmargin = W("entire", 3, "crenate", 3, "serrate", 2),
+    curl = R(0, 0.6), turns = W(0, 1, 1, 1), hairy = W(0, 1, 1, 1),
+    division = W(1, 5, 2, 4, 3, 2),
+    pinnae = BY("division", { ["1"] = I(14, 26), ["2"] = I(10, 16), _ = I(8, 13) }),
+    outline = BY("division", { ["1"] = W("lanceolate", 4, "oblong", 3, "ovate", 1),
+      _ = W("lanceolate", 4, "ovate", 2, "deltoid", 3, "oblong", 1) }),
+    stipe = R(0.12, 0.4),
+    sori = W("dots", 5, "lines", 2, "marginal", 2, "none", 1),
+    dimorphic = W(0, 4, 1, 1),
+  } },
 }
 local PLAN = {}
 for i, p in ipairs(M.PLANS) do PLAN[p.name] = p p.index = i end
@@ -349,18 +383,19 @@ for i, p in ipairs(M.PLANS) do PLAN[p.name] = p p.index = i end
 function M.dist(plan, trait)
   local p = PLAN[plan]
   if trait == "clade" then return C(p.clade) end
-  return p.d[trait] or (p.clade == "monocot" and MONOCOT or EUDICOT)[trait] or COMMON[trait]
+  return p.d[trait] or CLADE[p.clade][trait] or COMMON[trait]
 end
 
 -- the plans a role may draw, as a W over plan names (in M.PLANS order); a role may also
--- name one plan ("rose"), for a specimen of that plan. A role's own name comes first:
--- "monocot" is the role (lily, iris or the generic monocot), not the plan of that name.
+-- name one plan ("rose", "fern"), for a specimen of that plan. A role's own name comes
+-- first: "monocot" is the role (lily, iris or the generic monocot), not the plan of that
+-- name. "any" draws every flowering plan (not a plan set apart, the fern).
 M.ROLES = { hero = true, spray = true, monocot = true, any = true }
 function M.roleplans(role)
   if PLAN[role] and not M.ROLES[role] then return W(role, PLAN[role].w) end
   local t = {}
   for _, p in ipairs(M.PLANS) do
-    if role == "any" or p.roles[role] then t[#t + 1] = p.name t[#t + 1] = p.w end
+    if (role == "any" and not p.apart) or p.roles[role] then t[#t + 1] = p.name t[#t + 1] = p.w end
   end
   return W(table.unpack(t))
 end
@@ -435,12 +470,18 @@ function M.violations(sp)
   check(sp.merovar == 0 or sp.symmetry == "radial", "variable petal number in a two-sided flower")
   check(sp.spurs ~= "one" or sp.symmetry == "bilateral", "one spur on a radial flower")
   check(sp.tendrils == 0 or sp.compound == "pinnate", "tendrils without a pinnate leaf")
+  local fern = sp.clade == "fern"
+  check(fern == (sp.division > 0), "a flowering plant with fronds, or a fern without")
+  check(fern or (sp.pinnae == 0 and sp.sori == "none" and sp.dimorphic == 0), "a frond's traits on a flowering plant")
+  check(not fern or (sp.form == "none" and sp.inflo == "none" and sp.compound == "frond"), "a fern with flowers")
+  check(not fern or (sp.pinnae >= 8 and sp.stipe > 0 and sp.outline ~= "none"), "a frond without pinnae or stipe")
   return v
 end
 
 -- ---------------------------------------------------------------- in words
 local NUM = { "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve",
-  "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", "twenty", "twenty-one" }
+  "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", "twenty", "twenty-one",
+  "twenty-two", "twenty-three", "twenty-four", "twenty-five", "twenty-six" }
 local COLOR = { blue = "blue", violet = "violet", pink = "pink", red = "red", orange = "orange", yellow = "yellow",
   white = "white", green = "green" }
 local FOR = { bee = "for bees", butterfly = "for butterflies", moth = "for moths at dusk", bird = "for birds",
@@ -509,8 +550,24 @@ local function leaf_words(sp)
   return leaf .. ARRANGE[sp.arrangement]
 end
 
+-- a fern in words: its fronds, their pinnae, their stalk, where its spores are
+local DIVIDED = { "once-divided", "twice-divided", "thrice-divided" }
+local OUTLINE = { lanceolate = "lance-shaped", oblong = "narrow, parallel-sided", ovate = "egg-shaped",
+  deltoid = "triangular" }
+local SORI = { dots = "in round dots", lines = "in lines", marginal = "along the edges" }
+local function fern_words(sp)
+  local part = sp.division == 1 and MARGIN[sp.leafmargin] .. " pinnae"
+    or "pinnae cut into " .. (sp.division == 3 and "lobed " or "") .. "pinnules"
+  local s = "a fern of " .. DIVIDED[sp.division] .. ", " .. OUTLINE[sp.outline] .. " fronds of " .. n_(sp.pinnae)
+    .. " pairs of " .. part .. " on " .. (sp.hairy == 1 and "a scaly" or "a bare") .. " stalk, unrolling from fiddleheads in spring"
+  if sp.dimorphic == 1 then s = s .. "; the fertile fronds narrow and beaded" end
+  s = s .. (sp.sori == "none" and "; its spores hidden" or "; spores " .. SORI[sp.sori] .. " beneath")
+  return s .. (sp.turns == 1 and ", the fronds turning copper in autumn." or ".")
+end
+
 -- one sentence: what it looks like, how it flowers, who it is for, its leaves, its fruit
 function M.describe(sp)
+  if sp.clade == "fern" then local s = fern_words(sp) return s:sub(1, 1):upper() .. s:sub(2) end
   local s = flower_words(sp) .. " " .. INFLO[sp.inflo] .. ", " .. FOR[sp.syndrome] .. "; "
     .. leaf_words(sp) .. (sp.tendrils == 1 and ", climbing by tendrils" or "") .. "; then " .. FRUIT[sp.fruit] .. "."
   return s:sub(1, 1):upper() .. s:sub(2)
@@ -546,6 +603,18 @@ function M.pool(docseed)
   end
   pools[docseed] = pool
   return pool
+end
+
+-- the document's fern (docseed as for the pool): from a stream of its own, so the pool is
+-- as it was; the pages that have ferns all have this one
+local ferns = {}
+function M.fern(docseed)
+  docseed = docseed or 0
+  if not ferns[docseed] then
+    local rng = ink.rng(docseed * 104729 + 401)
+    ferns[docseed] = M.sample(1 + floor(rng.u() * 2147483645), "fern")
+  end
+  return ferns[docseed]
 end
 
 -- the four that grow on one page (rng: the page's species stream), in the order of
