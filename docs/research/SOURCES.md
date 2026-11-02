@@ -60,3 +60,9 @@ R14 v3 (July 2024) and R15 v2 (September 2024) are the journal-era revisions sel
 OPEN_OBLIGATIONS.json records source recovery and license checks with exact owning gates. Full-text recovery is still needed for R08, R10a, R16b, R19a/b and original R04c. The author thesis R20 is available but is not misrepresented as the original R04c publication. Related papers, abstracts and plausible images cannot close those fidelity gates. Recover the named primary texts before the corresponding implementation stage; record exact source sections/equations and versions at that point. Publication/implementation status must remain separate from source access status.
 
 Canonical fixture IDs in COVERAGE.csv are planned acceptance targets. Their status is pending until the owning stage creates and verifies the artifacts; they are not existing generated gallery items.
+
+## Stage 03 API sources (retrieved 2 November 2026)
+
+- [dkjson 2.11 author source](https://dkolf.de/dkjson-lua/dkjson-2.11.lua), [documentation](https://dkolf.de/dkjson-lua/documentation): encode/decode, explicit array/object metadata, null and error behavior; current security fixes and published checksum checked. Vendored exact bytes as pattern_json.lua; MIT notice retained. Strict untrusted recipe grammar remains stage 04.
+- [Lua 5.3 manual](https://www.lua.org/manual/5.3/manual.html), sections 2.4, 3.4.7, 6.4, 6.5: metatables, table ownership/iteration, string formatting and UTF-8 checks. Read-only snapshots protect ordinary extension code, not raw/debug manipulation.
+- [Lupa project](https://github.com/scoder/lupa) and [PyPI 2.8 metadata](https://pypi.org/pypi/lupa/2.8/json): Lua 5.3 development-only runtime on Windows; wheel SHA-256 verified before use. No TeX/browser parity inferred.

@@ -12,3 +12,5 @@
 | Local engine suite passed | None | TinyTeX initialization fails before tests; failure receipt retained |
 
 Mathematical guarantees, implementation invariants, finite measurements and aesthetic judgment must remain separately attributed in later stages. An image is not a topology proof. No paper reproduction is claimed by this baseline.
+
+Stage 03 update: executable shared contracts and three minimal vertical examples are implemented; 61 local Lua checks pass. This supersedes only the blanket baseline statement about architecture absence. Family generators, full scene rendering, strict recipes and browser parity remain their numbered gates. The floral example uses real existing PDF content as an explicitly PDF-only symbol; it does not claim full floral migration or SVG support. Exact-revision TeX CI is still pending for this checkpoint.

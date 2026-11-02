@@ -13,6 +13,7 @@ all: florilegium.pdf florilegium-grow.pdf showcase.pdf
 florilegium.pdf florilegium-grow.pdf showcase.pdf specimen.pdf: $(HOSTS)
 
 check:
+	$(RUN) texlua tools/contractcheck.lua
 	$(RUN) texlua tools/layoutcheck.lua
 	$(RUN) texlua tools/spacecheck.lua
 	$(RUN) texlua tools/initialcheck.lua

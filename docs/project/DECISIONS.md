@@ -13,3 +13,5 @@
 
 - Stage 02 fixes the source corpus and capability targets in BIBLIOGRAPHY.json/COVERAGE.csv. Existing floral output is an adaptation. Source-specific optional variants remain visible and do not replace mandatory families. Source text recovery and imported-code licenses are gates on their exact owning stages; abstracts and related papers never establish reproduction.
 - Mandatory micrography scripts are Latin, combining Latin and Greek. Broader shaping is unclaimed until independently implemented/tested. R12 paper attribution includes Martin Schwarz and uses SIGGRAPH Conference Papers metadata; its CC BY paper and NC code have separate permissions.
+
+- Stage 03 adopts flat Lua schema-1 contracts and owned immutable snapshots, generic capability tags and generator-owned validators. Minimal examples prove real legacy floral interop plus graph/tiling lowering. No family dispatch enters the shared core. See docs/architecture/CONTRACTS.md for units, repair/solver receipts and explicit stage 04/06/08/31 boundaries. dkjson 2.11 is vendored unchanged with its MIT notice and verified upstream digest. Lupa is a local development check runner only.

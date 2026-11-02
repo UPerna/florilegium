@@ -29,6 +29,7 @@ jobs:
           latexmk_use_lualatex: true
           extra_system_packages: python3 py3-pillow poppler-utils inkscape
           post_compile: >-
+            texlua tools/contractcheck.lua &&
             texlua tools/layoutcheck.lua &&
             texlua tools/spacecheck.lua &&
             texlua tools/initialcheck.lua &&

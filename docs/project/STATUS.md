@@ -1,9 +1,7 @@
 # Florilegium execution status
 
-Stages 00 and 01 passed; original lost delivery recovery was explicitly replaced by user-approved verified GitHub baseline. Current authoritative code baseline b8ab6123891fd4f36e726b3fe4ef53bdd13136c3 has both required CI jobs successful in run 41443273221.
+Stages 00–02 passed. The lost delivery was explicitly replaced by user-approved verified baseline; never recovered. Latest verified checkpoint 879610d82637229f0f4c06f828fe3a6d68d6faf6, CI 41462720343 success.
 
-Stage 02 in progress. Literature/capability ledger prepared and locally audited: 26 sources, 51 capabilities, 45 mandatory and six explicit optional variants; all mandatory families and source papers map to owning stages and independent acceptance tasks. No new family implementation is claimed. Restricted paper copies stay outside the repository/outputs.
+Stage 03 in progress on pattern/common-platform from 879610d; work/stage03 retains current work. Minimal Lua contracts and three vertical examples implemented. 61 local contract checks and unchanged space/backend/layout/initial regressions passed under Lupa 2.8/Lua 5.3. Browser parity unverified; Windows native TeX initialization unavailable. Linux TeX CI is mandatory.
 
-Open source recovery obligations remain for R08, R10a, R16b, R19a/b and original R04c. OPEN_OBLIGATIONS.json gives recovery plans and owning gates; related sources do not substitute for a reproduction. This is a visible source-access obligation, not a waived mandatory capability. Local Windows TeX initialization limitation remains; Linux TeX Live 2026 CI is the engine baseline.
-
-Exact next action: inspect diff, verify package hashes and inclusion, publish stage 02 checkpoint with expected-head protection; independently verify resulting object/tree and full exact-revision CI; mark stage 02 passed only then and immediately begin stage 03 contracts. Stages 03–39 remain pending.
+Exact next action: publish guarded stage 03 feature checkpoint, open draft project PR against improve/layout-controls, independently fetch the commit, require both CI jobs for this revision, repair failures. Do not advance stage 04 until gate passes. Preserve existing PR #1 floral scope and every dirty worktree. Source recovery obligations remain before their owning implementation stages.

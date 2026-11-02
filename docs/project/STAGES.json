@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_stage": "02",
+  "current_stage": "03",
   "prompt_sha256": "8D25740D944FC98943FD005737BD825215CFCF6F894218790E140EDE8EE3F09E",
   "stages": [
     {
@@ -55,7 +55,7 @@
     {
       "id": "02",
       "title": "turn the literature into a complete capability ledger",
-      "status": "in_progress",
+      "status": "passed",
       "prerequisites": "01",
       "acceptance_items": [
         "every discussed paper and family maps to a concrete implementation and validation task. Explain which targets reproduce a specified method and which add new capabilities. There are no anonymous 'inspired by' substitutes counted as complete, unsupported universal-reproduction claims or hidden backlog items required by the agreed scope."
@@ -64,7 +64,8 @@
         "26 source records and 51 capabilities (45 mandatory, 6 optional) audited for unique IDs, known references, owners and required fields",
         "All mandatory families and source papers mapped; no new implementation passes claimed",
         "R12 author/venue and paper/code licenses reconciled from actual PDF and pinned code",
-        "Primary text recovery obligations explicit for R08/R10a/R16b/R19a/R19b/R04c before owning implementation gates"
+        "Primary text recovery obligations explicit for R08/R10a/R16b/R19a/R19b/R04c before owning implementation gates",
+        "Exact-revision CI run 41462720343 passed both required jobs; packagecheck validated 118 hashes and extracted Lua/Xe builds."
       ],
       "evidence_paths": [
         "docs/research/BIBLIOGRAPHY.json",
@@ -73,25 +74,34 @@
         "docs/research/OPEN_OBLIGATIONS.json",
         "artifacts/receipts/02/ledger-audit.json"
       ],
-      "tested_code_revision": "b8ab6123891fd4f36e726b3fe4ef53bdd13136c3",
-      "local_commit": null,
-      "verified_remote_revision": null,
-      "next_action": "Inspect diff, verify new source-kit hashes, publish ledger with expected-head protection; verify exact-revision CI; then begin stage 03 contracts."
+      "tested_code_revision": "879610d82637229f0f4c06f828fe3a6d68d6faf6",
+      "local_commit": "879610d82637229f0f4c06f828fe3a6d68d6faf6",
+      "verified_remote_revision": "879610d82637229f0f4c06f828fe3a6d68d6faf6",
+      "next_action": "Stage 03 minimal shared contracts"
     },
     {
       "id": "03",
       "title": "specify the shared contracts and extension boundaries",
-      "status": "pending",
+      "status": "in_progress",
       "prerequisites": "02",
       "acceptance_items": [
         "the contracts represent the five mandatory early demonstrations without family-specific core hacks, and express chirality, shared edges, reading order, boundary roles and instance/view separation. Architecture examples run. Record API decisions and future migration boundaries; do not spend this stage building speculative infrastructure."
       ],
-      "observed_results": null,
-      "evidence_paths": null,
+      "observed_results": [
+        "61 contract checks passed under local Lua 5.3: three real vertical examples plus corruption, transform, semantic-order and failure cases",
+        "Existing space/backend/layout (28)/initial checks passed locally without changing their baselines",
+        "CI integration preserves all previous checks; exact-revision TeX jobs pending"
+      ],
+      "evidence_paths": [
+        "docs/architecture/CONTRACTS.md",
+        "tools/contractcheck.lua",
+        "artifacts/receipts/03/local-checks.json",
+        "artifacts/receipts/03/dkjson-dependency.json"
+      ],
       "tested_code_revision": null,
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+      "next_action": "Publish guarded feature checkpoint; open draft project PR; verify independent Git fetch and both required exact-revision CI jobs. Remain stage 03 until success."
     },
     {
       "id": "04",
