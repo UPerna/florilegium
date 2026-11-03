@@ -2360,6 +2360,295 @@ local function compoundleaf(lpt)
   if cp == "trifoliate" then trifoliate(lpt, lt) end
 end
 
+-- ================================================================ M8f5: ferns
+-- \flo@feribbon: a filled ribbon along the points, widths w0 to w1, in color c
+local function ribbon(pts, w0, w1, c)
+  local nr, n = normals(pts), #pts
+  local s, acc = { 0 }, 0
+  for i = 2, n do
+    local dx, dy = pts[i][1] - pts[i - 1][1], pts[i][2] - pts[i - 1][2]
+    acc = acc + sqrt(dx * dx + dy * dy)
+    s[i] = acc
+  end
+  local out = {}
+  for i = 1, n do
+    local h = (w0 + (w1 - w0) * s[i] / acc) / 2
+    local p, q = pts[i], nr[i]
+    out[i] = { p[1] + q[1] * h, p[2] + q[2] * h }
+    out[2 * n + 1 - i] = { p[1] - q[1] * h, p[2] - q[2] * h }
+  end
+  smooth(out, true) fill(c, 1)
+end
+-- the frond's outline (\flo@feol@): bm the widest pinna's place, lo the foot, kx the tip's
+-- exponent, wr the longest pinna; the pinna's tip (\flo@feap@); its teeth (\flo@fem@)
+local FOL = { lanceolate = { 0.3, 0.45, 0.8, 0.26 }, oblong = { 0.12, 0.7, 0.35, 0.2 },
+  ovate = { 0.2, 0.75, 0.9, 0.32 }, deltoid = { 0.04, 0.9, 1.3, 0.42 } }
+local FAP = { acute = { 1.6, 0.9 }, obtuse = { 3, 0.6 }, rounded = { 5, 0.45 } }
+local FMG = { entire = 0, crenate = 0.2, serrate = 0.26 }
+-- the shape's left half, its first n segments, then back down the midrib (\flo@fehalf)
+local function fehalf(pts, n, fb, tk)
+  local k = (tk or 1) / 6
+  local m = #pts
+  local function at(i) return pts[(i - 1) % m + 1] end
+  moveto(pts[1][1], pts[1][2])
+  for i = 1, n do
+    local p0, p1, p2, p3 = at(i - 1), at(i), at(i + 1), at(i + 2)
+    curveto(p1[1] + (p2[1] - p0[1]) * k, p1[2] + (p2[2] - p0[2]) * k, p2[1] - (p3[1] - p1[1]) * k, p2[2] - (p3[2] - p1[2]) * k,
+      p2[1], p2[2])
+  end
+  for i = 1, 8 do local v = 1 - i / 8 lineto(fb * v * v, v) end
+  close()
+end
+-- the frond being drawn: its pinna's numbers (\flo@fe...)
+local FE = {}
+-- where along the frond its pinnae stand, and how wide each may be, come from pow(x, 0.85),
+-- the width from the difference of two of them. pgfmath's pow is good to about 1e-4, and in
+-- that difference its error grows fifty times, so a pinna drawn from doubles would be up to
+-- 1% wider or narrower than the library's (0.6 bp on a large frond). These two use
+-- pgfmath's own pow; everything else is a double
+local PM = require("florilegium-pgfmath")
+local function ppow(x, y) return PM.pow(floor(x * 65536 + 0.5), floor(y * 65536 + 0.5)) / 65536 end
+-- \flo@fesori: sori under a pinna (its outline pts)
+local function fesori(pts)
+  local c, sr = accent(-0.35), S.sori
+  if sr == "marginal" then smooth(pts, true) stroke(c, min(0.5, 0.3 * FE.pcm), 0.75, false) end
+  if sr == "dots" then
+    local n = floor(min(7, 2 + 4 * FE.pcm))
+    for k = 1, n do
+      local v = 0.14 + 0.66 * (k - 1) / max(1, n - 1)
+      local x, w, r = FE.fb * v * v, 0.5 * FE.W * (1 - 0.5 * v), 0.3 * FE.W * (1 - 0.4 * v)
+      circle(x - w, v, r) circle(x + w, v, r)
+    end
+    fill(c, 0.9)
+  end
+  if sr == "lines" then
+    local n = floor(min(6, 2 + 3 * FE.pcm))
+    for k = 1, n do
+      local v = 0.12 + 0.62 * (k - 1) / max(1, n - 1)
+      local x, w = FE.fb * v * v, 0.7 * FE.W * (1 - 0.5 * v)
+      moveto(x - 0.15 * w, v) lineto(x - w, v + 0.6 * w) moveto(x + 0.15 * w, v) lineto(x + w, v + 0.6 * w)
+    end
+    stroke(c, 0.45, 0.85, false)
+  end
+end
+-- \flo@fepinna: a pinna along +y, length 1, FE.W its half-width
+local function fepinna()
+  FE.fb = range(0.05, 0.16)
+  local t = FE.tone + sym(0.03)
+  local n, tk = 10, 0
+  if FE.pcm < 0.3 then n = 6 end
+  if FE.pcm > 0.6 and FE.td > 0 then tk, n = FE.td, 2 * floor(min(9, 3 + 4 * FE.pcm)) end
+  local cs = 0
+  if tk > 0 and S.leafmargin == "serrate" then cs = 0.35 / n end
+  local spine = {}
+  for k = 0, n do
+    local v = k / n
+    if k % 2 == 1 and k < n then v = v + cs end
+    spine[k + 1] = { FE.fb * v * v, v }
+  end
+  local pts = blade(spine, function(i)
+    local v = spine[i][2]
+    if v > 0 and v < 1 then
+      local w = FE.W * min(1, v / 0.12) ^ 0.45 * max(0.0001, 1 - v ^ FE.kp) ^ FE.kq * (1 - FE.nar * v)
+      if (i - 1) % 2 == 0 then w = w * (1 - tk) end
+      return w
+    end
+    return 0
+  end)
+  smooth(pts, true) fill(tone(t), 1)
+  if FE.pcm > 0.2 then fehalf(pts, n, FE.fb) fill(tone(0.08), 0.28, true) end
+  if FE.pcm > 0.35 then
+    taper(0, 0, 0, 0.2733, FE.fb * 0.82 * 0.82 / 3, 0.5467, FE.fb * 0.82 * 0.82, 0.82, 0.03, 0.004) fill(WHITE, 0.6)
+  end
+  if FE.under and FE.pcm > 0.35 then fesori(pts) end
+end
+-- \flo@fecomb: a pinna cut into pinnules, along +y, length 1
+local function fecomb()
+  FE.fb = range(0.04, 0.12)
+  local fb = FE.fb
+  local t = FE.tone + sym(0.03)
+  local n = floor(max(3, min(9, FE.pcm / 0.15)))
+  local d = 0.9 / n
+  local s = 0.35 * d
+  local L = { { 0, 0 } }                         -- the left side, up to the tip
+  local function cpt(x, v) L[#L + 1] = { fb * v * v - x, v } end
+  for k = 1, n do
+    local v = 0.05 + d * (k - 0.5)
+    local l = FE.W * (1 - 0.72 * v ^ 1.5) * range(0.9, 1.06)
+    if FE.div > 2 then
+      cpt(0.12 * FE.W, v - 0.5 * d) cpt(0.5 * l, v - 0.4 * d + 0.3 * s)
+      cpt(0.62 * l, v - 0.2 * d + 0.55 * s) cpt(l, v + s)
+      cpt(0.66 * l, v + 0.24 * d + 0.7 * s) cpt(0.52 * l, v + 0.38 * d + 0.5 * s)
+    else
+      cpt(0.12 * FE.W, v - 0.5 * d) cpt(0.58 * l, v - 0.36 * d + 0.5 * s)
+      cpt(l, v + s) cpt(0.62 * l, v + 0.36 * d + 0.6 * s)
+    end
+  end
+  local h = #L
+  local pts = {}
+  for i = 1, h do pts[i] = L[i] end
+  pts[h + 1] = { fb, 1 }
+  for k = 2, h do                                -- the right side, mirrored across the midrib
+    local p = L[h + 2 - k]
+    pts[h + k] = { 2 * fb * p[2] * p[2] - p[1], p[2] }
+  end
+  smooth(pts, true) fill(tone(t), 1)
+  fehalf(pts, h, fb) fill(tone(0.08), 0.28, true)
+  taper(0, 0, 0, 0.3, fb * 0.9 * 0.9 / 3, 0.6, fb * 0.9 * 0.9, 0.9, 0.025, 0.004) fill(WHITE, 0.55)
+  if FE.under then
+    local c, sr = accent(-0.35), S.sori
+    if sr == "marginal" then smooth(pts, true) stroke(c, min(0.4, 0.22 * FE.pcm), 0.75, false)
+    else
+      for k = 1, n do
+        local v = 0.05 + d * (k - 0.5)
+        local l = FE.W * (1 - 0.72 * v ^ 1.5)
+        local ya = v + 0.35 * s
+        local x = fb * ya * ya
+        if sr == "dots" then
+          local r = 0.16 * min(d, l)
+          circle(x - 0.45 * l, ya, r) circle(x + 0.45 * l, ya, r)
+        elseif sr == "lines" then
+          local yb = ya + 0.6 * s
+          moveto(x - 0.45 * l, ya) lineto(x - 0.7 * l, yb) moveto(x + 0.45 * l, ya) lineto(x + 0.7 * l, yb)
+        end
+      end
+      if sr == "dots" then fill(c, 0.9) elseif sr == "lines" then stroke(c, 0.45, 0.85, false) else ink.discard() end
+    end
+  end
+end
+-- \flo@febeads: a fertile pinna, a row of beads along +y, length 1
+local function febeads()
+  local fb = range(0.02, 0.08)
+  local n = floor(max(2, min(7, 2 + 5 * FE.pcm)))
+  local c = tone(0.12)
+  moveto(0, 0) curveto(0, 0.3, fb * 0.9 * 0.9 / 3, 0.6, fb * 0.9 * 0.9, 0.9) stroke(c, 0.3, 0.8, false)
+  local beads = {}
+  for k = 1, n do
+    local v = 0.95 * (k - 0.3) / n
+    beads[k] = { fb * v * v, v, 0.6 / n * (1 - 0.4 * v) * range(0.85, 1.1) }
+  end
+  for _, b in ipairs(beads) do circle(b[1], b[2], b[3]) end
+  fill(tone(0.32 + sym(0.04)), 1)
+  for _, b in ipairs(beads) do circle(b[1], b[2], b[3]) end
+  stroke(tone(0.08), 0.25, 0.45, true)
+end
+-- \flo@frond: a fern's frond along +y, length 1; cm its length on the page. o: unroll (0..1),
+-- arch (degrees; nil draws one), fertile, under (its underside shown)
+function M.frond(cm, o)
+  local arch = o.arch
+  if arch == nil then arch = sym(1) * (20 + 70 * S.curl) end
+  local un = o.unroll
+  if un >= K(0.97) then un = 1 end
+  local was = pen.accent
+  if o.fertile then pen.accent = true end
+  local st, np, div = S.stipe, S.pinnae, S.division
+  local ol, ap = FOL[S.outline], FAP[S.leafapex]
+  FE.td, FE.kp, FE.kq, FE.div = FMG[S.leafmargin], ap[1], ap[2], div
+  FE.nar = S.leafshape == "lanceolate" and 0.3 or 0
+  FE.under = o.under
+  local fo = st + (1 - st) * (un < 1 and 0.3 + 0.7 * un or 1)
+  -- the spine, arching; then, unrolling, the crozier
+  local P = { { 0, 0 } }
+  local x, y = 0, 0
+  for k = 1, 32 do
+    local a = 90 + arch * (fo * (k - 0.5) / 32) ^ 1.5
+    x, y = x + fo / 32 * cos(a), y + fo / 32 * sin(a)
+    P[k + 1] = { x, y }
+  end
+  local sg, cr = 1, 0
+  if un < 1 then
+    if arch < 0 then sg = -1 end
+    local cT = 100 + 440 * (1 - un)
+    cr = 0.65 * (1 - fo) / (cT * 0.0174533 * 0.541)
+    local a = 90 + arch * fo ^ 1.5
+    for k = 1, 24 do
+      a = a + sg * cT / 24
+      local t = cr * 0.25 ^ ((k - 0.5) / 24) * cT / 24 * 0.0174533
+      x, y = x + t * cos(a), y + t * sin(a)
+      P[k + 33] = { x, y }
+    end
+  end
+  local function at(t)                           -- where a pinna leaves the rachis
+    local i = floor(t)
+    local f = t - i
+    local a, b = P[i + 1], P[i + 2]
+    return a[1] + (b[1] - a[1]) * f, a[2] + (b[2] - a[2]) * f
+  end
+  local pm_ = (1 - st) * ol[4] * range(0.9, 1.1)
+  if o.fertile then pm_ = 0.45 * pm_ end
+  FE.tone = range(0.24, 0.34)
+  if o.under then FE.tone = FE.tone + 0.14 end
+  for g = 1, np do
+    for e = 0, 1 do
+      local b = 0.93 * ppow((g - 0.5 + 0.42 * e) / np, 0.85)
+      local s = st + (1 - st) * b
+      local ee
+      if b < ol[1] then ee = ol[2] + (1 - ol[2]) * sin(90 * b / ol[1])
+      else ee = max(0.0001, cos(90 * (b - ol[1]) / (1 - ol[1]))) ^ ol[3] end
+      if un < 1 then ee = ee * max(0, min(1, 0.3 + 0.7 * (fo - s) / 0.15)) end
+      local l = pm_ * ee * range(0.92, 1.06)
+      local al = 70 - 30 * b + sym(4)
+      FE.pcm = l * cm
+      if s < fo - 0.004 and FE.pcm > 0.08 then
+        local t = 0.93 * (1 - st) * (ppow((g + 0.5) / np, 0.85) - ppow((g - 0.5) / np, 0.85))
+        FE.W = min(0.22, 0.34 * t * sin(al) / l)
+        local px, py = at(s / fo * 32)
+        local a = 90 + arch * s ^ 1.5
+        ink.push() ink.translate(px, py)
+        ink.rotate(e == 0 and a + al - 90 or a - al - 90)
+        if e == 1 then xscale(-1) end
+        ink.scale(l)
+        if o.fertile then febeads()
+        elseif div > 1 then if FE.pcm > 0.45 then fecomb() else fepinna() end
+        else fepinna() end
+        ink.pop()
+      end
+    end
+  end
+  if un >= 1 and not o.fertile then              -- the pinna-like tip
+    local s, l = st + 0.91 * (1 - st), 0.1 * (1 - st)
+    local px, py = at(s * 32)
+    local a = 90 + arch * s ^ 1.5
+    FE.W, FE.pcm = 0.13, l * cm
+    ink.push() ink.translate(px, py) ink.rotate(a - 90) ink.scale(l) fepinna() ink.pop()
+  end
+  local spine = {}
+  for k = 1, 33 do spine[k] = P[k] end
+  ribbon(spine, 0.012, 0.0025 + 0.006 * (1 - un), tone(0.1))
+  if S.hairy == 1 then                           -- scales on the stipe
+    for k = 2, 32 do
+      if fo * (k - 1) / 32 < 0.9 * st and k % 2 == 0 then
+        local dx, dy = P[k + 1][1] - P[k][1], P[k + 1][2] - P[k][2]
+        local nx, ny = nrm(dx, dy)
+        local t = k % 4 == 0 and 1 or -1
+        local ts = range(0.012, 0.02)
+        local xa, ya = P[k][1] + t * nx * 0.005, P[k][2] + t * ny * 0.005
+        moveto(xa, ya) lineto(xa + t * nx * ts + dx * 12 * ts, ya + t * ny * ts + dy * 12 * ts)
+      end
+    end
+    stroke(accent(-0.3), 0.35, 0.85, false)
+  end
+  if un < 1 then                                 -- the crozier: ribbon, scalloped lobes, a pale line
+    local c = {}
+    for k = 1, 25 do c[k] = P[k + 32] end
+    local nr = normals(c)
+    local lobes = {}
+    for k = 2, 24 do
+      local r = cr * 0.25 ^ ((k - 1) / 24)
+      lobes[#lobes + 1] = { c[k][1] - sg * nr[k][1] * 0.33 * r, c[k][2] - sg * nr[k][2] * 0.33 * r, (k % 2 == 1 and 0.15 or 0.21) * r }
+    end
+    ribbon(c, 0.56 * cr, 0.16 * cr, tone(0.27))
+    for _, b in ipairs(lobes) do circle(b[1], b[2], b[3]) end
+    fill(tone(0.2), 1)
+    for _, b in ipairs(lobes) do circle(b[1], b[2], b[3]) end
+    stroke(tone(0.06), 0.25, 0.35, true)
+    local pale = {}
+    for k = 1, 22 do pale[k] = P[k + 32] end
+    streak(pale, 0.14 * cr, 0.002, WHITE, 0.5)
+  end
+  pen.accent = was
+end
+
 -- ---------------------------------------------------------------- the leaf
 -- the leaf's size on the page in cm (\flo@vl@u) as TeX finds it: its length (cm, held in sp)
 -- times 28.45276 and divided back, both in pgfmath, which can lose a scaled point. Only this
@@ -2392,10 +2681,1578 @@ function M.leaf(len, bend, sheath)
       if LOBED[S.leafmargin] then depth, lobes = min(0.85, max(0.3, S.dissection)), floor(max(2, min(6, S.teeth))) end
       sleaf({ bend = bend, lobes = lobes, depth = depth, u = u })
     end
+  elseif cp == "frond" then
+    M.frond(u, { unroll = 1, fertile = false, under = false })
   else
     compoundleaf(lpt)
   end
 end
+
+-- ================================================================ M8f5: visitors
+-- The animals that come to the plants (\florilegiumvisitor, \flo@visitor): butterflies and
+-- moths, bees and hoverflies, dragonflies and damselflies, beetles and ladybirds, a
+-- caterpillar on its leaf, a snail, a bird. Their helpers sit in a function of their own,
+-- whose locals count afresh (the main chunk is near Lua's limit of 200).
+local visitor = (function()
+  local species = require("florilegium-species")
+  local X                                   -- the visitor's traits as TeX holds them (\flo@x@<trait>)
+  local fine = false                        -- \flo@fine: large enough on the page for detail
+  -- a tone from the ink's ramp, on a copper visitor too; white() is \flo@bgwhite's paint
+  local function plain(t)
+    local was = pen.accent
+    pen.accent = false
+    local c = tone(t)
+    pen.accent = was
+    return c
+  end
+  local function white() return plain(0.93) end
+  -- \flo@lgseg: a straight tapered stroke from (x0, y0) to (x1, y1), widths wa to wb
+  local function seg(x0, y0, x1, y1, wa, wb)
+    local dx, dy = x1 - x0, y1 - y0
+    taper(x0, y0, x0 + dx / 3, y0 + dy / 3, x0 + dx * 2 / 3, y0 + dy * 2 / 3, x1, y1, wa, wb)
+  end
+  -- \flo@bgell: an ellipse along the axes
+  local function ell(cx, cy, rx, ry) ellipse(cx, cy, rx, 0, 0, ry) end
+  -- \flo@bgband: a band across from y hi down to lo, its middle bowed toward the tail
+  local function band(hi, lo, bow)
+    local ya, yb = hi - bow, lo - bow
+    moveto(-0.5, hi) curveto(-0.17, ya, 0.17, ya, 0.5, hi)
+    lineto(0.5, lo) curveto(0.17, yb, -0.17, yb, -0.5, lo) close()
+  end
+  -- \flo@vlegs: the legs of a side, drawn to the right, from table t (per leg its root, knee,
+  -- foot and the end of its tarsus), in color c; LGP holds \flo@lg...: the scale x, the
+  -- height y, ex out from the middle, the jitter j, ph the feet raised (the middle pair
+  -- lowered), the width w
+  local LG = {
+    o = { { 0.025, 0.03, 0.06, 0.06, 0.07, 0.11, 0.065, 0.15 }, { 0.03, 0, 0.075, 0.02, 0.095, 0.07, 0.095, 0.1 },
+      { 0.03, -0.03, 0.085, -0.03, 0.11, 0.01, 0.115, 0.045 } },
+    b = { { 0.06, 0.08, -0.06, 0.13, 0.02, 0.27, 0.04, 0.34 }, { 0.08, -0.04, 0, -0.02, 0.1, -0.1, 0.15, -0.14 },
+      { 0.08, -0.12, -0.02, -0.24, 0.06, -0.42, 0.08, -0.5 } },
+  }
+  local LGP = {}
+  local function vlegs(t, c)
+    local x, y, ex, j = LGP.x, LGP.y, LGP.ex, LGP.j
+    local legs = {}
+    for i = 1, 3 do
+      local p = LG[t][i]
+      local lift = i == 2 and -LGP.ph or LGP.ph
+      local kx = p[3] * x + ex + sym(j)
+      local ky = y + p[4] * x + sym(j)
+      local fx = p[5] * x + ex + sym(j)
+      local fy = y + p[6] * x + lift + sym(j)
+      legs[i] = { p[1] * x, y + p[2] * x, kx, ky, fx, fy, fx + (p[7] - p[5]) * x, fy + (p[8] - p[6]) * x }
+    end
+    local w = LGP.w
+    for i = 1, 3 do
+      local q = legs[i]
+      seg(q[1], q[2], q[3], q[4], w, w * 0.8)
+      seg(q[3], q[4], q[5], q[6], w * 0.75, w * 0.45)
+      seg(q[5], q[6], q[7], q[8], w * 0.4, w * 0.2)
+    end
+    fill(c, 1)
+  end
+
+  -- ---------------------------------------------------------------- butterflies and moths
+  local WG = {}                             -- the one being drawn (\flo@wg...)
+  -- the wings' points, forewing and hindwing; an apex other than a rounded one moves some
+  local WSHAPE = {
+    fw = { { 0.05, 0.1 }, { 0.3, 0.45 }, { 0.65, 0.68 }, { 0.92, 0.66 }, { 1, 0.5 }, { 0.88, 0.25 }, { 0.55, 0.05 },
+      { 0.15, -0.02 } },
+    hw = { { 0.06, -0.02 }, { 0.45, -0.02 }, { 0.72, -0.22 }, { 0.7, -0.5 }, { 0.5, -0.72 }, { 0.25, -0.7 }, { 0.08, -0.35 } },
+  }
+  local APEX = {
+    rounded = {},
+    angular = { { "fw", 3, 0.66, 0.7 }, { "fw", 4, 1, 0.72 }, { "fw", 5, 0.98, 0.52 } },
+    falcate = { { "fw", 3, 0.66, 0.72 }, { "fw", 4, 1.04, 0.78 }, { "fw", 5, 0.9, 0.55 } },
+    pointed = { { "fw", 1, 0.05, 0.08 }, { "fw", 2, 0.35, 0.36 }, { "fw", 3, 0.72, 0.42 }, { "fw", 4, 1, 0.38 },
+      { "fw", 5, 0.97, 0.28 }, { "fw", 6, 0.7, 0.16 }, { "fw", 7, 0.38, 0.04 }, { "fw", 8, 0.12, -0.02 },
+      { "hw", 2, 0.4, -0.02 }, { "hw", 3, 0.55, -0.12 }, { "hw", 4, 0.52, -0.28 }, { "hw", 5, 0.38, -0.38 },
+      { "hw", 6, 0.2, -0.36 }, { "hw", 7, 0.07, -0.2 } },
+  }
+  -- \flo@wgshape, \flo@wgjit: the wings' points, each moved a little
+  local function wgshape()
+    for _, w in ipairs({ "fw", "hw" }) do
+      local t = {}
+      for i, p in ipairs(WSHAPE[w]) do t[i] = { p[1], p[2] } end
+      WG[w] = t
+    end
+    for _, p in ipairs(APEX[X.apex]) do WG[p[1]][p[2]] = { p[3], p[4] } end
+    for _, w in ipairs({ "fw", "hw" }) do
+      for _, p in ipairs(WG[w]) do
+        p[1] = p[1] + sym(0.03)
+        p[2] = p[2] + sym(0.03)
+      end
+    end
+  end
+  local TAIL = { { -0.05, -0.04 }, { -0.06, -0.19 }, { -0.1, -0.25 }, { -0.15, -0.2 }, { -0.13, -0.04 } }
+  -- \flo@wgoutline: a wing's outline through its n points, a swallowtail's tail after point
+  -- WG.tail, the edge between points m0 and m1 scalloped by WG.dep
+  local function wgoutline(w, n, m0, m1)
+    local p, pts = WG[w], {}
+    for a = 1, n do
+      pts[#pts + 1] = { p[a][1], p[a][2] }
+      if WG.tail == a then
+        local hx, hy = WG.hw[5][1], WG.hw[5][2]
+        for _, q in ipairs(TAIL) do pts[#pts + 1] = { hx + q[1], hy + q[2] } end
+      end
+      if WG.dep > 0 and a < m1 and a > m0 - 1 then
+        local b = a + 1
+        for j = 1, 3 do
+          local t = j / 4
+          local x, y = p[a][1] + (p[b][1] - p[a][1]) * t, p[a][2] + (p[b][2] - p[a][2]) * t
+          if j % 2 == 1 then x, y = x * (1 - WG.dep), y * (1 - WG.dep) end
+          pts[#pts + 1] = { x, y }
+        end
+      end
+    end
+    return pts
+  end
+  -- \flo@wgat: the point a fraction s along the edge from point m0 to m1, drawn in by f
+  local function wgat(w, m0, m1, s, f)
+    local m = m1 - m0
+    local q = s * m
+    local k = min(m - 1, floor(q))
+    local r = q - k
+    local a, b = WG[w][m0 + k], WG[w][m0 + k + 1]
+    return (a[1] + (b[1] - a[1]) * r) * f, (a[2] + (b[2] - a[2]) * r) * f
+  end
+  -- \flo@wgeye: an eyespot at (x, y), radius r: its rings, pupil and the arcs outside it
+  local function wgeye(x, y, r)
+    circle(x, y, r) fill(tone(0.08), 0.85)
+    if X.rings > 1 then circle(x, y, r * 0.68) fill(WHITE, 0.85) end
+    circle(x, y, r * (X.rings > 2 and 0.46 or 0.34)) fill(accent(0), 1)
+    if X.rings > 2 then
+      circle(x, y, r * 0.22) fill(tone(0.06), 1)
+      circle(x + r * 0.1, y + r * 0.1, r * 0.08) fill(WHITE, 0.9)
+    end
+    if X.parafocal == 1 then
+      local a, wr = atan2(y, x), r * 1.5
+      taper(x + wr * cos(a - 55), y + wr * sin(a - 55), x + wr * 1.15 * cos(a - 20), y + wr * 1.15 * sin(a - 20),
+        x + wr * 1.15 * cos(a + 20), y + wr * 1.15 * sin(a + 20), x + wr * cos(a + 55), y + wr * sin(a + 55), r * 0.22, r * 0.22)
+      fill(tone(0.08), 0.6, true)
+    end
+  end
+  local BASE = { fw = { 0.12, 0.12 }, hw = { 0.12, -0.12 } }
+  local ROOTY, SPOTR = { fw = 0.04, hw = -0.04 }, { fw = 0.03, hw = 0.034 }
+  -- \flo@wgpaint: a wing (w: fw or hw, its n points, its edge's spots from point m0 to m1):
+  -- the ground, then in its clip the groundplan's pattern systems and the veins
+  local function wgpaint(w, n, m0, m1)
+    local o, t, cj, cw = WG["o" .. w], WG.t, WG.cj, WG.cw
+    smooth(o, true) fill(tone(t), WG.op)
+    if WG.blur then return end
+    smooth(o, true) ink.clip()
+    if fine then mottle(-1.2, -1.2, 1.2, 1.2, 9, 0.14, t - 0.2, t + 0.2, 8)
+    else mottle(-1.2, -1.2, 1.2, 1.2, 4, 0.14, t - 0.2, t + 0.2, 0) end
+    if X.basal == 1 then
+      local b = blob(BASE[w][1], BASE[w][2], 0.2, 0.15, 0.3, 9)
+      smooth(b, true) fill(tone(t - 0.18), 0.45, true)
+    end
+    if X.central == "band" then
+      if w == "fw" then taper(0.5, 0.66, 0.47 + cj, 0.45, 0.42 + cj, 0.25, 0.36, 0.04, cw, cw * 0.8)
+      else taper(0.42, -0.02, 0.37 + cj, -0.2, 0.28 + cj, -0.38, 0.14, -0.55, cw, cw * 0.8) end
+      fill(tone(t - 0.2), 0.6, true)
+    end
+    if X.central == "spots" then
+      local xa, xb, ya, yb
+      if w == "fw" then xa, xb, ya, yb = 0.47 + cj, 0.42 + cj, 0.45, 0.25 else xa, xb, ya, yb = 0.37 + cj, 0.28 + cj, -0.2, -0.38 end
+      circle(xa, ya, 0.045) circle(xb, yb, 0.045) circle((xa + xb) / 2, (ya + yb) / 2, 0.04)
+      fill(tone(t - 0.22), 0.65, true)
+    end
+    if X.discal == 1 then
+      if w == "fw" then ell(0.47 + cj * 0.5, 0.42, 0.03, 0.045) else ell(0.34 + cj * 0.5, -0.27, 0.03, 0.045) end
+      fill(tone(t - 0.25), 0.75, true)
+    end
+    local border = X.border
+    if border == "band" then smooth(o, true) stroke(tone(t - 0.22), 6.8 * WG.u, 0.55, true) end
+    smooth(o, true) stroke(tone(0.05), 7.37 * WG.u, 0.55, true)
+    if border == "spots" then
+      local c = tone(0.06)
+      for b = 1, X.eyes do
+        local x, y = wgat(w, m0, m1, (b - 0.5) / X.eyes, 0.86)
+        circle(x, y, SPOTR[w]) fill(c, 0.8)
+      end
+    end
+    if border == "eyes" then
+      for b = 1, WG["ne" .. w] do
+        local x, y = wgat(w, m0, m1, WG["es" .. w] + (b - 1) * WG["ed" .. w], 0.78)
+        wgeye(x, y, WG["er" .. w])
+      end
+    end
+    -- lunules: white arcs along the edge, a row or two
+    if X.lunules > 0 then
+      local nc = 2 * (m1 - m0)
+      for k = 1, X.lunules do
+        local f = 0.95 - 0.07 * (k - 1)
+        for b = 1, nc do
+          local xc, yc = wgat(w, m0, m1, (b - 0.85) / nc, f)
+          local xd, yd = wgat(w, m0, m1, (b - 0.15) / nc, f)
+          taper(xc, yc, (xc + (xd - xc) / 3) * 0.96, (yc + (yd - yc) / 3) * 0.96,
+            (xc + (xd - xc) * 2 / 3) * 0.96, (yc + (yd - yc) * 2 / 3) * 0.96, xd, yd, 0.03, 0.008)
+          fill(WHITE, 0.55)
+        end
+      end
+    end
+    -- the veins lifted out white from the wing's root, and on a wing with no border a dot
+    -- at each vein's end
+    if X.veins == 1 then
+      local rx, ry = 0.04, ROOTY[w]
+      for b = 1, n do
+        local p = WG[w][b]
+        local f = range(0.7, 0.88)
+        local xd, yd = rx + (p[1] - rx) * f, ry + (p[2] - ry) * f
+        local pts = { { rx, ry }, { rx + (xd - rx) * 0.3, ry + (yd - ry) * 0.4 }, { rx + (xd - rx) * 0.7, ry + (yd - ry) * 0.75 },
+          { xd, yd } }
+        streak(pts, 0.035, 0.004, WHITE, range(0.35, 0.6))
+        if border == "none" and fine and b > 1 and b < n then
+          circle(rx + (p[1] - rx) * 0.9, ry + (p[2] - ry) * 0.9, range(0.025, 0.04)) fill(WHITE, 0.8)
+        end
+      end
+    end
+    ink.unclip()
+    -- a swallowtail's two tails
+    if X.tails == 2 and w == "hw" then
+      local xb, yb = WG.hw[5][1], WG.hw[5][2]
+      taper(xb - 0.05, yb - 0.02, xb - 0.04, yb - 0.1, xb - 0.025, yb - 0.18, xb - 0.02, yb - 0.26, 0.022, 0.006)
+      taper(xb - 0.14, yb, xb - 0.14, yb - 0.08, xb - 0.135, yb - 0.14, xb - 0.13, yb - 0.2, 0.022, 0.006)
+      fill(tone(0.08), 0.9)
+    end
+  end
+  -- \flo@wgwing: a wing turned by rot about its root
+  local function wgwing(w, rot, n, m0, m1)
+    ink.push() ink.translate(0.04, 0) ink.rotate(rot) ink.translate(-0.04, 0)
+    wgpaint(w, n, m0, m1)
+    ink.pop()
+  end
+  -- \flo@wgbody: the abdomen and its bands, the thorax and its hair, the head, the feelers,
+  -- the legs of a butterfly seen from the side, a highlight
+  local function wgbody()
+    local aw, al, tw = WG.aw, WG.al, WG.tw
+    local pts = {}
+    for b = 0, 10 do
+      local v = b / 10
+      local h, y = aw * sin(180 * v ^ 0.7), -al + al * v
+      pts[b + 1] = { -h, y }
+      if b > 0 and b < 10 then pts[21 - b] = { h, y } end
+    end
+    smooth(pts, true) fill(tone(0.06), 1)
+    for b = 1, X.bands do
+      local y = -al * b / (X.bands + 1)
+      taper(-aw * 0.9, y, -aw * 0.3, y, aw * 0.3, y, aw * 0.9, y, 0.03, 0.03) fill(WHITE, 0.45)
+    end
+    ell(0, 0.08, tw, 0.13) fill(tone(0.04), 1)
+    if X.hair > 0 then
+      local c = tone(0.12)
+      for _ = 1, floor(4 + 12 * X.hair) do
+        local a, t = range(0, 360), range(0.03, 0.06)
+        seg(tw * cos(a), 0.08 + 0.13 * sin(a), (tw + t) * cos(a), 0.08 + (0.13 + t) * sin(a), 0.022, 0.003)
+        fill(c, 0.7)
+      end
+    end
+    circle(0, 0.27, WG.hr) fill(tone(0.04), 1)
+    local lw = max(0.3, 0.5 * WG.u)
+    local ant = X.antenna
+    for b = 1, 2 do
+      local sx = (WG.sides == 1 or b == 2) and 1 or -1
+      local ex, ey
+      if ant == "clubbed" then ex, ey = range(0.22, 0.3), range(0.78, 0.9) end
+      if ant == "thread" then ex, ey = range(0.26, 0.36), range(0.72, 0.88) end
+      if ant == "feathery" then ex, ey = range(0.24, 0.32), range(0.62, 0.72) end
+      if WG.sides == 1 and b == 2 then ex, ey = ex * 0.8, ey * 0.95 end
+      ex = sx * ex
+      local xa, xb, xc, yc = sx * 0.02, sx * 0.05, ex * 0.6, ey * 0.9
+      local c = tone(0.08)
+      moveto(xa, 0.31) curveto(xb, 0.5, xc, yc, ex, ey) stroke(c, lw, 1, false)
+      if ant == "clubbed" then circle(ex, ey, 0.025) fill(tone(0.06), 1) end
+      if ant == "feathery" then
+        -- barbs across the feeler's curve, shorter toward its tip
+        for k = 3, 9 do
+          local v = k / 10
+          local f = 1 - v
+          local x = f * f * f * xa + 3 * f * f * v * xb + 3 * f * v * v * xc + v * v * v * ex
+          local y = f * f * f * 0.31 + 3 * f * f * v * 0.5 + 3 * f * v * v * yc + v * v * v * ey
+          local nx, ny = nrm(3 * f * f * (xb - xa) + 6 * f * v * (xc - xb) + 3 * v * v * (ex - xc),
+            3 * f * f * 0.19 + 6 * f * v * (yc - 0.5) + 3 * v * v * (ey - yc))
+          local r = 0.05 * (1.1 - v)
+          moveto(x + nx * r, y + ny * r) lineto(x - nx * r, y - ny * r)
+        end
+        stroke(c, 0.5 * lw, 1, false)
+      end
+    end
+    if WG.sides == 1 then
+      for b = 0, 2 do
+        local y = 0.16 - 0.08 * b
+        moveto(-0.03, y) lineto(-0.12, y + 0.03) lineto(-0.2, y - 0.12)
+      end
+      stroke(tone(0.08), lw, 1, false)
+    end
+    if fine and X.kind == "butterfly" then
+      local t = al / 0.62
+      streak({ { -0.015, -0.55 * t }, { -0.02, -0.35 * t }, { -0.02, -0.1 * t }, { -0.01, 0 } }, 0.015, 0.004, WHITE, 0.45)
+    end
+  end
+  -- \flo@lepid: a butterfly or moth, wingspan 2; u its wingspan on the page / 2 (cm),
+  -- as TeX finds it (\flo@wgu)
+  local function lepid(u)
+    WG.u = u
+    fine = u > K(0.3)
+    local kind, pose, ground = X.kind, X.pose, X.ground
+    local t = X.tone
+    if ground == "pale" then t = min(0.78, t + 0.32) end
+    if ground == "dark" then t = t - 0.12 end
+    if ground == "copper" then pen.accent = true end
+    -- seen from the side (wings closed over the back), spread flat, in a moth's tent, or
+    -- hovering with its wings a blur at both ends of their beat
+    local sides, xs, rf, rh, pass = 2, 1, 0, 0, 1
+    WG.op, WG.blur = 1, false
+    if pose == "closed" then sides, rf, rh, t = 1, 18, 18, min(0.8, t + 0.12) end
+    if pose == "flat" then rf, rh = -18, -10 end
+    if pose == "tent" then rf, rh, xs = -58, -38, 0.8 end
+    if pose == "hover" then WG.op, WG.blur, pass = 0.3, true, 2 end
+    WG.t, WG.sides = t, sides
+    WG.aw, WG.al, WG.tw, WG.hr = 0.05, 0.62, 0.075, 0.06
+    if kind == "moth" then WG.aw, WG.tw, WG.hr = 0.075, 0.095, 0.07 end
+    if kind == "hawkmoth" then WG.aw, WG.al, WG.tw, WG.hr = 0.075, 0.85, 0.09, 0.07 end
+    if sides == 1 then WG.aw = WG.aw * 0.8 end
+    wgshape()
+    WG.dep = X.wingedge == "scalloped" and 0.045 or X.wingedge == "toothed" and 0.09 or 0
+    WG.tail = 0
+    WG.ofw = wgoutline("fw", 8, 4, 6)
+    if X.tails == 1 then WG.tail = 5 end
+    WG.ohw = wgoutline("hw", 7, 3, 6)
+    WG.cw, WG.cj = range(0.07, 0.11), sym(0.04)
+    -- eyespots: a row on the hindwing, one near the forewing's tip when there are three or more
+    WG.nehw, WG.nefw = X.eyes, X.eyes > 2 and 1 or 0
+    if X.eyes > 0 then WG.erhw, WG.eshw, WG.edhw = min(0.1, 0.34 / X.eyes), 0.5 / X.eyes, 1 / X.eyes end
+    WG.erfw, WG.esfw, WG.edfw = 0.065, 0.22, 0
+    if sides == 1 then ink.rotate(90) end
+    for a = 1, sides do
+      ink.push()
+      if a == 2 then xscale(-1) end
+      if xs < 1 then xscale(xs) end
+      for d = 1, pass do
+        if pass == 2 then
+          rf = d == 1 and 14 or -14
+          rh = rf
+        end
+        if sides == 1 then wgwing("fw", rf, 8, 4, 6) wgwing("hw", rh, 7, 3, 6)
+        else wgwing("hw", rh, 7, 3, 6) wgwing("fw", rf, 8, 4, 6) end
+      end
+      ink.pop()
+    end
+    wgbody()
+  end
+
+  -- ---------------------------------------------------------------- bees and hoverflies
+  local BG = {}                             -- the one being drawn (\flo@bg...)
+  -- \flo@bgpale: the pale bands on a part (where: t the thorax, a the abdomen) in color c, and a
+  -- bumblebee's white tail
+  local function bgpale(where, c)
+    for b = 1, X.bands do
+      if BG.bp[b] == where then band(BG.bh[b], BG.bl[b], 0.02) fill(c, 0.95) end
+    end
+    if where == "a" and X.paletail == 1 then band(BG.tl, -2, 0.02) fill(white(), 1) end
+  end
+  -- \flo@bgcolorat: the hair's color at height y on a part: 1 dark, 2 pale, 3 white
+  local function bgcolorat(y, where)
+    local c = 1
+    if BG.kind == "bumblebee" then
+      for d = 1, X.bands do
+        if BG.bp[d] == where and y < BG.bh[d] and y > BG.bl[d] then c = 2 end
+      end
+      if where == "a" and X.paletail == 1 and y < BG.tl then c = 3 end
+    end
+    return c
+  end
+  -- \flo@bgfur: n hairs round the ellipse at (0, cy), half-width rx, ra above and rb below
+  local function bgfur(cy, rx, n, ra, rb, where)
+    local hairs = { {}, {}, {} }
+    local hl = 0.5 + X.hair
+    for _ = 1, n do
+      local a, t, b = range(0, 360), range(0.02, 0.045), sym(25)
+      t = t * hl + 0.014
+      local v = sin(a)
+      local r = (v < 0 and rb or ra) - 0.014
+      local xa, ya = (rx - 0.014) * cos(a), cy + r * v
+      local h = hairs[bgcolorat(ya, where)]
+      h[#h + 1] = { xa, ya, xa + t * cos(a + b), ya + t * sin(a + b) }
+    end
+    local function paint(t, c, op)
+      if #t == 0 then return end
+      for _, h in ipairs(t) do seg(h[1], h[2], h[3], h[4], 0.013, 0.003) end
+      fill(c, op)
+    end
+    paint(hairs[1], tone(BG.fd), 0.8)
+    paint(hairs[2], tone(BG.pt), 0.9)
+    paint(hairs[3], white(), 0.9)
+  end
+  -- \flo@bgabdomen: the abdomen's outline, a squared egg
+  local function bgabdomen()
+    local pts = {}
+    for a = 1, 16 do
+      local wa = 22.5 * a - 11.25
+      local t, v = cos(wa), sin(wa)
+      pts[a] = { BG.rx * (t < 0 and -1 or 1) * abs(t) ^ BG.sq, BG.ay + BG.ry * v * (v < 0 and BG.egg or 1) }
+    end
+    return pts
+  end
+  -- \flo@bgpaintab: the abdomen, its pattern (\flo@bgab@<kind>), mottle, rim and highlight
+  local function bgpaintab()
+    local ab, kind = BG.ab, BG.kind
+    smooth(ab, true) fill(tone(BG.abt), 1)
+    smooth(ab, true) ink.clip()
+    if kind == "honeybee" then
+      local gap = BG.la / (X.bands + 0.6)
+      local bt = 0.42 * gap
+      for b = 1, X.bands do
+        local ya = BG.at - gap * (b + 0.15) + bt / 2
+        band(ya, ya - bt, 0.03)
+      end
+      fill(tone(0.05), 0.88)
+    elseif kind == "bumblebee" then bgpale("a", tone(BG.pt))
+    elseif kind == "solitarybee" then
+      for b = 1, X.bands do
+        local ya = BG.at - BG.la * (0.12 + 0.17 * b)
+        band(ya, ya - 0.035, 0.025)
+      end
+      fill(WHITE, 0.6)                      -- with no bands, an empty path, as the library paints it
+    else                                    -- a hoverfly's bands, broken in the middle
+      local gap = BG.la / (X.bands + 0.5)
+      local c = BG.ground == "copper" and accent(0.1) or tone(min(0.86, BG.t + 0.4))
+      for b = 1, X.bands do
+        local y = BG.at - gap * (b - 0.2)
+        local wa = (b == 1 and 0.3 or 0.42) * gap
+        for s = -1, 1, 2 do
+          local x = s * BG.rx
+          taper(s * 0.03, y + 0.01, x * 0.4, y + 0.03, x * 0.75, y, x * 1.05, y - 0.04, wa, 0.15 * gap)
+        end
+      end
+      fill(c, 0.92)
+    end
+    if fine then mottle(-BG.rx, BG.at - BG.la, BG.rx, BG.at, 4, 0.06, BG.abt - 0.18, BG.abt + 0.17, BG.spk) end
+    smooth(ab, true) stroke(tone(0.05), 3.4 * BG.u, BG.rim, true)
+    local t, v, ay = BG.rx / 0.19, BG.ry / 0.3, BG.ay
+    streak({ { -0.1 * t, ay - 0.18 * v }, { -0.13 * t, ay - 0.05 * v }, { -0.12 * t, ay + 0.08 * v }, { -0.08 * t, ay + 0.2 * v } },
+      0.04, 0.008, WHITE, 0.5)
+    ink.unclip()
+  end
+  -- \flo@bgthorax
+  local function bgthorax()
+    local th = blob(0, BG.ty, BG.tr, BG.tr * 0.93, 0.1, 12)
+    smooth(th, true) fill(tone(BG.tt), 1)
+    smooth(th, true) ink.clip()
+    if BG.kind == "bumblebee" then bgpale("t", tone(BG.pt)) end
+    if fine then mottle(-BG.tr, BG.ty - BG.tr, BG.tr, BG.ty + BG.tr, 3, 0.05, BG.tt - 0.04, BG.tt + 0.24, 6) end
+    ink.unclip()
+  end
+  -- \flo@bghead: the head and its eyes
+  local function bghead()
+    ell(0, BG.hy, BG.hx, BG.hr) fill(tone(BG.ht), 1)
+    local ya = BG.hy + 0.008
+    local xa, xb, yb
+    if BG.kind == "hoverfly" then xa, xb, yb = 0.055, 0.068, 0.08 else xa, xb, yb = BG.hx - 0.022, 0.028, 0.05 end
+    ell(-xa, ya, xb, yb) ell(xa, ya, xb, yb) fill(tone(0.02), 1)
+    if fine then
+      local xc, yc = xa - 0.3 * xb, ya + 0.35 * yb
+      circle(-xc, yc, 0.011) circle(xc, yc, 0.011) fill(WHITE, 0.7)
+    end
+  end
+  -- \flo@bgfeelers: a bee's elbowed feelers, a hoverfly's short ones
+  local function bgfeelers()
+    local c, hy = tone(0.06), BG.hy
+    if BG.kind == "hoverfly" then
+      local ya, yb, yc = hy + 0.07, hy + 0.11, hy + 0.14
+      moveto(-0.02, ya) lineto(-0.035, yb) moveto(0.02, ya) lineto(0.035, yb) stroke(c, BG.w, 1, false)
+      circle(-0.035, yb, 0.014) circle(0.035, yb, 0.014) fill(c, 1)
+      if fine then moveto(-0.035, yb) lineto(-0.075, yc) moveto(0.035, yb) lineto(0.075, yc) stroke(c, 0.5 * BG.w, 1, false) end
+    else
+      local ya = hy + 0.05
+      for b = 1, 2 do
+        local sx = b == 1 and -1 or 1
+        local xb, yb, xc, yc = range(0.05, 0.08), range(0.11, 0.15), range(0.11, 0.17), range(0.17, 0.23)
+        moveto(sx * 0.03, ya) lineto(sx * xb, hy + yb) lineto(sx * xc, hy + yc)
+      end
+      stroke(c, BG.w, 1, false)
+    end
+  end
+  -- the legs of a side: root, knee and foot, spread on a flower (v) or hanging in flight (f)
+  local BGL = {
+    v = { { 0.05, 0.06, 0.17, 0.1, 0.2, 0.22 }, { 0.06, 0, 0.23, -0.03, 0.3, -0.15 }, { 0.06, -0.06, 0.28, -0.16, 0.32, -0.42 } },
+    f = { { 0.05, 0.04, 0.13, 0, 0.15, -0.1 }, { 0.06, 0, 0.17, -0.08, 0.18, -0.24 }, { 0.06, -0.05, 0.21, -0.16, 0.22, -0.44 } },
+  }
+  -- \flo@bglegs: the legs of a side, and the pollen on the hind leg
+  local function bglegs()
+    local legs, lx, ty = {}, BG.lx, BG.ty
+    for i = 1, 3 do
+      local p = BGL[BG.lp][i]
+      local kx = p[3] * lx + sym(0.02)
+      local ky = ty + p[4] + sym(0.02)
+      local fx = p[5] * lx + sym(0.025)
+      legs[i] = { p[1] * lx, ty + p[2], kx, ky, fx, ty + p[6] + sym(0.025) }
+    end
+    local fw = BG.fw
+    for i = 1, 3 do
+      local q = legs[i]
+      seg(q[1], q[2], q[3], q[4], fw, fw * 0.8)
+      seg(q[3], q[4], q[5], q[6], fw * 0.8, fw * 0.35)
+    end
+    fill(tone(0.08), 1)
+    if X.pollen == 1 then
+      local q, pr = legs[3], BG.pr
+      local da, db = q[5] - q[3], q[6] - q[4]
+      local nx, ny = nrm(da, db)
+      local xa, ya = q[3] + 0.45 * da, q[4] + 0.45 * db
+      local xb, yb, xc, yc = ny * 0.065 * pr, -nx * 0.065 * pr, nx * 0.042 * pr, ny * 0.042 * pr
+      ellipse(xa, ya, xb, yb, xc, yc) fill(accent(0), 1)
+      if fine then circle(xa + 0.35 * xc - 0.25 * xb, ya + 0.35 * yc - 0.25 * yb, 0.012) fill(WHITE, 0.6) end
+    end
+  end
+  -- \flo@bgwingshape: a wing's outline, a teardrop l long and w wide each way
+  local BGW = { { 0.02, 0 }, { 0.15, 0.55 }, { 0.45, 0.95 }, { 0.8, 0.85 }, { 1, 0.25 }, { 0.92, -0.45 }, { 0.6, -0.8 },
+    { 0.25, -0.55 } }
+  local function bgwingshape(l, w)
+    local pts = {}
+    for i, p in ipairs(BGW) do
+      local x = p[1] * l + sym(0.012)
+      pts[i] = { x, p[2] * w + sym(0.012) }
+    end
+    return pts
+  end
+  -- the veins of a forewing (f), a hindwing (h) and a hoverfly's wing (v), in its length and width
+  local BGV = {
+    f = { { { 0.03, 0.3 }, { 0.35, 0.72 }, { 0.62, 0.78 } }, { { 0.03, 0.05 }, { 0.3, 0.2 }, { 0.62, 0.25 }, { 0.85, 0.32 } },
+      { { 0.05, -0.15 }, { 0.35, -0.25 }, { 0.6, -0.3 } }, { { 0.62, 0.78 }, { 0.62, 0.25 }, { 0.6, -0.3 } } },
+    h = { { { 0.03, 0.05 }, { 0.55, 0.15 } } },
+    v = { { { 0.03, 0.35 }, { 0.5, 0.8 }, { 0.85, 0.62 } }, { { 0.03, 0 }, { 0.5, 0.1 }, { 0.78, 0.22 }, { 0.92, 0.05 } },
+      { { 0.05, -0.2 }, { 0.45, -0.32 }, { 0.72, -0.28 }, { 0.86, -0.08 } }, { { 0.5, 0.8 }, { 0.5, 0.1 }, { 0.45, -0.32 } } },
+  }
+  -- \flo@bgwing: a wing at (x, y) turned by rot, a pale film; with its rim, and its veins
+  -- (wl long, ww wide) when the bee is large enough
+  local function bgwing(pts, x, y, rot, op, rim, veins, wl, ww)
+    local was = pen.accent
+    pen.accent = false
+    ink.push() ink.translate(x, y) ink.rotate(rot)
+    smooth(pts, true) fill(tone(0.85), op)
+    if rim then
+      smooth(pts, true) stroke(tone(0.15), BG.lw, 0.75, false)
+      if fine then
+        for _, l in ipairs(BGV[veins]) do
+          moveto(l[1][1] * wl, l[1][2] * ww)
+          for i = 2, #l do lineto(l[i][1] * wl, l[i][2] * ww) end
+        end
+        stroke(tone(0.2), BG.vw, 0.6, false)
+      end
+    end
+    ink.pop()
+    pen.accent = was
+  end
+  -- \flo@bgwings: the wings of a side, at rest or three times over in their beat
+  local function bgwings()
+    local wf = bgwingshape(BG.Fl, BG.Fw)
+    local wh = BG.Hl > 0 and bgwingshape(BG.Hl, BG.Hw)
+    local yf, yh = BG.ty + 0.05, BG.ty - 0.01
+    if BG.blur then
+      for b = 1, 3 do
+        if wh then bgwing(wh, 0.06, yh, BG.ah + (b - 2) * BG.dl, 0.16, false) end
+        bgwing(wf, 0.06, yf, BG.af + (b - 2) * BG.dl, 0.16, false)
+      end
+    else
+      if wh then bgwing(wh, 0.06, yh, BG.ah, 0.55, true, "h", BG.Hl, BG.Hw) end
+      bgwing(wf, 0.06, yf, BG.af, 0.55, true, BG.vn, BG.Fl, BG.Fw)
+    end
+  end
+  -- \flo@bgtrail: flora's flight path, dotted, looping away behind
+  local function bgtrail()
+    local tc, tn = range(0.16, 0.22), range(1, 1.3)
+    local sx = chance(0.5) and 1 or -1
+    local w, gap = max(0.6, 1.1 * BG.u), max(2.2, 3.2 * BG.u)
+    for b = 0, 40 do
+      local a = b / 40 * tn * 360
+      local x, y = sx * 0.32 * sin(a), BG.tip - 0.06 - tc * a * 0.0174533 + 0.192 * (cos(a) - 1)
+      if b == 0 then moveto(x, y) else lineto(x, y) end
+    end
+    stroke(tone(0.18), w, 0.7, false, string.format("[%.2f %.2f] %.2f", 0, gap, 0))
+  end
+  -- \flo@bee: a bee or a hoverfly, length 1; u its length on the page in cm, as TeX finds it
+  local function bee(u)
+    BG.u = u
+    fine = u > K(0.25)
+    local kind, pose = X.kind, X.pose
+    BG.kind, BG.ground = kind, X.ground
+    BG.t, BG.pt = X.tone, 0.74
+    if X.ground == "dark" then BG.t = BG.t - 0.12 end
+    if X.ground == "copper" then pen.accent = true BG.pt = 0.6 end
+    local t = BG.t
+    BG.rx, BG.ry, BG.sq, BG.egg = 0.48 * X.build, 0.3, 1, 1.12
+    BG.tr, BG.hx, BG.hr = 0.13, 0.09, 0.075
+    BG.Fl, BG.Fw, BG.Hl, BG.Hw, BG.vn = 0.52, 0.12, 0.38, 0.08, "f"
+    BG.fw, BG.pr = 0.032, 1
+    BG.abt, BG.tt, BG.ht, BG.fd = t, 0.06, 0.04, t
+    BG.spk, BG.rim = 4, 0.4
+    if kind == "honeybee" then BG.tt = max(0.06, t - 0.24) end
+    if kind == "bumblebee" then
+      BG.egg, BG.tr, BG.hx, BG.Fl, BG.Fw = 1, 0.16, 0.1, 0.48, 0.11
+      BG.Hl, BG.fw, BG.pr, BG.abt, BG.tt = 0.34, 0.036, 1.2, 0.06, 0.05
+      BG.fd, BG.spk, BG.rim = 0.08, 14, 0.15
+    end
+    if kind == "solitarybee" then
+      BG.ry, BG.tr, BG.hx, BG.pr = 0.32, 0.11, 0.08, 0.9
+      BG.abt = max(0.05, t - 0.24)
+    end
+    if kind == "hoverfly" then
+      BG.rx, BG.sq, BG.egg, BG.tr, BG.hx = 0.42 * X.build, 0.8, 1.2, 0.12, 0.13
+      BG.hr, BG.Fl, BG.Hl, BG.vn, BG.fw = 0.085, 0.62, 0, "v", 0.022
+      BG.abt, BG.tt, BG.ht, BG.fd = 0.08, 0.08, 0.1, 0.25
+    end
+    local ty, tr, ry = 0.15, BG.tr, BG.ry
+    local at = ty - tr + 0.09
+    local la = ry * (1 + 0.98 * BG.egg)
+    BG.ty, BG.hy, BG.at, BG.ay, BG.la, BG.tip = ty, ty + tr + 0.04, at, at - ry, la, at - la
+    BG.lx = 0.6 + 2 * BG.rx
+    -- the bands' parts and their tops and bottoms; a bumblebee's white tail from tl down
+    BG.bp = { "t", "a", "t", "a" }
+    BG.bh = { ty + tr + 0.03, at - 0.3 * la, ty - 0.5 * tr, at + 0.03 }
+    BG.bl = { ty + 0.4 * tr, at - 0.5 * la, ty - tr - 0.03, at - 0.17 * la }
+    BG.tl = at - 0.7 * la
+    BG.w, BG.lw, BG.vw = max(0.25, 0.45 * u), max(0.2, 0.35 * u), max(0.15, 0.25 * u)
+    BG.lp, BG.blur, BG.af, BG.ah, BG.dl = "v", false, -70, -78, 0
+    if pose == "fly" then BG.lp, BG.blur, BG.af, BG.ah, BG.dl = "f", true, 14, -4, 16 end
+    if pose == "rest" then BG.af = -45 end
+    if pose == "hover" then BG.lp, BG.blur, BG.af, BG.dl = "f", true, 10, 22 end
+    if pose == "fly" then bgtrail() end
+    for a = 1, 2 do
+      ink.push()
+      if a == 2 then xscale(-1) end
+      bglegs()
+      ink.pop()
+    end
+    BG.ab = bgabdomen()
+    bgpaintab()
+    if kind ~= "hoverfly" and kind ~= "bumblebee" then             -- the sting
+      local ya, yb = BG.tip + 0.04, BG.tip - 0.05
+      moveto(-0.022, ya) lineto(0, yb) lineto(0.022, ya) close() fill(tone(0.05), 1)
+    end
+    if kind == "bumblebee" then bgfur(BG.ay, BG.rx, floor(24 + 60 * X.hair), ry, ry * BG.egg, "a") end
+    bgthorax()
+    local rb = BG.tr * 0.93
+    bgfur(ty, BG.tr, floor(6 + 40 * X.hair), rb, rb, "t")
+    bghead() bgfeelers()
+    for a = 1, 2 do
+      ink.push()
+      if a == 2 then xscale(-1) end
+      bgwings()
+      ink.pop()
+    end
+  end
+
+  -- ---------------------------------------------------------------- dragonflies and damselflies
+  local OD = {}                             -- the one being drawn (\flo@od...)
+  -- the wings' outlines (along, across in units of the width) and their long veins (across
+  -- at the root, middle and tip; 0 and 5 outside the wing)
+  local ODW = {
+    f = { { 0.01, 0.35 }, { 0.12, 0.75 }, { 0.45, 0.95 }, { 0.8, 0.9 }, { 0.97, 0.55 }, { 1, 0.1 }, { 0.93, -0.45 }, { 0.7, -0.75 },
+      { 0.35, -0.85 }, { 0.08, -0.6 } },
+    h = { { 0.01, 0.35 }, { 0.15, 0.8 }, { 0.5, 0.95 }, { 0.85, 0.85 }, { 1, 0.3 }, { 0.96, -0.35 }, { 0.75, -0.75 }, { 0.45, -1 },
+      { 0.2, -1.45 }, { 0.04, -0.8 } },
+    d = { { 0, 0.1 }, { 0.2, 0.2 }, { 0.45, 0.8 }, { 0.78, 0.98 }, { 0.98, 0.6 }, { 1, 0 }, { 0.94, -0.6 }, { 0.75, -0.9 },
+      { 0.45, -0.6 }, { 0.2, -0.2 } },
+  }
+  local ODV = {
+    f = { [0] = { 1.3, 1.3, 1.3 }, { 0.45, 0.72, 0.5 }, { 0.15, 0.3, 0.05 }, { -0.1, -0.3, -0.45 }, { -0.3, -0.7, -0.8 },
+      { -1.6, -1.6, -1.6 } },
+    h = { [0] = { 1.3, 1.3, 1.3 }, { 0.45, 0.72, 0.5 }, { 0.15, 0.3, 0.05 }, { -0.1, -0.35, -0.45 }, { -0.4, -0.9, -0.8 },
+      { -1.6, -1.6, -1.6 } },
+    d = { [0] = { 1.3, 1.3, 1.3 }, { 0.06, 0.6, 0.4 }, { 0.02, 0.2, 0 }, { -0.02, -0.25, -0.4 }, { -0.06, -0.5, -0.7 },
+      { -1.6, -1.6, -1.6 } },
+  }
+  -- \flo@odvat: long vein k across the wing at u along it
+  local function odvat(k, u)
+    local v = ODV[OD.wk][k]
+    if u < 0.5 then return v[1] + (v[2] - v[1]) * 2 * u end
+    return v[2] + (v[3] - v[2]) * (2 * u - 1)
+  end
+  -- \flo@odwingshape
+  local function odwingshape(t, l, w)
+    local pts = {}
+    for i, p in ipairs(ODW[t]) do
+      local x = p[1] * l + sym(0.008)
+      pts[i] = { x, p[2] * w + sym(0.008) }
+    end
+    return pts
+  end
+  -- \flo@odwing: a wing at (x, y) turned by rot: the film, a tint, the stigma, the long veins
+  -- and on a large one the net between them, the rim
+  local function odwing(pts, x, y, rot)
+    local wl, ww, was = OD.wl, OD.ww, pen.accent
+    ink.push() ink.translate(x, y) ink.rotate(rot)
+    pen.accent = false
+    smooth(pts, true) fill(tone(OD.wt), OD.wo)
+    pen.accent = was
+    smooth(pts, true) ink.clip()
+    if X.tint == "tinted" then ell(0.1 * wl, -0.2 * ww, 0.2 * wl, 1.2 * ww) fill(tone(0.45), 0.3) end
+    if X.stigma == 1 then
+      local xa, xb, ya, yb = 0.83 * wl, 0.91 * wl, 1.3 * ww, 0.55 * ww
+      moveto(xa, ya) lineto(xb, ya) lineto(xb, yb) lineto(xa, yb) close() fill(tone(0.06), 0.9)
+    end
+    if fine then
+      pen.accent = false
+      for c = 1, 4 do
+        local v = ODV[OD.wk][c]
+        moveto(0, v[1] * ww) lineto(0.5 * wl, v[2] * ww) lineto(wl, v[3] * ww)
+      end
+      stroke(tone(0.15), OD.vw, 0.6, false)
+      if OD.net then
+        for c = 1, 5 do
+          for d = 1, 22 do
+            local u = (d - 0.5 + sym(0.3)) / 22 * 0.96 + 0.02
+            local ya, yb = odvat(c - 1, u) * ww, odvat(c, u) * ww
+            moveto(u * wl, ya) lineto((u + sym(0.01)) * wl, yb)
+          end
+        end
+        stroke(tone(0.2), OD.nw, 0.45, false)
+      end
+      pen.accent = was
+    end
+    ink.unclip()
+    if fine then
+      pen.accent = false
+      smooth(pts, true) stroke(tone(0.15), OD.lw, 0.7, false)
+      pen.accent = was
+    end
+    ink.pop()
+  end
+  -- \flo@odwings: the hindwing and forewing of a side
+  local function odwings()
+    local wh = odwingshape(OD.hk, OD.Hl, OD.Hw)
+    local wf = odwingshape(OD.fk, OD.Fl, OD.Fw)
+    OD.wk, OD.wl, OD.ww = OD.hk, OD.Hl, OD.Hw
+    odwing(wh, OD.rx, OD.ty - OD.hd, OD.ah)
+    OD.wk, OD.wl, OD.ww = OD.fk, OD.Fl, OD.Fw
+    odwing(wf, OD.rx, OD.ty + OD.fd, OD.af)
+  end
+  -- \flo@odabdomen: long and thin, swollen at its root
+  local function odabdomen()
+    local pts = {}
+    for a = 0, 11 do
+      local v = a / 11
+      local h = OD.aw * (1 + OD.bul * math.exp(-min(9, v * v / 0.012))) * min(1, (1.04 - v) * 5)
+      local y = OD.at + (OD.tip - OD.at) * v
+      pts[a + 1] = { h, y }
+      pts[24 - a] = { -h, y }
+    end
+    return pts
+  end
+  -- \flo@odseg: the end of segment e down the abdomen, as a fraction of its length
+  local function odseg(e) if e < 1 then return 0 end return (e / 10) ^ 1.12 end
+  -- \flo@odpaintab: the abdomen, dark bands on its last segments, the joints, a highlight,
+  -- the rim and the claspers
+  local function odpaintab()
+    local ab, at, tip = OD.ab, OD.at, OD.tip
+    smooth(ab, true) fill(tone(OD.t), 1)
+    smooth(ab, true) ink.clip()
+    if X.bands > 0 then
+      for b = 1, X.bands do
+        local n = 10 - X.bands + b
+        local sa, sv = odseg(n - 1), odseg(n)
+        band(at + (tip - at) * (sa + 0.6 * (sv - sa)), at + (tip - at) * sv - 0.01, 0.004)
+      end
+      fill(tone(0.04), 0.85)
+    end
+    if fine then
+      for b = 1, 9 do
+        local y = at + (tip - at) * odseg(b)
+        moveto(-0.1, y) lineto(0.1, y)
+      end
+      stroke(tone(0.05), OD.jw, 0.5, false)
+      local t, aw = tip - at, OD.aw
+      streak({ { -0.4 * aw, at + 0.06 * t }, { -0.45 * aw, at + 0.3 * t }, { -0.45 * aw, at + 0.6 * t }, { -0.35 * aw, at + 0.85 * t } },
+        0.5 * aw, 0.004, WHITE, 0.45)
+    end
+    smooth(ab, true) stroke(tone(0.05), 1.4 * OD.u, 0.35, true)
+    ink.unclip()
+    if fine then
+      local ya, yb, xa, xb = tip + 0.012, tip - 0.022, 0.5 * OD.aw, 0.9 * OD.aw
+      moveto(-xa, ya) lineto(-xb, yb) moveto(xa, ya) lineto(xb, yb) stroke(tone(0.05), OD.jw, 1, false)
+    end
+  end
+  -- \flo@odthorax
+  local function odthorax()
+    local th = blob(0, OD.ty, OD.tr, OD.th, 0.06, 10)
+    smooth(th, true) fill(tone(OD.tt), 1)
+    smooth(th, true) ink.clip()
+    if fine then
+      for s = -1, 1, 2 do
+        seg(s * 0.3 * OD.tr, OD.ty + 0.75 * OD.th, s * 0.6 * OD.tr, OD.ty - 0.45 * OD.th, 0.3 * OD.tr, 0.12 * OD.tr)
+      end
+      fill(WHITE, 0.35)
+    end
+    smooth(th, true) stroke(tone(0.05), 1.2 * OD.u, 0.4, true)
+    ink.unclip()
+  end
+  -- \flo@odhead: the head and its great eyes
+  local function odhead()
+    ell(0, OD.hy, OD.hx, OD.hr) fill(tone(0.06), 1)
+    local ya, ex, er = OD.hy + OD.ey, OD.ex, OD.er
+    ell(-ex, ya, er, er) ell(ex, ya, er, er) fill(tone(OD.et), 1)
+    if fine then
+      local xa, yb, r = ex - 0.35 * er, ya + 0.4 * er, 0.22 * er
+      circle(-xa, yb, r) circle(xa, yb, r) fill(WHITE, 0.7)
+    end
+  end
+  -- \flo@odo: a dragonfly or a damselfly, length 1; u its length on the page in cm
+  local function odo(u)
+    OD.u = u
+    fine, OD.net = u > K(0.4), u > K(1.5)
+    local kind = X.kind
+    local t = X.tone
+    if X.ground == "dark" then t = t - 0.12 end
+    if X.ground == "copper" then pen.accent = true end
+    OD.t, OD.tt, OD.et = t, max(0.05, t - 0.08), max(0.06, t - 0.1)
+    if X.tint == "tinted" then OD.wt, OD.wo = 0.7, 0.42 else OD.wt, OD.wo = 0.88, 0.28 end
+    OD.aw, OD.bul, OD.at, OD.tip = 0.032, 0.7, 0.16, -0.62
+    OD.ty, OD.tr, OD.th = 0.235, 0.066, 0.08
+    OD.hy, OD.hx, OD.hr, OD.ex, OD.ey, OD.er = 0.34, 0.075, 0.048, 0.038, 0.006, 0.046
+    OD.fk, OD.hk, OD.Fl, OD.Fw, OD.Hl, OD.Hw = "f", "h", 0.62, 0.065, 0.6, 0.075
+    OD.rx, OD.fd, OD.hd, OD.af, OD.ah = 0.02, 0.03, 0.035, 8, -6
+    LGP.x, LGP.w = 1, 0.014
+    if kind == "damselfly" then
+      OD.aw, OD.bul, OD.at, OD.tip = 0.016, 0.5, 0.2, -0.66
+      OD.ty, OD.tr, OD.th = 0.26, 0.04, 0.058
+      OD.hy, OD.hx, OD.hr, OD.ex, OD.ey, OD.er = 0.34, 0.075, 0.028, 0.058, 0, 0.026
+      OD.fk, OD.hk, OD.Fl, OD.Fw, OD.Hl, OD.Hw = "d", "d", 0.5, 0.06, 0.48, 0.06
+      OD.rx, OD.fd, OD.hd, OD.af, OD.ah = 0.012, 0.02, 0.02, -84, -88
+      LGP.x, LGP.w = 0.75, 0.01
+      -- its wings spread, or folded along the abdomen and seen edge on
+      if X.pose == "spread" then OD.af, OD.ah = -38, -50 else OD.Fw, OD.Hw = 0.032, 0.032 end
+    end
+    OD.lw, OD.vw, OD.nw, OD.jw = max(0.18, 0.3 * u), max(0.12, 0.22 * u), max(0.08, 0.1 * u), max(0.1, 0.18 * u)
+    LGP.y, LGP.ex, LGP.j, LGP.ph = OD.ty, 0, 0.006, 0
+    local c = tone(0.06)
+    for a = 1, 2 do
+      ink.push()
+      if a == 2 then xscale(-1) end
+      vlegs("o", c)
+      ink.pop()
+    end
+    OD.ab = odabdomen()
+    odpaintab() odthorax() odhead()
+    for a = 1, 2 do
+      ink.push()
+      if a == 2 then xscale(-1) end
+      odwings()
+      ink.pop()
+    end
+  end
+
+  -- ---------------------------------------------------------------- beetles and ladybirds
+  local BT = {}                             -- the one being drawn (\flo@bt...)
+  -- \flo@btelytra: the wing cases' outline
+  local function btelytra()
+    local pts = {}
+    for a = 1, 16 do
+      local wa = 22.5 * a - 11.25
+      local t, v = cos(wa), sin(wa)
+      pts[a] = { BT.ew * (t < 0 and -1 or 1) * abs(t) ^ BT.sq, BT.ey + v * (v < 0 and BT.rb or BT.rt) }
+    end
+    return pts
+  end
+  -- \flo@btshield: the shield behind the head, pb wide at its back, pf at its front, pl long
+  local function btshield(pb, pf, pl)
+    local sa = BT.et - BT.so
+    local sb = BT.et + pl
+    local sl = sb - sa
+    BT.sa, BT.sl = sa, sl
+    local p = {}
+    p[1], p[10] = { 0.55 * pb, sa - 0.01 }, { -0.55 * pb, sa - 0.01 }
+    p[2], p[9] = { pb, sa }, { -pb, sa }
+    p[3], p[8] = { BT.sw * pb, sa + 0.45 * sl }, { -BT.sw * pb, sa + 0.45 * sl }
+    p[4], p[7] = { pf, sb - 0.15 * sl }, { -pf, sb - 0.15 * sl }
+    p[5], p[6] = { 0.5 * pf, sb }, { -0.5 * pf, sb }
+    return p
+  end
+  -- \flo@bthw: the wing cases' half-width at y
+  local function bthw(y)
+    local t = (y - BT.ey) / (y > BT.ey and BT.rt or BT.rb)
+    return BT.ew * sqrt(max(0, 1 - t * t))
+  end
+  -- \flo@btstripes: four stripes down the wing cases, in color c
+  local function btstripes(c)
+    local t = BT.et - BT.tip
+    for b = 1, 4 do
+      local x = (b < 3 and 1 or -1) * (b % 2 == 1 and 0.36 or 0.72) * BT.ew
+      taper(x, BT.et - 0.03, x * 1.04, BT.et - 0.35 * t, x * 0.9, BT.et - 0.7 * t, x * 0.35, BT.tip + 0.06, 0.045, 0.012)
+    end
+    fill(c, 0.8)
+  end
+  -- \flo@btspot: a spot at (x, y), about r across
+  local function btspot(x, y, r, c)
+    local sr = r * range(0.85, 1.1)
+    smooth(blob(x, y, sr, sr * 0.92, 0.1, 8), true) fill(c, 0.95)
+  end
+  -- \flo@btspots: the spots in pairs, in rows of one to three a side, an odd one on the seam
+  local function btspots(c)
+    local m = X.spots // 2
+    local r = X.spotsize * BT.ew * 1.6 / sqrt(max(1, m))
+    local cols = m < 4 and 1 or m < 8 and 2 or 3
+    local rows = (m + cols - 1) // cols
+    local top, tip = BT.et - BT.so, BT.tip
+    if X.spots - 2 * m > 0 then btspot(0, top - 0.6 * r, 1.15 * r, c) end
+    for b = 1, m do
+      local row = (b - 1) // cols
+      local col = b - 1 - cols * row
+      local v = (row + 0.5) / rows + sym(0.04)
+      local u
+      if cols == 1 then u = m == 1 and 0.5 or (row == 1 and 0.4 or 0.62)
+      elseif cols == 2 then
+        u = col == 0 and 0.33 or 0.7
+        if b == m and col == 0 then u = 0.5 end
+      else u = 0.2 + 0.3 * col end
+      u = u + sym(0.05)
+      local y = top - 0.04 - v * (top - tip - 0.08)
+      local x = u * bthw(y)
+      btspot(x, y, r, c) btspot(-x, y, r, c)
+    end
+  end
+  -- \flo@btmark: the pattern's color
+  local function btmark()
+    if BT.ground == "dark" then
+      if BT.kind == "ladybird" then return accent(0) end
+      return tone(0.8)
+    end
+    return tone(0.04)
+  end
+  -- \flo@btpaintel: the wing cases, their pattern, mottle, rim, highlights and seam
+  local function btpaintel()
+    local el = BT.el
+    smooth(el, true) fill(tone(BT.t), 1)
+    smooth(el, true) ink.clip()
+    if X.pattern == "stripes" then btstripes(btmark()) end
+    if X.pattern == "spots" then btspots(btmark()) end
+    if fine then mottle(-BT.ew, BT.tip, BT.ew, BT.et, 3, 0.08, BT.t - 0.06, BT.t + 0.2, 0) end
+    smooth(el, true) stroke(tone(0.04), 2.6 * BT.u, 0.35, true)
+    if fine then
+      local ln, top, ew = (BT.et - BT.tip) * BT.gl, BT.et - BT.so, BT.ew
+      for b = 1, 2 do
+        local sx, op = b == 1 and -1 or 1, b == 1 and 0.55 or 0.3
+        streak({ { sx * 0.5 * ew, top - 0.06 * ln }, { sx * 0.56 * ew, top - 0.23 * ln }, { sx * 0.54 * ew, top - 0.43 * ln },
+          { sx * 0.45 * ew, top - 0.6 * ln } }, 0.14 * ew, 0.01, WHITE, op)
+      end
+    end
+    ink.unclip()
+    moveto(0, BT.et) lineto(0, BT.tip) stroke(tone(0.04), BT.w, 0.8, false)
+  end
+  -- \flo@btfeeler: a feeler, threadlike, clubbed or combed, in color c
+  local function btfeeler(c)
+    local ant, fs = X.antenna, BT.fs
+    local xa, ya = 0.35 * BT.hx, BT.hy + 0.6 * BT.hr
+    local xb, yb, xc, yc
+    if ant == "thread" then xb, yb, xc, yc = range(0.1, 0.14), range(0.1, 0.14), range(0.2, 0.28), range(0.24, 0.32) end
+    if ant == "clubbed" then xb, yb, xc, yc = range(0.06, 0.08), range(0.06, 0.08), range(0.1, 0.13), range(0.12, 0.15) end
+    if ant == "comb" then xb, yb, xc, yc = range(0.08, 0.1), range(0.08, 0.1), range(0.16, 0.2), range(0.18, 0.22) end
+    xb, yb, xc, yc = xa + xb * fs, ya + yb * fs, xa + xc * fs, ya + yc * fs
+    moveto(xa, ya) lineto(xb, yb) lineto(xc, yc) stroke(c, BT.w, 1, false)
+    local da, db = xc - xb, yc - yb
+    if ant == "clubbed" then
+      local nx, ny = nrm(da, db)
+      ellipse(xc, yc, ny * 0.034 * fs, -nx * 0.034 * fs, nx * 0.02 * fs, ny * 0.02 * fs) fill(c, 1)
+    end
+    if ant == "comb" and fine then
+      local nx, ny = nrm(da, db)
+      for k = 1, 6 do
+        local v = k / 6
+        local xd, yd = xb + v * da, yb + v * db
+        moveto(xd, yd) lineto(xd - nx * 0.035 * fs, yd - ny * 0.035 * fs)
+      end
+      stroke(c, 0.6 * BT.w, 1, false)
+    end
+  end
+  -- \flo@bthead: the head; a ladybird's white cheeks, or a beetle's eyes and jaws
+  local function bthead()
+    local hx, hy, hr = BT.hx, BT.hy, BT.hr
+    ell(0, hy, hx, hr) fill(tone(BT.ht), 1)
+    if BT.kind == "ladybird" then
+      if fine then
+        local xa, ya, r = 0.45 * hx, hy + 0.3 * hr, 0.22 * hx
+        circle(-xa, ya, r) circle(xa, ya, r) fill(white(), 0.9)
+      end
+    else
+      local xa, ya, xb, yb = 0.82 * hx, hy + 0.1 * hr, 0.24 * hx, 0.42 * hr
+      ell(-xa, ya, xb, yb) ell(xa, ya, xb, yb) fill(tone(0.02), 1)
+      if fine then
+        for s = -1, 1, 2 do
+          taper(s * 0.4 * hx, hy + 0.8 * hr, s * 0.5 * hx, hy + 1.25 * hr, s * 0.3 * hx, hy + 1.55 * hr, s * 0.08 * hx,
+            hy + 1.6 * hr, 0.3 * hx, 0.004)
+        end
+        fill(tone(0.05), 1)
+      end
+    end
+  end
+  -- \flo@btpaintpn: the shield, a ladybird's white patches, a highlight, the rim
+  local function btpaintpn()
+    local pn, pb, sa, sl = BT.pn, BT.pb, BT.sa, BT.sl
+    smooth(pn, true) fill(tone(BT.pt), 1)
+    smooth(pn, true) ink.clip()
+    if BT.kind == "ladybird" then
+      local xa, ya, xb, yb = 0.72 * pb, sa + 0.62 * sl, 0.3 * pb, 0.4 * sl
+      ell(-xa, ya, xb, yb) ell(xa, ya, xb, yb) fill(white(), 0.95)
+    end
+    if fine then
+      streak({ { -0.55 * pb, sa + 0.3 * sl }, { -0.4 * pb, sa + 0.62 * sl }, { -0.2 * pb, sa + 0.8 * sl } }, 0.12 * sl, 0.006, WHITE, 0.4)
+    end
+    smooth(pn, true) stroke(tone(0.03), 2 * BT.u, 0.35, true)
+    ink.unclip()
+  end
+  -- \flo@beetle: a beetle or a ladybird, length 1; u its length on the page in cm
+  local function beetle(u)
+    BT.u = u
+    fine = u > K(0.25)
+    local kind = X.kind
+    BT.kind, BT.ground = kind, X.ground
+    local t = X.tone
+    if X.ground == "dark" then
+      t = max(0.04, t - 0.22)
+      if kind == "ladybird" then t = 0.06 end
+    end
+    if X.ground == "copper" then pen.accent = true end
+    BT.t = t
+    local ew = 0.5 * X.build
+    BT.ew, BT.et, BT.tip, BT.rt, BT.sq = ew, 0.14, -0.56, 0.12, 0.7
+    BT.pb, BT.pf, BT.pl, BT.so, BT.sw = 0.88 * ew, 0.62 * ew, 0.17, 0.012, 1.02
+    BT.hx, BT.hr, BT.hy, BT.fs, BT.gl = 0.36 * ew, 0.065, 0.36, 1, 1
+    BT.pt, BT.ht = max(0.04, t - 0.06), max(0.04, t - 0.1)
+    LGP.w, LGP.j, LGP.x, LGP.ex = 0.03, 0.015, 1, ew
+    local ly = 0
+    if kind == "ladybird" then
+      BT.et, BT.tip, BT.rt, BT.sq = 0.22, -0.5, 0.36, 1
+      BT.pb, BT.pf, BT.pl, BT.so, BT.sw = 0.6 * ew, 0.4 * ew, 0.05, 0.075, 0.92
+      BT.hx, BT.hr, BT.hy, BT.fs, BT.gl = 0.3 * ew, 0.055, 0.27, 0.45, 0.55
+      BT.pt, BT.ht = 0.04, 0.04
+      LGP.w, LGP.j, LGP.x, LGP.ex = 0.032, 0.01, 0.7, 0.8 * ew
+      ly = 0.12
+    end
+    BT.ey = BT.et - BT.rt
+    BT.rb = BT.ey - BT.tip
+    BT.w = max(0.25, 0.4 * u)
+    LGP.y = BT.et - ly
+    local c = tone(0.05)
+    for a = 1, 2 do
+      ink.push()
+      if a == 2 then xscale(-1) LGP.ph = -0.04 else LGP.ph = 0.04 end
+      vlegs("b", c)
+      ink.pop()
+    end
+    for a = 1, 2 do
+      ink.push()
+      if a == 2 then xscale(-1) end
+      btfeeler(c)
+      ink.pop()
+    end
+    bthead()
+    BT.el = btelytra()
+    btpaintel()
+    BT.pn = btshield(BT.pb, BT.pf, BT.pl)
+    btpaintpn()
+    if kind ~= "ladybird" then                                    -- the scutellum
+      local ya, yb = BT.et + 0.004, BT.et - 0.05
+      moveto(-0.035, ya) lineto(0.035, ya) lineto(0, yb) close() fill(tone(BT.pt), 1)
+    end
+  end
+
+  -- ---------------------------------------------------------------- caterpillars
+  local CT = {}                             -- the one being drawn (\flo@ct...) and its leaf (\flo@hf...)
+  -- \flo@hfw: the host leaf's half-width at v along it, and its midrib's x there
+  local function hfw(v) return CT.hW * sin(180 * v ^ 0.8) ^ 0.85, CT.hb * v * v end
+  -- \flo@hfoutline: the leaf, with the bites taken from its edge
+  local function hfoutline()
+    local pts = { { 0, 0 } }
+    pts[25] = { CT.hb, CT.hL }
+    for a = 1, 23 do
+      local v = a / 24
+      local h, x = hfw(v)
+      local y = v * CT.hL
+      local xa = x + h
+      for b = 1, CT.nb do
+        local t, r = abs(y - CT.by[b]), CT.br[b]
+        if t < r then xa = min(xa, CT.bx[b] - sqrt(max(0, r * r - t * t))) end
+      end
+      pts[a + 1] = { xa, y }
+      pts[49 - a] = { x - h, y }
+    end
+    return pts
+  end
+  -- \flo@hfpaint: the leaf: its stalk, its darker half, mottle, the midrib and side veins, rim
+  local function hfpaint()
+    local l, hL, was = CT.l, CT.hL, pen.accent
+    pen.accent = false
+    taper(0, -0.14, 0, -0.09, 0, -0.05, 0, 0.02, 0.028, 0.02) fill(tone(0.2), 1)
+    smooth(l, true) fill(tone(CT.hft), 1)
+    smooth(l, true) ink.clip()
+    local c = tone(CT.hft - 0.12)
+    moveto(-1, 0) lineto(0, 0)
+    for a = 1, 8 do
+      local v = a / 8
+      local _, x = hfw(v)
+      lineto(x, v * hL)
+    end
+    lineto(-1, hL) close() fill(c, 0.35, true)
+    if fine then
+      mottle(-CT.hW, 0, CT.hW, hL, 6, 0.12, CT.hft - 0.16, CT.hft + 0.18, 8)
+      local _, xb = hfw(0.33)
+      local _, xc = hfw(0.67)
+      local _, xd = hfw(0.97)
+      taper(0, 0, xb, 0.33 * hL, xc, 0.67 * hL, xd, 0.97 * hL, 0.022, 0.004) fill(WHITE, 0.5)
+      for a = 1, 10 do
+        local sx = a % 2 == 1 and 1 or -1
+        local v = 0.1 + 0.15 * ((a - 1) // 2)
+        local h, x = hfw(v)
+        local y = v * hL
+        local xd2, yd = x + sx * 0.85 * h, y + 0.09 * hL
+        taper(x, y, x + (xd2 - x) * 0.4, y + (yd - y) * 0.15, x + (xd2 - x) * 0.75, y + (yd - y) * 0.55, xd2, yd, 0.014, 0.002)
+      end
+      fill(WHITE, 0.4)
+    end
+    smooth(l, true) stroke(tone(0.06), 0.9 * CT.u, 0.4, true)
+    ink.unclip()
+    pen.accent = was
+  end
+  -- \flo@ctangle: the body's heading at s along it: looping, curled or wavering
+  local function ctangle(s)
+    if CT.pose == "loop" then return 105 * cos(180 * s) end
+    if CT.pose == "curl" then return 150 - 300 * s end
+    return CT.wa * sin(540 * s + CT.ph)
+  end
+  -- \flo@ctspine: the body's 27 points, their headings, normals and half-widths
+  local function ctspine()
+    local x, y, a, nx, ny, w = { [0] = 0 }, { [0] = 0 }, {}, {}, {}, {}
+    for k = 0, 26 do
+      local v = k / 26
+      if k > 0 then
+        local h = ctangle((k - 0.5) / 26)
+        x[k], y[k] = x[k - 1] + cos(h) / 26, y[k - 1] + sin(h) / 26
+      end
+      local h = ctangle(v)
+      a[k], nx[k], ny[k] = h, -sin(h), cos(h)
+      w[k] = CT.W * (0.7 + 0.3 * sin(180 * min(1, 1.6 * v))) * (v > 0.92 and 1 - (v - 0.92) * 2.5 or 1)
+    end
+    CT.x, CT.y, CT.a, CT.nx, CT.ny, CT.w = x, y, a, nx, ny, w
+  end
+  -- \flo@ctat: the point f half-widths across the body at point k, and g along it
+  local function ctat(k, f, g)
+    local w, nx, ny = CT.w[k], CT.nx[k], CT.ny[k]
+    return CT.x[k] + f * w * nx + g * w * ny, CT.y[k] + f * w * ny - g * w * nx
+  end
+  -- \flo@ctoutline
+  local function ctoutline()
+    local pts = {}
+    for a = 0, 26 do
+      pts[a + 1] = { ctat(a, -1, 0) }
+      pts[54 - a] = { ctat(a, 1, 0) }
+    end
+    pts[55] = { ctat(0, 0, -0.7) }
+    return pts
+  end
+  -- \flo@ctleg: a leg at point k, from a to b half-widths out, g along, widths wa to wb
+  local function ctleg(k, a, b, g, wa, wb)
+    local x0, y0 = ctat(k, -a, 0)
+    local x1, y1 = ctat(k, -b, g)
+    seg(x0, y0, x1, y1, wa, wb)
+  end
+  -- \flo@ctline: the points from a to b by step, f half-widths across
+  local function ctline(a, b, step, f)
+    local pts = {}
+    for i = 0, (b - a) // step do pts[i + 1] = { ctat(a + step * i, f, 0) } end
+    return pts
+  end
+  local CTPRO = { 1, 9, 11, 13, 15 }
+  -- \flo@ctbody: the prolegs and true legs, the body, its darker side, stripes, segments,
+  -- mottle, highlight and rim
+  local function ctbody()
+    local W, t = CT.W, CT.t
+    local c = tone(max(0.05, t - 0.08))
+    for a = 1, 5 do
+      if not (CT.pose == "loop" and a > 2) then ctleg(CTPRO[a], 0.5, 1.45, -0.1, 0.9 * W, 0.65 * W) end
+    end
+    fill(c, 1)
+    c = tone(0.08)
+    for a = 0, 2 do ctleg(21 + 2 * a, 0.6, 1.55, 0.35, 0.35 * W, 0.06 * W) end
+    fill(c, 1)
+    local b = ctoutline()
+    smooth(b, true) fill(tone(t), 1)
+    smooth(b, true) ink.clip()
+    c = tone(t - 0.12)
+    for a = 0, 26 do
+      local x, y = ctat(a, 0, 0)
+      if a == 0 then moveto(x, y) else lineto(x, y) end
+    end
+    for a = 0, 26 do lineto(ctat(26 - a, -1.4, 0)) end
+    close() fill(c, 0.35, true)
+    if X.stripes == "side" then
+      streak(ctline(1, 25, 2, -0.2), 0.45 * W, 0.3 * W, WHITE, 0.6)
+      if fine then
+        c = tone(0.04)
+        for a = 1, 9 do
+          local x, y = ctat(1 + 2 * a, 0.08, 0)
+          ell(x, y, 0.09 * W, 0.13 * W)
+        end
+        fill(c, 0.85)
+      end
+    end
+    if X.stripes == "back" then streak(ctline(1, 25, 2, 0.72), 0.42 * W, 0.3 * W, tone(0.05), 0.7) end
+    if fine then
+      for a = 1, 12 do moveto(ctat(2 * a, -1.3, 0)) lineto(ctat(2 * a, 1.3, 0)) end
+      stroke(tone(0.05), CT.jw, 0.4, true)
+      mottle(-0.2, -0.4, 1.1, 0.8, 5, 0.05, t - 0.14, t + 0.18, 10)
+      streak(ctline(2, 24, 2, 0.45), 0.3 * W, 0.004, WHITE, 0.4)
+    end
+    smooth(b, true) stroke(tone(0.05), 0.9 * CT.u, 0.6, true)
+    ink.unclip()
+  end
+  -- \flo@cthead: the head at the front end, its eye, a highlight, the jaw
+  local function cthead()
+    local W = CT.W
+    local hx, hy = ctat(26, 0, 0.5)
+    local nx, ny = CT.nx[26], CT.ny[26]
+    local xb, yb, xc, yc = ny * 0.92 * W, -nx * 0.92 * W, nx * 0.85 * W, ny * 0.85 * W
+    ellipse(hx, hy, xb, yb, xc, yc) fill(tone(CT.ht), 1)
+    if fine then
+      circle(hx + 0.35 * xb + 0.15 * xc, hy + 0.35 * yb + 0.15 * yc, 0.13 * W) fill(tone(0.02), 1)
+      circle(hx - 0.25 * xb + 0.45 * xc, hy - 0.25 * yb + 0.45 * yc, 0.1 * W) fill(WHITE, 0.6)
+      seg(hx + 0.8 * xb - 0.45 * xc, hy + 0.8 * yb - 0.45 * yc, hx + 1.2 * xb - 0.75 * xc, hy + 1.2 * yb - 0.75 * yc, 0.25 * W, 0.05 * W)
+      fill(tone(0.04), 1)
+    end
+  end
+  -- \flo@cthorn: a hawkmoth caterpillar's tail horn
+  local function cthorn()
+    local xe, ye = ctat(5, 0.8, 0)
+    local xd, yd = ctat(5, 2.4, -1.6)
+    local xb, yb = ctat(5, 1.7, 0)
+    local xc, yc = ctat(5, 2.4, -0.7)
+    taper(xe, ye, xb, yb, xc, yc, xd, yd, 0.5 * CT.W, 0.05 * CT.W) fill(tone(0.08), 1)
+  end
+  -- \flo@cthair: a hair at point k, len half-widths long, g along, turned deg from square
+  local function cthair(k, len, g, deg)
+    local W = CT.W
+    local x, y = ctat(k, 0.85, g)
+    local t = CT.a[k] + 90 + deg
+    seg(x, y, x + len * W * cos(t), y + len * W * sin(t), 0.1 * W, 0.02 * W)
+  end
+  -- \flo@cttufts: four white tufts along the back, dark pencils at both ends
+  local function cttufts()
+    local c = white()
+    for a = 1, 4 do
+      for b = 1, 9 do
+        local l, g = range(1.2, 1.8), range(-0.25, 0.25)
+        cthair(9 + 2 * a, l, g, (b - 5) * 8)
+      end
+    end
+    fill(c, 0.9)
+    c = tone(0.08)
+    for a = 1, 5 do
+      cthair(24, range(2.4, 3), 0, a * 6 - 48)
+      cthair(2, range(2, 2.6), 0, a * 6 + 12)
+    end
+    fill(c, 0.9)
+  end
+  -- \flo@caterpillar: a caterpillar on its host leaf, length 1; u its length on the page in cm
+  local function caterpillar(u)
+    CT.u = u
+    fine = u > K(0.25)
+    CT.pose = X.pose
+    local t = X.tone
+    if X.ground == "pale" then t = min(0.6, t + 0.22) end
+    CT.t, CT.W = t, X.build / 2
+    CT.ht, CT.jw = max(0.05, t - 0.16), max(0.1, 0.16 * u)
+    CT.wa, CT.ph = range(3, 7), range(0, 360)
+    ctspine()
+    -- the leaf, and where on it the caterpillar sits, eating from its edge
+    CT.hL, CT.hW, CT.hb, CT.hft = 1.5, 0.36, sym(0.12), 0.66
+    local h, x = hfw(0.1)
+    local ox, oy = x + h, 0.1 * CT.hL
+    h, x = hfw(0.62)
+    local a = atan2(0.62 * CT.hL - oy, x + h - ox)
+    local rot = CT.pose == "curl" and a or a - atan2(CT.y[26], CT.x[26])
+    local hy = oy + CT.x[26] * sin(rot) + CT.y[26] * cos(rot)
+    CT.nb = chance(0.5) and 3 or 2
+    CT.br, CT.by, CT.bx = {}, {}, {}
+    local y = min(0.86 * CT.hL, max(0.3 * CT.hL, hy + 0.04))
+    for b = 1, CT.nb do
+      CT.br[b], CT.by[b] = range(0.07, 0.11), y
+      local hh, xx = hfw(y / CT.hL)
+      CT.bx[b] = xx + hh + 0.3 * CT.br[b]
+      y = y + range(0.15, 0.22)
+      if y > K(1.38) then y = K(1.38) end
+    end
+    CT.l = hfoutline()
+    hfpaint()
+    if X.ground == "copper" then pen.accent = true end
+    ink.push() ink.translate(ox, oy) ink.rotate(rot)
+    ctbody() cthead()
+    if X.horn == 1 then cthorn() end
+    if X.tufts == 1 then cttufts() end
+    ink.pop()
+  end
+
+  -- ---------------------------------------------------------------- snails
+  local GS = {}                             -- the one being drawn (\flo@gs...)
+  -- \flo@gsspiral: the point at t (0 the apex, 1 the mouth) on the shell's spiral, f of the way out
+  local function gsspiral(t, f)
+    local s = GS.E ^ (-(1 - t) * GS.n)
+    local a, v = 180 - (1 - t) * GS.n * 360, GS.H * (1 - s)
+    return GS.cx + v * cos(-40) + f * 0.95 * GS.R * s * cos(a), GS.cy + v * sin(-40) + f * 0.95 * GS.R * s * sin(a)
+  end
+  -- \flo@gsline: n points along the spiral from t0 to the mouth
+  local function gsline(f, t0, n)
+    local pts = {}
+    for b = 0, n - 1 do pts[b + 1] = { gsspiral(t0 + (1 - t0) * b / (n - 1), f) } end
+    return pts
+  end
+  local GSBODY = { { 0, -0.78 }, { -0.01, -0.3 }, { 0, 0.3 }, { 0.04, 0.58 }, { 0.12, 0.7 }, { 0.22, 0.66 }, { 0.24, 0.5 },
+    { 0.2, 0.32 }, { 0.17, 0 }, { 0.12, -0.45 }, { 0.05, -0.7 } }
+  -- \flo@gsbody: the foot, longer the farther it is out
+  local function gsbody()
+    local pts = {}
+    for i, p in ipairs(GSBODY) do
+      local x = p[1] * (1 + sym(0.08))
+      pts[i] = { x, p[2] * (p[2] < 0 and 0.5 + 0.5 * GS.x or 0.75 + 0.3 * GS.x) }
+    end
+    local tb = range(0.5, 0.6)
+    smooth(pts, true) fill(tone(tb), 1)
+    smooth(pts, true) ink.clip()
+    if fine then mottle(-0.1, -0.8, 0.3, 0.8, 5, 0.1, tb - 0.25, tb + 0.15, 10) end
+    moveto(-0.05, -0.8) lineto(-0.05, 0.7) lineto(0.04, 0.7) lineto(0.04, -0.8) close() fill(tone(0.15), 0.35, true)
+    smooth(pts, true) stroke(tone(0.08), 0.1 * GS.u * 28.3465, 0.4, true)
+    ink.unclip()
+  end
+  -- \flo@gsfeeler: a feeler from (x0, y0) toward (x1, y1), w wide; its tip
+  local function gsfeeler(x0, y0, x1, y1, w)
+    local ya, t = y0 * (0.75 + 0.3 * GS.x), 0.55 + 0.5 * GS.x
+    local xd, yd = x0 + (x1 - x0) * t, ya + (y1 - y0) * t
+    moveto(x0, ya) curveto(x0 + 0.02, ya + 0.12, xd - 0.04, yd - 0.1, xd, yd) stroke(tone(0.12), w, 1, false)
+    return xd, yd
+  end
+  -- \flo@gsfeelers: two long feelers with eyes, one short
+  local function gsfeelers()
+    local w, v = max(0.35, 0.3 * GS.u), max(0.28, 0.24 * GS.u)
+    local x, y = gsfeeler(0.17, 0.66, 0.36, 1.02, w)
+    circle(x, y, 0.028) fill(tone(0.05), 1)
+    x, y = gsfeeler(0.1, 0.7, 0.18, 1.04, w)
+    circle(x, y, 0.028) fill(tone(0.05), 1)
+    gsfeeler(0.05, 0.68, 0, 0.84, v)
+  end
+  -- \flo@gsshell: the shell, its spire leaning up, mottle, bands along the whorls, the
+  -- suture and its highlight, a flared lip, the rim
+  local function gsshell()
+    local cx, cy, R = 0.36, 0, 0.42
+    local n, E = X.whorls, X.expansion
+    GS.cx, GS.cy, GS.R, GS.n, GS.E, GS.H = cx, cy, R, n, E, 0.55 * X.spire * R
+    local m = floor(n * 16 + 0.5) + 1
+    local pts = blob(cx, cy, R, 0.96 * R, 0.03, 16)
+    for i = 1, 16 do
+      local da, db = pts[i][1] - cx, pts[i][2] - cy
+      local t = 1 + GS.H / R * max(0, cos(atan2(db, da) + 40)) ^ 3
+      pts[i] = { cx + da * t, cy + db * t }
+    end
+    local tn = GS.tn
+    smooth(pts, true) fill(tone(tn), 1)
+    smooth(pts, true) ink.clip()
+    if fine then mottle(cx - R, cy - 1.6 * R, cx + 1.6 * R, cy + R, 7, 0.1, tn - 0.18, tn + 0.22, 10)
+    else mottle(cx - R, cy - 1.6 * R, cx + 1.6 * R, cy + R, 3, 0.1, tn - 0.18, tn + 0.22, 0) end
+    local nb = X.shellbands
+    if nb > 0 then
+      local c, ls = tone(0.06), max(0, 1 - 2.5 / n)
+      for a = 1, nb do
+        local f = 1 - a / (nb + 1) * (1 - 1 / E)
+        streak(gsline(f, ls, 41), 0.003, 0.32 * R / (nb + 1), c, 0.55)
+      end
+    end
+    smooth(gsline(0.84, 0, m), false) stroke(tone(0.05), 0.07 * GS.u * 28.3465, 0.6, true)
+    smooth(gsline(1, 0, m), false) stroke(WHITE, 0.05 * GS.u * 28.3465, 0.75, false)
+    if X.lip == 1 then
+      local lip = {}
+      for a = 0, 4 do lip[a + 1] = { gsspiral(1 - (4 - a) * 0.03 / n, 0.97) } end
+      streak(lip, 0.03, 0.08, WHITE, 0.85)
+    end
+    smooth(pts, true) stroke(tone(0.05), 0.12 * GS.u * 28.3465, 0.5, true)
+    ink.unclip()
+  end
+  -- \flo@snail: a snail, its shell 1 wide; u the shell's width on the page in cm
+  local function snail(u)
+    GS.u = u
+    fine = u > K(0.25)
+    GS.x = X.extension
+    local tn = X.tone - 0.06
+    if X.ground == "pale" then tn = min(0.72, tn + 0.25) end
+    GS.tn = tn
+    ink.push()
+    if X.hand == "sinistral" then xscale(-1) end
+    local was = pen.accent
+    pen.accent = false
+    gsbody() gsfeelers()
+    pen.accent = was
+    if X.ground == "copper" then pen.accent = true end
+    gsshell()
+    ink.pop()
+  end
+
+  -- ---------------------------------------------------------------- birds
+  local AV = {}                             -- the one being drawn (\flo@av...)
+  local AVF = { 0.12, 0.35, 0.6, 0.82, 0.95 }
+  -- \flo@avfeather: a tail feather len long, along +y
+  local function avfeather(len)
+    local pts = { { 0, 0 } }
+    pts[7] = { 0, len }
+    for b = 1, 5 do
+      local v = AVF[b]
+      local x = 0.055 * sin(180 * v ^ 0.4) ^ 0.6
+      pts[b + 1], pts[13 - b] = { x, v * len }, { -x, v * len }
+    end
+    return pts
+  end
+  local AVBODY = { { 0.37, 0.56 }, { 0.3, 0.665 }, { 0.15, 0.64 }, { -0.03, 0.54 }, { -0.22, 0.4 }, { -0.31, 0.3 }, { -0.27, 0.22 },
+    { -0.08, 0.12 }, { 0.12, 0.12 }, { 0.27, 0.27 }, { 0.35, 0.42 } }
+  -- \flo@avbody: the tail's four feathers fanned, the body, its breast, mottle, a nectar
+  -- bird's bright throat or a seed-eater's streaks, the cap, the rim
+  local function avbody()
+    AV.lw = max(0.3, 0.3 * AV.u)
+    for a = 1, 4 do
+      local len = range(X.tail - 0.03, X.tail + 0.03)
+      local ang = range(-150, -140) + AV.fan * a - 90
+      ink.push() ink.translate(-0.26, 0.28) ink.rotate(ang)
+      local f = avfeather(len)
+      smooth(f, true) fill(tone(0.12 + 0.05 * a), 1)
+      smooth(f, true) stroke(tone(0.05), AV.lw, 0.5, false)
+      ink.pop()
+    end
+    local b = {}
+    for i, p in ipairs(AVBODY) do
+      local x = p[1] + sym(0.012)
+      b[i] = { x, p[2] + sym(0.012) }
+    end
+    local t = AV.t
+    smooth(b, true) fill(tone(t), 1)
+    smooth(b, true) ink.clip()
+    for a = 1, 4 do smooth(blob(0.17, 0.27, 0.08 + 0.04 * a, 0.06 + 0.03 * a, 0.2, 9), true) fill(WHITE, 0.2) end
+    if fine then mottle(-0.35, 0.1, 0.4, 0.7, 10, 0.07, t - 0.2, t + 0.2, 10)
+    else mottle(-0.35, 0.1, 0.4, 0.7, 4, 0.07, t - 0.2, t + 0.2, 0) end
+    if X.kind == "hummingbird" then
+      smooth(blob(0.3, 0.47, 0.075, 0.05, 0.15, 8), true) fill(accent(0), 0.85)
+      if fine then smooth(blob(0.31, 0.49, 0.03, 0.016, 0.2, 7), true) fill(WHITE, 0.5) end
+    elseif fine then
+      for _ = 1, 14 do
+        local x, y, a = range(0.08, 0.3), range(0.16, 0.42), range(-20, 20)
+        ellipse(x, y, 0.012 * cos(a), 0.012 * sin(a), -0.022 * sin(a), 0.022 * cos(a))
+      end
+      fill(tone(0.1), 0.7)
+    end
+    smooth(blob(0.24, 0.66, 0.15, 0.08, 0.1, 9), true) fill(tone(0.08), 0.6, true)
+    smooth(b, true) stroke(tone(0.05), 0.07 * AV.u * 28.3465, 0.5, true)
+    ink.unclip()
+  end
+  local AVWING = { { 0.17, 0.47 }, { 0.04, 0.52 }, { -0.12, 0.45 }, { -0.28, 0.33 }, { -0.44, 0.22 }, { -0.35, 0.23 },
+    { -0.38, 0.19 }, { -0.26, 0.21 }, { -0.28, 0.17 }, { -0.12, 0.23 }, { 0.05, 0.31 }, { 0.15, 0.4 } }
+  -- \flo@avwing: the folded wing, mottled, its flight feathers lifted out
+  local function avwing()
+    local tw = AV.t - 0.1
+    smooth(AVWING, true, 0.8) fill(tone(tw), 1)
+    smooth(AVWING, true, 0.8) ink.clip()
+    mottle(-0.45, 0.15, 0.2, 0.6, fine and 6 or 3, 0.07, tw - 0.15, tw + 0.2, 0)
+    for a = 1, 5 do
+      local y = 0.28 + 0.04 * a
+      local op = range(0.45, 0.7)
+      taper(0.12, y + 0.05, 0, y + 0.03, -0.15, y - 0.03, -0.3 - 0.02 * a, y - 0.1 - 0.01 * a, 0.025, 0.003) fill(WHITE, op)
+    end
+    smooth(AVWING, true, 0.8) stroke(tone(0.04), 0.06 * AV.u * 28.3465, 0.5, true)
+    ink.unclip()
+  end
+  local AVHOVER = { { 0, 0.02 }, { 0.12, 0.07 }, { 0.32, 0.085 }, { 0.5, 0.05 }, { 0.56, 0 }, { 0.48, -0.03 }, { 0.28, -0.045 },
+    { 0.08, -0.03 } }
+  -- \flo@avhover: a hovering bird's wing, a blur in three places
+  local function avhover()
+    local tw = AV.t - 0.1
+    for a = 1, 3 do
+      ink.push() ink.translate(0.06, 0.5) ink.rotate(70 + 25 * a)
+      if a == 2 then
+        smooth(AVHOVER, true) fill(tone(tw), 0.4)
+        smooth(AVHOVER, true) stroke(tone(0.05), AV.lw, 0.4, false)
+      else smooth(AVHOVER, true) fill(tone(tw), 0.18) end
+      ink.pop()
+    end
+  end
+  -- \flo@avcrest
+  local function avcrest()
+    for a = 1, 4 do
+      local len = range(0.08, 0.12)
+      local x, y, t = 0.26 - 0.04 * a, 0.65 - 0.01 * a, 140 + 8 * a
+      seg(x, y, x + len * cos(t), y + len * sin(t), 0.03, 0.004)
+    end
+    fill(tone(0.1), 1)
+  end
+  -- \flo@avbill: a seed-eater's cone, a nectar bird's straight or curved one
+  local function avbill()
+    local b, c = X.bill, tone(0.05)
+    if b == "conical" then
+      moveto(0.355, 0.585) lineto(0.47, 0.545) lineto(0.36, 0.51) close() fill(c, 1)
+      moveto(0.36, 0.548) lineto(0.45, 0.546) stroke(WHITE, 0.2, 0.6, false)
+    end
+    if b == "straight" then moveto(0.35, 0.575) lineto(0.69, 0.55) lineto(0.352, 0.538) close() fill(c, 1) end
+    if b == "curved" then taper(0.35, 0.556, 0.46, 0.562, 0.58, 0.535, 0.66, 0.475, 0.036, 0.006) fill(c, 1) end
+  end
+  -- \flo@bird: a bird, length 1; u its length on the page in cm
+  local function bird(u)
+    AV.u = u
+    fine = u > K(0.3)
+    local t = X.tone
+    if X.ground == "dark" then t = t - 0.12 end
+    if X.ground == "copper" then pen.accent = true end
+    AV.t, AV.fan = t, 7
+    local hover = X.pose == "hover"
+    ink.push()
+    if hover then
+      AV.fan = 14
+      ink.translate(0.05, 0.35) ink.rotate(22) ink.translate(-0.05, -0.35)
+    end
+    avbody()
+    if X.crest == 1 then avcrest() end
+    if hover then avhover() else avwing() end
+    avbill()
+    circle(0.285, 0.585, 0.03) fill(WHITE, 0.95)
+    circle(0.29, 0.585, 0.018) fill(tone(0.03), 1)
+    circle(0.284, 0.592, 0.006) fill(WHITE, 1)
+    if not hover then                                             -- the feet on the perch
+      moveto(0.02, 0.14) lineto(0, 0) moveto(-0.05, 0) lineto(0.05, 0.005)
+      moveto(0.1, 0.14) lineto(0.08, 0) moveto(0.03, 0) lineto(0.13, 0.005)
+      stroke(tone(0.06), max(0.4, 0.3 * u), 1, false)
+    end
+    ink.pop()
+  end
+
+  -- ---------------------------------------------------------------- the visitor
+  -- \flo@visitor as the margin's organ: the size in cm (the wingspan of a butterfly or
+  -- moth), as TeX holds it; the visitor's unit on the page in cm is found as TeX finds it
+  -- (the size in pt, then divided back), since it decides the level of detail
+  local DRAW = { bee = bee, fly = bee, odonate = odo, beetle = beetle, larva = caterpillar, snail = snail, bird = bird }
+  local HALF = pm.compile("(%1)/56.90552")
+  local sampled = {}
+  return function(o)
+    local role = o.role or "any"
+    local key = string.format("%d/%s", o.seed, role)
+    X = sampled[key]
+    if not X then
+      -- \florilegiumvisitor: its traits, the reals held to the scaled point
+      X = {}
+      for k, v in pairs(species.vsample(o.seed, role)) do X[k] = math.type(v) == "float" and K(v) or v end
+      sampled[key] = X
+    end
+    G = ink.pgfrng(o.seed == 2147483646 and 1 or o.seed + 1) G.step() G.step()   -- drawn from seed + 1
+    local pt = TOPT({}, { floor(o.size * 65536 + 0.5) })
+    if X.group == "lepidoptera" then
+      ink.scale(o.size / 2)
+      lepid(HALF({}, { pt }) / 65536)
+    else
+      ink.scale(o.size)
+      DRAW[X.group](FROMPT({}, { pt }) / 65536)
+    end
+  end
+end)()
 
 -- ================================================================ organs
 -- the layout's questions, in cm: the disc an inflorescence at scale k fills (its center's
@@ -2434,8 +4291,12 @@ end
 --   ghost    d: a plain pale flower of the species, as the garden's ghost
 --   leaf     len (cm), bend, lc (0..1, the autumn draw), season, fore (a foreshortening),
 --            sheath ({direction from the leaf's in degrees, width in the leaf's units})
--- Returns false for a kind not yet drawn here (frond, visitor).
-local DRAWN = { unit = true, budding = true, tendril = true, bloom = true, ghost = true, leaf = true }
+--   frond    len (cm), unroll (0..1), arch (degrees), fertile, under, lc, season: a fern's
+--   visitor  seed, role, size (cm; a wingspan for butterflies and moths): the visitor
+--            \florilegiumvisitor{seed}{role} samples, drawn from seed + 1 (s and z unused)
+-- Returns false for a kind not drawn here.
+local DRAWN = { unit = true, budding = true, tendril = true, bloom = true, ghost = true, leaf = true, frond = true,
+  visitor = true }
 -- the organ's numbers as TeX holds them, in whole scaled points: a length the layout caps at
 -- 19/16 cm then gives the library's count of teeth, not one less
 local function sp(x) return floor(x * 65536 + 0.5) / 65536 end
@@ -2451,7 +4312,13 @@ end
 function M.draw(kind, s, z, o)
   if not DRAWN[kind] then return false end
   o = held(o)
-  if kind == "leaf" and full(s).compound == "frond" then return false end
+  if kind == "visitor" then
+    M.fresh()
+    pen.lift, pen.accent = 0, false
+    ink.push() visitor(o) ink.pop()
+    pen.accent = false
+    return true
+  end
   S = full(s)
   G = ink.pgfrng(z) G.step() G.step()             -- \flo@drawseed
   M.fresh()
@@ -2466,13 +4333,14 @@ function M.draw(kind, s, z, o)
     ink.rotate(90) M.tendril(o.size)
   elseif kind == "bloom" then
     M.bloom(o.d, o.stage, {})
-  elseif kind == "leaf" then
+  elseif kind == "leaf" or kind == "frond" then
     ink.scale(o.len)
     if o.fore then yscale(o.fore) end
     -- autumn turns some leaves copper; a spring leaf is young and pale
     if S.turns == 1 and o.lc < max(0, o.season - 0.9) then pen.accent = true end
     if o.season < 0.5 then pen.lift = 0.3 * (1 - o.season / 0.5) end
-    M.leaf(o.len, o.bend, o.sheath)
+    if kind == "leaf" then M.leaf(o.len, o.bend, o.sheath)
+    else M.frond(leafu(o.len), { unroll = o.unroll, arch = o.arch, fertile = o.fertile, under = o.under }) end
   else                                            -- the ghost: a plain rotate flower, pale
     pen.lift = 0.62
     local tq = stone()
