@@ -4981,6 +4981,468 @@
     \flo@vtone{flo@c}{\flo@btpt}\flo@vfill{flo@c}{1}{0}{\pgfpathmoveto{\flo@P{-0.035}\flo@ya}%
       \pgfpathlineto{\flo@P{0.035}\flo@ya}\pgfpathlineto{\flo@P0\flo@yb}\pgfpathclose}%
   \fi}
+% ---------------------------------------------------------------- caterpillars
+% A caterpillar on its host leaf, in units of its length: the leaf along +y from the
+% origin, its right edge bitten where the caterpillar feeds; the caterpillar seen from the
+% side along that edge, its belly toward the leaf, its head toward the leaf's tip. The body
+% is thirteen segments along a spine that the pose bends: nearly straight, arched in a
+% loop (a looper, legs only at both ends) or curled in a C. True legs on the three
+% segments behind the head, prolegs on the 5th to 8th from the tail and the last; a pale
+% line along the side with the breathing holes, or a dark one down the back; tufts of hair
+% on the back, a horn near the tail.
+% the leaf's half-width at v (0 its root, 1 its tip), into \flo@h; the midrib's x into \flo@hfx
+\def\flo@hfw#1{\flo@calc\flo@h{\flo@hfW*pow(sin(180*pow(#1,0.8)),0.85)}\flo@calc\flo@hfx{\flo@hfbend*(#1)*(#1)}}
+% the outline: the root, 23 points up the right edge (round the bites), the tip, 23 down
+% the left; kept as hfl
+\def\flo@hfoutline{%
+  \flo@put1{0}{0}\flo@calc\flo@xa{\flo@hfbend}\flo@put{25}\flo@xa\flo@hfL
+  \flo@loop{hfo}\flo@Wa{1}{23}{%
+    \flo@calc\flo@v{\the\flo@Wa/24}\flo@hfw\flo@v\flo@calc\flo@ya{\flo@v*\flo@hfL}%
+    \flo@calc\flo@xa{\flo@hfx+\flo@h}\flo@calc\flo@xb{\flo@hfx-\flo@h}%
+    \flo@loop{hfb}\flo@Wb{1}{\flo@hfnb}{%
+      \edef\flo@hfi{\the\flo@Wb}%
+      \flo@calc\flo@t{abs(\flo@ya-\csname flo@hfby\flo@hfi\endcsname)}%
+      \flo@calc\flo@xa{\flo@t<\csname flo@hfbr\flo@hfi\endcsname ? min(\flo@xa,\csname flo@hfbx\flo@hfi\endcsname
+        -sqrt(max(0,\csname flo@hfbr\flo@hfi\endcsname*\csname flo@hfbr\flo@hfi\endcsname-\flo@t*\flo@t))) : \flo@xa}}%
+    \flo@put{\the\numexpr\flo@Wa+1\relax}\flo@xa\flo@ya\flo@put{\the\numexpr49-\flo@Wa\relax}\flo@xb\flo@ya}%
+  \flo@smoothprep{48}\flo@keep{hfl}}
+% the host leaf: a stalk, the wash, its left half darker, mottle, white veins, the rim
+\def\flo@hfpaint{\begin{pgfscope}\def\flo@rampname{flo@ramp}%
+  \flo@vtone{flo@c}{0.2}\def\flo@twa{0.028}\def\flo@twb{0.02}%
+  \flo@vfill{flo@c}{1}{0}{\flo@vtaper{0}{-0.14}{0}{-0.09}{0}{-0.05}{0}{0.02}}%
+  \flo@vtone{flo@c}{\flo@hft}\flo@vfill{flo@c}{1}{0}{\flo@kept{hfl}}%
+  \begin{pgfscope}\flo@kept{hfl}\pgfusepath{clip}%
+    \flo@calc\flo@t{\flo@hft-0.12}\flo@vtone{flo@c}\flo@t
+    \flo@vfill{flo@c}{0.35}{1}{\pgfpathmoveto{\flo@P{-1}{0}}\pgfpathlineto{\flo@P00}%
+      \flo@loop{hfh}\flo@Wa{1}{8}{\flo@calc\flo@v{\the\flo@Wa/8}\flo@hfw\flo@v\flo@calc\flo@ya{\flo@v*\flo@hfL}%
+        \pgfpathlineto{\flo@P\flo@hfx\flo@ya}}%
+      \pgfpathlineto{\flo@P{-1}\flo@hfL}\pgfpathclose}%
+    \ifnum\flo@fine=1
+      \flo@calc\flo@hfxl{-\flo@hfW}\flo@calc\flo@ta{\flo@hft-0.16}\flo@calc\flo@tb{\flo@hft+0.18}%
+      \flo@vmottle\flo@hfxl{0}\flo@hfW\flo@hfL{6}{0.12}\flo@ta\flo@tb{8}%
+      \def\flo@twa{0.022}\def\flo@twb{0.004}%
+      \flo@vfill{white}{0.5}{0}{%
+        \flo@hfw{0.33}\flo@calc\flo@xb{\flo@hfx}\flo@calc\flo@yb{0.33*\flo@hfL}%
+        \flo@hfw{0.67}\flo@calc\flo@xc{\flo@hfx}\flo@calc\flo@yc{0.67*\flo@hfL}%
+        \flo@hfw{0.97}\flo@calc\flo@xd{\flo@hfx}\flo@calc\flo@yd{0.97*\flo@hfL}%
+        \flo@vtaper{0}{0}\flo@xb\flo@yb\flo@xc\flo@yc\flo@xd\flo@yd}%
+      \def\flo@twa{0.014}\def\flo@twb{0.002}%
+      \flo@vfill{white}{0.4}{0}{\flo@loop{hfv}\flo@Wa{1}{10}{%
+        \ifodd\flo@Wa\def\flo@sx{1}\else\def\flo@sx{-1}\fi
+        \flo@calc\flo@v{0.1+0.15*floor((\the\flo@Wa-1)/2)}\flo@hfw\flo@v
+        \flo@calc\flo@xa{\flo@hfx}\flo@calc\flo@ya{\flo@v*\flo@hfL}%
+        \flo@calc\flo@xd{\flo@hfx+\flo@sx*0.85*\flo@h}\flo@calc\flo@yd{\flo@ya+0.09*\flo@hfL}%
+        \flo@calc\flo@xb{\flo@xa+(\flo@xd-\flo@xa)*0.4}\flo@calc\flo@yb{\flo@ya+(\flo@yd-\flo@ya)*0.15}%
+        \flo@calc\flo@xc{\flo@xa+(\flo@xd-\flo@xa)*0.75}\flo@calc\flo@yc{\flo@ya+(\flo@yd-\flo@ya)*0.55}%
+        \flo@vtaper\flo@xa\flo@ya\flo@xb\flo@yb\flo@xc\flo@yc\flo@xd\flo@yd}}%
+    \fi
+    \flo@vtone{flo@c}{0.06}\flo@calc\flo@t{0.9*\flo@ctu}\flo@vstroke{flo@c}{\flo@t}{0.4}{1}{\flo@kept{hfl}}%
+  \end{pgfscope}\end{pgfscope}}
+% the spine's angle at s (0 the tail, 1 the head), into \flo@cta
+\def\flo@ctangle#1{%
+  \def\flo@tmp{loop}\ifx\flo@ctpose\flo@tmp\flo@calc\flo@cta{105*cos(180*(#1))}\else
+  \def\flo@tmp{curl}\ifx\flo@ctpose\flo@tmp\flo@calc\flo@cta{150-300*(#1)}\else
+  \flo@calc\flo@cta{\flo@ctwa*sin(540*(#1)+\flo@ctph)}\fi\fi}
+% the spine: 27 points from the tail (\flo@ctX/Y<k>), the angle (\flo@ctA<k>), the normal
+% toward the back (\flo@ctNX/NY<k>) and the half-width (\flo@ctW<k>) at each
+\def\flo@ctspine{%
+  \expandafter\def\csname flo@ctX0\endcsname{0}\expandafter\def\csname flo@ctY0\endcsname{0}%
+  \flo@loop{cts}\flo@Wa{0}{26}{%
+    \edef\flo@cti{\the\flo@Wa}\flo@calc\flo@v{\flo@cti/26}%
+    \ifnum\flo@Wa>0
+      \flo@calc\flo@t{(\flo@cti-0.5)/26}\flo@ctangle\flo@t
+      \flo@calc\flo@xa{\csname flo@ctX\the\numexpr\flo@Wa-1\endcsname+cos(\flo@cta)/26}%
+      \flo@calc\flo@ya{\csname flo@ctY\the\numexpr\flo@Wa-1\endcsname+sin(\flo@cta)/26}%
+      \expandafter\let\csname flo@ctX\flo@cti\endcsname\flo@xa\expandafter\let\csname flo@ctY\flo@cti\endcsname\flo@ya
+    \fi
+    \flo@ctangle\flo@v\expandafter\let\csname flo@ctA\flo@cti\endcsname\flo@cta
+    \flo@calc\flo@t{-sin(\flo@cta)}\expandafter\let\csname flo@ctNX\flo@cti\endcsname\flo@t
+    \flo@calc\flo@t{cos(\flo@cta)}\expandafter\let\csname flo@ctNY\flo@cti\endcsname\flo@t
+    \flo@calc\flo@t{\flo@ctW*(0.7+0.3*sin(180*min(1,1.6*\flo@v)))*(\flo@v>0.92 ? 1-(\flo@v-0.92)*2.5 : 1)}%
+    \expandafter\let\csname flo@ctW\flo@cti\endcsname\flo@t}}
+% the point at spine k, f half-widths toward the back (f < 0: the belly), g along it: \flo@xa/ya
+\def\flo@ctat#1#2#3{%
+  \flo@calc\flo@xa{\csname flo@ctX#1\endcsname+(#2)*\csname flo@ctW#1\endcsname*\csname flo@ctNX#1\endcsname
+    +(#3)*\csname flo@ctW#1\endcsname*\csname flo@ctNY#1\endcsname}%
+  \flo@calc\flo@ya{\csname flo@ctY#1\endcsname+(#2)*\csname flo@ctW#1\endcsname*\csname flo@ctNY#1\endcsname
+    -(#3)*\csname flo@ctW#1\endcsname*\csname flo@ctNX#1\endcsname}}
+% the outline: the belly from the tail, the back from the head, a point behind the tail
+\def\flo@ctoutline{%
+  \flo@loop{cto}\flo@Wa{0}{26}{%
+    \flo@ctat{\the\flo@Wa}{-1}{0}\flo@put{\the\numexpr\flo@Wa+1\relax}\flo@xa\flo@ya
+    \flo@ctat{\the\flo@Wa}{1}{0}\flo@put{\the\numexpr54-\flo@Wa\relax}\flo@xa\flo@ya}%
+  \flo@ctat{0}{0}{-0.7}\flo@put{55}\flo@xa\flo@ya
+  \flo@smoothprep{55}\flo@keep{ctb}}
+% a leg at spine #1: from #2 half-widths under the back to #3 under it, #4 along the body
+\def\flo@ctleg#1#2#3#4{%
+  \flo@ctat{#1}{-(#2)}{0}\let\flo@ctlx\flo@xa\let\flo@ctly\flo@ya
+  \flo@ctat{#1}{-(#3)}{#4}\let\flo@xd\flo@xa\let\flo@yd\flo@ya
+  \flo@lgseg\flo@ctlx\flo@ctly\flo@xd\flo@yd}
+% points k = #1, #1+#3, ... #2 at #4 half-widths toward the back, for a streak
+\def\flo@ctline#1#2#3#4{%
+  \def\flo@ctn{0}%
+  \flo@loop{ctl}\flo@Wb{0}{(#2-#1)/#3}{%
+    \edef\flo@ctn{\the\numexpr\flo@ctn+1\relax}%
+    \flo@ctat{\the\numexpr#1+#3*\flo@Wb\relax}{#4}{0}\flo@put\flo@ctn\flo@xa\flo@ya}}
+% the body: legs, the wash, the belly's shade, stripes, joints, mottle, a highlight, the rim
+\def\flo@ctbody{%
+  % prolegs (a looper's only at both ends), then the true legs
+  \flo@calc\flo@twa{0.9*\flo@ctW}\flo@calc\flo@twb{0.65*\flo@ctW}%
+  \flo@calc\flo@t{max(0.05,\flo@ctt-0.08)}\flo@vtone{flo@c}\flo@t
+  \flo@vfill{flo@c}{1}{0}{\flo@loop{ctp}\flo@Wa{1}{5}{%
+    \edef\flo@ctk{\ifcase\flo@Wa\or1\or9\or11\or13\or15\fi}%
+    \def\flo@tmp{loop}\ifx\flo@ctpose\flo@tmp\ifnum\flo@Wa>2 \def\flo@ctk{}\fi\fi
+    \ifx\flo@ctk\pgfutil@empty\else\flo@ctleg\flo@ctk{0.5}{1.45}{-0.1}\fi}}%
+  \flo@calc\flo@twa{0.35*\flo@ctW}\flo@calc\flo@twb{0.06*\flo@ctW}%
+  \flo@vtone{flo@c}{0.08}\flo@vfill{flo@c}{1}{0}{\flo@loop{cttl}\flo@Wa{0}{2}{%
+    \flo@ctleg{\the\numexpr21+2*\flo@Wa\relax}{0.6}{1.55}{0.35}}}%
+  \flo@ctoutline
+  \flo@vtone{flo@c}{\flo@ctt}\flo@vfill{flo@c}{1}{0}{\flo@kept{ctb}}%
+  \begin{pgfscope}\flo@kept{ctb}\pgfusepath{clip}%
+    \flo@calc\flo@t{\flo@ctt-0.12}\flo@vtone{flo@c}\flo@t
+    \flo@vfill{flo@c}{0.35}{1}{%
+      \flo@loop{ctsh}\flo@Wa{0}{26}{\flo@ctat{\the\flo@Wa}{0}{0}%
+        \ifnum\flo@Wa=0 \pgfpathmoveto{\flo@P\flo@xa\flo@ya}\else\pgfpathlineto{\flo@P\flo@xa\flo@ya}\fi}%
+      \flo@loop{ctsi}\flo@Wa{0}{26}{\flo@ctat{\the\numexpr26-\flo@Wa\relax}{-1.4}{0}\pgfpathlineto{\flo@P\flo@xa\flo@ya}}%
+      \pgfpathclose}%
+    \edef\flo@t{\flo@xget{stripes}}%
+    \def\flo@tmp{side}\ifx\flo@t\flo@tmp
+      \flo@ctline{1}{25}{2}{-0.2}\flo@calc\flo@stw{0.45*\flo@ctW}\flo@calc\flo@sto{0.3*\flo@ctW}%
+      \flo@vstreak{13}\flo@stw\flo@sto{white}{0.6}%
+      \ifnum\flo@fine=1
+        \flo@calc\flo@ctsr{0.13*\flo@ctW}\flo@calc\flo@ctsq{0.09*\flo@ctW}%
+        \flo@vtone{flo@c}{0.04}\flo@vfill{flo@c}{0.85}{0}{\flo@loop{ctsp}\flo@Wa{1}{9}{%
+          \flo@ctat{\the\numexpr1+2*\flo@Wa\relax}{0.08}{0}\flo@bgell\flo@xa\flo@ya\flo@ctsq\flo@ctsr}}%
+      \fi
+    \fi
+    \def\flo@tmp{back}\ifx\flo@t\flo@tmp
+      \flo@ctline{1}{25}{2}{0.72}\flo@calc\flo@stw{0.42*\flo@ctW}\flo@calc\flo@sto{0.3*\flo@ctW}%
+      \flo@vtone{flo@c}{0.05}\flo@vstreak{13}\flo@stw\flo@sto{flo@c}{0.7}%
+    \fi
+    \ifnum\flo@fine=1
+      \flo@vtone{flo@c}{0.05}\flo@vstroke{flo@c}{\flo@ctjw}{0.4}{1}{\flo@loop{ctj}\flo@Wa{1}{12}{%
+        \flo@ctat{\the\numexpr2*\flo@Wa\relax}{-1.3}{0}\pgfpathmoveto{\flo@P\flo@xa\flo@ya}%
+        \flo@ctat{\the\numexpr2*\flo@Wa\relax}{1.3}{0}\pgfpathlineto{\flo@P\flo@xa\flo@ya}}}%
+      \flo@calc\flo@ctxl{-0.2}\flo@calc\flo@ctyl{-0.4}\flo@calc\flo@ctxh{1.1}\flo@calc\flo@ctyh{0.8}%
+      \flo@calc\flo@ta{\flo@ctt-0.14}\flo@calc\flo@tb{\flo@ctt+0.18}%
+      \flo@vmottle\flo@ctxl\flo@ctyl\flo@ctxh\flo@ctyh{5}{0.05}\flo@ta\flo@tb{10}%
+      \flo@ctline{2}{24}{2}{0.45}\flo@calc\flo@stw{0.3*\flo@ctW}%
+      \flo@vstreak{12}\flo@stw{0.004}{white}{0.4}%
+    \fi
+    \flo@vtone{flo@c}{0.05}\flo@calc\flo@t{0.9*\flo@ctu}\flo@vstroke{flo@c}{\flo@t}{0.6}{1}{\flo@kept{ctb}}%
+  \end{pgfscope}}
+% the head: a capsule past the last point, an eye, the jaws, a glint
+\def\flo@cthead{%
+  \flo@ctat{26}{0}{0.5}\let\flo@cthx\flo@xa\let\flo@cthy\flo@ya
+  \flo@calc\flo@xb{\csname flo@ctNY26\endcsname*0.92*\flo@ctW}\flo@calc\flo@yb{-\csname flo@ctNX26\endcsname*0.92*\flo@ctW}%
+  \flo@calc\flo@xc{\csname flo@ctNX26\endcsname*0.85*\flo@ctW}\flo@calc\flo@yc{\csname flo@ctNY26\endcsname*0.85*\flo@ctW}%
+  \flo@vtone{flo@c}{\flo@ctht}\flo@vfill{flo@c}{1}{0}{\pgfpathellipse{\flo@P\flo@cthx\flo@cthy}{\flo@P\flo@xb\flo@yb}{\flo@P\flo@xc\flo@yc}}%
+  \ifnum\flo@fine=1
+    \flo@calc\flo@xa{\flo@cthx+0.35*\flo@xb+0.15*\flo@xc}\flo@calc\flo@ya{\flo@cthy+0.35*\flo@yb+0.15*\flo@yc}%
+    \flo@calc\flo@t{0.13*\flo@ctW}\flo@vtone{flo@c}{0.02}\flo@vfill{flo@c}{1}{0}{\pgfpathcircle{\flo@P\flo@xa\flo@ya}{\flo@t pt}}%
+    \flo@calc\flo@xa{\flo@cthx-0.25*\flo@xb+0.45*\flo@xc}\flo@calc\flo@ya{\flo@cthy-0.25*\flo@yb+0.45*\flo@yc}%
+    \flo@calc\flo@t{0.1*\flo@ctW}\flo@vfill{white}{0.6}{0}{\pgfpathcircle{\flo@P\flo@xa\flo@ya}{\flo@t pt}}%
+    \flo@calc\flo@xa{\flo@cthx+0.8*\flo@xb-0.45*\flo@xc}\flo@calc\flo@ya{\flo@cthy+0.8*\flo@yb-0.45*\flo@yc}%
+    \flo@calc\flo@xd{\flo@cthx+1.2*\flo@xb-0.75*\flo@xc}\flo@calc\flo@yd{\flo@cthy+1.2*\flo@yb-0.75*\flo@yc}%
+    \flo@calc\flo@twa{0.25*\flo@ctW}\flo@calc\flo@twb{0.05*\flo@ctW}%
+    \flo@vtone{flo@c}{0.04}\flo@vfill{flo@c}{1}{0}{\flo@lgseg\flo@xa\flo@ya\flo@xd\flo@yd}%
+  \fi}
+% a horn near the tail; tufts of hair on the back and pencils at both ends
+\def\flo@cthorn{%
+  \flo@ctat{5}{0.8}{0}\let\flo@xe\flo@xa\let\flo@ye\flo@ya
+  \flo@ctat{5}{2.4}{-1.6}\let\flo@xd\flo@xa\let\flo@yd\flo@ya
+  \flo@ctat{5}{1.7}{0}\let\flo@xb\flo@xa\let\flo@yb\flo@ya
+  \flo@ctat{5}{2.4}{-0.7}\let\flo@xc\flo@xa\let\flo@yc\flo@ya
+  \flo@calc\flo@twa{0.5*\flo@ctW}\flo@calc\flo@twb{0.05*\flo@ctW}%
+  \flo@vtone{flo@c}{0.08}\flo@vfill{flo@c}{1}{0}{\flo@vtaper\flo@xe\flo@ye\flo@xb\flo@yb\flo@xc\flo@yc\flo@xd\flo@yd}}
+\def\flo@cthair#1#2#3#4{% a hair at spine #1, out #2 half-widths from #3 along it, #4 degrees off the back
+  \flo@ctat{#1}{0.85}{#3}\let\flo@xe\flo@xa\let\flo@ye\flo@ya
+  \flo@calc\flo@t{\csname flo@ctA#1\endcsname+90+(#4)}%
+  \flo@calc\flo@xd{\flo@xe+(#2)*\flo@ctW*cos(\flo@t)}\flo@calc\flo@yd{\flo@ye+(#2)*\flo@ctW*sin(\flo@t)}%
+  \flo@lgseg\flo@xe\flo@ye\flo@xd\flo@yd}
+\def\flo@cttufts{%
+  \flo@calc\flo@twa{0.1*\flo@ctW}\flo@calc\flo@twb{0.02*\flo@ctW}%
+  \flo@bgwhite\flo@vfill{flo@c}{0.9}{0}{\flo@loop{ctt}\flo@Wa{1}{4}{%
+    \flo@loop{cth}\flo@Wb{1}{9}{%
+      \flo@range\flo@ctl{1.2}{1.8}\flo@range\flo@ctg{-0.25}{0.25}%
+      \flo@cthair{\the\numexpr9+2*\flo@Wa\relax}\flo@ctl\flo@ctg{(\the\flo@Wb-5)*8}}}}%
+  \flo@vtone{flo@c}{0.08}\flo@vfill{flo@c}{0.9}{0}{\flo@loop{ctpn}\flo@Wa{1}{5}{%
+    \flo@range\flo@ctl{2.4}{3}\flo@cthair{24}\flo@ctl{0}{\the\flo@Wa*6-48}%
+    \flo@range\flo@ctl{2}{2.6}\flo@cthair{2}\flo@ctl{0}{\the\flo@Wa*6+12}}}}
+% a caterpillar on its leaf; #1 its length on the page in pt
+\def\flo@caterpillar#1{%
+  \flo@calc\flo@ctu{(#1)/28.45276}%
+  \ifdim\flo@ctu pt>0.25pt \def\flo@fine{1}\else\def\flo@fine{0}\fi
+  \edef\flo@ctpose{\flo@xget{pose}}\edef\flo@ctground{\flo@xget{ground}}\edef\flo@ctt{\flo@xget{tone}}%
+  \def\flo@tmp{pale}\ifx\flo@ctground\flo@tmp\flo@calc\flo@ctt{min(0.6,\flo@ctt+0.22)}\fi
+  \flo@calc\flo@ctW{\flo@xget{build}/2}\flo@calc\flo@ctht{max(0.05,\flo@ctt-0.16)}%
+  \flo@calc\flo@ctjw{max(0.1,0.16*\flo@ctu)}%
+  \flo@range\flo@ctwa{3}{7}\flo@range\flo@ctph{0}{360}\flo@ctspine
+  % the leaf: its size, the edge the caterpillar holds, the bites ahead of its head
+  \def\flo@hfL{1.5}\def\flo@hfW{0.36}\flo@sym\flo@hfbend{0.12}\def\flo@hft{0.66}%
+  \flo@hfw{0.1}\flo@calc\flo@ctox{\flo@hfx+\flo@h}\flo@calc\flo@ctoy{0.1*\flo@hfL}%
+  \flo@hfw{0.62}\flo@calc\flo@t{atan2(0.62*\flo@hfL-\flo@ctoy,\flo@hfx+\flo@h-\flo@ctox)}%
+  \def\flo@tmp{curl}\ifx\flo@ctpose\flo@tmp\edef\flo@ctrot{\flo@t}\else
+    \flo@calc\flo@ctrot{\flo@t-atan2(\csname flo@ctY26\endcsname,\csname flo@ctX26\endcsname)}\fi
+  \flo@calc\flo@cthy{\flo@ctoy+\csname flo@ctX26\endcsname*sin(\flo@ctrot)+\csname flo@ctY26\endcsname*cos(\flo@ctrot)}%
+  \flo@chance{0.5}\ifflo@yes\def\flo@hfnb{3}\else\def\flo@hfnb{2}\fi
+  \flo@calc\flo@t{min(0.86*\flo@hfL,max(0.3*\flo@hfL,\flo@cthy+0.04))}%
+  \flo@loop{hfbs}\flo@Wa{1}{\flo@hfnb}{%
+    \edef\flo@hfi{\the\flo@Wa}%
+    \flo@range\flo@v{0.07}{0.11}\expandafter\let\csname flo@hfbr\flo@hfi\endcsname\flo@v
+    \expandafter\let\csname flo@hfby\flo@hfi\endcsname\flo@t
+    \flo@calc\flo@v{\flo@t/\flo@hfL}\flo@hfw\flo@v
+    \flo@calc\flo@v{\flo@hfx+\flo@h+0.3*\csname flo@hfbr\flo@hfi\endcsname}\expandafter\let\csname flo@hfbx\flo@hfi\endcsname\flo@v
+    \flo@range\flo@v{0.15}{0.22}\flo@calc\flo@t{\flo@t+\flo@v}%
+    \ifdim\flo@t pt>1.38pt \def\flo@t{1.38}\fi}%
+  \flo@hfoutline\flo@hfpaint
+  % the caterpillar, in the copper if its ground is
+  \def\flo@tmp{copper}\ifx\flo@ctground\flo@tmp\def\flo@rampname{flo@aramp}\fi
+  \begin{pgfscope}\pgftransformshift{\flo@P\flo@ctox\flo@ctoy}\pgftransformrotate{\flo@ctrot}%
+    \flo@ctbody\flo@cthead
+    \ifnum\flo@xget{horn}=1 \flo@cthorn\fi
+    \ifnum\flo@xget{tufts}=1 \flo@cttufts\fi
+  \end{pgfscope}}
+% ---------------------------------------------------------------- snails
+% A snail: flora's, in units of its shell's width, crawling toward +y, its foot along the
+% y axis and its shell on the +x side; a shell that coils to the left is the whole snail
+% mirrored. The genome shapes the shell: as many whorls as it has, each wider than the one
+% inside it by its expansion, the spire standing out behind as far as its height, dark
+% bands along the whorls, a pale lip at the mouth (which faces the foot); and how far the
+% snail is out of it, in the foot's length and its feelers'.
+\def\flo@gsbodypt#1#2#3{%
+  \flo@sym\flo@t{0.08}\flo@calc\flo@xa{(#2)*(1+\flo@t)}%
+  \flo@calc\flo@ya{(#3)*((#3)<0 ? 0.5+0.5*\flo@gsx : 0.75+0.3*\flo@gsx)}\flo@put{#1}\flo@xa\flo@ya}
+% the shell's spiral at t (0 the apex, 1 the mouth), its radius times #2: \flo@xa/ya
+\def\flo@gsspiral#1#2{%
+  \flo@calc\flo@t{pow(\flo@gsE,-(1-(#1))*\flo@gsn)}%
+  \flo@calc\flo@wa{180-(1-(#1))*\flo@gsn*360}\flo@calc\flo@v{\flo@gsH*(1-\flo@t)}%
+  \flo@calc\flo@xa{\flo@gscx+\flo@v*cos(-40)+(#2)*0.95*\flo@gsR*\flo@t*cos(\flo@wa)}%
+  \flo@calc\flo@ya{\flo@gscy+\flo@v*sin(-40)+(#2)*0.95*\flo@gsR*\flo@t*sin(\flo@wa)}}
+% points 1..#3 along the spiral from t = #2 to the mouth, its radius times #1
+\def\flo@gsline#1#2#3{%
+  \flo@loop{gsl}\flo@Wb{0}{#3-1}{%
+    \flo@calc\flo@gst{#2+(1-(#2))*\the\flo@Wb/(#3-1)}\flo@gsspiral\flo@gst{#1}%
+    \flo@put{\the\numexpr\flo@Wb+1\relax}\flo@xa\flo@ya}}
+\def\flo@gsbody{%
+  \flo@gsbodypt1{0}{-0.78}\flo@gsbodypt2{-0.01}{-0.3}\flo@gsbodypt3{0}{0.3}\flo@gsbodypt4{0.04}{0.58}%
+  \flo@gsbodypt5{0.12}{0.7}\flo@gsbodypt6{0.22}{0.66}\flo@gsbodypt7{0.24}{0.5}\flo@gsbodypt8{0.2}{0.32}%
+  \flo@gsbodypt9{0.17}{0}\flo@gsbodypt{10}{0.12}{-0.45}\flo@gsbodypt{11}{0.05}{-0.7}%
+  \flo@smoothprep{11}\flo@keep{gsb}%
+  \flo@range\flo@gstb{0.5}{0.6}%
+  \flo@vtone{flo@c}{\flo@gstb}\flo@vfill{flo@c}{1}{0}{\flo@kept{gsb}}%
+  \begin{pgfscope}\flo@kept{gsb}\pgfusepath{clip}%
+    \ifnum\flo@fine=1
+      \flo@calc\flo@ta{\flo@gstb-0.25}\flo@calc\flo@tb{\flo@gstb+0.15}%
+      \flo@vmottle{-0.1}{-0.8}{0.3}{0.8}{5}{0.1}\flo@ta\flo@tb{10}%
+    \fi
+    \flo@vtone{flo@c}{0.15}\flo@vfill{flo@c}{0.35}{1}{\pgfpathmoveto{\flo@P{-0.05}{-0.8}}\pgfpathlineto{\flo@P{-0.05}{0.7}}%
+      \pgfpathlineto{\flo@P{0.04}{0.7}}\pgfpathlineto{\flo@P{0.04}{-0.8}}\pgfpathclose}%
+    \flo@vtone{flo@c}{0.08}\flo@calc\flo@t{0.1*\flo@gsu*28.3465}\flo@vstroke{flo@c}{\flo@t}{0.4}{1}{\flo@kept{gsb}}%
+  \end{pgfscope}}
+% feelers: two long ones with eyes, a short one; #1 #2 the root, #3 #4 the tip at full length
+\def\flo@gsfeeler#1#2#3#4#5{%
+  \flo@calc\flo@ya{(#2)*(0.75+0.3*\flo@gsx)}\flo@calc\flo@t{0.55+0.5*\flo@gsx}%
+  \flo@calc\flo@xd{#1+((#3)-(#1))*\flo@t}\flo@calc\flo@yd{\flo@ya+((#4)-(#2))*\flo@t}%
+  \flo@calc\flo@xb{#1+0.02}\flo@calc\flo@yb{\flo@ya+0.12}\flo@calc\flo@xc{\flo@xd-0.04}\flo@calc\flo@yc{\flo@yd-0.1}%
+  \flo@vtone{flo@c}{0.12}\flo@vstroke{flo@c}{#5}{1}{0}{\pgfpathmoveto{\flo@P{#1}\flo@ya}%
+    \pgfpathcurveto{\flo@P\flo@xb\flo@yb}{\flo@P\flo@xc\flo@yc}{\flo@P\flo@xd\flo@yd}}}
+\def\flo@gsfeelers{%
+  \flo@calc\flo@gsw{max(0.35,0.3*\flo@gsu)}\flo@calc\flo@gsv{max(0.28,0.24*\flo@gsu)}%
+  \flo@gsfeeler{0.17}{0.66}{0.36}{1.02}\flo@gsw
+  \flo@vtone{flo@c}{0.05}\flo@vfill{flo@c}{1}{0}{\pgfpathcircle{\flo@P\flo@xd\flo@yd}{0.028pt}}%
+  \flo@gsfeeler{0.1}{0.7}{0.18}{1.04}\flo@gsw
+  \flo@vtone{flo@c}{0.05}\flo@vfill{flo@c}{1}{0}{\pgfpathcircle{\flo@P\flo@xd\flo@yd}{0.028pt}}%
+  \flo@gsfeeler{0.05}{0.68}{0}{0.84}\flo@gsv}
+% the shell: a disc drawn out toward its spire, the wash, mottle, bands, the sutures (a dark
+% line and a white one lifted beside it), the lip, the rim
+\def\flo@gsshell{%
+  \def\flo@gscx{0.36}\def\flo@gscy{0}\def\flo@gsR{0.42}%
+  \edef\flo@gsn{\flo@xget{whorls}}\edef\flo@gsE{\flo@xget{expansion}}%
+  \flo@calc\flo@gsH{0.55*\flo@xget{spire}*\flo@gsR}%
+  \pgfmathtruncatemacro\flo@gsm{round(\flo@gsn*16)+1}%
+  \flo@calc\flo@t{0.96*\flo@gsR}\flo@vblob\flo@gscx\flo@gscy\flo@gsR\flo@t{0.03}{16}%
+  \flo@loop{gsd}\flo@Wa{1}{16}{%
+    \flo@calc\flo@da{\flo@x{\the\flo@Wa}-\flo@gscx}\flo@calc\flo@db{\flo@y{\the\flo@Wa}-\flo@gscy}%
+    \flo@calc\flo@t{1+\flo@gsH/\flo@gsR*pow(max(0,cos(atan2(\flo@db,\flo@da)+40)),3)}%
+    \flo@calc\flo@xa{\flo@gscx+\flo@da*\flo@t}\flo@calc\flo@ya{\flo@gscy+\flo@db*\flo@t}%
+    \flo@put{\the\flo@Wa}\flo@xa\flo@ya}%
+  \flo@smoothprep{16}\flo@keep{gsd}%
+  \flo@vtone{flo@c}{\flo@gstn}\flo@vfill{flo@c}{1}{0}{\flo@kept{gsd}}%
+  \begin{pgfscope}\flo@kept{gsd}\pgfusepath{clip}%
+    \flo@calc\flo@gsxl{\flo@gscx-\flo@gsR}\flo@calc\flo@gsyl{\flo@gscy-1.6*\flo@gsR}%
+    \flo@calc\flo@gsxh{\flo@gscx+1.6*\flo@gsR}\flo@calc\flo@gsyh{\flo@gscy+\flo@gsR}%
+    \flo@calc\flo@ta{\flo@gstn-0.18}\flo@calc\flo@tb{\flo@gstn+0.22}%
+    \ifnum\flo@fine=1 \flo@vmottle\flo@gsxl\flo@gsyl\flo@gsxh\flo@gsyh{7}{0.1}\flo@ta\flo@tb{10}%
+    \else\flo@vmottle\flo@gsxl\flo@gsyl\flo@gsxh\flo@gsyh{3}{0.1}\flo@ta\flo@tb{0}\fi
+    \ifnum\flo@xget{shellbands}>0
+      \flo@vtone{flo@c}{0.06}\flo@calc\flo@gsls{max(0,1-2.5/\flo@gsn)}%
+      \flo@loop{gsbd}\flo@Wa{1}{\flo@xget{shellbands}}{%
+        \flo@calc\flo@gsf{1-\the\flo@Wa/(\flo@xget{shellbands}+1)*(1-1/\flo@gsE)}\flo@gsline\flo@gsf\flo@gsls{41}%
+        \flo@calc\flo@stw{0.32*\flo@gsR/(\flo@xget{shellbands}+1)}%
+        \flo@vstreak{41}{0.003}\flo@stw{flo@c}{0.55}}%
+    \fi
+    \flo@calc\flo@t{0.07*\flo@gsu*28.3465}\flo@vtone{flo@c}{0.05}%
+    \flo@vstroke{flo@c}{\flo@t}{0.6}{1}{\flo@gsline{0.84}{0}\flo@gsm\flo@smoothopen\flo@gsm}%
+    \flo@calc\flo@t{0.05*\flo@gsu*28.3465}%
+    \flo@vstroke{white}{\flo@t}{0.75}{0}{\flo@gsline{1}{0}\flo@gsm\flo@smoothopen\flo@gsm}%
+    \ifnum\flo@xget{lip}=1
+      \flo@loop{gslp}\flo@Wa{0}{4}{%
+        \flo@calc\flo@gst{1-(4-\the\flo@Wa)*0.03/\flo@gsn}\flo@gsspiral\flo@gst{0.97}%
+        \flo@put{\the\numexpr\flo@Wa+1\relax}\flo@xa\flo@ya}%
+      \flo@vstreak{5}{0.03}{0.08}{white}{0.85}%
+    \fi
+    \flo@vtone{flo@c}{0.05}\flo@calc\flo@t{0.12*\flo@gsu*28.3465}\flo@vstroke{flo@c}{\flo@t}{0.5}{1}{\flo@kept{gsd}}%
+  \end{pgfscope}}
+% a snail; #1 its shell's width on the page in pt
+\def\flo@snail#1{%
+  \flo@calc\flo@gsu{(#1)/28.45276}%
+  \ifdim\flo@gsu pt>0.25pt \def\flo@fine{1}\else\def\flo@fine{0}\fi
+  \edef\flo@gsx{\flo@xget{extension}}\edef\flo@gsground{\flo@xget{ground}}%
+  \flo@calc\flo@gstn{\flo@xget{tone}-0.06}%
+  \def\flo@tmp{pale}\ifx\flo@gsground\flo@tmp\flo@calc\flo@gstn{min(0.72,\flo@gstn+0.25)}\fi
+  \begin{pgfscope}%
+    \edef\flo@t{\flo@xget{hand}}\def\flo@tmp{sinistral}\ifx\flo@t\flo@tmp\pgftransformxscale{-1}\fi
+    \begin{pgfscope}\def\flo@rampname{flo@ramp}\flo@gsbody\flo@gsfeelers\end{pgfscope}%
+    \def\flo@tmp{copper}\ifx\flo@gsground\flo@tmp\def\flo@rampname{flo@aramp}\fi
+    \flo@gsshell
+  \end{pgfscope}}
+% ---------------------------------------------------------------- birds
+% A bird: flora's small songbird, seen from the side facing +x, its feet at the origin, in
+% units of its length from tail to beak. A seed-eater perches with a short conical bill
+% and speckled breast; a nectar bird (a hummingbird or a sunbird) has a long thin bill,
+% straight or curved, a copper throat, and perches or hovers, tilted up with its wings a
+% blur above its back and its tail fanned. A crest, and the tail's length, by the genome.
+% a tail feather from the root along +y, #1 long: a blade, narrow at the root, round at the tip
+\def\flo@avfeather#1{%
+  \flo@put1{0}{0}\flo@calc\flo@ya{#1}\flo@put7{0}\flo@ya
+  \flo@loop{avf}\flo@Wb{1}{5}{%
+    \flo@calc\flo@v{\ifcase\flo@Wb\or0.12\or0.35\or0.6\or0.82\or0.95\fi}%
+    \flo@calc\flo@xa{0.055*pow(sin(180*pow(\flo@v,0.4)),0.6)}\flo@calc\flo@xb{-\flo@xa}\flo@calc\flo@ya{\flo@v*(#1)}%
+    \flo@put{\the\numexpr\flo@Wb+1\relax}\flo@xa\flo@ya\flo@put{\the\numexpr13-\flo@Wb\relax}\flo@xb\flo@ya}%
+  \flo@smoothprep{12}}
+\def\flo@avbodypt#1#2#3{\flo@sym\flo@t{0.012}\flo@calc\flo@xa{#2+\flo@t}\flo@sym\flo@t{0.012}\flo@calc\flo@ya{#3+\flo@t}%
+  \flo@put{#1}\flo@xa\flo@ya}
+% the tail, the body (breast, mottle, specks or a copper throat, the cap, the rim)
+\def\flo@avbody{%
+  \flo@calc\flo@avlw{max(0.3,0.3*\flo@avu)}%
+  \flo@loop{avt}\flo@Wa{1}{4}{%
+    \flo@calc\flo@t{\flo@xget{tail}-0.03}\flo@calc\flo@v{\flo@xget{tail}+0.03}\flo@range\flo@avL\flo@t\flo@v
+    \flo@range\flo@t{-150}{-140}\flo@calc\flo@ava{\flo@t+\flo@avfan*\the\flo@Wa-90}%
+    \begin{pgfscope}\pgftransformshift{\flo@P{-0.26}{0.28}}\pgftransformrotate{\flo@ava}%
+      \flo@avfeather\flo@avL\flo@keep{avf}%
+      \flo@calc\flo@t{0.12+0.05*\the\flo@Wa}\flo@vtone{flo@c}\flo@t\flo@vfill{flo@c}{1}{0}{\flo@kept{avf}}%
+      \flo@vtone{flo@c}{0.05}\flo@vstroke{flo@c}{\flo@avlw}{0.5}{0}{\flo@kept{avf}}%
+    \end{pgfscope}}%
+  \flo@avbodypt1{0.37}{0.56}\flo@avbodypt2{0.3}{0.665}\flo@avbodypt3{0.15}{0.64}\flo@avbodypt4{-0.03}{0.54}%
+  \flo@avbodypt5{-0.22}{0.4}\flo@avbodypt6{-0.31}{0.3}\flo@avbodypt7{-0.27}{0.22}\flo@avbodypt8{-0.08}{0.12}%
+  \flo@avbodypt9{0.12}{0.12}\flo@avbodypt{10}{0.27}{0.27}\flo@avbodypt{11}{0.35}{0.42}%
+  \flo@smoothprep{11}\flo@keep{avb}%
+  \flo@vtone{flo@c}{\flo@avt}\flo@vfill{flo@c}{1}{0}{\flo@kept{avb}}%
+  \begin{pgfscope}\flo@kept{avb}\pgfusepath{clip}%
+    \flo@loop{avbr}\flo@Wa{1}{4}{%
+      \flo@calc\flo@xa{0.08+0.04*\the\flo@Wa}\flo@calc\flo@ya{0.06+0.03*\the\flo@Wa}%
+      \flo@vblob{0.17}{0.27}\flo@xa\flo@ya{0.2}{9}\flo@vfill{white}{0.2}{0}{\flo@smoothpath}}%
+    \flo@calc\flo@ta{\flo@avt-0.2}\flo@calc\flo@tb{\flo@avt+0.2}%
+    \ifnum\flo@fine=1 \flo@vmottle{-0.35}{0.1}{0.4}{0.7}{10}{0.07}\flo@ta\flo@tb{10}%
+    \else\flo@vmottle{-0.35}{0.1}{0.4}{0.7}{4}{0.07}\flo@ta\flo@tb{0}\fi
+    \def\flo@tmp{hummingbird}\ifx\flo@avk\flo@tmp
+      \flo@vblob{0.3}{0.47}{0.075}{0.05}{0.15}{8}\flo@vaccent{flo@c}{0}\flo@vfill{flo@c}{0.85}{0}{\flo@smoothpath}%
+      \ifnum\flo@fine=1 \flo@vblob{0.31}{0.49}{0.03}{0.016}{0.2}{7}\flo@vfill{white}{0.5}{0}{\flo@smoothpath}\fi
+    \else\ifnum\flo@fine=1
+      \flo@vtone{flo@c}{0.1}\flo@vfill{flo@c}{0.7}{0}{\flo@loop{avsp}\flo@Wa{1}{14}{%
+        \flo@range\flo@xa{0.08}{0.3}\flo@range\flo@ya{0.16}{0.42}\flo@range\flo@t{-20}{20}%
+        \flo@calc\flo@xb{0.012*cos(\flo@t)}\flo@calc\flo@yb{0.012*sin(\flo@t)}%
+        \flo@calc\flo@xc{-0.022*sin(\flo@t)}\flo@calc\flo@yc{0.022*cos(\flo@t)}%
+        \pgfpathellipse{\flo@P\flo@xa\flo@ya}{\flo@P\flo@xb\flo@yb}{\flo@P\flo@xc\flo@yc}}}%
+    \fi\fi
+    \flo@vblob{0.24}{0.66}{0.15}{0.08}{0.1}{9}\flo@vtone{flo@c}{0.08}\flo@vfill{flo@c}{0.6}{1}{\flo@smoothpath}%
+    \flo@vtone{flo@c}{0.05}\flo@calc\flo@t{0.07*\flo@avu*28.3465}\flo@vstroke{flo@c}{\flo@t}{0.5}{1}{\flo@kept{avb}}%
+  \end{pgfscope}}
+% the folded wing: a dark blade with feather tips, white lifted along the feathers
+\def\flo@avwing{%
+  \flo@put1{0.17}{0.47}\flo@put2{0.04}{0.52}\flo@put3{-0.12}{0.45}\flo@put4{-0.28}{0.33}\flo@put5{-0.44}{0.22}%
+  \flo@put6{-0.35}{0.23}\flo@put7{-0.38}{0.19}\flo@put8{-0.26}{0.21}\flo@put9{-0.28}{0.17}\flo@put{10}{-0.12}{0.23}%
+  \flo@put{11}{0.05}{0.31}\flo@put{12}{0.15}{0.4}\flo@smoothprepT{12}{0.8}\flo@keep{avw}%
+  \flo@calc\flo@avtw{\flo@avt-0.1}%
+  \flo@vtone{flo@c}{\flo@avtw}\flo@vfill{flo@c}{1}{0}{\flo@kept{avw}}%
+  \begin{pgfscope}\flo@kept{avw}\pgfusepath{clip}%
+    \flo@calc\flo@ta{\flo@avtw-0.15}\flo@calc\flo@tb{\flo@avtw+0.2}%
+    \ifnum\flo@fine=1 \def\flo@avnm{6}\else\def\flo@avnm{3}\fi
+    \flo@vmottle{-0.45}{0.15}{0.2}{0.6}\flo@avnm{0.07}\flo@ta\flo@tb{0}%
+    \def\flo@twa{0.025}\def\flo@twb{0.003}%
+    \flo@loop{avws}\flo@Wa{1}{5}{%
+      \flo@calc\flo@ya{0.28+0.04*\the\flo@Wa}%
+      \flo@calc\flo@yb{\flo@ya+0.05}\flo@calc\flo@yc{\flo@ya+0.03}\flo@calc\flo@yd{\flo@ya-0.03}%
+      \flo@calc\flo@xe{-0.3-0.02*\the\flo@Wa}\flo@calc\flo@ye{\flo@ya-0.1-0.01*\the\flo@Wa}%
+      \flo@range\flo@t{0.45}{0.7}%
+      \flo@vfill{white}{\flo@t}{0}{\flo@vtaper{0.12}\flo@yb{0}\flo@yc{-0.15}\flo@yd\flo@xe\flo@ye}}%
+    \flo@vtone{flo@c}{0.04}\flo@calc\flo@t{0.06*\flo@avu*28.3465}\flo@vstroke{flo@c}{\flo@t}{0.5}{1}{\flo@kept{avw}}%
+  \end{pgfscope}}
+% a hovering bird's wings: three passes of a long wing above its back, the middle one firmer
+\def\flo@avhover{%
+  \flo@put1{0}{0.02}\flo@put2{0.12}{0.07}\flo@put3{0.32}{0.085}\flo@put4{0.5}{0.05}%
+  \flo@put5{0.56}{0}\flo@put6{0.48}{-0.03}\flo@put7{0.28}{-0.045}\flo@put8{0.08}{-0.03}%
+  \flo@smoothprep{8}\flo@keep{avh}\flo@calc\flo@avtw{\flo@avt-0.1}%
+  \flo@loop{avhw}\flo@Wa{1}{3}{\begin{pgfscope}%
+    \flo@calc\flo@t{70+25*\the\flo@Wa}\pgftransformshift{\flo@P{0.06}{0.5}}\pgftransformrotate{\flo@t}%
+    \flo@vtone{flo@c}{\flo@avtw}%
+    \ifnum\flo@Wa=2 \flo@vfill{flo@c}{0.4}{0}{\flo@kept{avh}}%
+      \flo@vtone{flo@c}{0.05}\flo@vstroke{flo@c}{\flo@avlw}{0.4}{0}{\flo@kept{avh}}%
+    \else\flo@vfill{flo@c}{0.18}{0}{\flo@kept{avh}}\fi
+  \end{pgfscope}}}
+% a crest of four feathers on the back of the head
+\def\flo@avcrest{%
+  \def\flo@twa{0.03}\def\flo@twb{0.004}%
+  \flo@vtone{flo@c}{0.1}\flo@vfill{flo@c}{1}{0}{\flo@loop{avc}\flo@Wa{1}{4}{%
+    \flo@range\flo@avL{0.08}{0.12}%
+    \flo@calc\flo@xa{0.26-0.04*\the\flo@Wa}\flo@calc\flo@ya{0.65-0.01*\the\flo@Wa}%
+    \flo@calc\flo@t{140+8*\the\flo@Wa}%
+    \flo@calc\flo@xd{\flo@xa+\flo@avL*cos(\flo@t)}\flo@calc\flo@yd{\flo@ya+\flo@avL*sin(\flo@t)}%
+    \flo@lgseg\flo@xa\flo@ya\flo@xd\flo@yd}}}
+% the bill: a seed-eater's cone, a nectar bird's straight or curved one
+\def\flo@avbill{%
+  \edef\flo@t{\flo@xget{bill}}\flo@vtone{flo@c}{0.05}%
+  \def\flo@tmp{conical}\ifx\flo@t\flo@tmp
+    \flo@vfill{flo@c}{1}{0}{\pgfpathmoveto{\flo@P{0.355}{0.585}}\pgfpathlineto{\flo@P{0.47}{0.545}}%
+      \pgfpathlineto{\flo@P{0.36}{0.51}}\pgfpathclose}%
+    \flo@vstroke{white}{0.2}{0.6}{0}{\pgfpathmoveto{\flo@P{0.36}{0.548}}\pgfpathlineto{\flo@P{0.45}{0.546}}}%
+  \fi
+  \def\flo@tmp{straight}\ifx\flo@t\flo@tmp
+    \flo@vfill{flo@c}{1}{0}{\pgfpathmoveto{\flo@P{0.35}{0.575}}\pgfpathlineto{\flo@P{0.69}{0.55}}%
+      \pgfpathlineto{\flo@P{0.352}{0.538}}\pgfpathclose}%
+  \fi
+  \def\flo@tmp{curved}\ifx\flo@t\flo@tmp
+    \def\flo@twa{0.036}\def\flo@twb{0.006}%
+    \flo@vfill{flo@c}{1}{0}{\flo@vtaper{0.35}{0.556}{0.46}{0.562}{0.58}{0.535}{0.66}{0.475}}%
+  \fi}
+% a bird; #1 its length on the page in pt
+\def\flo@bird#1{%
+  \flo@calc\flo@avu{(#1)/28.45276}%
+  \ifdim\flo@avu pt>0.3pt \def\flo@fine{1}\else\def\flo@fine{0}\fi
+  \edef\flo@avk{\flo@xget{kind}}\edef\flo@avpose{\flo@xget{pose}}\edef\flo@avground{\flo@xget{ground}}%
+  \edef\flo@avt{\flo@xget{tone}}%
+  \def\flo@tmp{dark}\ifx\flo@avground\flo@tmp\flo@calc\flo@avt{\flo@avt-0.12}\fi
+  \def\flo@tmp{copper}\ifx\flo@avground\flo@tmp\def\flo@rampname{flo@aramp}\fi
+  \def\flo@avfan{7}%
+  \begin{pgfscope}%
+    \def\flo@tmp{hover}\ifx\flo@avpose\flo@tmp\def\flo@avfan{14}%
+      \pgftransformshift{\flo@P{0.05}{0.35}}\pgftransformrotate{22}\pgftransformshift{\flo@P{-0.05}{-0.35}}\fi
+    \flo@avbody
+    \ifnum\flo@xget{crest}=1 \flo@avcrest\fi
+    \def\flo@tmp{hover}\ifx\flo@avpose\flo@tmp\flo@avhover\else\flo@avwing\fi
+    \flo@avbill
+    \flo@vfill{white}{0.95}{0}{\pgfpathcircle{\flo@P{0.285}{0.585}}{0.03pt}}%
+    \flo@vtone{flo@c}{0.03}\flo@vfill{flo@c}{1}{0}{\pgfpathcircle{\flo@P{0.29}{0.585}}{0.018pt}}%
+    \flo@vfill{white}{1}{0}{\pgfpathcircle{\flo@P{0.284}{0.592}}{0.006pt}}%
+    \def\flo@tmp{hover}\ifx\flo@avpose\flo@tmp\else
+      \flo@calc\flo@t{max(0.4,0.3*\flo@avu)}\flo@vtone{flo@c}{0.06}%
+      \flo@vstroke{flo@c}{\flo@t}{1}{0}{\pgfpathmoveto{\flo@P{0.02}{0.14}}\pgfpathlineto{\flo@P00}%
+        \pgfpathmoveto{\flo@P{-0.05}{0}}\pgfpathlineto{\flo@P{0.05}{0.005}}%
+        \pgfpathmoveto{\flo@P{0.1}{0.14}}\pgfpathlineto{\flo@P{0.08}{0}}%
+        \pgfpathmoveto{\flo@P{0.03}{0}}\pgfpathlineto{\flo@P{0.13}{0.005}}}%
+    \fi
+  \end{pgfscope}}
 % a visitor of the kind last drawn; #1 its size on the page in pt (a wingspan, a length)
 \def\flo@visitor#1{%
   \edef\flo@vg{\flo@xget{group}}%
@@ -4988,7 +5450,10 @@
   \def\flo@tmp{bee}\ifx\flo@vg\flo@tmp\pgftransformscale{#1}\flo@bee{#1}\fi
   \def\flo@tmp{fly}\ifx\flo@vg\flo@tmp\pgftransformscale{#1}\flo@bee{#1}\fi
   \def\flo@tmp{odonate}\ifx\flo@vg\flo@tmp\pgftransformscale{#1}\flo@odo{#1}\fi
-  \def\flo@tmp{beetle}\ifx\flo@vg\flo@tmp\pgftransformscale{#1}\flo@beetle{#1}\fi}
+  \def\flo@tmp{beetle}\ifx\flo@vg\flo@tmp\pgftransformscale{#1}\flo@beetle{#1}\fi
+  \def\flo@tmp{larva}\ifx\flo@vg\flo@tmp\pgftransformscale{#1}\flo@caterpillar{#1}\fi
+  \def\flo@tmp{snail}\ifx\flo@vg\flo@tmp\pgftransformscale{#1}\flo@snail{#1}\fi
+  \def\flo@tmp{bird}\ifx\flo@vg\flo@tmp\pgftransformscale{#1}\flo@bird{#1}\fi}
 % sample the visitor, then reseed for the drawing
 \def\flo@vispicsetup#1{%
   \pgfkeys{/florilegium,#1}\flo@colors

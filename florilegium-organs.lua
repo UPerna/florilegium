@@ -5005,6 +5005,533 @@ function L.beetle(size)
     vfill("flo@c", U, 0, function() moveto(K"-0.035", R.ya) lineto(K"0.035", R.ya) lineto(0, R.yb) closepath() end)
   end
 end
+-- caterpillars on their host leaf (\flo@caterpillar); see the TeX
+function L.hfw(v)
+  V.h = E("@hfW*pow(sin(180*pow(%1,0.8)),0.85)", { v }) V.hfx = E("@hfbend*(%1)*(%1)", { v })
+end
+function L.hfoutline()
+  put(1, 0, 0) V.xa = E"@hfbend" put(25, R.xa, R.hfL)
+  loop("#Wa", 1, 23, function()
+    V.v = E"#Wa/24" L.hfw(R.v) V.ya = E"@v*@hfL"
+    V.xa = E"@hfx+@h" V.xb = E"@hfx-@h"
+    loop("#Wb", 1, function() return I("hfnb") end, function()
+      local i = R["#Wb"]
+      local br, bx = R["hfbr" .. i], R["hfbx" .. i]
+      V.t = E("abs(@ya-%1)", { R["hfby" .. i] })
+      V.xa = E("@t<%1 ? min(@xa,%2-sqrt(max(0,%1*%1-@t*@t))) : @xa", { br, bx })
+    end)
+    put(R["#Wa"] + 1, R.xa, R.ya) put(49 - R["#Wa"], R.xb, R.ya)
+  end)
+  smoothprep(48) keep("hfl")
+end
+function L.hfpaint()
+  scope(function()
+    V.rampname = "flo@ramp"
+    vtone("flo@c", K"0.2") V.twa = K"0.028" V.twb = K"0.02"
+    vfill("flo@c", U, 0, function() vtaper(0, K"-0.14", 0, K"-0.09", 0, K"-0.05", 0, K"0.02") end)
+    vtone("flo@c", R.hft) vfill("flo@c", U, 0, function() kept("hfl") end)
+    scope(function()
+      kept("hfl") usepath("clip")
+      V.t = E"@hft-0.12" vtone("flo@c", R.t)
+      vfill("flo@c", K"0.35", 1, function()
+        moveto(-U, 0) lineto(0, 0)
+        loop("#Wa", 1, 8, function() V.v = E"#Wa/8" L.hfw(R.v) V.ya = E"@v*@hfL" lineto(R.hfx, R.ya) end)
+        lineto(-U, R.hfL) closepath()
+      end)
+      if R.fine == U then
+        V.hfxl = E"-@hfW" V.ta = E"@hft-0.16" V.tb = E"@hft+0.18"
+        vmottle(R.hfxl, 0, R.hfW, R.hfL, 6, K"0.12", R.ta, R.tb, 8)
+        V.twa = K"0.022" V.twb = K"0.004"
+        vfill("white", K"0.5", 0, function()
+          L.hfw(K"0.33") V.xb = E"@hfx" V.yb = E"0.33*@hfL"
+          L.hfw(K"0.67") V.xc = E"@hfx" V.yc = E"0.67*@hfL"
+          L.hfw(K"0.97") V.xd = E"@hfx" V.yd = E"0.97*@hfL"
+          vtaper(0, 0, R.xb, R.yb, R.xc, R.yc, R.xd, R.yd)
+        end)
+        V.twa = K"0.014" V.twb = K"0.002"
+        vfill("white", K"0.4", 0, function()
+          loop("#Wa", 1, 10, function()
+            if R["#Wa"] % 2 == 1 then V.sx = U else V.sx = -U end
+            V.v = E"0.1+0.15*floor((#Wa-1)/2)" L.hfw(R.v)
+            V.xa = E"@hfx" V.ya = E"@v*@hfL"
+            V.xd = E"@hfx+@sx*0.85*@h" V.yd = E"@ya+0.09*@hfL"
+            V.xb = E"@xa+(@xd-@xa)*0.4" V.yb = E"@ya+(@yd-@ya)*0.15"
+            V.xc = E"@xa+(@xd-@xa)*0.75" V.yc = E"@ya+(@yd-@ya)*0.55"
+            vtaper(R.xa, R.ya, R.xb, R.yb, R.xc, R.yc, R.xd, R.yd)
+          end)
+        end)
+      end
+      vtone("flo@c", K"0.06") V.t = E"0.9*@ctu" vstroke("flo@c", R.t, K"0.4", 1, function() kept("hfl") end)
+    end)
+  end)
+end
+function L.ctangle(s)
+  if R.ctpose == "loop" then V.cta = E("105*cos(180*(%1))", { s })
+  elseif R.ctpose == "curl" then V.cta = E("150-300*(%1)", { s })
+  else V.cta = E("@ctwa*sin(540*(%1)+@ctph)", { s }) end
+end
+function L.ctspine()
+  V.ctX0 = 0 V.ctY0 = 0
+  loop("#Wa", 0, 26, function()
+    local k = R["#Wa"]
+    V.v = E"#Wa/26"
+    if k > 0 then
+      V.t = E"(#Wa-0.5)/26" L.ctangle(R.t)
+      V.xa = E("%1+cos(@cta)/26", { R["ctX" .. (k - 1)] }) V.ya = E("%1+sin(@cta)/26", { R["ctY" .. (k - 1)] })
+      V["ctX" .. k] = R.xa V["ctY" .. k] = R.ya
+    end
+    L.ctangle(R.v) V["ctA" .. k] = R.cta
+    V.t = E"-sin(@cta)" V["ctNX" .. k] = R.t
+    V.t = E"cos(@cta)" V["ctNY" .. k] = R.t
+    V.t = E"@ctW*(0.7+0.3*sin(180*min(1,1.6*@v)))*(@v>0.92 ? 1-(@v-0.92)*2.5 : 1)" V["ctW" .. k] = R.t
+  end)
+end
+function L.ctat(k, f, g)
+  local x, y, w, nx, ny = R["ctX" .. k], R["ctY" .. k], R["ctW" .. k], R["ctNX" .. k], R["ctNY" .. k]
+  V.xa = E("%1+(%2)*%3*%4+(%5)*%3*%6", { x, f, w, nx, g, ny })
+  V.ya = E("%1+(%2)*%3*%4-(%5)*%3*%6", { y, f, w, ny, g, nx })
+end
+function L.ctoutline()
+  loop("#Wa", 0, 26, function()
+    L.ctat(R["#Wa"], -U, 0) put(R["#Wa"] + 1, R.xa, R.ya)
+    L.ctat(R["#Wa"], U, 0) put(54 - R["#Wa"], R.xa, R.ya)
+  end)
+  L.ctat(0, 0, K"-0.7") put(55, R.xa, R.ya)
+  smoothprep(55) keep("ctb")
+end
+function L.ctleg(k, a, b, g)
+  L.ctat(k, -a, 0) V.ctlx = R.xa V.ctly = R.ya
+  L.ctat(k, -b, g) V.xd = R.xa V.yd = R.ya
+  L.lgseg(R.ctlx, R.ctly, R.xd, R.yd)
+end
+function L.ctline(a, b, step, f)
+  V.ctn = 0
+  loop("#Wb", 0, (b - a) // step, function()
+    V.ctn = R.ctn + 1
+    L.ctat(a + step * R["#Wb"], f, 0) put(R.ctn, R.xa, R.ya)
+  end)
+end
+L.CTPRO = { 1, 9, 11, 13, 15 }
+function L.ctbody()
+  V.twa = E"0.9*@ctW" V.twb = E"0.65*@ctW"
+  V.t = E"max(0.05,@ctt-0.08)" vtone("flo@c", R.t)
+  vfill("flo@c", U, 0, function()
+    loop("#Wa", 1, 5, function()
+      local k = L.CTPRO[R["#Wa"]]
+      if R.ctpose == "loop" and R["#Wa"] > 2 then k = nil end
+      if k then L.ctleg(k, K"0.5", K"1.45", K"-0.1") end
+    end)
+  end)
+  V.twa = E"0.35*@ctW" V.twb = E"0.06*@ctW"
+  vtone("flo@c", K"0.08")
+  vfill("flo@c", U, 0, function()
+    loop("#Wa", 0, 2, function() L.ctleg(21 + 2 * R["#Wa"], K"0.6", K"1.55", K"0.35") end)
+  end)
+  L.ctoutline()
+  vtone("flo@c", R.ctt) vfill("flo@c", U, 0, function() kept("ctb") end)
+  scope(function()
+    kept("ctb") usepath("clip")
+    V.t = E"@ctt-0.12" vtone("flo@c", R.t)
+    vfill("flo@c", K"0.35", 1, function()
+      loop("#Wa", 0, 26, function()
+        L.ctat(R["#Wa"], 0, 0)
+        if R["#Wa"] == 0 then moveto(R.xa, R.ya) else lineto(R.xa, R.ya) end
+      end)
+      loop("#Wa", 0, 26, function() L.ctat(26 - R["#Wa"], K"-1.4", 0) lineto(R.xa, R.ya) end)
+      closepath()
+    end)
+    V.t = L.xtr("stripes")
+    if R.t == "side" then
+      L.ctline(1, 25, 2, K"-0.2") V.stw = E"0.45*@ctW" V.sto = E"0.3*@ctW"
+      vstreak(13, R.stw, R.sto, "white", K"0.6")
+      if R.fine == U then
+        V.ctsr = E"0.13*@ctW" V.ctsq = E"0.09*@ctW"
+        vtone("flo@c", K"0.04")
+        vfill("flo@c", K"0.85", 0, function()
+          loop("#Wa", 1, 9, function()
+            L.ctat(1 + 2 * R["#Wa"], K"0.08", 0) L.bgell(R.xa, R.ya, R.ctsq, R.ctsr)
+          end)
+        end)
+      end
+    end
+    if R.t == "back" then
+      L.ctline(1, 25, 2, K"0.72") V.stw = E"0.42*@ctW" V.sto = E"0.3*@ctW"
+      vtone("flo@c", K"0.05") vstreak(13, R.stw, R.sto, "flo@c", K"0.7")
+    end
+    if R.fine == U then
+      vtone("flo@c", K"0.05")
+      vstroke("flo@c", R.ctjw, K"0.4", 1, function()
+        loop("#Wa", 1, 12, function()
+          L.ctat(2 * R["#Wa"], K"-1.3", 0) moveto(R.xa, R.ya)
+          L.ctat(2 * R["#Wa"], K"1.3", 0) lineto(R.xa, R.ya)
+        end)
+      end)
+      V.ctxl = K"-0.2" V.ctyl = K"-0.4" V.ctxh = K"1.1" V.ctyh = K"0.8"
+      V.ta = E"@ctt-0.14" V.tb = E"@ctt+0.18"
+      vmottle(R.ctxl, R.ctyl, R.ctxh, R.ctyh, 5, K"0.05", R.ta, R.tb, 10)
+      L.ctline(2, 24, 2, K"0.45") V.stw = E"0.3*@ctW"
+      vstreak(12, R.stw, K"0.004", "white", K"0.4")
+    end
+    vtone("flo@c", K"0.05") V.t = E"0.9*@ctu" vstroke("flo@c", R.t, K"0.6", 1, function() kept("ctb") end)
+  end)
+end
+function L.cthead()
+  L.ctat(26, 0, K"0.5") V.cthx = R.xa V.cthy = R.ya
+  V.xb = E"@ctNY26*0.92*@ctW" V.yb = E"-@ctNX26*0.92*@ctW"
+  V.xc = E"@ctNX26*0.85*@ctW" V.yc = E"@ctNY26*0.85*@ctW"
+  vtone("flo@c", R.ctht)
+  vfill("flo@c", U, 0, function() L.pellipse(R.cthx, R.cthy, R.xb, R.yb, R.xc, R.yc) end)
+  if R.fine == U then
+    V.xa = E"@cthx+0.35*@xb+0.15*@xc" V.ya = E"@cthy+0.35*@yb+0.15*@yc"
+    V.t = E"0.13*@ctW" vtone("flo@c", K"0.02") vfill("flo@c", U, 0, function() circle(R.xa, R.ya, R.t) end)
+    V.xa = E"@cthx-0.25*@xb+0.45*@xc" V.ya = E"@cthy-0.25*@yb+0.45*@yc"
+    V.t = E"0.1*@ctW" vfill("white", K"0.6", 0, function() circle(R.xa, R.ya, R.t) end)
+    V.xa = E"@cthx+0.8*@xb-0.45*@xc" V.ya = E"@cthy+0.8*@yb-0.45*@yc"
+    V.xd = E"@cthx+1.2*@xb-0.75*@xc" V.yd = E"@cthy+1.2*@yb-0.75*@yc"
+    V.twa = E"0.25*@ctW" V.twb = E"0.05*@ctW"
+    vtone("flo@c", K"0.04") vfill("flo@c", U, 0, function() L.lgseg(R.xa, R.ya, R.xd, R.yd) end)
+  end
+end
+function L.cthorn()
+  L.ctat(5, K"0.8", 0) V.xe = R.xa V.ye = R.ya
+  L.ctat(5, K"2.4", K"-1.6") V.xd = R.xa V.yd = R.ya
+  L.ctat(5, K"1.7", 0) V.xb = R.xa V.yb = R.ya
+  L.ctat(5, K"2.4", K"-0.7") V.xc = R.xa V.yc = R.ya
+  V.twa = E"0.5*@ctW" V.twb = E"0.05*@ctW"
+  vtone("flo@c", K"0.08")
+  vfill("flo@c", U, 0, function() vtaper(R.xe, R.ye, R.xb, R.yb, R.xc, R.yc, R.xd, R.yd) end)
+end
+function L.cthair(k, len, g, deg)
+  L.ctat(k, K"0.85", g) V.xe = R.xa V.ye = R.ya
+  V.t = E("%1+90+(%2)", { R["ctA" .. k], deg })
+  V.xd = E("@xe+(%1)*@ctW*cos(@t)", { len }) V.yd = E("@ye+(%1)*@ctW*sin(@t)", { len })
+  L.lgseg(R.xe, R.ye, R.xd, R.yd)
+end
+function L.cttufts()
+  V.twa = E"0.1*@ctW" V.twb = E"0.02*@ctW"
+  L.bgwhite()
+  vfill("flo@c", K"0.9", 0, function()
+    loop("#Wa", 1, 4, function()
+      loop("#Wb", 1, 9, function()
+        V.ctl = range(K"1.2", K"1.8") V.ctg = range(K"-0.25", K"0.25")
+        L.cthair(9 + 2 * R["#Wa"], R.ctl, R.ctg, E"(#Wb-5)*8")
+      end)
+    end)
+  end)
+  vtone("flo@c", K"0.08")
+  vfill("flo@c", K"0.9", 0, function()
+    loop("#Wa", 1, 5, function()
+      V.ctl = range(K"2.4", K"3") L.cthair(24, R.ctl, 0, E"#Wa*6-48")
+      V.ctl = range(K"2", K"2.6") L.cthair(2, R.ctl, 0, E"#Wa*6+12")
+    end)
+  end)
+end
+-- \flo@caterpillar: a caterpillar on its leaf, size its length on the page in pt (sp)
+function L.caterpillar(size)
+  V.ctu = E("(%1)/28.45276", { size })
+  if R.ctu > K"0.25" then V.fine = U else V.fine = 0 end
+  V.ctpose = L.xtr("pose") V.ctground = L.xtr("ground") V.ctt = L.xtr("tone")
+  if R.ctground == "pale" then V.ctt = E"min(0.6,@ctt+0.22)" end
+  V.ctW = E"@x@build/2" V.ctht = E"max(0.05,@ctt-0.16)"
+  V.ctjw = E"max(0.1,0.16*@ctu)"
+  V.ctwa = range(K"3", K"7") V.ctph = range(0, 360 * U) L.ctspine()
+  V.hfL = K"1.5" V.hfW = K"0.36" V.hfbend = sym(K"0.12") V.hft = K"0.66"
+  L.hfw(K"0.1") V.ctox = E"@hfx+@h" V.ctoy = E"0.1*@hfL"
+  L.hfw(K"0.62") V.t = E"atan2(0.62*@hfL-@ctoy,@hfx+@h-@ctox)"
+  if R.ctpose == "curl" then V.ctrot = R.t else V.ctrot = E"@t-atan2(@ctY26,@ctX26)" end
+  V.cthy = E"@ctoy+@ctX26*sin(@ctrot)+@ctY26*cos(@ctrot)"
+  if chance(K"0.5") then V.hfnb = 3 * U else V.hfnb = 2 * U end
+  V.t = E"min(0.86*@hfL,max(0.3*@hfL,@cthy+0.04))"
+  loop("#Wa", 1, function() return I("hfnb") end, function()
+    local i = R["#Wa"]
+    V.v = range(K"0.07", K"0.11") V["hfbr" .. i] = R.v
+    V["hfby" .. i] = R.t
+    V.v = E"@t/@hfL" L.hfw(R.v)
+    V.v = E("@hfx+@h+0.3*%1", { R["hfbr" .. i] }) V["hfbx" .. i] = R.v
+    V.v = range(K"0.15", K"0.22") V.t = E"@t+@v"
+    if R.t > K"1.38" then V.t = K"1.38" end
+  end)
+  L.hfoutline() L.hfpaint()
+  if R.ctground == "copper" then V.rampname = "flo@aramp" end
+  scope(function()
+    shift(R.ctox, R.ctoy) rotate(R.ctrot)
+    L.ctbody() L.cthead()
+    if L.xtr("horn") == U then L.cthorn() end
+    if L.xtr("tufts") == U then L.cttufts() end
+  end)
+end
+-- snails (\flo@snail)
+function L.gsbodypt(i, x, y)
+  V.t = sym(K"0.08") V.xa = E("(%1)*(1+@t)", { K(x) })
+  V.ya = E("(%1)*((%1)<0 ? 0.5+0.5*@gsx : 0.75+0.3*@gsx)", { K(y) }) put(i, R.xa, R.ya)
+end
+function L.gsspiral(t, f)
+  V.t = E("pow(@gsE,-(1-(%1))*@gsn)", { t })
+  V.wa = E("180-(1-(%1))*@gsn*360", { t }) V.v = E"@gsH*(1-@t)"
+  V.xa = E("@gscx+@v*cos(-40)+(%1)*0.95*@gsR*@t*cos(@wa)", { f })
+  V.ya = E("@gscy+@v*sin(-40)+(%1)*0.95*@gsR*@t*sin(@wa)", { f })
+end
+function L.gsline(f, t0, n)
+  loop("#Wb", 0, n - 1, function()
+    V.gst = E("%1+(1-(%1))*#Wb/(%2-1)", { t0, n * U }) L.gsspiral(R.gst, f) put(R["#Wb"] + 1, R.xa, R.ya)
+  end)
+end
+L.GSBODY = { { "0", "-0.78" }, { "-0.01", "-0.3" }, { "0", "0.3" }, { "0.04", "0.58" }, { "0.12", "0.7" },
+  { "0.22", "0.66" }, { "0.24", "0.5" }, { "0.2", "0.32" }, { "0.17", "0" }, { "0.12", "-0.45" }, { "0.05", "-0.7" } }
+function L.gsbody()
+  for i, p in ipairs(L.GSBODY) do L.gsbodypt(i, p[1], p[2]) end
+  smoothprep(11) keep("gsb")
+  V.gstb = range(K"0.5", K"0.6")
+  vtone("flo@c", R.gstb) vfill("flo@c", U, 0, function() kept("gsb") end)
+  scope(function()
+    kept("gsb") usepath("clip")
+    if R.fine == U then
+      V.ta = E"@gstb-0.25" V.tb = E"@gstb+0.15"
+      vmottle(K"-0.1", K"-0.8", K"0.3", K"0.8", 5, K"0.1", R.ta, R.tb, 10)
+    end
+    vtone("flo@c", K"0.15")
+    vfill("flo@c", K"0.35", 1, function()
+      moveto(K"-0.05", K"-0.8") lineto(K"-0.05", K"0.7") lineto(K"0.04", K"0.7") lineto(K"0.04", K"-0.8") closepath()
+    end)
+    vtone("flo@c", K"0.08") V.t = E"0.1*@gsu*28.3465" vstroke("flo@c", R.t, K"0.4", 1, function() kept("gsb") end)
+  end)
+end
+function L.gsfeeler(x0, y0, x1, y1, w)
+  local a = { K(x0), K(y0), K(x1), K(y1) }
+  V.ya = E("(%2)*(0.75+0.3*@gsx)", a) V.t = E"0.55+0.5*@gsx"
+  V.xd = E("%1+((%3)-(%1))*@t", a) V.yd = E("@ya+((%4)-(%2))*@t", a)
+  V.xb = E("%1+0.02", a) V.yb = E"@ya+0.12" V.xc = E"@xd-0.04" V.yc = E"@yd-0.1"
+  vtone("flo@c", K"0.12")
+  vstroke("flo@c", w, U, 0, function() moveto(K(x0), R.ya) curveto(R.xb, R.yb, R.xc, R.yc, R.xd, R.yd) end)
+end
+function L.gsfeelers()
+  V.gsw = E"max(0.35,0.3*@gsu)" V.gsv = E"max(0.28,0.24*@gsu)"
+  L.gsfeeler("0.17", "0.66", "0.36", "1.02", R.gsw)
+  vtone("flo@c", K"0.05") vfill("flo@c", U, 0, function() circle(R.xd, R.yd, K"0.028") end)
+  L.gsfeeler("0.1", "0.7", "0.18", "1.04", R.gsw)
+  vtone("flo@c", K"0.05") vfill("flo@c", U, 0, function() circle(R.xd, R.yd, K"0.028") end)
+  L.gsfeeler("0.05", "0.68", "0", "0.84", R.gsv)
+end
+function L.gsshell()
+  V.gscx = K"0.36" V.gscy = 0 V.gsR = K"0.42"
+  V.gsn = L.xtr("whorls") V.gsE = L.xtr("expansion")
+  V.gsH = E"0.55*@x@spire*@gsR"
+  V.gsm = pm.int(E"round(@gsn*16)+1")
+  V.t = E"0.96*@gsR" vblob(R.gscx, R.gscy, R.gsR, R.t, K"0.03", 16)
+  loop("#Wa", 1, 16, function()
+    local i = R["#Wa"]
+    V.da = E("%1-@gscx", { X[i] }) V.db = E("%1-@gscy", { Y[i] })
+    V.t = E"1+@gsH/@gsR*pow(max(0,cos(atan2(@db,@da)+40)),3)"
+    V.xa = E"@gscx+@da*@t" V.ya = E"@gscy+@db*@t"
+    put(i, R.xa, R.ya)
+  end)
+  smoothprep(16) keep("gsd")
+  vtone("flo@c", R.gstn) vfill("flo@c", U, 0, function() kept("gsd") end)
+  scope(function()
+    kept("gsd") usepath("clip")
+    V.gsxl = E"@gscx-@gsR" V.gsyl = E"@gscy-1.6*@gsR"
+    V.gsxh = E"@gscx+1.6*@gsR" V.gsyh = E"@gscy+@gsR"
+    V.ta = E"@gstn-0.18" V.tb = E"@gstn+0.22"
+    if R.fine == U then vmottle(R.gsxl, R.gsyl, R.gsxh, R.gsyh, 7, K"0.1", R.ta, R.tb, 10)
+    else vmottle(R.gsxl, R.gsyl, R.gsxh, R.gsyh, 3, K"0.1", R.ta, R.tb, 0) end
+    if L.xtr("shellbands") > 0 then
+      vtone("flo@c", K"0.06") V.gsls = E"max(0,1-2.5/@gsn)"
+      loop("#Wa", 1, function() return L.xtr("shellbands") // U end, function()
+        V.gsf = E"1-#Wa/(@x@shellbands+1)*(1-1/@gsE)" L.gsline(R.gsf, R.gsls, 41)
+        V.stw = E"0.32*@gsR/(@x@shellbands+1)"
+        vstreak(41, K"0.003", R.stw, "flo@c", K"0.55")
+      end)
+    end
+    V.t = E"0.07*@gsu*28.3465" vtone("flo@c", K"0.05")
+    vstroke("flo@c", R.t, K"0.6", 1, function() L.gsline(K"0.84", 0, I("gsm")) T.smoothopen(I("gsm")) end)
+    V.t = E"0.05*@gsu*28.3465"
+    vstroke("white", R.t, K"0.75", 0, function() L.gsline(U, 0, I("gsm")) T.smoothopen(I("gsm")) end)
+    if L.xtr("lip") == U then
+      loop("#Wa", 0, 4, function()
+        V.gst = E"1-(4-#Wa)*0.03/@gsn" L.gsspiral(R.gst, K"0.97") put(R["#Wa"] + 1, R.xa, R.ya)
+      end)
+      vstreak(5, K"0.03", K"0.08", "white", K"0.85")
+    end
+    vtone("flo@c", K"0.05") V.t = E"0.12*@gsu*28.3465" vstroke("flo@c", R.t, K"0.5", 1, function() kept("gsd") end)
+  end)
+end
+-- \flo@snail: a snail, size its shell's width on the page in pt (sp)
+function L.snail(size)
+  V.gsu = E("(%1)/28.45276", { size })
+  if R.gsu > K"0.25" then V.fine = U else V.fine = 0 end
+  V.gsx = L.xtr("extension") V.gsground = L.xtr("ground")
+  V.gstn = E"@x@tone-0.06"
+  if R.gsground == "pale" then V.gstn = E"min(0.72,@gstn+0.25)" end
+  scope(function()
+    V.t = L.xtr("hand")
+    if R.t == "sinistral" then L.xscale(-U) end
+    scope(function() V.rampname = "flo@ramp" L.gsbody() L.gsfeelers() end)
+    if R.gsground == "copper" then V.rampname = "flo@aramp" end
+    L.gsshell()
+  end)
+end
+-- birds (\flo@bird)
+L.AVF = { "0.12", "0.35", "0.6", "0.82", "0.95" }
+function L.avfeather(len)
+  put(1, 0, 0) V.ya = E("%1", { len }) put(7, 0, R.ya)
+  loop("#Wb", 1, 5, function()
+    V.v = K(L.AVF[R["#Wb"]])
+    V.xa = E"0.055*pow(sin(180*pow(@v,0.4)),0.6)" V.xb = E"-@xa" V.ya = E("@v*(%1)", { len })
+    put(R["#Wb"] + 1, R.xa, R.ya) put(13 - R["#Wb"], R.xb, R.ya)
+  end)
+  smoothprep(12)
+end
+function L.avbodypt(i, x, y)
+  V.t = sym(K"0.012") V.xa = E("%1+@t", { K(x) }) V.t = sym(K"0.012") V.ya = E("%1+@t", { K(y) })
+  put(i, R.xa, R.ya)
+end
+L.AVBODY = { { "0.37", "0.56" }, { "0.3", "0.665" }, { "0.15", "0.64" }, { "-0.03", "0.54" }, { "-0.22", "0.4" },
+  { "-0.31", "0.3" }, { "-0.27", "0.22" }, { "-0.08", "0.12" }, { "0.12", "0.12" }, { "0.27", "0.27" },
+  { "0.35", "0.42" } }
+function L.avbody()
+  V.avlw = E"max(0.3,0.3*@avu)"
+  loop("#Wa", 1, 4, function()
+    V.t = E"@x@tail-0.03" V.v = E"@x@tail+0.03" V.avL = range(R.t, R.v)
+    V.t = range(-150 * U, -140 * U) V.ava = E"@t+@avfan*#Wa-90"
+    scope(function()
+      shift(K"-0.26", K"0.28") rotate(R.ava)
+      L.avfeather(R.avL) keep("avf")
+      V.t = E"0.12+0.05*#Wa" vtone("flo@c", R.t) vfill("flo@c", U, 0, function() kept("avf") end)
+      vtone("flo@c", K"0.05") vstroke("flo@c", R.avlw, K"0.5", 0, function() kept("avf") end)
+    end)
+  end)
+  for i, p in ipairs(L.AVBODY) do L.avbodypt(i, p[1], p[2]) end
+  smoothprep(11) keep("avb")
+  vtone("flo@c", R.avt) vfill("flo@c", U, 0, function() kept("avb") end)
+  scope(function()
+    kept("avb") usepath("clip")
+    loop("#Wa", 1, 4, function()
+      V.xa = E"0.08+0.04*#Wa" V.ya = E"0.06+0.03*#Wa"
+      vblob(K"0.17", K"0.27", R.xa, R.ya, K"0.2", 9) vfill("white", K"0.2", 0, smoothpath)
+    end)
+    V.ta = E"@avt-0.2" V.tb = E"@avt+0.2"
+    if R.fine == U then vmottle(K"-0.35", K"0.1", K"0.4", K"0.7", 10, K"0.07", R.ta, R.tb, 10)
+    else vmottle(K"-0.35", K"0.1", K"0.4", K"0.7", 4, K"0.07", R.ta, R.tb, 0) end
+    if R.avk == "hummingbird" then
+      vblob(K"0.3", K"0.47", K"0.075", K"0.05", K"0.15", 8) vaccent("flo@c", 0) vfill("flo@c", K"0.85", 0, smoothpath)
+      if R.fine == U then
+        vblob(K"0.31", K"0.49", K"0.03", K"0.016", K"0.2", 7) vfill("white", K"0.5", 0, smoothpath)
+      end
+    elseif R.fine == U then
+      vtone("flo@c", K"0.1")
+      vfill("flo@c", K"0.7", 0, function()
+        loop("#Wa", 1, 14, function()
+          V.xa = range(K"0.08", K"0.3") V.ya = range(K"0.16", K"0.42") V.t = range(-20 * U, 20 * U)
+          V.xb = E"0.012*cos(@t)" V.yb = E"0.012*sin(@t)" V.xc = E"-0.022*sin(@t)" V.yc = E"0.022*cos(@t)"
+          L.pellipse(R.xa, R.ya, R.xb, R.yb, R.xc, R.yc)
+        end)
+      end)
+    end
+    vblob(K"0.24", K"0.66", K"0.15", K"0.08", K"0.1", 9) vtone("flo@c", K"0.08") vfill("flo@c", K"0.6", 1, smoothpath)
+    vtone("flo@c", K"0.05") V.t = E"0.07*@avu*28.3465" vstroke("flo@c", R.t, K"0.5", 1, function() kept("avb") end)
+  end)
+end
+L.AVWING = { { "0.17", "0.47" }, { "0.04", "0.52" }, { "-0.12", "0.45" }, { "-0.28", "0.33" }, { "-0.44", "0.22" },
+  { "-0.35", "0.23" }, { "-0.38", "0.19" }, { "-0.26", "0.21" }, { "-0.28", "0.17" }, { "-0.12", "0.23" },
+  { "0.05", "0.31" }, { "0.15", "0.4" } }
+function L.avwing()
+  for i, p in ipairs(L.AVWING) do put(i, K(p[1]), K(p[2])) end
+  smoothprepT(12, K"0.8") keep("avw")
+  V.avtw = E"@avt-0.1"
+  vtone("flo@c", R.avtw) vfill("flo@c", U, 0, function() kept("avw") end)
+  scope(function()
+    kept("avw") usepath("clip")
+    V.ta = E"@avtw-0.15" V.tb = E"@avtw+0.2"
+    vmottle(K"-0.45", K"0.15", K"0.2", K"0.6", R.fine == U and 6 or 3, K"0.07", R.ta, R.tb, 0)
+    V.twa = K"0.025" V.twb = K"0.003"
+    loop("#Wa", 1, 5, function()
+      V.ya = E"0.28+0.04*#Wa"
+      V.yb = E"@ya+0.05" V.yc = E"@ya+0.03" V.yd = E"@ya-0.03"
+      V.xe = E"-0.3-0.02*#Wa" V.ye = E"@ya-0.1-0.01*#Wa"
+      V.t = range(K"0.45", K"0.7")
+      vfill("white", R.t, 0, function() vtaper(K"0.12", R.yb, 0, R.yc, K"-0.15", R.yd, R.xe, R.ye) end)
+    end)
+    vtone("flo@c", K"0.04") V.t = E"0.06*@avu*28.3465" vstroke("flo@c", R.t, K"0.5", 1, function() kept("avw") end)
+  end)
+end
+L.AVHOVER = { { "0", "0.02" }, { "0.12", "0.07" }, { "0.32", "0.085" }, { "0.5", "0.05" }, { "0.56", "0" },
+  { "0.48", "-0.03" }, { "0.28", "-0.045" }, { "0.08", "-0.03" } }
+function L.avhover()
+  for i, p in ipairs(L.AVHOVER) do put(i, K(p[1]), K(p[2])) end
+  smoothprep(8) keep("avh") V.avtw = E"@avt-0.1"
+  loop("#Wa", 1, 3, function()
+    scope(function()
+      V.t = E"70+25*#Wa" shift(K"0.06", K"0.5") rotate(R.t)
+      vtone("flo@c", R.avtw)
+      if R["#Wa"] == 2 then
+        vfill("flo@c", K"0.4", 0, function() kept("avh") end)
+        vtone("flo@c", K"0.05") vstroke("flo@c", R.avlw, K"0.4", 0, function() kept("avh") end)
+      else vfill("flo@c", K"0.18", 0, function() kept("avh") end) end
+    end)
+  end)
+end
+function L.avcrest()
+  V.twa = K"0.03" V.twb = K"0.004"
+  vtone("flo@c", K"0.1")
+  vfill("flo@c", U, 0, function()
+    loop("#Wa", 1, 4, function()
+      V.avL = range(K"0.08", K"0.12")
+      V.xa = E"0.26-0.04*#Wa" V.ya = E"0.65-0.01*#Wa" V.t = E"140+8*#Wa"
+      V.xd = E"@xa+@avL*cos(@t)" V.yd = E"@ya+@avL*sin(@t)"
+      L.lgseg(R.xa, R.ya, R.xd, R.yd)
+    end)
+  end)
+end
+function L.avbill()
+  V.t = L.xtr("bill") vtone("flo@c", K"0.05")
+  if R.t == "conical" then
+    vfill("flo@c", U, 0, function()
+      moveto(K"0.355", K"0.585") lineto(K"0.47", K"0.545") lineto(K"0.36", K"0.51") closepath()
+    end)
+    vstroke("white", K"0.2", K"0.6", 0, function() moveto(K"0.36", K"0.548") lineto(K"0.45", K"0.546") end)
+  end
+  if R.t == "straight" then
+    vfill("flo@c", U, 0, function()
+      moveto(K"0.35", K"0.575") lineto(K"0.69", K"0.55") lineto(K"0.352", K"0.538") closepath()
+    end)
+  end
+  if R.t == "curved" then
+    V.twa = K"0.036" V.twb = K"0.006"
+    vfill("flo@c", U, 0, function()
+      vtaper(K"0.35", K"0.556", K"0.46", K"0.562", K"0.58", K"0.535", K"0.66", K"0.475")
+    end)
+  end
+end
+-- \flo@bird: a bird, size its length on the page in pt (sp)
+function L.bird(size)
+  V.avu = E("(%1)/28.45276", { size })
+  if R.avu > K"0.3" then V.fine = U else V.fine = 0 end
+  V.avk = L.xtr("kind") V.avpose = L.xtr("pose") V.avground = L.xtr("ground")
+  V.avt = L.xtr("tone")
+  if R.avground == "dark" then V.avt = E"@avt-0.12" end
+  if R.avground == "copper" then V.rampname = "flo@aramp" end
+  V.avfan = 7 * U
+  scope(function()
+    if R.avpose == "hover" then
+      V.avfan = 14 * U
+      shift(K"0.05", K"0.35") rotate(22 * U) shift(K"-0.05", K"-0.35")
+    end
+    L.avbody()
+    if L.xtr("crest") == U then L.avcrest() end
+    if R.avpose == "hover" then L.avhover() else L.avwing() end
+    L.avbill()
+    vfill("white", K"0.95", 0, function() circle(K"0.285", K"0.585", K"0.03") end)
+    vtone("flo@c", K"0.03") vfill("flo@c", U, 0, function() circle(K"0.29", K"0.585", K"0.018") end)
+    vfill("white", U, 0, function() circle(K"0.284", K"0.592", K"0.006") end)
+    if R.avpose ~= "hover" then
+      V.t = E"max(0.4,0.3*@avu)" vtone("flo@c", K"0.06")
+      vstroke("flo@c", R.t, U, 0, function()
+        moveto(K"0.02", K"0.14") lineto(0, 0) moveto(K"-0.05", 0) lineto(K"0.05", K"0.005")
+        moveto(K"0.1", K"0.14") lineto(K"0.08", 0) moveto(K"0.03", 0) lineto(K"0.13", K"0.005")
+      end)
+    end
+  end)
+end
 -- \flo@visitor: a visitor of the kind last drawn, size on the page in pt (sp)
 function T.visitor(size)
   V.vg = L.xtr("group")
@@ -5013,6 +5540,9 @@ function T.visitor(size)
   if R.vg == "fly" then scale(size) L.bee(size) end
   if R.vg == "odonate" then scale(size) L.odo(size) end
   if R.vg == "beetle" then scale(size) L.beetle(size) end
+  if R.vg == "larva" then scale(size) L.caterpillar(size) end
+  if R.vg == "snail" then scale(size) L.snail(size) end
+  if R.vg == "bird" then scale(size) L.bird(size) end
 end
 function T.visitorsetup(o)
   L.florilegiumvisitor(o.seed, o.role or "any")

@@ -18,7 +18,8 @@
 --   plants whose leaves come in crossed pairs or sheathe the stem, the v1.3 pics, a plant in three
 --   seasons, butterflies and moths of every wing, pattern, ground, pose and feeler, bees
 --   and hoverflies of every kind, ground and pose, dragonflies, damselflies, beetles and
---   ladybirds of every ground, pose, tint and pattern; full:
+--   ladybirds of every ground, pose, tint and pattern, caterpillars, snails and birds of
+--   every pose, ground, shell and bill; full:
 --   also two strips of three plants, as specimen-tikz.tex draws them, several minutes in
 --   pure TikZ; fern: the ferns alone; visitors: the visitors alone)
 package.path = "./?.lua;" .. package.path
@@ -235,7 +236,10 @@ if arg[1] == "draw" then
   -- bands and a pale tail; hoverflies resting and hovering; dragonflies of each ground and
   -- tint, with and without the stigma and rings; damselflies folded and spread; beetles
   -- plain, striped and spotted, of each ground and feeler; ladybirds red and black, with
-  -- 0, 7, 14 and 22 spots; small ones, drawn simpler
+  -- 0, 7, 14 and 22 spots; caterpillars of each pose, stripe, ground, with tufts or a horn;
+  -- snails coiled either way, high- and low-spired, banded and plain, with and without a
+  -- lip; seed-eaters with and without a crest, nectar birds hovering and perched with each
+  -- bill; small ones, drawn simpler
   local vseen = {}
   for _, w in ipairs({
       { "butterfly", function(v) return v.apex == "rounded" and v.wingedge == "smooth" and v.pose == "open" end },
@@ -286,7 +290,24 @@ if arg[1] == "draw" then
       { "ladybird", function(v) return v.ground == "dark" and v.spots > 0 end },
       { "ladybird", function(v) return v.spots == 22 end },
       { "ladybird", function(v) return v.spots == 14 end },
-      { "ladybird", function(v) return v.spots == 0 end } }) do
+      { "ladybird", function(v) return v.spots == 0 end },
+      { "caterpillar", function(v) return v.pose == "straight" and v.stripes == "side" and v.horn == 1 end },
+      { "caterpillar", function(v) return v.pose == "loop" and v.stripes == "none" end },
+      { "caterpillar", function(v) return v.pose == "curl" and v.tufts == 1 end },
+      { "caterpillar", function(v) return v.stripes == "back" and v.tufts == 1 and v.horn == 0 end },
+      { "caterpillar", function(v) return v.ground == "copper" and v.pose == "straight" end },
+      { "caterpillar", function(v) return v.ground == "pale" and v.pose == "loop" end },
+      { "snail", function(v) return v.hand == "sinistral" end },
+      { "snail", function(v) return v.spire > 1 and v.shellbands == 5 and v.lip == 1 end },
+      { "snail", function(v) return v.spire < 0.3 and v.shellbands == 0 end },
+      { "snail", function(v) return v.ground == "copper" and v.shellbands > 0 end },
+      { "snail", function(v) return v.ground == "pale" and v.expansion > 2.8 end },
+      { "perch", function(v) return v.crest == 1 end },
+      { "perch", function(v) return v.ground == "dark" end },
+      { "perch", function(v) return v.ground == "copper" end },
+      { "hummingbird", function(v) return v.pose == "hover" and v.bill == "curved" end },
+      { "hummingbird", function(v) return v.pose == "perch" and v.bill == "straight" end },
+      { "hummingbird", function(v) return v.pose == "hover" and v.ground == "copper" and v.crest == 1 end } }) do
     local seed = 1
     while vseen[w[1] .. seed] or not w[2](species.vsample(seed, w[1])) do seed = seed + 1 end
     vseen[w[1] .. seed] = true
@@ -300,6 +321,9 @@ if arg[1] == "draw" then
   pic("florilegium visitor={seed=5, role=damselfly, size=0.8cm}")
   pic("florilegium visitor={seed=4, role=beetle, size=0.22cm}")
   pic("florilegium visitor={seed=6, role=ladybird, size=0.2cm}")
+  pic("florilegium visitor={seed=7, role=caterpillar, size=0.6cm}")
+  pic("florilegium visitor={seed=9, role=snail, size=0.2cm}")
+  pic("florilegium visitor={seed=11, role=hummingbird, size=0.25cm}")
   end
   if not fernonly and not visonly then
   for _, s in ipairs({ "0.15", "0.75", "1.3" }) do
