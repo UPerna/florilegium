@@ -319,7 +319,7 @@ M.last_captions, M.last_stats = nil, nil
 
 local function grown_frame(g)
   local key = string.format("%d %d %.3f %s %d %s %s %s %s", g.seed, g.spill, g.spilly, tostring(g.age), #g.marks, tostring(g.theme),
-    tostring(g.mirror), tostring(g.density))
+    tostring(g.mirror), tostring(g.density), tostring(g.docseed))
   if not recorded[key] then
     g.anim = true
     recorded = { [key] = require("florilegium-grow").page(g) }      -- keep only the latest garden
