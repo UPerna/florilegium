@@ -38,6 +38,8 @@ jobs:
             python3 tools/scene_oracle.py &&
             texlua tools/plannercheck.lua &&
             python3 tools/planner_oracle.py &&
+            texlua tools/botanicalcheck.lua --legacy-layout &&
+            python3 tools/botanical_oracle.py &&
             texlua tools/layoutcheck.lua &&
             texlua tools/spacecheck.lua &&
             texlua tools/initialcheck.lua &&
@@ -58,6 +60,7 @@ jobs:
             specimen.pdf
             build/scenes/
             build/planner/
+            build/botanical/
 
   portable:
     runs-on: ubuntu-latest
@@ -78,7 +81,8 @@ jobs:
             python3 tools/visualcheck.py &&
             python3 tools/foliopreview.py &&
             python3 tools/build.py folio-demo.tex --engine xe --output-dir build/xe &&
-            python3 tools/packagecheck.py
+            python3 tools/packagecheck.py &&
+            python3 tools/botanical_enginecheck.py
       - name: make container build evidence readable
         if: always()
         run: sudo chmod -R a+rX build
@@ -90,6 +94,7 @@ jobs:
             build/xe/folio-demo.pdf
             gallery/folio-guide.png
             gallery/folio-labels.png
+            build/botanical-engine-*/receipt.json
       - name: preserve portable failure evidence
         if: failure()
         uses: actions/upload-artifact@v4
@@ -98,6 +103,7 @@ jobs:
           path: |
             build/engine-check-*/
             build/offset-check/
+            build/botanical-engine-*/
           if-no-files-found: ignore
 
   gallery:

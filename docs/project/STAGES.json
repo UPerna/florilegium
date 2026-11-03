@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_stage": "07",
+  "current_stage": "08",
   "prompt_sha256": "8D25740D944FC98943FD005737BD825215CFCF6F894218790E140EDE8EE3F09E",
   "stages": [
     {
@@ -215,7 +215,7 @@
     {
       "id": "07",
       "title": "document-aware planning and views",
-      "status": "in_progress",
+      "status": "passed",
       "prerequisites": "06",
       "acceptance_items": [
         "the same world-anchored tiling viewed in two overlapping regions agrees in the overlap; a changed page crop does not regenerate unrelated interior geometry; flowers still adapt to permitted space; protected ink regions are clear; views preserve traceability to source semantic objects. Demonstrate both a standalone panel and a two-page document with independently checked physical coordinates."
@@ -228,7 +228,10 @@
         "Current scene and planner PDF/SVG pairs visually inspected locally; strict protected ROIs white; real two-page PDF matches individual page geometry",
         "Required exact-head Linux Inkscape/both-host CI, publication verification and fresh CI visual review remain pending",
         "Final source 5be36b4338c117ecb388de4c7832d7db7173decd0b3954a150940308007a99c6: both Lua5.3/5.4 passed61 contracts,145 replay,91 geometry,56 scenes and82 planner checks.",
-        "Current-source independent geometry and planner oracles passed, including actual recipe replay, protected ink, physical coordinates and overlap. Current floral images visually inspected."
+        "Current-source independent geometry and planner oracles passed, including actual recipe replay, protected ink, physical coordinates and overlap. Current floral images visually inspected.",
+        "Independent normal Git fetched publication:33 intended files and196 inherited object IDs/modes verified; complete history bundle/source ZIP saved;223 local source-kit hashes passed.",
+        "Exact-head CI41692959075 both required jobs passed; native82 planner/56 scene/91 geometry/145 replay/61 contract gates and223 source-kit hashes/extracted LuaXe builds passed.",
+        "Native Inkscape/Poppler oracle passed; actual12 PDF/SVG bytes equal local; fresh native view/floral contact sheets visually inspected."
       ],
       "evidence_paths": [
         "docs/architecture/DOCUMENTS.md",
@@ -240,25 +243,41 @@
         "docs/validation/fixtures/scene-v1-digests.json",
         "artifacts/receipts/07/"
       ],
-      "tested_code_revision": "source digest 5be36b4338c117ecb388de4c7832d7db7173decd0b3954a150940308007a99c6; parent76cc324; publication/CI pending",
-      "local_commit": null,
-      "verified_remote_revision": null,
-      "next_action": "Guarded publication expected76cc324; independently fetch and verify all bytes/tree/history; exact-head both-host CI and fresh CI image review before08."
+      "tested_code_revision": "e5a7b99140e95a6e70a425e0605c89688468c2e3",
+      "local_commit": "e5a7b99140e95a6e70a425e0605c89688468c2e3",
+      "verified_remote_revision": "e5a7b99140e95a6e70a425e0605c89688468c2e3",
+      "next_action": "Stage08 botanical compatibility migration"
     },
     {
       "id": "08",
       "title": "migrate and extend the botanical generator safely",
-      "status": "pending",
+      "status": "in_progress",
       "prerequisites": "07",
       "acceptance_items": [
         "old examples and QC remain passing through both legacy and new entry points; chosen default path comparisons hold; independent crop checks find no new clipping; new semantic instances serialize/replay; the new nonrectangular example is structurally validated and visually inspected. Explain any unavoidable compatibility differences with measured evidence before marking the stage passed."
       ],
-      "observed_results": null,
-      "evidence_paths": null,
-      "tested_code_revision": null,
+      "observed_results": [
+        "Isolated work/stage08 created at verified07 e5a7b99140e95a6e70a425e0605c89688468c2e3; previous dirty worktrees untouched.",
+        "Both local Lua runtimes passed observed/unobserved authored and grown neutral bytes; valid scenes/PDF and exception restoration.",
+        "Named convex asymmetric panel implemented; actual planner recipe generated7 connected motifs/14resources; independent Fraction/80digit Decimal checked1290 whole-paint envelopes, region/protected containment, attachments/tangents, occupancy, finite termination and dualruntimebyteequality.",
+        "First image showed capped-score tie bias; corrected selection uses uncapped free clearance; revised image visually reviewed. Current palette snapshot/drop-in entrypoint and strengthened validator require fresh tests.",
+        "Wrapped layout passed28 checks and12 actual observed pages in each Lua5.3/Lua5.4; all pinned upstream drawing fingerprints retained.",
+        "Complete-capture/segmented shared PDF smoke passed both Lua runtimes; full-quality bounded block guard replaces the rejected monolithic watercolor graph without loosening limits.",
+        "Formal conformance scripts and actual Lua/Xe example parity wired; local final suite running and native acceptance unrun.",
+        "Current exact-source Lua5.3/Lua5.4 both passed61contract/145replay/91geometry/56scene/82planner/18botanical, with12 identical actual output files and18 max-size probes.",
+        "Independent 645 exact/Decimal paint-envelope checks and masked/unmasked pixel equality passed. Actual original/shared native authored/grown raster bounds identical; tiny measured mean channel differences. Current PDF/SVG visual pairs reviewed."
+      ],
+      "evidence_paths": [
+        "docs/architecture/BOTANICAL.md",
+        "tools/botanicalcheck.lua",
+        "tools/botanical_oracle.py",
+        "tools/botanical_enginecheck.py",
+        "artifacts/receipts/08/"
+      ],
+      "tested_code_revision": "working source 17d56eb5b00671d8b1e34fa44eeeef32e2a80ba095674851dd0c5e4205814f11; parent e5a7b99; exact-head CI pending",
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+      "next_action": "Guarded atomic publication expected e5a7b99, independent Git bytes/tree verification and exact-head required native checks plus fresh visual review."
     },
     {
       "id": "09",
@@ -382,7 +401,7 @@
     },
     {
       "id": "17",
-      "title": "Ammann\u00e2\u20ac\u201cBeenker and projection/multigrid generation",
+      "title": "Ammannâ€“Beenker and projection/multigrid generation",
       "status": "pending",
       "prerequisites": "16",
       "acceptance_items": [

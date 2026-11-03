@@ -22,6 +22,8 @@ check:
 	$(RUN) python3 tools/scene_oracle.py
 	$(RUN) texlua tools/plannercheck.lua
 	$(RUN) python3 tools/planner_oracle.py
+	$(RUN) texlua tools/botanicalcheck.lua --legacy-layout
+	$(RUN) python3 tools/botanical_oracle.py
 	$(RUN) texlua tools/layoutcheck.lua
 	$(RUN) texlua tools/spacecheck.lua
 	$(RUN) texlua tools/initialcheck.lua
@@ -29,6 +31,9 @@ check:
 	$(RUN) python3 tools/layoutsmoke.py
 	$(RUN) python3 tools/bookcheck.py
 	$(RUN) texlua tools/animcheck.lua $(CHECK_SEEDS)
+
+botanical-engine-check:
+	$(RUN) python3 tools/botanical_enginecheck.py
 
 engine-check:
 	$(RUN) python3 tools/enginecheck.py
@@ -124,4 +129,4 @@ preview: florilegium.pdf florilegium-grow.pdf showcase.pdf
 clean:
 	rm -rf build *.aux *.log *.out *.synctex.gz
 
-.PHONY: all check engine-check offset-check folio-preview xe source-package export-check visual-check book-preview layout-preview gallery animation preview postscript clean
+.PHONY: all check botanical-engine-check engine-check offset-check folio-preview xe source-package export-check visual-check book-preview layout-preview gallery animation preview postscript clean

@@ -136,7 +136,9 @@ local function build_ramp()
 end
 
 -- set the hue from the document color `ink` (r,g,b in 0..1)
+local ink_rgb
 function M.set_ink(r, g, b)
+  ink_rgb={r,g,b}
   local _, C, h = rgb_to_oklch(r, g, b)
   hue, chroma_k = h, math.max(0.15, math.min(1.3, C / REF_C))
   build_ramp()
@@ -247,6 +249,7 @@ local function put(s, neutral)
   b[#b + 1] = s
   if capture then
     assert(neutral~=nil,"unrepresented operation in neutral ink capture")
+    if neutral.op=="path" and capture.semantic_ref then neutral.semantic_ref=capture.semantic_ref() end
     vector_layers[cur]=vector_layers[cur] or {};vector_layers[cur][#b]=neutral
   end
   if recording then tags[cur][#b] = tag end
@@ -370,6 +373,9 @@ local color_mode = "color"
 function M.set_color_mode(mode)
   assert(mode=="color" or mode=="mono", "invalid color mode")
   color_mode=mode
+end
+function M.palette_snapshot()
+  return {ink={ink_rgb[1],ink_rgb[2],ink_rgb[3]},accent={accent[1],accent[2],accent[3]},lift=lift,color_mode=color_mode}
 end
 local function rgb(c, stroke)
   local r,g,b=c[1],c[2],c[3]
@@ -611,13 +617,15 @@ M.CM = CM
 -- Capture the existing primitive mathematics as neutral cm operations. The
 -- temporary sink/state is restored even when the callback fails. This is a
 -- primitive bridge, not a migration of page growth or animation semantics.
-function M.capture(fn)
+function M.capture(fn, options)
   assert(type(fn)=="function" and not capture,"capture requires a callback and cannot nest")
+  options=options or {};for key in pairs(options)do assert(key=="semantic_ref","unsupported capture option "..tostring(key))end
+  assert(options.semantic_ref==nil or type(options.semantic_ref)=="function","capture semantic source must be a callback")
   local saved={T=T,stack=stack,layers=layers,cur=cur,tags=tags,tag=tag,recording=recording,
     page_transform=page_transform,page_clip=page_clip,element_bounds=element_bounds,
     path=path,backend=M.backend,gs_known=gs_known,color_mode=color_mode,ramp=ramp,
-    hue=hue,chroma_k=chroma_k,lift=lift,accent=accent,accent_ramp=accent_ramp,accent_key=accent_key}
-  capture={operations={}};vector_layers,vector_path,vector_points={},{},{}
+    hue=hue,chroma_k=chroma_k,lift=lift,accent=accent,accent_ramp=accent_ramp,accent_key=accent_key,ink_rgb=ink_rgb}
+  capture={operations={},semantic_ref=options.semantic_ref};vector_layers,vector_path,vector_points={},{},{}
   T,stack,layers,cur,tags,tag,recording={CM,0,0,CM,0,0},{},{},5,{},nil,false
   page_transform,page_clip,element_bounds,path=nil,nil,nil,{}
   M.backend={literal=function()end,extgs=function()end};gs_known={}
@@ -636,6 +644,7 @@ function M.capture(fn)
   page_transform,page_clip,element_bounds,path=saved.page_transform,saved.page_clip,saved.element_bounds,saved.path
   M.backend,gs_known,color_mode=saved.backend,saved.gs_known,saved.color_mode
   ramp,hue,chroma_k,lift,accent,accent_ramp,accent_key=saved.ramp,saved.hue,saved.chroma_k,saved.lift,saved.accent,saved.accent_ramp,saved.accent_key
+  ink_rgb=saved.ink_rgb
   capture,vector_layers,vector_path,vector_points=nil,nil,nil,nil
   assert(ok,err)
   return operations,{operation="ink-neutral-capture-v1",unit="cm",coordinate_quantization_bp=0.1,color_digits=3,stroke_width_digits=2,count=#operations}

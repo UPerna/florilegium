@@ -12,32 +12,62 @@ end
 function M.plan(scene,x,v,d)
   scene=P.scene(P.plain(scene),x,v,d)
   local out={version=M.VERSION,unit="cm",bounds=P.plain(scene.clip.bounds),operations=P.array(),fonts=P.array(),text=P.array(),reading_order=scene.reading_order and P.plain(scene.reading_order) or P.array()}
+  local segmented=scene.extensions and scene.extensions.render_profile=="segmented-ops-v1"
+  local count,bytes=0,0
+  if segmented then out.operation_segments=P.array()end
+  local function block()
+    if #out.operations==0 then return end
+    local data=P.serialize(out.operations);bytes=bytes+#data
+    assert(#data<=2*1024*1024 and bytes<=64*1024*1024,"segmented render plan byte budget exceeded")
+    out.operation_segments[#out.operation_segments+1]=data;out.operations=P.array()
+  end
+  local function emit(op)
+    out.operations[#out.operations+1]=op
+    if segmented then
+      count=count+1;assert(count<=100000,"segmented render plan operation budget exceeded")
+      if #out.operations==32 then block()end
+    end
+  end
   local resources,runs={},{}
   for _,r in ipairs(scene.resources)do resources[r.id]=r;if r.kind=="font"then out.fonts[#out.fonts+1]=P.plain(r)end end
-  local function clip(commands,rule,m)out.operations[#out.operations+1]={op="push_clip",commands=transformed(commands,m or identity),fill_rule=rule}end
+  local function clip(commands,rule,m)emit({op="push_clip",commands=transformed(commands,m or identity),fill_rule=rule})end
   clip(rect(out.bounds),"nonzero")
   -- Intersect separate complements: overlapping reservations remove their union.
   for _,r in ipairs(scene.clip.protected_regions)do local c=rect(out.bounds);append(c,rect(r.bounds));clip(c,"evenodd")end
   local function lower(ops,parent,source)
     for _,o in ipairs(ops)do
       local matrix=G.compose(parent,o.transform or identity)
-      if o.op=="path"then out.operations[#out.operations+1]={op="path",commands=P.plain(o.commands),paint=P.plain(o.paint),transform=matrix,semantic_ref=source or o.semantic_ref}
+      if o.op=="path"then emit({op="path",commands=P.plain(o.commands),paint=P.plain(o.paint),transform=matrix,semantic_ref=source or o.semantic_ref})
       elseif o.op=="push_clip"then clip(o.commands,o.fill_rule,matrix)
-      elseif o.op=="pop_clip"then out.operations[#out.operations+1]={op="pop_clip"}
+      elseif o.op=="pop_clip"then emit({op="pop_clip"})
       elseif o.op=="symbol"then lower(D.asset(resources[o.resource_ref]).operations,matrix,o.semantic_ref)
       elseif o.op=="text"then
         local font=resources[o.font_ref];local glyphs={};for _,g in ipairs(font.glyphs)do glyphs[g.id]=g end
         for _,p in ipairs(o.glyphs)do local k=o.size/font.units_per_em;local gm=G.compose(matrix,{k,0,0,k,o.origin[1]+p.offset[1],o.origin[2]+p.offset[2]})
-          if #glyphs[p.glyph_ref].commands>0 then out.operations[#out.operations+1]={op="path",semantic_ref=o.semantic_ref,commands=P.plain(glyphs[p.glyph_ref].commands),paint=P.plain(o.paint),transform=gm}end
+          if #glyphs[p.glyph_ref].commands>0 then emit({op="path",semantic_ref=o.semantic_ref,commands=P.plain(glyphs[p.glyph_ref].commands),paint=P.plain(o.paint),transform=gm})end
         end
         runs[o.semantic_ref]=P.plain(o)
       end
     end
   end
   lower(scene.operations,identity)
-  for _=1,1+#scene.clip.protected_regions do out.operations[#out.operations+1]={op="pop_clip"}end
+  for _=1,1+#scene.clip.protected_regions do emit({op="pop_clip"})end
   for _,id in ipairs(out.reading_order)do assert(runs[id],"missing logical run");out.text[#out.text+1]=runs[id]end
+  if segmented then block();out.operations=nil;out.operation_count=count end
   return P.snapshot(out)
+end
+function M.operations(plan)
+  local i,j,total,part=0,0,0,nil
+  if plan.operations then return function()i=i+1;return plan.operations[i]end end
+  local segments=assert(plan.operation_segments,"missing render plan operations")
+  assert(#segments<=3125,"segmented plan block count exceeds profile")
+  return function()
+    if not part or j==#part then
+      i=i+1;if not segments[i]then assert(total==plan.operation_count,"segmented plan count mismatch");return nil end
+      part=require("pattern_parse").decode(segments[i]);assert(#part>0 and #part<=32,"invalid segmented plan block");j=0
+    end
+    j=j+1;total=total+1;return part[j]
+  end
 end
 local function path(commands,pdf)
   local out={};local names={M="m",L="l",C="c",Z="h"}
@@ -52,7 +82,7 @@ end
 function M.svg(plan)
   local b=plan.bounds;local w,h=b[3]-b[1],b[4]-b[2];local defs,out={},{}
   local index,clips=0,{}
-  for _,o in ipairs(plan.operations)do
+  for o in M.operations(plan)do
     if o.op=="push_clip"then
       index=index+1;defs[#defs+1]='<clipPath clipPathUnits="userSpaceOnUse" id="c'..index..'"><path clip-rule="'..o.fill_rule..'" d="'..path(o.commands,false)..'"/></clipPath>'
       clips[#clips+1]=index
@@ -104,7 +134,7 @@ function M.pdf_document(plans)
     return '/'..gs[key]..' gs'
   end
   local b=plan.bounds;local k=72/2.54;local content={'q',nums({k,0,0,k,-b[1]*k,-b[2]*k})..' cm'}
-  for _,o in ipairs(plan.operations)do
+  for o in M.operations(plan)do
     if o.op=="push_clip"then append(content,{'q',path(o.commands,true),o.fill_rule=="evenodd" and 'W* n' or 'W n'})
     elseif o.op=="pop_clip"then content[#content+1]='Q'
     elseif o.op=="path"then

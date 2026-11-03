@@ -282,7 +282,7 @@ function M.lower(registry,id,instance,d,planned,style,context)
     local requirements=planned.decisions.requirements;local report={status="passed",stroke_scope="explicit stroke paints; filled-feature thickness is not certified"}
     if requirements.minimum_stroke or requirements.minimum_text_size then
       local rendered=require("pattern_render").plan(scene,instance,v,d);local minimum,minimum_lower,minimum_upper=math.huge,math.huge,math.huge
-      for _,o in ipairs(rendered.operations)do if o.op=="path" and o.paint.stroke and (o.paint.opacity or 1)>0 then
+      for o in require("pattern_render").operations(rendered)do if o.op=="path" and o.paint.stroke and (o.paint.opacity or 1)>0 then
         local scale,error=minimum_scale(o.transform);minimum=math.min(minimum,o.paint.stroke_width*scale);minimum_lower=math.min(minimum_lower,o.paint.stroke_width*math.max(0,scale-error));minimum_upper=math.min(minimum_upper,o.paint.stroke_width*(scale+error))
       end end
       if minimum<math.huge then report.minimum_stroke=minimum end

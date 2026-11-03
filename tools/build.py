@@ -44,7 +44,7 @@ def complete_pdf(path, logfile):
     raise RuntimeError(f"Compiler reported success but its PDF is missing or incomplete: {path}; see {logfile}")
 
 
-def build(source, engine="lua", output_dir=None, job_name=None, max_passes=6):
+def build(source, engine="lua", output_dir=None, job_name=None, max_passes=6, botanical_contracts=False):
     source = Path(source).resolve()
     if not source.is_file():
         raise ValueError(f"Source not found: {source}")
@@ -69,8 +69,10 @@ def build(source, engine="lua", output_dir=None, job_name=None, max_passes=6):
     pdf = folder / (name + ".pdf")
     for run in range(1, max_passes + 1):
         pdf.unlink(missing_ok=True)
+        prelude = (r"\AtBeginDocument{\directlua{require('pattern_botanical_legacy').install(function(x,d) texio.write_nl('botanical-contract: validated '..d.id) end)}}"
+                   if botanical_contracts and engine == "lua" else "")
         result = subprocess.run([executable, "-no-shell-escape", "-halt-on-error", "-interaction=nonstopmode", "-recorder",
-                                 f"-jobname={name}", r"\input{" + source.as_posix() + "}"],
+                                 f"-jobname={name}", prelude + r"\input{" + source.as_posix() + "}"],
                                 cwd=folder, env=env, capture_output=True, text=True)
         logfile = folder / f"{name}.pass-{run}.log"
         logfile.write_text(result.stdout + result.stderr)
@@ -87,7 +89,10 @@ def build(source, engine="lua", output_dir=None, job_name=None, max_passes=6):
             if digest == rendered and current == previous:
                 return folder / (name + ".pdf")
             if digest != rendered:
-                draw = subprocess.run(["texlua", str(ROOT / "florilegium-xe.lua"), str(folder / name)],
+                draw_command = ["texlua", str(ROOT / "florilegium-xe.lua"), str(folder / name)]
+                if botanical_contracts:
+                    draw_command.append("--botanical-contracts")
+                draw = subprocess.run(draw_command,
                                       cwd=folder, env=env, capture_output=True, text=True)
                 drawlog = folder / f"{name}.render-{run}.log"
                 drawlog.write_text(draw.stdout + draw.stderr)
@@ -107,9 +112,10 @@ def main():
     parser.add_argument("--engine", choices=("lua", "xe"), default="lua")
     parser.add_argument("--output-dir", type=Path)
     parser.add_argument("--job-name")
+    parser.add_argument("--botanical-contracts", action="store_true", help="observe and validate the existing composition through common contracts")
     args = parser.parse_args()
     try:
-        print(build(args.source, args.engine, args.output_dir, args.job_name))
+        print(build(args.source, args.engine, args.output_dir, args.job_name, botanical_contracts=args.botanical_contracts))
     except (RuntimeError, ValueError) as error:
         raise SystemExit(str(error)) from error
 

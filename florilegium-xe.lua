@@ -4,6 +4,8 @@ local here=arg[0]:match("^(.*)[/\\][^/\\]*$") or "."
 package.path=here.."/?.lua;"..package.path
 local function main()
 local base=assert(arg[1],"usage: texlua florilegium-xe.lua <job base>")
+assert(arg[2]==nil or arg[2]=="--botanical-contracts","unsupported Xe renderer option")
+if arg[2]then require("pattern_botanical_legacy").install(function(_,d) print("botanical-contract: validated "..d.id)end)end
 local M,settings,writer=require("florilegium"),require("layout"),require("pdfwriter").new()
 local ink=M.ink
 ink.set_backend(writer.backend)
