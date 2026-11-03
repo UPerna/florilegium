@@ -6,6 +6,8 @@
 --   texlua tools/nativecheck.lua forms [TOL]         (species until every flower trait's value is seen)
 --   texlua tools/nativecheck.lua ferns               (ferns until every fern trait's value is seen)
 --   texlua tools/nativecheck.lua visitors [TOL]      (visitors until every value of their traits is seen)
+--   texlua tools/nativecheck.lua pics [TOL [PATTERN]] (the TikZ library's pics, M.pic both ways; PATTERN
+--                                                     a Lua pattern of the names of the pics to draw)
 -- For the first DOCSEEDS documents' pools (8 species each): blooms of three sizes, open and
 -- past their best, a ghost, the inflorescence at two scales. Each organ is one of
 --   same      the same operators, every number within TOL bp
@@ -107,6 +109,200 @@ if arg[1] == "pages" then
   O.native(false)
   print(fmt("%d pages: %d the same (numbers within %.2f bp), %d a shade apart, %d close (within 1 bp), %d tipped; %.2f s a page before, %.2f now",
     n, count.same, worst, count.shade, count.close, count.tipped, tb / n, tn / n))
+  return
+end
+
+-- the TikZ library's pics: texlua tools/nativecheck.lua pics [TOL [PATTERN]]. Each pic drawn
+-- as florilegium-organs.lua's M.pic writes it (its pgf code, painted by ink) and by
+-- florilegium-native.lua's M.pic, under one transform (a unit is a pt), the keys as
+-- \flo@luapic hands them over (lengths in sp of pt, a season and a scale in sp): flowers
+-- and leaves of every role and plan at three sizes, v1.3's flower and leaf, inflorescences
+-- at three scales in three seasons, plants of every role (a fern's crown among them) of two
+-- heights in three seasons, strips of two to four plants with and without their ghost in
+-- three seasons, ferns, visitors, and a few pics with a drawing seed of their own (draw=)
+if arg[1] == "pics" then
+  tol = tonumber(arg[2]) or 0.1
+  local NV = require("florilegium-native")
+  local PT = 72 / 72.27
+  local function sp(x) return math.floor(x * 65536 + 0.5) end
+  local function cm(x) return math.floor(x * 7227 / 254 * 65536 + 0.5) end     -- x cm in sp of pt
+  local function run(f)
+    ink.set_transform({ PT, 0, 0, PT, 300, 300 })
+    data = {}
+    ink.layer(5)
+    f()
+    ink.flush()
+    return table.concat(data)
+  end
+  local function copy(o)
+    local c = {}
+    for k, v in pairs(o) do c[k] = v end
+    return c
+  end
+  local only = arg[3]                           -- a Lua pattern: only the pics whose names match
+  local cases = {}
+  local function add(name, kind, o)
+    if not only or name:find(only) then cases[#cases + 1] = { name = name, kind = kind, o = o } end
+  end
+  local roles = { "any", "hero", "spray", "monocot", "fern" }
+  for _, p in ipairs(species.PLANS) do if not species.ROLES[p.name] then roles[#roles + 1] = p.name end end
+  for i, role in ipairs(roles) do
+    for _, seed in ipairs({ 3 + i, 17 + 7 * i, 101 + 13 * i }) do
+      for _, c in ipairs({ 1, 2, 4 }) do
+        add(fmt("flower %s %d %g cm", role, seed, c), "flower", { seed = seed, role = role, size = cm(c) })
+        add(fmt("leaf %s %d %g cm", role, seed, c), "leaf", { seed = seed, role = role, size = cm(c) })
+      end
+    end
+  end
+  for seed = 1, 6 do
+    for _, c in ipairs({ 1, 2, 4 }) do
+      add(fmt("v13 flower %d %g cm", seed, c), "v13 flower", { seed = seed, size = cm(c) })
+      add(fmt("v13 leaf %d %g cm", seed, c), "v13 leaf", { seed = seed, size = cm(c) })
+    end
+  end
+  for i, role in ipairs(roles) do
+    for _, k in ipairs({ 0.6, 1, 1.4 }) do
+      for _, s in ipairs({ 0.2, 0.75, 1.1 }) do
+        add(fmt("inflorescence %s %d scale %g season %g", role, 5 + i, k, s), "inflorescence",
+          { seed = 5 + i, role = role, size = cm(2), scale = sp(k), season = sp(s) })
+      end
+    end
+  end
+  for i, role in ipairs(roles) do
+    for _, h in ipairs({ 6, 10 }) do
+      for _, s in ipairs({ 0.3, 0.75, 1.05 }) do
+        add(fmt("plant %s %d %g cm season %g", role, 40 + 3 * i, h, s), "plant",
+          { seed = 40 + 3 * i, role = role, size = cm(h), width = cm(6), season = sp(s) })
+      end
+    end
+  end
+  for _, c in ipairs({ { { 3, "rose" }, { 17, "umbellifer" } }, { { 29, "mustard" }, { 8, "monocot" }, { 12, "pea" } },
+    { { 5, "hero" }, { 9, "spray" }, { 21, "daisy" }, { 33, "any" } }, { { 41, "lily" }, { 2, "borage" }, { 7, "mint" } } }) do
+    local names = {}
+    for _, p in ipairs(c) do names[#names + 1] = p[1] .. "/" .. p[2] end
+    for _, ghost in ipairs({ true, false }) do
+      for _, s in ipairs({ 0.3, 0.75, 1.05 }) do
+        add(fmt("plants %s%s season %g", table.concat(names, ","), ghost and " ghost" or "", s), "plants",
+          { plants = c, size = cm(12), width = cm(8), ghost = ghost, season = sp(s) })
+      end
+    end
+  end
+  for seed = 1, 6 do
+    for _, s in ipairs({ 0.3, 0.8 }) do
+      add(fmt("fern %d season %g", seed, s), "fern", { seed = seed, size = cm(8), season = sp(s) })
+    end
+  end
+  for i, role in ipairs({ "any", "bee", "butterfly", "moth", "bird", "beetle", "fly", "leaf", "stem", "perch" }) do
+    for _, c in ipairs({ 1, 3 }) do
+      add(fmt("visitor %s %d %g cm", role, 60 + i, c), "visitor", { seed = 60 + i, role = role, size = cm(c) })
+    end
+  end
+  -- a drawing seed of its own (draw=)
+  for i, kind in ipairs({ "flower", "leaf", "v13 flower", "v13 leaf", "visitor" }) do
+    add(fmt("%s 7 draw %d", kind, 1000 + i), kind, { seed = 7, role = "any", draw = 1000 + i, size = cm(2) })
+  end
+  add("inflorescence 7 draw 999", "inflorescence", { seed = 7, role = "any", draw = 999, size = cm(2), scale = sp(1),
+    season = sp(0.75) })
+  -- and every pic tools/tikzcheck.lua draws (build/tikzcheck-draw.pics, one \pic {florilegium
+  -- <kind>={keys}} or more a line), its keys read as the library reads them: a length as TeX
+  -- scans it (\pgfmathsetlength), a seed, season or scale as pgfmath reads a number, the rest
+  -- as text, each key not given at its default (\pgfkeys{/florilegium ...})
+  local UNITS = { pt = { 1, 1 }, mm = { 7227, 2540 }, cm = { 7227, 254 }, ["in"] = { 7227, 100 }, bp = { 7227, 7200 } }
+  local function length(t)                      -- TeX's scan_dimen, in sp
+    local sign, int, frac, unit = t:match("^%s*([-+]?)(%d*)%.?(%d*)%s*(%a*)%s*$")
+    local u = UNITS[unit] or error("nativecheck: no length '" .. t .. "'")
+    local v, f = tonumber(int ~= "" and int or "0"), 0
+    if frac ~= "" then
+      local a = 0
+      for k = math.min(#frac, 17), 1, -1 do a = (a + tonumber(frac:sub(k, k)) * 131072) // 10 end
+      f = (a + 1) // 2
+    end
+    if u[1] ~= 1 then
+      local q, r = (v * u[1]) // u[2], (v * u[1]) % u[2]
+      f = (u[1] * f + 65536 * r) // u[2]
+      v, f = q + f // 65536, f % 65536
+    end
+    return (sign == "-" and -1 or 1) * (v * 65536 + f)
+  end
+  local PM = require("florilegium-pgfmath")
+  local function value(t)
+    local ok, v = pcall(PM.sp, t)
+    if ok then return v end
+    return PM.compile(t)({}, {})
+  end
+  local function keys(text)                     -- key=value pairs, a value in braces kept whole
+    local t, depth, cur = {}, 0, {}
+    local function flush()
+      local item = table.concat(cur):match("^%s*(.-)%s*$")
+      local k, v = item:match("^([^=]-)%s*=%s*(.*)$")
+      if k then t[k] = v:match("^{(.*)}$") or v end
+      cur = {}
+    end
+    for ch in text:gmatch(".") do
+      if ch == "{" then depth = depth + 1 elseif ch == "}" then depth = depth - 1 end
+      if ch == "," and depth == 0 then flush() else cur[#cur + 1] = ch end
+    end
+    flush()
+    return t
+  end
+  local DEFAULT = { seed = "1", role = "any", size = "2cm", draw = "", season = "0.75", plants = "", width = "6cm",
+    ghost = "true", scale = "1" }
+  local f = io.open("build/tikzcheck-draw.pics")
+  if f then
+    local n = 0
+    for line in f:lines() do
+      for kind, body in line:gmatch("\\pic%s*{florilegium ([%a%d ]-)=(%b{})}") do
+        n = n + 1
+        local k = keys(body:sub(2, -2))
+        for key, v in pairs(DEFAULT) do if k[key] == nil then k[key] = v end end
+        local o = { role = k.role, size = length(k.size), width = length(k.width), season = value(k.season),
+          ghost = k.ghost ~= "false", scale = value(k.scale), seed = PM.int(value(k.seed)) // 65536 }
+        if k.draw ~= "" then o.draw = PM.int(value(k.draw)) // 65536 end
+        if kind == "plants" then
+          o.plants = {}
+          for item in k.plants:gmatch("[^,]+") do
+            local a, r = item:match("^%s*(.-)%s*/%s*(.-)%s*$")
+            o.plants[#o.plants + 1] = { PM.int(value(a)) // 65536, r }
+          end
+        end
+        local name = fmt("tikzcheck %d %s={%s}", n, kind, body:sub(2, -2))
+        if not only or name:find(only) then cases[#cases + 1] = { name = name, kind = kind, o = o, tikzcheck = true } end
+      end
+    end
+    f:close()
+  else
+    print("(no build/tikzcheck-draw.pics: texlua tools/tikzcheck.lua writes it)")
+  end
+  local count, worst, tb, tn, kinds = { same = 0, shade = 0, close = 0, tipped = 0 }, 0, 0, 0, {}
+  local tz = { n = 0, same = 0, shade = 0, close = 0, tipped = 0 }
+  local order = {}
+  for _, c in ipairs(cases) do
+    local t0 = os.clock()
+    local a = run(function()
+      local feed, done = O.painter()
+      feed(table.concat(O.pic(c.kind, copy(c.o))))
+      done()
+    end)
+    local t1 = os.clock()
+    local b = run(function() NV.pic(c.kind, copy(c.o)) end)
+    tb, tn = tb + t1 - t0, tn + os.clock() - t1
+    local how, w, why = compare(a, b)
+    count[how] = count[how] + 1
+    local k = kinds[c.kind]
+    if not k then k = { n = 0, same = 0, shade = 0, close = 0, tipped = 0 } kinds[c.kind] = k order[#order + 1] = c.kind end
+    k.n, k[how] = k.n + 1, k[how] + 1
+    if c.tikzcheck then tz.n, tz[how] = tz.n + 1, tz[how] + 1 end
+    if (how == "same" or how == "shade") and w > worst then worst = w end
+    if how == "tipped" or how == "close" then print(fmt("%-7s %-58s %s", how, c.name, why or fmt("within %.2f bp", w))) end
+  end
+  for _, kind in ipairs(order) do
+    local k = kinds[kind]
+    print(fmt("  %-14s %4d: %d same, %d shade, %d close, %d tipped", kind, k.n, k.same, k.shade, k.close, k.tipped))
+  end
+  print(fmt("  of them tikzcheck's %d: %d same, %d shade, %d close, %d tipped", tz.n, tz.same, tz.shade, tz.close, tz.tipped))
+  print(fmt("%d pics: %d the same (numbers within %.2f bp), %d a shade apart, %d close (within 1 bp), %d tipped",
+    #cases, count.same, worst, count.shade, count.close, count.tipped))
+  print(fmt("time: %.2f s before, %.2f s now (%.0f%%)", tb, tn, 100 * tn / tb))
   return
 end
 

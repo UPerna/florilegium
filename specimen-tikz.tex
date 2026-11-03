@@ -1,8 +1,9 @@
 % specimen-tikz.tex -- florilegium's species drawn in TikZ (\usetikzlibrary{florilegium}).
 % Under pdfLaTeX pgfmath computes and TikZ draws (pure TikZ, the proof, about 10 minutes);
-% under LuaLaTeX florilegium-organs.lua computes the same pgf commands and TikZ draws them
-% (engine=lua, the library's default there): the same PDF, byte for byte, in about 40
-% seconds. \pgfkeys{/florilegium/engine=tikz} draws in pure TikZ under LuaLaTeX too.
+% under LuaLaTeX florilegium-native.lua draws the same plants with the same random draws,
+% computed in doubles (engine=lua, the library's default there), within a fraction of a
+% point of pure TikZ's, in seconds. \pgfkeys{/florilegium/engine=tikz} draws in pure TikZ
+% under LuaLaTeX too.
 % Page 1: two margins' worth of plants, three species each, grown as florilegium-grow.lua
 % grows a margin; page 2: each body plan's flower and leaf close up, and one plant through
 % the seasons; page 3: every flower form as its plant holds it; page 4: every kind of

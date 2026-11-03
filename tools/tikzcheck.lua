@@ -8,10 +8,14 @@
 --   tools/in-docker texlua tools/tikzcheck.lua 1 1000 pdflatex
 --
 -- Drawings: builds tools/tikzcheck-draw.tex twice under LuaLaTeX, once with the pure-TikZ
--- library and once with the hybrid (engine=lua: florilegium-organs.lua computes, TikZ
--- draws), uncompressed, and compares each page's content stream: the same operators in
--- the same order and every number within 0.05 bp; the streams are expected to be equal.
---   texlua tools/tikzcheck.lua draw [quick|full|fern|visitors] (quick: fronds of every division,
+-- library and once with the Lua engine (engine=lua: florilegium-native.lua draws the same
+-- steps in doubles, with ink), renders both with pdftoppm (gray, 150 dpi) and compares
+-- every pic pixel by pixel, each from the center of its ink: a pixel differs where nothing within
+-- a pixel of it in the other drawing is within 1/4 of its gray, both ways, and a pic passes
+-- while under 1% of its inked pixels, or under 60, differ (the two draw the same plant within a fraction
+-- of a point, so only a choice that went the other way shows).
+--   texlua tools/tikzcheck.lua draw [quick|full|fern|visitors] [compare] (compare: the last
+--   builds' PDFs again, without building them; quick: fronds of every division,
 --   outline and edge, fern crowns in three seasons, then one flower, one leaf and one
 --   inflorescence of every body plan, one inflorescence of every kind and of every view,
 --   a pea's leaves and plant with tendrils, compound leaves of every kind, curled tips,
@@ -35,28 +39,8 @@ local function streams(path)
   for s in d:gmatch("stream\r?\n(.-)endstream") do t[#t + 1] = s end
   return t
 end
--- the tokens of two streams: same operators, numbers within tol; returns nil or a reason
-local function compare(a, b, tol)
-  if a == b then return nil, 0 end
-  local ta, tb = {}, {}
-  for w in a:gmatch("%S+") do ta[#ta + 1] = w end
-  for w in b:gmatch("%S+") do tb[#tb + 1] = w end
-  if #ta ~= #tb then return fmt("%d tokens in TikZ, %d in Lua", #ta, #tb), 0 end
-  local worst, n = 0, 0
-  for i = 1, #ta do
-    local x, y = ta[i], tb[i]
-    if x ~= y then
-      local u, v = tonumber(x), tonumber(y)
-      if not (u and v) then return fmt("token %d: '%s' in TikZ, '%s' in Lua", i, x, y), worst end
-      n = n + 1
-      worst = math.max(worst, math.abs(u - v))
-    end
-  end
-  if worst > tol then return fmt("%d numbers differ, by up to %.4f bp", n, worst), worst end
-  return nil, worst
-end
-
 if arg[1] == "draw" then
+  local reuse = arg[3] == "compare"           -- draw quick compare: the last builds' PDFs again
   local full, fernonly, visonly = arg[2] == "full", arg[2] == "fern", arg[2] == "visitors"
   local species = require("florilegium-species")
   local pics = {}
@@ -340,10 +324,12 @@ if arg[1] == "draw" then
   local res = {}
   for _, engine in ipairs({ "tikz", "lua" }) do
     local job = "tikzcheck-draw-" .. engine
-    os.remove("build/" .. job .. ".pdf")
     local t0 = os.time()
-    os.execute(fmt([[lualatex -interaction=batchmode -output-directory=build -jobname=%s "\def\tikzcheckengine{%s}\input{tools/tikzcheck-draw.tex}" >/dev/null]],
-      job, engine))
+    if not reuse then
+      os.remove("build/" .. job .. ".pdf")
+      os.execute(fmt([[lualatex -interaction=batchmode -output-directory=build -jobname=%s "\def\tikzcheckengine{%s}\input{tools/tikzcheck-draw.tex}" >/dev/null]],
+        job, engine))
+    end
     local pdf = io.open("build/" .. job .. ".pdf", "rb")
     if not pdf then error("tikzcheck: the " .. engine .. " build failed, see build/" .. job .. ".log") end
     local size = pdf:seek("end")
@@ -352,16 +338,97 @@ if arg[1] == "draw" then
   end
   local a, b = res.tikz.streams, res.lua.streams
   assert(#a == #pics and #b == #pics, fmt("tikzcheck: %d pics, %d and %d pages", #pics, #a, #b))
-  local bad, same, worst = 0, 0, 0
-  for i = 1, #pics do
-    local why, w = compare(a[i], b[i], 0.05)
-    worst = math.max(worst, w)
-    if a[i] == b[i] then same = same + 1 end
-    if why then bad = bad + 1 print(fmt("page %d (%s): %s", i, pics[i], why)) end
+  -- every page of both PDFs as a gray image (pdftoppm numbers them with as many digits as
+  -- the last page needs)
+  local function pgm(path)
+    local f = assert(io.open(path, "rb"), "tikzcheck: no " .. path)
+    local d = f:read("a")
+    f:close()
+    local w, h, at = d:match("^P5%s+(%d+)%s+(%d+)%s+%d+%s()")
+    return tonumber(w), tonumber(h), d:sub(at)
   end
-  print(fmt("tikzcheck draw: %d pics, %d streams identical, %d differ beyond 0.05 bp (largest difference %.4f bp)",
-    #pics, same, bad, worst))
-  print(fmt("  pure TikZ %d s, %d bytes; hybrid %d s, %d bytes", res.tikz.secs, res.tikz.size, res.lua.secs, res.lua.size))
+  for _, engine in ipairs({ "tikz", "lua" }) do
+    os.execute(fmt("pdftoppm -gray -r 150 build/tikzcheck-draw-%s.pdf build/tikzcheck-draw-%s", engine, engine))
+  end
+  -- pics where pgfmath's rounding and a double's send a choice different ways, each looked
+  -- at (tools/nativecheck.lua found the step): reported, not counted
+  local KNOWN = {
+    ["florilegium plant={seed=54, role=any, size=8.5cm, width=5.2cm, season=0.75}"] =
+      "a leaf's room disc 0.0002 cm either side of a cell's edge (pgfmath's five-digit veclen), so TeX grows one more branch",
+  }
+  local digits = #tostring(#pics)
+  local bad, worst = 0, 0
+  for i = 1, #pics do
+    local n = fmt("%0" .. digits .. "d", i)
+    local w, h, x = pgm("build/tikzcheck-draw-tikz-" .. n .. ".pgm")
+    local w2, h2, y = pgm("build/tikzcheck-draw-lua-" .. n .. ".pgm")
+    -- each drawing from the center of its ink: a pic whose box differs by a fraction of a
+    -- point sits a pixel over on its page; and a pixel differs
+    -- only where nothing within a pixel of it in the other drawing is near its gray, both
+    -- ways, so a hairline drawn a fraction of a pixel aside is the same hairline
+    local function corner(d)                         -- the center of the ink's darkness
+      local sx, sy, sw = 0, 0, 0
+      for k = 1, #d do
+        local v = 255 - d:byte(k)
+        if v > 5 then sx, sy, sw = sx + v * ((k - 1) % w), sy + v * ((k - 1) // w), sw + v end
+      end
+      if sw == 0 then return 0, 0 end
+      return math.floor(sx / sw + 0.5), math.floor(sy / sw + 0.5)
+    end
+    local inked, differ = 0, 0
+    if w ~= w2 or h ~= h2 then differ, inked = 1, 1
+    else
+      local ax, ay = corner(x)
+      local bx, by = corner(y)
+      local function at(d, px, py)
+        if px < 0 or px >= w or py < 0 or py >= h then return 255 end
+        return d:byte(py * w + px + 1)
+      end
+      local function near(d, px, py, v)              -- a gray within 64 of v around (px, py)?
+        for oy = -1, 1 do
+          for ox = -1, 1 do
+            if math.abs(at(d, px + ox, py + oy) - v) < 64 then return true end
+          end
+        end
+        return false
+      end
+      local function count(dx, dy, step)             -- inked and differing pixels at an offset
+        local n, m = 0, 0
+        for k = 1, #x, step do
+          local px, py = (k - 1) % w, (k - 1) // w
+          local p, q = x:byte(k), at(y, px + dx, py + dy)
+          if p < 250 or q < 250 then
+            n = n + 1
+            if not near(y, px + dx, py + dy, p) or not near(x, px, py, q) then m = m + 1 end
+          end
+        end
+        return n, m
+      end
+      -- the offset, within two pixels of the centers', at which the drawings agree best
+      local best, bdx, bdy = math.huge, bx - ax, by - ay
+      for ddy = -2, 2 do
+        for ddx = -2, 2 do
+          local _, m = count(bx - ax + ddx, by - ay + ddy, 7)
+          if m < best then best, bdx, bdy = m, bx - ax + ddx, by - ay + ddy end
+        end
+      end
+      inked, differ = count(bdx, bdy, 1)
+    end
+    local share = inked > 0 and differ / inked or 0
+    worst = math.max(worst, share)
+    if share >= 0.01 and differ >= 60 then
+      if KNOWN[pics[i]] then
+        print(fmt("page %d (%s): %d of its inked pixels differ, %.2f%%, as known: %s", i, pics[i], differ, 100 * share,
+          KNOWN[pics[i]]))
+      else
+        bad = bad + 1
+        print(fmt("page %d (%s): %d of its inked pixels differ, %.2f%%", i, pics[i], differ, 100 * share))
+      end
+    end
+  end
+  print(fmt("tikzcheck draw: %d pics, %d differ in 1%% or more of their inked pixels and 60 or more (the largest share %.3f%%)",
+    #pics, bad, 100 * worst))
+  print(fmt("  pure TikZ %d s, %d bytes; Lua %d s, %d bytes", res.tikz.secs, res.tikz.size, res.lua.secs, res.lua.size))
   os.exit(bad == 0 and 0 or 1)
 end
 

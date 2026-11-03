@@ -315,9 +315,26 @@ local function gs(op, mult)
   return name
 end
 
+-- the extent of what is drawn, while tracked (a TikZ pic tells pgf its size): page bp.
+-- What is drawn inside a clip lies within the clip's path, which counts already, so it
+-- adds nothing (a petal's wash, a rectangle larger than the petal, would)
+local box, clipped = nil, 0
+function M.track(on)
+  local b = box
+  box = on and { math.huge, math.huge, -math.huge, -math.huge } or nil
+  clipped = 0
+  return b
+end
 -- 0.1 bp (0.035 mm) is finer than any printer resolves
 local function P(x, y)
-  return fmt("%.1f %.1f", T[1] * x + T[3] * y + T[5], T[2] * x + T[4] * y + T[6])
+  local px, py = T[1] * x + T[3] * y + T[5], T[2] * x + T[4] * y + T[6]
+  if box and clipped == 0 then
+    if px < box[1] then box[1] = px end
+    if py < box[2] then box[2] = py end
+    if px > box[3] then box[3] = px end
+    if py > box[4] then box[4] = py end
+  end
+  return fmt("%.1f %.1f", px, py)
 end
 
 -- path construction: polyline or smooth (Catmull-Rom as Béziers) through points {{x,y},...}
@@ -372,8 +389,8 @@ function M.stroke(c, w, op, mult, dash)
   if g then put("q /" .. g .. " gs " .. s .. " Q") else put("q " .. s .. " Q") end
 end
 -- clip to the current path until the matching unclip()
-function M.clip() put("q " .. take() .. " W n") end
-function M.unclip() put("Q") end
+function M.clip() put("q " .. take() .. " W n") clipped = clipped + 1 end
+function M.unclip() put("Q") clipped = clipped - 1 end
 function M.discard() path = {} end
 -- paint the whole of the current clip (inside a clip(), cheaper than repeating the path)
 function M.flood(c, x0, y0, x1, y1)

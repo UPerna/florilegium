@@ -115,8 +115,8 @@
 
 % ================================================================ drawing
 % Everything below draws through pgf's basic layer (\pgfpathmoveto, \pgfpathcurveto,
-% \pgfusepath ...), with every control point computed here, so that florilegium's Lua
-% side can write the same commands for the same seed (florilegium-organs.lua). A drawing
+% \pgfusepath ...), with every control point computed here, one random draw per line, so
+% that florilegium's Lua side can follow it step for step (florilegium-native.lua). A drawing
 % works in local units (written as pt) that one \pgftransformscale maps to its size;
 % line widths are absolute, as in florilegium-ink.lua.
 
@@ -1722,28 +1722,36 @@
   plants/.store in=\flo@o@plants, width/.store in=\flo@o@width, ghost/.store in=\flo@o@ghost,
   engine/.store in=\flo@o@engine, scale/.store in=\flo@o@scale,
   seed=1, role=any, size=2cm, draw=, season=0.75, plants=, width=6cm, ghost=true, engine=auto, scale=1}
-% engine=lua: the hybrid. florilegium-organs.lua computes the pic and writes the pgf
-% commands this file would run for it, the same commands for the same seed (the same PDF,
-% byte for byte), and TikZ draws them, about 18 times faster. engine=tikz: pgfmath
-% computes and TikZ draws, under any engine. engine=auto (the default): lua under LuaLaTeX
-% when florilegium-organs.lua can be found, tikz otherwise
+% engine=lua: florilegium-native.lua draws the pic straight into the picture with the same
+% steps and random draws as this file's TikZ code, computed in doubles (the same plant,
+% its numbers within a fraction of a point), and tells pgf how large it is: some fifty
+% times faster. engine=tikz: pgfmath computes and TikZ draws, under any engine.
+% engine=auto (the default): lua under LuaLaTeX when florilegium-native.lua can be
+% found, tikz otherwise
 \def\flo@lua{lua}\def\flo@auto{auto}
 \ifdefined\directlua
   \edef\flo@autoengine{\directlua{
-    local ok, f = pcall(kpse.find_file, "florilegium-organs.lua", "lua")
+    local ok, f = pcall(kpse.find_file, "florilegium-native.lua", "lua")
     tex.sprint(ok and f and "lua" or "tikz")}}
 \else
   \def\flo@autoengine{tikz}
 \fi
 \def\flo@nolua{\pgfutil@packagewarning{florilegium}{engine=lua needs LuaLaTeX; drawing in pure TikZ}%
   \global\let\flo@nolua\relax}
+% the document's ink and accent as r,g,b for Lua (\flo@colors without the ramps, which
+% Lua builds itself)
+\def\flo@picrgb{%
+  \pgfutil@ifundefined{\string\color@ink}{\definecolor{flo@ink}{HTML}{2456C4}}{\colorlet{flo@ink}{ink}}%
+  \pgfutil@ifundefined{\string\color@accent}{\definecolor{flo@accent}{HTML}{B4662F}}{\colorlet{flo@accent}{accent}}%
+  \extractcolorspecs{flo@ink}{\flo@cmodel}{\flo@cspec}\convertcolorspec{\flo@cmodel}{\flo@cspec}{rgb}\flo@picink
+  \extractcolorspecs{flo@accent}{\flo@cmodel}{\flo@cspec}\convertcolorspec{\flo@cmodel}{\flo@cspec}{rgb}\flo@picacc}
 \def\flo@luapic#1#2{%
-  \pgfkeys{/florilegium,#2}\flo@colors
+  \pgfkeys{/florilegium,#2}\flo@picrgb
   \pgfmathsetlength\pgf@x{\flo@o@size}\pgfmathsetlength\pgf@y{\flo@o@width}%
-  \directlua{require("florilegium-organs").tex("#1", "\luaescapestring{\flo@o@seed}",
+  \directlua{require("florilegium-native").tikz("#1", "\luaescapestring{\flo@o@seed}",
     "\luaescapestring{\flo@o@role}", "\luaescapestring{\flo@o@draw}", \number\pgf@x, \number\pgf@y,
     "\luaescapestring{\flo@o@season}", "\luaescapestring{\flo@o@plants}", "\luaescapestring{\flo@o@ghost}",
-    "\luaescapestring{\flo@o@scale}",
+    "\luaescapestring{\flo@o@scale}", "\flo@picink", "\flo@picacc",
     "\ifcsname ver@tikzlibraryflorilegium.code.tex\endcsname\luaescapestring{\csname ver@tikzlibraryflorilegium.code.tex\endcsname}\fi")}}
 % #1 the pic's keys, #2 its kind for Lua, #3 the TikZ code
 \def\flo@engine#1#2#3{\pgfkeys{/florilegium,#1}%

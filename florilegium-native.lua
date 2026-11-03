@@ -15,6 +15,7 @@
 --
 -- Lengths are in the organ's own units (a petal is 1 long), angles in degrees, colors
 -- points of ink's ramp: tone(t) as \flo@vtone, in the accent's ramp while pen.accent is set.
+-- M.draw draws the margin's organs (in cm), M.pic the TikZ library's pics (in pt).
 
 local ink = require("florilegium-ink")
 
@@ -1458,7 +1459,7 @@ local function monochasium(len, st)
     local xa, ya, xb, yb = pts[ci][1], pts[ci][2], pts[ci + 1][1], pts[ci + 1][2]
     h = atan2(yb - ya, xb - xa) - side * range(30, 50)
     local L = len * range(0.45, 0.65)
-    curl(xa, ya, L, 0.018, 0.15, h, -side, floor(max(6, n * 0.7)), fd, st)
+    curl(xa, ya, L, 0.018, 0.15, h, -side, floor(max(6, n * K(0.7))), fd, st)   -- 0.7 as TeX holds it: 10 flowers, then 6
   end
 end
 -- \flo@forkunit: flora's sprig as the species' forked cyme, a flower in every fork
@@ -2238,6 +2239,14 @@ end
 -- the rachis and stalks are stroked with the pen compoundleaf sets: P.c, P.w (bp)
 local RP = {}
 local function rachis(y0, y1) moveto(0, y0) lineto(0, y1) stroke(RP.c, RP.w, 1, false) end
+-- a leaflet's length on the page in cm, k of a leaf lpt pt long; for a pic's leaf (RP.pt, its
+-- length in sp as TeX holds it) as pgfmath finds it: a 1 cm leaf's leaflets of 0.4 are 4 mm,
+-- the threshold of their level of detail, and TeX's product can land either side of it
+RP.LU = require("florilegium-pgfmath").compile("%1*%2/28.45276")
+function RP.u(lpt, k)
+  if RP.pt then return RP.LU({}, { floor(lpt * 65536 + 0.5), floor(k * 65536 + 0.5) }) / 65536 end
+  return lpt * k / 28.45276
+end
 -- \flo@pinnate: pairs sized to peak mid-rachis, then a terminal leaflet or a tendril;
 -- lpt the leaf's length in pt, n pairs, pl the longest leaflet, lt the tone, tend tendrils
 local function pinnate(lpt, n, pl, lt, tend)
@@ -2260,7 +2269,7 @@ local function pinnate(lpt, n, pl, lt, tend)
       local ang = range(50, 68) - 14 * (j - 1) / n
       local dv = sym(0.015)
       ink.push() ink.translate(0, v + dv) ink.rotate(k == 0 and ang or -ang) ink.scale(ll)
-      sleaflet(range(lt - 0.07, lt + 0.07), lpt * ll / 28.45276)
+      sleaflet(range(lt - 0.07, lt + 0.07), RP.u(lpt, ll))
       ink.pop()
     end
   end
@@ -2281,7 +2290,7 @@ local function pinnate(lpt, n, pl, lt, tend)
     end
   else
     ink.push() ink.translate(0, pend) ink.scale(pterm)
-    sleaflet(lt, lpt * pterm / 28.45276)
+    sleaflet(lt, RP.u(lpt, pterm))
     ink.pop()
   end
 end
@@ -2399,13 +2408,15 @@ local function fehalf(pts, n, fb, tk)
   for i = 1, 8 do local v = 1 - i / 8 lineto(fb * v * v, v) end
   close()
 end
--- the frond being drawn: its pinna's numbers (\flo@fe...)
+-- the frond being drawn: its pinna's numbers (\flo@fe...); FE.tex while a pic draws (M.pic)
 local FE = {}
 -- where along the frond its pinnae stand, and how wide each may be, come from pow(x, 0.85),
 -- the width from the difference of two of them. pgfmath's pow is good to about 1e-4, and in
 -- that difference its error grows fifty times, so a pinna drawn from doubles would be up to
 -- 1% wider or narrower than the library's (0.6 bp on a large frond). These two use
--- pgfmath's own pow; everything else is a double
+-- pgfmath's own pow; everything else is a double. A pic's frond (FE.tex), 10 cm long where
+-- the margin's is 4, also takes its spine's 32 steps as TeX truncates them (32 sp short at
+-- the tip, 0.2 bp) and its pinnae's lengths from pgfmath's pow (2% off at some numbers)
 local PM = require("florilegium-pgfmath")
 local function ppow(x, y) return PM.pow(floor(x * 65536 + 0.5), floor(y * 65536 + 0.5)) / 65536 end
 -- \flo@fesori: sori under a pinna (its outline pts)
@@ -2552,7 +2563,12 @@ function M.frond(cm, o)
   local x, y = 0, 0
   for k = 1, 32 do
     local a = 90 + arch * (fo * (k - 0.5) / 32) ^ 1.5
-    x, y = x + fo / 32 * cos(a), y + fo / 32 * sin(a)
+    if FE.tex then                               -- a pic's frond: each step as TeX truncates it
+      local step = floor(floor(fo * 65536 + 0.5) / 32)
+      local dx, dy = step * cos(a), step * sin(a)
+      x = x + (dx < 0 and -floor(-dx) or floor(dx)) / 65536
+      y = y + (dy < 0 and -floor(-dy) or floor(dy)) / 65536
+    else x, y = x + fo / 32 * cos(a), y + fo / 32 * sin(a) end
     P[k + 1] = { x, y }
   end
   local sg, cr = 1, 0
@@ -2584,7 +2600,10 @@ function M.frond(cm, o)
       local s = st + (1 - st) * b
       local ee
       if b < ol[1] then ee = ol[2] + (1 - ol[2]) * sin(90 * b / ol[1])
-      else ee = max(0.0001, cos(90 * (b - ol[1]) / (1 - ol[1]))) ^ ol[3] end
+      else
+        ee = max(0.0001, cos(90 * (b - ol[1]) / (1 - ol[1])))
+        if FE.tex then ee = ppow(ee, ol[3]) else ee = ee ^ ol[3] end
+      end
       if un < 1 then ee = ee * max(0, min(1, 0.3 + 0.7 * (fo - s) / 0.15)) end
       local l = pm_ * ee * range(0.92, 1.06)
       local al = 70 - 30 * b + sym(4)
@@ -2661,18 +2680,20 @@ local function leafu(len)
   return FROMPT({}, { TOPT({}, { x }) }) / 65536
 end
 -- \flo@leaf: the species' leaf along +y, length 1; len its length in cm, bend its bend, from a
--- sheath's top where it has one (sheath: its direction from the leaf's, degrees, and width)
-function M.leaf(len, bend, sheath)
+-- sheath's top where it has one (sheath: its direction from the leaf's, degrees, and width);
+-- pt, the pic's: the length in pt (sp) instead, as \flo@leaf takes it there
+function M.leaf(len, bend, sheath, pt)
   if sheath and S.attachment == "sheathing" then
     local l = range(0.14, 0.22)
     local x, y = -l * sin(sheath[1]), l * cos(sheath[1])
     local w = sheath[2]
     taper(0, 0, x / 3, y / 3, 2 * x / 3, 2 * y / 3, x, y, w, 0.8 * w) fill(tone(0.34), 1)
     taper(0, 0, x / 3, y / 3, 2 * x / 3, 2 * y / 3, x, y, w, 0.8 * w) stroke(tone(0.08), 0.2, 0.6, false)
-    ink.push() ink.translate(x, y) M.leaf(len, bend) ink.pop()
+    ink.push() ink.translate(x, y) M.leaf(len, bend, nil, pt) ink.pop()
     return
   end
-  local u, lpt = leafu(len), len * 28.45276
+  local u, lpt
+  if pt then u, lpt = FROMPT({}, { pt }) / 65536, pt / 65536 else u, lpt = leafu(len), len * 28.45276 end
   local cp = S.compound
   if cp == "simple" then
     if S.venation == "parallel" then strap(max(0.025, min(0.12, 0.42 / S.leafaspect)), bend, u)
@@ -2684,7 +2705,9 @@ function M.leaf(len, bend, sheath)
   elseif cp == "frond" then
     M.frond(u, { unroll = 1, fertile = false, under = false })
   else
+    RP.pt = pt
     compoundleaf(lpt)
+    RP.pt = nil
   end
 end
 
@@ -4228,11 +4251,13 @@ local visitor = (function()
   -- ---------------------------------------------------------------- the visitor
   -- \flo@visitor as the margin's organ: the size in cm (the wingspan of a butterfly or
   -- moth), as TeX holds it; the visitor's unit on the page in cm is found as TeX finds it
-  -- (the size in pt, then divided back), since it decides the level of detail
+  -- (the size in pt, then divided back), since it decides the level of detail. With pic
+  -- (the pic's \flo@visitor), o.size is in pt already, in sp, the drawing in pt, and
+  -- o.draw (if given) is the drawing's seed, as \flo@visitorsetup takes it
   local DRAW = { bee = bee, fly = bee, odonate = odo, beetle = beetle, larva = caterpillar, snail = snail, bird = bird }
   local HALF = pm.compile("(%1)/56.90552")
   local sampled = {}
-  return function(o)
+  return function(o, pic)
     local role = o.role or "any"
     local key = string.format("%d/%s", o.seed, role)
     X = sampled[key]
@@ -4242,13 +4267,15 @@ local visitor = (function()
       for k, v in pairs(species.vsample(o.seed, role)) do X[k] = math.type(v) == "float" and K(v) or v end
       sampled[key] = X
     end
-    G = ink.pgfrng(o.seed == 2147483646 and 1 or o.seed + 1) G.step() G.step()   -- drawn from seed + 1
-    local pt = TOPT({}, { floor(o.size * 65536 + 0.5) })
+    local d = pic and o.draw or (o.seed == 2147483646 and 1 or o.seed + 1)   -- drawn from seed + 1
+    G = ink.pgfrng(1) G.load(d) G.step() G.step()
+    local pt, k = o.size, o.size / 65536
+    if not pic then pt, k = TOPT({}, { floor(o.size * 65536 + 0.5) }), o.size end
     if X.group == "lepidoptera" then
-      ink.scale(o.size / 2)
+      ink.scale(k / 2)
       lepid(HALF({}, { pt }) / 65536)
     else
-      ink.scale(o.size)
+      ink.scale(k)
       DRAW[X.group](FROMPT({}, { pt }) / 65536)
     end
   end
@@ -4354,6 +4381,711 @@ function M.draw(kind, s, z, o)
   end
   ink.pop()
   return true
+end
+
+-- ================================================================ M8f7: the pics
+-- The TikZ library's pics as florilegium-organs.lua's M.pic writes them, drawn here: v1.3's
+-- leaf (\flo@vleaf), a fern's crown (\flo@ferncrown), the garden of v1.3's plants
+-- (\flo@garden) and the pics that wrap them and the organs above. In a function of its
+-- own, whose locals count afresh (the main chunk's 200).
+local pic = (function()
+  local CM = 1864680                        -- 28.45276 (pt in a cm), as TeX holds it, in sp
+  -- \flo@calc{x/28.45276}: a pic's length in pt (sp) in cm, as TeX divides it
+  local function sizecm(pt) return pm.div(pt, CM) / 65536 end
+  -- pm.int of a pgfmath expression of x, x held in sp: a count TeX takes from a length the
+  -- user gives (a 6 cm plant's \flo@pH), which sits on the count's thresholds
+  local INT = {}
+  local function texint(e, x)
+    local f = INT[e]
+    if not f then f = pm.compile(e) INT[e] = f end
+    return pm.int(f({}, { floor(x * 65536 + 0.5) })) // 65536
+  end
+  local function drawseed(z) G = ink.pgfrng(1) G.load(z) G.step() G.step() end   -- \flo@drawseed
+
+  -- ---------------------------------------------------------------- one stream per organ
+  local HALF = 1073741823
+  -- \flo@seedorgan: the layout's generator a step on; the organ's own seed from there
+  local function seedorgan()
+    G.step()
+    local z = G.save()
+    return z > HALF and z - HALF or z + HALF
+  end
+  -- \flo@organ: f drawn from seed z in a group of its own (the pen as it was after it), the
+  -- layout's generator where it was
+  local function organ(z, f)
+    local saved, lift, acc = G.save(), pen.lift, pen.accent
+    G.load(z) G.step() G.step()
+    ink.push() f() ink.pop()
+    pen.lift, pen.accent = lift, acc
+    G.load(saved)
+  end
+  -- \flo@autumnleaf: copper in autumn (lc the leaf's draw), young and pale in spring
+  local function autumnleaf(lc, season)
+    if S.turns == 1 and lc < max(0, season - K(0.9)) then pen.accent = true end
+    if season < K(0.5) then pen.lift = 0.3 * (1 - season / 0.5) end
+  end
+
+  -- ---------------------------------------------------------------- v1.3's leaf
+  -- \flo@vleaf: flora.leaf along +y, length 1, its width, bend, lobes, their depth and its
+  -- tone all drawn; u its cm per unit
+  local function vleaf(u)
+    local lW = range(0.20, 0.27)
+    local lbend = sym(0.25)
+    local lobes = int(3, 5)
+    local depth = range(0.3, 0.7)
+    local lt = range(0.26, 0.38)
+    local fine, bn = false, 24
+    if u > K(0.6) then fine, bn = true, 36 end
+    local bodyw, ent = 1, true
+    if depth > 0 then bodyw, ent = 1 - 0.75 * depth, false end
+    local function spine(v) return lbend * v * v - 0.3 * lbend * v, v end              -- \flo@lspine
+    -- \flo@lenv, in pgfmath's own pow, as the fronds' pinnae are placed: it is 2% off near
+    -- 1 - v = 0.13, where it sets a top lobe's reach (0.3 bp on a 4 cm leaf)
+    local function env(v)
+      if v > 0 and v < 1 then return lW * 2.3 * ppow(v, 0.55) * ppow(1 - v, 0.95) end
+      return 0
+    end
+    local function teeth(v) return 0.006 * (1 - abs(2 * (v * 9 - floor(v * 9)) - 1)) end   -- \flo@lteeth
+    local function tangent(v)                                                         -- \flo@ltan
+      local ax, ay = spine(max(0, v - 0.01))
+      local bx, by = spine(min(1, v + 0.01))
+      local dx, dy = bx - ax, by - ay
+      local l = sqrt(dx * dx + dy * dy)
+      return dx / l, dy / l
+    end
+    -- the body: a blade along the spine, toothed when it has no lobes
+    local ps = {}
+    for k = 0, bn do ps[k + 1] = { spine(k / bn) } end
+    local body = blade(ps, function(_, v) return max(0, env(v) * bodyw + (ent and teeth(v * 3) or 0)) end)
+    local shapes, veins = { body }, {}
+    -- the lobes, grown out of the body along the spine
+    if depth > 0 then
+      for kc = 0, 1 do
+        local side = kc == 0 and -1 or 1
+        for ka = 1, lobes do
+          local lv = 0.1 + 0.72 * (ka - (side > 0 and 0.25 or 0.75)) / lobes
+          local lx, ly = spine(lv)
+          local tx, ty = tangent(lv)
+          local reach = env(min(0.95, lv + 0.08)) * range(0.95, 1.15)
+          local ang = range(38, 58)
+          local c, sn = cos(ang), sin(ang) * side
+          local dx, dy = tx * c - ty * sn, tx * sn + ty * c
+          local L = reach / sin(ang) * 0.95
+          local lb = sym(0.25) - side * 0.15
+          local function at(t) return lx + dx * L * t - dy * lb * L * t * t, ly + dy * L * t + dx * lb * L * t * t end
+          local lp = {}
+          for k = 0, 11 do lp[k + 1] = { at(k / 11) } end
+          local ln = normals(lp)
+          local ll, lr = {}, {}
+          for k = 0, 11 do
+            local v = k / 11
+            local e = v > 0.2 and teeth(v * 1.4 + ka) * L * 4 or 0
+            local g = v > 0 and max(0, sin(180 * v ^ 0.62)) ^ 0.75 or 0
+            local wa = max(0, L * range(0.26, 0.3) * g + e)
+            local wb = max(0, L * range(0.26, 0.3) * g + e)
+            local p, q = lp[k + 1], ln[k + 1]
+            ll[k + 1] = { p[1] + q[1] * wa, p[2] + q[2] * wa }
+            lr[k + 1] = { p[1] - q[1] * wb, p[2] - q[2] * wb }
+          end
+          -- the lobe's vein: the base, the middle and the end of its spine
+          local mx, my = at(0.45)
+          local ex, ey = at(0.92)
+          veins[#veins + 1] = { lx, ly, mx, my, ex, ey }
+          for k = 11, 2, -1 do ll[#ll + 1] = lr[k] end
+          shapes[#shapes + 1] = ll
+        end
+      end
+    end
+    local function trace() for _, s in ipairs(shapes) do smooth(s, true, 0.8) end end
+    trace() fill(tone(lt), 1)
+    trace() ink.clip()
+    -- the darker half
+    local sd = chance(0.5) and 1 or -1
+    for k = 0, 30 do
+      local x, y = spine(k / 30)
+      if k == 0 then moveto(x, y) else lineto(x, y) end
+    end
+    lineto(sd * 2, 1) lineto(sd * 2, 0) close()
+    fill(tone(0.12), 0.28, true)
+    if fine then mottle(-lW * 2.5, 0, lW * 2.5, 1, 13, 0.11, lt - 0.2, lt + 0.22, 12, true)
+    else mottle(-lW * 2.5, 0, lW * 2.5, 1, 6, 0.11, lt - 0.2, lt + 0.22, 0, true) end
+    trace() stroke(tone(0.06), 1.3 * u, 0.22, true)
+    -- midrib and veins in white
+    local mid = {}
+    for k = 0, 10 do mid[k + 1] = { spine(k / 10) } end
+    streak(mid, 0.03, 0.003, WHITE, 0.78)
+    for _, v in ipairs(veins) do
+      local op = range(0.5, 0.75)
+      taper(v[1], v[2], v[3], v[4], v[3] + (v[5] - v[3]) * 0.5, v[4] + (v[6] - v[4]) * 0.5, v[5], v[6], 0.017, 0.002)
+      fill(WHITE, op)
+    end
+    if #veins == 0 then
+      for ka = 1, 9 do
+        local v = (ka - 0.3) / 10 * 0.9
+        local sg = ka % 2 == 1 and -1 or 1
+        local lx, ly = spine(v)
+        local tx, ty = tangent(v)
+        local nx, ny = -ty * sg, tx * sg
+        local L = env(v) * bodyw * range(0.75, 0.95)
+        local op = range(0.45, 0.7)
+        taper(lx, ly, lx + nx * L * 0.4, ly + ny * L * 0.4, lx + nx * L * 0.75 + tx * L * 0.3, ly + ny * L * 0.75 + ty * L * 0.3,
+          lx + nx * L * 0.95 + tx * L * 0.6, ly + ny * L * 0.95 + ty * L * 0.6, 0.014, 0.002)
+        fill(WHITE, op)
+      end
+    end
+    ink.unclip()
+    if ent then smooth(body, true, 0.8) stroke(tone(0.05), 0.18, 0.4, false) end
+  end
+
+  -- ---------------------------------------------------------------- a fern's crown
+  -- \flo@ferncrown: three to five fronds from a crown at the origin, the longest gH cm, and a
+  -- dimorphic fern's fertile one from late spring; in cm
+  local function ferncrown(gH, season)
+    ink.scale(28.45276)
+    local nf = int(3, 5)
+    for ga = 1, nf do
+      local f = (ga - (nf + 1) / 2) / ((nf - 1) / 2)
+      local la = 90 - 44 * f + sym(8)
+      local ac = (f < 0 and 1 or -1) * (20 + 70 * S.curl) * range(0.8, 1.2) * (0.4 + 0.6 * abs(f))
+      local ll = gH * (1 - 0.22 * abs(f)) * range(0.85, 1)
+      local un = max(0, min(1, (season - 0.1 - S.phenology - range(0, 0.3)) / 0.4))
+      local uf = chance(0.4)
+      local lc = G.rnd()
+      organ(seedorgan(), function()
+        local under = false
+        if un >= K(0.97) then under = uf end
+        ink.translate(0.06 * f, 0) ink.rotate(la - 90) ink.scale(ll)
+        autumnleaf(lc, season)
+        M.frond(leafu(ll), { unroll = un, arch = ac, fertile = false, under = under })
+      end)
+    end
+    if S.dimorphic == 1 and season > K(0.55) then
+      local la = 90 + sym(6)
+      local ac = sym(12)
+      local ll = gH * range(0.55, 0.7)
+      organ(seedorgan(), function()
+        ink.rotate(la - 90) ink.scale(ll)
+        M.frond(leafu(ll), { unroll = 1, arch = ac, fertile = true, under = false })
+      end)
+    end
+  end
+
+  -- ---------------------------------------------------------------- the garden
+  -- its macros (R.pH is \flo@pH ...), shared as TeX shares them: a count two loops share is
+  -- a field too (R.Gb, which \flo@branchto's leaflets move under the fill rounds' feet);
+  -- the 5 mm cells taken on this layer's walk, and the layer
+  local R, ROOM, layer
+  local LSTEM, LLEAF, LAIRY, LBLOOM = 2, 3, 4, 5
+  local function at(l) return layer == l end
+  -- \flo@room: the 5 mm cells whose centers lie in the disc, marked (mark) or counted: how
+  -- many are taken, of how many
+  local function room(mark, x, y, r)
+    local ox, oy, o = floor(x * 10 + 1000), floor(y * 10 + 1000), floor(max(3, r * 10))
+    local n, t = 0, 0
+    for i = nediv(ox - o - 2, 5), nediv(ox + o - 2, 5) do
+      for j = nediv(oy - o - 2, 5), nediv(oy + o - 2, 5) do
+        local dx, dy = 5 * i + 2 - ox, 5 * j + 2 - oy
+        if dx * dx + dy * dy <= o * o then
+          local key = i * 65536 + j
+          if mark then ROOM[key] = true
+          else
+            t = t + 1
+            if ROOM[key] then n = n + 1 end
+          end
+        end
+      end
+    end
+    return n, t
+  end
+  -- \flo@takenat: the share of the disc's cells taken, divided as TeX divides
+  local function takenat(x, y, r)
+    local n, t = room(false, x, y, r)
+    if t == 0 then return 0 end
+    return (n * 65536 // t) / 65536
+  end
+  -- \flo@stemx: the main stem's x at height h
+  local function stemx(h)
+    local sb = min(1, max(0, h / 3))
+    return R.root + sb * sb * (3 - 2 * sb) * (R.pc - R.root + R.pA * (0.62 * sin(360 * h / R.plam + R.pph)
+      + 0.38 * sin(766.8 * h / R.plam + R.pps)))
+  end
+  -- \flo@stemtan: its tangent at h, and its x
+  local function stemtan(h)
+    local xa, xb = stemx(h + 0.05), stemx(h - 0.05)
+    local t = sqrt((xa - xb) * (xa - xb) + 0.01)
+    return (xa - xb) / t, 0.1 / t, stemx(h)
+  end
+  -- \flo@drawstem, \flo@markstem
+  local function drawstem()
+    local n = texint("(%1)/0.25+1", R.pH)
+    local pts = {}
+    for k = 1, n do
+      local y = R.pH * (k - 1) / (n - 1)
+      pts[k] = { stemx(y), y }
+    end
+    stem(pts, R.pw, 0.028, 0.07)
+  end
+  local function markstem()
+    for k = 1, texint("(%1)/0.6", R.pH) do
+      local y = 0.6 * k - 0.3
+      room(true, stemx(y), y, 0.2)
+    end
+  end
+  -- \flo@unit: the species' inflorescence at (x, y) along ax, scale k, late later than the
+  -- top one: its room marked on every walk, drawn on its layer
+  local function unit(x, y, ax, k, late)
+    local uo, udr, kind = M.unitdisc(S, k)
+    room(true, x + uo * cos(ax), y + uo * sin(ax), 0.85 * udr)
+    local st = 1.2 * R.season - late + sym(0.08) + S.phenology
+    local z = seedorgan()
+    if at((kind == "umbel" or kind == "raceme") and LAIRY or LBLOOM) then
+      organ(z, function() ink.translate(x, y) ink.rotate(ax - 90) M.unit(k, st) end)
+    end
+  end
+  -- \flo@plantsetup: plant ga's place, stem, species and generator; \flo@stemload
+  local function plantsetup(ga)
+    R.root, R.pc = (ga - 2) * 0.25, (ga - 2) * 0.35
+    if R.Np == 1 then R.root, R.pc = 0, 0 end
+    R.pw = ga == 1 and 0.085 or 0.065
+    R.pH = R.H[ga]
+    S = full({ seed = R.s[ga], role = R.r[ga] })
+    G.load(R.w[ga])
+  end
+  local function stemload(ga) local f = R.f[ga] R.pph, R.pps, R.plam = f[1], f[2], f[3] end
+  -- \flo@passstem: the stem's wave, its room, the stem, the top inflorescence
+  local function passstem(ga)
+    R.pph = range(0, 360) R.pps = range(0, 360) R.plam = range(5, 8)
+    R.f[ga] = { R.pph, R.pps, R.plam }
+    markstem()
+    if at(LSTEM) then drawstem() end
+    local top = M.lateness(S, 1)
+    local tx, ty, sx = stemtan(R.pH)
+    unit(sx, R.pH, atan2(ty, tx), K(1.15), top)
+  end
+  -- \flo@leafcof: a broad leaf's length factor
+  local function leafcof()
+    if S.compound == "simple" then R.leafc = min(1.45, max(1, sqrt(S.leafaspect / 2.2))) else R.leafc = K(1.35) end
+  end
+  -- \flo@nodeat: the stem at height R.ny: x, tangent, its angle, width, height on the plant
+  local function nodeat()
+    R.nyy = R.ny R.u = R.nyy / R.pH
+    R.ntx, R.nty, R.nx = stemtan(R.nyy)
+    R.ta = atan2(R.nty, R.ntx)
+    R.nw = R.pw + (0.028 - R.pw) * R.u
+  end
+  -- \flo@placeleaf: a leaf at R.la degrees, R.lf cm, or shorter where its room is taken
+  -- (three tries), or none; z its seed
+  local function placeleaf(x, y, z)
+    local ok = false
+    for _ = 1, 3 do
+      if not ok then
+        local mx, my = x + cos(R.la) * R.lf * R.fore * 0.55, y + sin(R.la) * R.lf * R.fore * 0.55
+        if takenat(mx, my, 0.24 * R.lf) < K(0.2) then ok = true else R.lf = 0.75 * R.lf end
+      end
+    end
+    if R.lf < K(0.45) then ok = false end
+    if ok then
+      for d = 1, 3 do
+        local t = (0.05 + 0.25 * d) * R.lf * R.fore
+        room(true, x + cos(R.la) * t, y + sin(R.la) * t, 0.2 * R.lf)
+      end
+      if at(LLEAF) then
+        local la, lf, fore, lc, bend = R.la, R.lf, R.fore, R.lc, R.sbend
+        local sheath = R.lsd and { R.lsd, 1.8 * R.nw / lf }
+        organ(z, function()
+          ink.translate(x, y) ink.rotate(la - 90) ink.scale(lf)
+          if fore < 1 then yscale(fore) end
+          autumnleaf(lc, R.season)
+          M.leaf(lf, bend, sheath)
+        end)
+      end
+    end
+    R.fore, R.lsd = 1, nil
+  end
+  -- \flo@nodeleaves: the leaves at a node (one, a pair or a whorl of three), the node kept
+  local function nodeleaves(ga)
+    nodeat()
+    R.side = -R.side
+    R.nd[ga][R.Ge] = { R.nyy, R.side }
+    for b = 1, R.per do
+      local ls = b == 2 and -R.side or R.side
+      local t = range(35, 60)
+      if b == 3 then t = range(8, 20) end
+      -- decussate: every other opposite pair close to the stem, foreshortened
+      if R.per == 2 and R.Ge % 2 == 0 then t, R.fore = 0.55 * t, K(0.55) end
+      R.la = R.ta + ls * t
+      R.lsd = R.ta - R.la
+      R.lf = 2.6 * (1 - (1 - S.taper) * R.u) * range(0.85, 1.1) * R.leafk * R.leafc * (b == 3 and 0.7 or 1)
+      R.sbend = ls * range(0.05, 0.3)
+      R.lc = G.rnd()
+      placeleaf(R.nx, R.nyy, seedorgan())
+    end
+  end
+  -- \flo@nodes, \flo@rosette, \flo@eudicotleaves, \flo@monocotleaves, \flo@passleaves
+  local function nodes(ga)
+    while R.ny < R.nlast do
+      R.Ge = R.Ge + 1 nodeleaves(ga)
+      R.ny = R.ny + range(1.2, 1.9) * R.gap
+    end
+  end
+  local function rosette()
+    local nb = int(3, 5)
+    for b = 1, nb do
+      local f = (b - (nb + 1) / 2) / max(1, (nb - 1) / 2)
+      R.la = 90 - 62 * f + sym(8)
+      R.lf = range(1.6, 2.3)
+      R.sbend = (f < 0 and 1 or -1) * range(0.05, 0.3)
+      R.lf = R.lf * R.leafc
+      R.lc = G.rnd()
+      placeleaf(R.root, K(0.1), seedorgan())
+    end
+  end
+  local function eudicotleaves(ga)
+    local arr = S.arrangement
+    R.per, R.gap, R.leafk = 1, 1, 1
+    if arr == "opposite" then R.per, R.gap = 2, K(1.3) end
+    if arr == "whorled" then R.per, R.gap = 3, K(1.4) end
+    if arr == "rosette" then rosette() R.gap, R.leafk = K(1.6), K(0.4) end
+    R.ny = range(0.7, 1.3)
+    R.side = chance(0.5) and 1 or -1
+    R.nlast = R.pH - 1.6
+    nodes(ga)
+  end
+  local function monocotleaves(ga)
+    local nb = int(3, 5)
+    for b = 1, nb do
+      local f = (b - (nb + 1) / 2) / max(1, (nb - 1) / 2)
+      R.la = 90 - 24 * f + sym(5)
+      R.lf = min(7, R.pH * range(0.3, 0.46)) * (1 - 0.25 * abs(f))
+      R.sbend = (f < 0 and -1 or 1) * range(0.1, 0.35)
+      R.lc = G.rnd()
+      local z = seedorgan()
+      placeleaf(R.root + 0.12 * f, 0, z)
+    end
+    R.side = chance(0.5) and 1 or -1
+    R.per, R.leafk = 1, K(0.75)
+    R.ny = range(0.22, 0.3) * R.pH R.Ge = R.Ge + 1 nodeleaves(ga)
+    R.ny = range(0.42, 0.52) * R.pH R.Ge = R.Ge + 1 nodeleaves(ga)
+  end
+  local function passleaves(ga)
+    stemload(ga) R.Ge = 0 leafcof()
+    R.nd[ga] = R.nd[ga] or {}
+    local cl, arr = S.clade, S.arrangement
+    if cl == "monocot" and (arr == "alternate" or arr == "whorled") then cl = "leafy" end
+    if cl == "monocot" then monocotleaves(ga) else eudicotleaves(ga) end
+    R.ndn[ga] = R.Ge
+  end
+  -- \flo@cubicstem: a branch along the cubic B, widths w0 to w1 (cm), a stroke under 0.7 bp
+  local function cubicstem(B, w0, w1)
+    local w = (w0 + w1) / 2 * 28.3465
+    local c = tone(0.07)
+    if w < K(0.7) then
+      moveto(B[1], B[2]) curveto(B[3], B[4], B[5], B[6], B[7], B[8]) stroke(c, w, 1, false)
+    else
+      taper(B[1], B[2], B[3], B[4], B[5], B[6], B[7], B[8], w0, w1) fill(c, 1)
+    end
+  end
+  -- \flo@branchto: the branch from the node to (R.bx, R.by) (\flo@branchpath, flora's
+  -- branch_path), a leaflet or two along it, what it carries
+  local function branchto()
+    local x0, y0, x1, y1 = R.nx, R.nyy, R.bx, R.by
+    local dx, dy = x1 - x0, y1 - y0
+    local d = sqrt(dx * dx + dy * dy)
+    local s = R.ntx * dx + R.nty * dy < -0.3 * d and -1 or 1
+    local tx, ty = s * R.ntx, s * R.nty
+    local turn = range(28, 48)
+    turn = (tx * dy - ty * dx > 0 and 1 or -1) * turn
+    local ox, oy = tx * cos(turn) - ty * sin(turn), tx * sin(turn) + ty * cos(turn)
+    local B = { x0, y0, x0 + ox * d * 0.45, y0 + oy * d * 0.45, x1 - R.ax * d * 0.4, y1 - R.ay * d * 0.4, x1, y1 }
+    local function cubicat(t)                   -- \flo@cubicat: the point at t, and the angle there
+      local u = 1 - t
+      local a, b, c, e = u * u * u, 3 * u * u * t, 3 * u * t * t, t * t * t
+      local cx = a * B[1] + b * B[3] + c * B[5] + e * B[7]
+      local cy = a * B[2] + b * B[4] + c * B[6] + e * B[8]
+      a, b, c = u * u, 2 * u * t, t * t
+      local ddx = a * (B[3] - B[1]) + b * (B[5] - B[3]) + c * (B[7] - B[5])
+      local ddy = a * (B[4] - B[2]) + b * (B[6] - B[4]) + c * (B[8] - B[6])
+      return cx, cy, atan2(ddy, ddx)
+    end
+    for k = 1, 3 do
+      local cx, cy = cubicat(0.25 * k)
+      room(true, cx, cy, 0.15)
+    end
+    local w = min(0.7 * R.nw, 0.05)
+    local wb = max(0.012, 0.45 * w)
+    if at(LSTEM) then cubicstem(B, w, wb) end
+    if d > K(1.2) then
+      local nl = d > K(2.2) and 2 or 1
+      R.Gb = 1
+      while R.Gb <= nl do
+        local cx, cy, ca = cubicat(0.25 + 0.3 * R.Gb / nl)
+        local la = ca + (R.Gb == 1 and -1 or 1) * R.side * range(40, 60) - 90
+        R.lf = range(0.45, 0.75)
+        local z = seedorgan()
+        if at(LLEAF) then
+          local lf = R.lf
+          organ(z, function() ink.translate(cx, cy) ink.rotate(la) ink.scale(lf) M.leaflet({ u = lf }) end)
+        end
+        R.Gb = R.Gb + 1
+      end
+    end
+    local what, bx, by, a = R.what, R.bx, R.by, R.a
+    if what == 1 then unit(bx, by, a, R.usc, R.ulate) return end
+    room(true, R.bdx, R.bdy, 0.85 * R.bdr)
+    if what == 2 then
+      local z = seedorgan()
+      if at(LBLOOM) then
+        organ(z, function() ink.translate(bx, by) ink.rotate(a - 90) M.budding(min(1.1, fdiam(K(0.6)))) end)
+      end
+    elseif what == 3 then
+      local z = seedorgan()
+      if at(LAIRY) then organ(z, function() ink.translate(bx, by) ink.rotate(a) M.tendril(range(0.3, 0.5)) end) end
+    else
+      R.sbend = R.side * range(0.05, 0.3) R.lc = G.rnd()
+      local z = seedorgan()
+      if at(LLEAF) then
+        local lf, bend, lc = R.lf, R.sbend, R.lc
+        organ(z, function()
+          ink.translate(bx, by) ink.rotate(a - 90) ink.scale(lf)
+          autumnleaf(lc, R.season)
+          M.leaf(lf, bend)
+        end)
+      end
+    end
+  end
+  -- \flo@branch: what the branch carries, then the freest of three places for it
+  local function branch()
+    local late = M.lateness(S, R.u)
+    local mk = G.rnd()
+    local climb = S.habit == "climbing" or S.tendrils == 1
+    if R.filling then mk = mk * 1.25 - 0.25 end
+    if mk < 0 then R.what = 4 leafcof() R.lf = range(K(1.1), 2) * R.leafc
+    elseif mk < K(0.6) then R.what = 1 R.usc = range(0.7, 0.9) R.ulate = late
+    elseif mk < K(0.82) then R.what = 2
+    elseif climb then R.what = 3
+    else R.what, R.usc, R.ulate = 1, K(0.6), late + 0.1 end
+    local best = 2
+    for _ = 1, 3 do
+      local cd = range(1.4, 3.2) * (1 - 0.25 * R.u)
+      local cg = 90 + R.side * range(25, 75)
+      local cbx = max(R.pxmin, min(R.pxmax, R.nx - cd * cos(cg)))
+      local cby = R.nyy + cd * sin(cg)
+      local cax, cay = cbx - R.nx, cby - R.nyy
+      local t = sqrt(cax * cax + cay * cay)
+      cax, cay = cax / t, cay / t + 0.6
+      t = sqrt(cax * cax + cay * cay)
+      cax, cay = cax / t, cay / t
+      local caa = atan2(cay, cax)
+      local what, udx, udy, udr = R.what
+      if what == 1 then
+        local uo, r = M.unitdisc(S, R.usc)
+        udx, udy, udr = cbx + uo * cos(caa), cby + uo * sin(caa), r
+      elseif what == 2 then udx, udy, udr = cbx + 0.35 * cax, cby + 0.35 * cay, 0.5
+      elseif what == 3 then udx, udy, udr = cbx, cby, 0.35
+      else udx, udy, udr = cbx + 0.5 * R.lf * cax, cby + 0.5 * R.lf * cay, 0.32 * R.lf end
+      local taken = takenat(udx, udy, udr)
+      if taken < best then
+        best = taken
+        R.bx, R.by, R.ax, R.ay, R.a = cbx, cby, cax, cay, caa
+        R.bdx, R.bdy, R.bdr = udx, udy, udr
+      end
+    end
+    if best < K(0.3) then branchto() end
+  end
+  -- \flo@passbranches: a branch at a node now and then; \flo@passfill: then anywhere
+  local function passbranches(ga)
+    stemload(ga)
+    for e = 1, R.ndn[ga] do
+      local nd = R.nd[ga][e]
+      R.ny, R.side = nd[1], nd[2]
+      nodeat()
+      if G.rnd() < K(e == 1 and 0.35 or 0.85) then branch() end
+    end
+  end
+  local function passfill(ga)
+    stemload(ga) R.filling = true
+    for _ = 1, R.ftries do
+      R.ny = range(0.12, 0.93) * R.pH
+      R.side = chance(0.5) and 1 or -1
+      nodeat() branch()
+    end
+    R.filling = false
+  end
+  -- \flo@garden: plants (seed, role) from one root, gH cm high, reaching about gW, walked
+  -- once per layer; a pale ghost flower behind them
+  local function garden(plants, gH, gW, ghost, season)
+    ink.scale(28.45276)
+    local np = #plants
+    R = { season = season, Np = np, H = {}, z = {}, w = {}, f = {}, nd = {}, ndn = {}, s = {}, r = {}, fore = 1,
+      filling = false }
+    for k, p in ipairs(plants) do R.s[k], R.r[k] = p[1], p[2] end
+    drawseed(R.s[1])
+    for ga = 1, np do
+      local t = 1
+      if ga == 2 then t = range(0.6, 0.72) elseif ga == 3 then t = range(0.36, 0.48) elseif ga > 3 then t = range(0.5, 0.58) end
+      R.H[ga] = gH * t
+      R.z[ga] = seedorgan()
+    end
+    local gx = gW * (range(0.35, 0.65) - 0.5)
+    local gy = gH * range(0.15, 0.3)
+    local gdiam = range(2.6, 3.2)
+    local gos = seedorgan()
+    R.pxmin, R.pxmax = -gW / 2 + 0.7, gW / 2 - 0.7
+    R.pA = np == 1 and 0.5 or 0.2 * gW
+    for l = 1, 5 do
+      layer, ROOM = l, {}
+      for ga = 1, np do R.w[ga] = R.z[ga] end
+      if ghost then
+        room(true, gx, gy, 0.25 * gdiam)
+        if l == 1 then
+          -- a plain flower of the first plant's species, as v1.3's ghosts are
+          S = full({ seed = R.s[1], role = R.r[1] })
+          organ(gos, function()
+            pen.lift = K(0.62)
+            ink.translate(gx, gy)
+            local tq = stone()
+            local g = {}
+            for k, v in pairs(S) do g[k] = v end
+            g.form = "rotate"
+            if g.merosity > 6 then g.merosity = 5 end
+            S = g
+            ink.scale(gdiam)
+            M.sflower(gdiam * 28.45276, { tone = tq, notchp = 0.4, notchk = 1 })
+          end)
+        end
+      end
+      for ga = 1, np do plantsetup(ga) passstem(ga) R.w[ga] = G.save() end
+      for ga = 1, np do plantsetup(ga) passleaves(ga) R.w[ga] = G.save() end
+      for ga = 1, np do plantsetup(ga) passbranches(ga) R.w[ga] = G.save() end
+      R.Gb = 1
+      while R.Gb <= 3 do
+        for ga = 1, np do
+          plantsetup(ga) R.ftries = texint("(%1)/2", R.pH) passfill(ga) R.w[ga] = G.save()
+        end
+        R.Gb = R.Gb + 1
+      end
+    end
+  end
+
+  -- ---------------------------------------------------------------- the pics
+  -- \flo@picsetup: the species, then the drawing's own stream (o.draw, or the seed + 1)
+  local function setup(o, role)
+    S = full({ seed = o.seed, role = role or o.role or "any" })
+    drawseed(o.draw or (o.seed == 2147483646 and 1 or o.seed + 1))
+  end
+  return function(kind, o)
+    local season = (o.season or 49152) / 65536            -- 0.75 if not given
+    if kind == "flower" then
+      setup(o) ink.scale(o.size / 65536)
+      local tq = stone()
+      M.sflower(o.size / 65536, { tone = tq, notchp = 0.4, notchk = 1 })
+    elseif kind == "leaf" then
+      setup(o) ink.scale(o.size / 65536) M.leaf(nil, nil, nil, o.size)
+    elseif kind == "v13 flower" then
+      setup(o) ink.scale(o.size / 65536)
+      M.flower(sizecm(o.size), 5, { pointed = false, notchp = 0.4, notchk = 1 })
+    elseif kind == "v13 leaf" then
+      setup(o) ink.scale(o.size / 65536) vleaf(sizecm(o.size))
+    elseif kind == "inflorescence" then
+      setup(o) ink.scale(28.45276)
+      M.unit(o.scale / 65536, 1.2 * season + sym(0.08) + S.phenology)
+    elseif kind == "plant" then
+      setup(o)
+      if S.clade == "fern" then ferncrown(sizecm(o.size), season)
+      else garden({ { o.seed, o.role or "any" } }, sizecm(o.size), sizecm(o.width), false, season) end
+    elseif kind == "fern" then
+      setup(o, "fern") ferncrown(sizecm(o.size), season)
+    elseif kind == "visitor" then
+      visitor(o, true)
+    elseif kind == "plants" then
+      garden(o.plants, sizecm(o.size), sizecm(o.width), o.ghost ~= false, season)
+    else
+      error("florilegium-native: no pic " .. tostring(kind))
+    end
+  end
+end)()
+-- A pic of the TikZ library (\pic {florilegium <kind>={...}}), drawn with ink at the origin
+-- under ink's current transform, in pt: kind flower, leaf, v13 flower, v13 leaf,
+-- inflorescence, plant, plants, fern or visitor; o as florilegium-organs.lua's M.pic takes it
+-- (seed, role, draw; size and width in sp of pt; season and scale in sp; ghost; plants =
+-- { {seed, role}, ... })
+function M.pic(kind, o)
+  M.fresh()
+  pen.lift, pen.accent = 0, false
+  FE.tex = true
+  ink.push()
+  local ok, err = pcall(pic, kind, o)
+  ink.pop()
+  FE.tex = nil
+  pen.lift, pen.accent = 0, false
+  if not ok then error(err, 0) end
+end
+
+-- ================================================================ the TikZ library's pics
+-- \flo@luapic: a pic of the TikZ library (engine=lua) drawn here, straight into the picture.
+-- ink follows pgf's current transformation (a pic's units are pt), the colors are the
+-- document's ink and accent, and pgf learns the drawing's extent for the picture's size.
+-- A number the library reads with pgfmath (a seed, a season) arrives as text: in sp here
+local function value(text)
+  local ok, v = pcall(pm.sp, text)
+  if ok then return v end
+  return pm.compile(text)({}, {})
+end
+-- the library and these files are found one by one (a set in ~/texmf, newer files beside
+-- the document), so the first pic checks that they come from one release
+local checked = false
+local function check(lib)
+  checked = true
+  local v = lib and lib:match("v(%d[%d.]*)")
+  if not v then return end
+  for _, m in ipairs({ { "florilegium-native", M.version }, { "florilegium-pgfmath", pm.version },
+    { "florilegium-species", species.version }, { "florilegium-ink", ink.version } }) do
+    if m[2] ~= v then
+      error(string.format("florilegium: %s.lua is from %s, tikzlibraryflorilegium.code.tex from release %s. "
+        .. "Copy the library and every florilegium*.lua from one release.", m[1],
+        m[2] and ("release " .. m[2]) or "an earlier release", v), 0)
+    end
+  end
+end
+local function rgb(s)
+  local r, g, b = s:match("^%s*([%d.]+)%s*,%s*([%d.]+)%s*,%s*([%d.]+)")
+  return tonumber(r), tonumber(g), tonumber(b)
+end
+-- kind: flower, leaf, v13 flower, v13 leaf, inflorescence, plant, plants, fern, visitor;
+-- size and width in sp, the other keys as their text; inkrgb, accrgb "r,g,b"; lib the
+-- library's \ProvidesFile line
+function M.tikz(kind, seed, role, draw, size, width, season, plants, ghost, scale, inkrgb, accrgb, lib)
+  if not checked then check(lib) end
+  local o = { role = role, size = size, width = width, season = value(season), ghost = ghost ~= "false",
+    scale = value(scale) }
+  o.seed = pm.int(value(seed)) // 65536
+  if draw ~= "" then o.draw = pm.int(value(draw)) // 65536 end
+  if kind == "plants" then
+    o.plants = {}
+    for item in plants:gmatch("[^,]+") do
+      local s, r = item:match("^%s*(.-)%s*/%s*(.-)%s*$")
+      o.plants[#o.plants + 1] = { pm.int(value(s)) // 65536, r }
+    end
+  end
+  ink.set_ink(rgb(inkrgb))
+  ink.set_accent(rgb(accrgb))
+  local k, bp = 72 / 72.27, 72 / 72.27 / 65536
+  ink.set_transform({ tonumber(token.get_macro("pgf@pt@aa")) * k, tonumber(token.get_macro("pgf@pt@ab")) * k,
+    tonumber(token.get_macro("pgf@pt@ba")) * k, tonumber(token.get_macro("pgf@pt@bb")) * k,
+    tex.dimen["pgf@pt@x"] * bp, tex.dimen["pgf@pt@y"] * bp })
+  local lift, pale, layer = ink.set_lift(0), ink.set_pale(0), ink.layer(5)
+  ink.track(true)
+  M.pic(kind, o)
+  local box = ink.track(false)
+  ink.flush()
+  ink.set_lift(lift) ink.set_pale(pale) ink.layer(layer)
+  if box and box[1] <= box[3] then
+    local f = 72.27 / 72
+    local cct = luatexbase and luatexbase.registernumber and luatexbase.registernumber("catcodetable@atletter")
+    local s = string.format("\\pgf@protocolsizes{%.4fpt}{%.4fpt}\\pgf@protocolsizes{%.4fpt}{%.4fpt}",
+      box[1] * f, box[2] * f, box[3] * f, box[4] * f)
+    if cct then tex.sprint(cct, s) else tex.sprint(s) end
+  end
 end
 
 return M
