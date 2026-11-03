@@ -85,7 +85,7 @@ and in total darkness.
 | one strip of three plants, 21 cm tall | time | PDF |
 |---|---|---|
 | pdfLaTeX, pure TikZ | 86 s | 1.3 MB |
-| LuaLaTeX, pure TikZ (`engine=tikz`) | 96 s | 1.3 MB |
+| LuaLaTeX, pure TikZ (`engine=tikz`) | 98 s | 1.3 MB |
 | LuaLaTeX, Lua engine (the default) | 0.8 s | 0.5 MB |
 
 *`tools/bench-tikz.tex`, timed by `make bench` on 2026-11-03 (Intel Core i9-13900K, TeX Live

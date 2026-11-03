@@ -86,10 +86,16 @@ near the body, a central band with its discal spot, a border band, eyespots with
 arcs outside them, and crescents at the edge.
 
 Each plant whose flowers have a visitor brings it to the page, so a bee comes to a bee flower
-and a hummingbird to a red tube, and so on for moths, butterflies, beetles and hoverflies. It flies in near that plant's
-stems. Off the flowers, a snail climbs a main stem, a seed-eating bird perches on a twig of its
+and a hummingbird to a red tube, and so on for moths, butterflies, beetles and hoverflies. It
+flies in near that plant's stems. Off the flowers, a snail climbs a main stem, a seed-eating bird perches on a twig of its
 own, a caterpillar feeds on a bitten leaf, a dragonfly or a damselfly hunts by the monocot and
-a ladybird climbs a stem. A page has about three visitors, as in v1.3, from a random stream of
+a ladybird climbs a stem.
+
+<img src="../gallery/detail-visitors.png" alt="a snail and a ladybird on the stems of a margin" width="600">
+
+*300 dpi. A snail on a main stem, and a ladybird climbing another.*
+
+A page has about three visitors, as in v1.3, from a random stream of
 their own, so `novisitors` leaves the plants exactly as they were.
 
 ## Seasons and headings

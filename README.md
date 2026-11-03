@@ -191,6 +191,14 @@ whose sizes and details are random. In 2.0 the grown margin's plants and animals
 sampled from genomes, so each document's seed grows plants of its own, and the TikZ library
 draws the same species on their own.
 
+| page 2 of the grown document, 1.3 and 2.0 | up close at 600 dpi, 1.3 left and 2.0 right |
+|---|---|
+| <img src="gallery/compare-pages.png" alt="the margin of the same page in 1.3 and in 2.0" width="300"> | <img src="gallery/compare-600dpi.png" alt="the top flower and the middle of the column of each, at 600 dpi" width="500"> |
+
+*The same page and seed in both releases. 2.0 paints its species with 1.3's washes, streaks and
+veins, so what changes is what grows: daisies, star lilies, a fern at the root, and the visitors
+those plants bring.*
+
 | what | release | where things go | the plants and animals | drawn by |
 |---|---|---|---|---|
 | grown margin | 1.3 | **procedural**, grown into the free space | hand-designed kinds | Lua (LuaLaTeX) |
@@ -209,10 +217,10 @@ long:
 | | 1.3 | 2.0 |
 |---|---|---|
 | ten pages of text, no margin (LuaLaTeX) | 0.4 s, 33 KB | 0.4 s, 33 KB |
-| the same ten pages with the grown margin (LuaLaTeX) | 7.2 s, 6.3 MB | 12.9 s, 10.9 MB |
-| what the margin adds to a page | 0.68 s, 0.63 MB | 1.25 s, 1.1 MB |
+| the same ten pages with the grown margin (LuaLaTeX) | 7.1 s, 6.3 MB | 12.6 s, 10.7 MB |
+| what the margin adds to a page | 0.67 s, 0.63 MB | 1.23 s, 1.1 MB |
 | one TikZ strip of three plants, pdfLaTeX, pure TikZ | not in 1.3 | 86 s, 1.3 MB (6.3 million words of TeX's memory) |
-| the same strip, LuaLaTeX, pure TikZ (`engine=tikz`) | not in 1.3 | 96 s, 1.3 MB |
+| the same strip, LuaLaTeX, pure TikZ (`engine=tikz`) | not in 1.3 | 98 s, 1.3 MB |
 | the same strip, LuaLaTeX, Lua engine (the default) | not in 1.3 | 0.8 s, 0.5 MB |
 
 *`tools/bench.tex` (seed 7, the last page short) and `tools/bench-tikz.tex`, timed on

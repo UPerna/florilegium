@@ -24,6 +24,11 @@ ivy-leaf fleuron whose stem becomes the head rule. Any of them can be painted as
 The species' organs (`florilegium-native.lua`) are painted the same way (see [the species
 garden](species.md)).
 
+<img src="../gallery/detail.png" alt="a bird among daisies, a pale ghost lily behind them" width="600">
+
+*300 dpi. Mottled washes with white streaks lifted out, leaves with white veins, a songbird on
+its twig, and a pale ghost lily behind the stems.*
+
 ## The grown margin
 
 The grown composition (`florilegium-grow.lua`) follows Wong, Zongker and Salesin,
@@ -64,6 +69,11 @@ The end of the text is measured in the same run. `\florilegiumtextend` records h
 page the text has gone, and that page's background is drawn after it. So a short last page
 grows arcs from the main stems into the space below the text, each ending in a flower, with
 one compilation.
+
+<img src="../gallery/preview-grown-lastpage.png" alt="the last page of the grown document, its garden filling the space under the text" width="400">
+
+*The last page of `florilegium-grow.tex`. The text ends near the top, and the garden grows
+into the rest of the page, down to the line of the page number.*
 
 ## Reading the page
 

@@ -62,7 +62,7 @@ gallery: gallery.tex florilegium.sty florilegium-grow.lua $(LUA) tools/gallery.p
 grow-%: animation.tex florilegium.sty florilegium-grow.lua $(LUA) tools/animate.py
 	python3 tools/animate.py --seed $* --run "$(RUN)" $(if $(EXPLAIN),--explain)
 
-# the README's animations (seed 6: all four visitors)
+# the README's animations (seed 6)
 animation:
 	$(MAKE) grow-6 RUN="$(RUN)"
 	$(MAKE) grow-6 RUN="$(RUN)" EXPLAIN=1

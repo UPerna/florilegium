@@ -45,4 +45,5 @@ make pscheck                                          # the PostScript port agai
 
 The playground has its own check, which operates every control in a headless browser. Serve the
 repository (`make playground`), then run `cd tools/playcheck && npm install && node check.mjs
-http://localhost:8000/web/ ../../build`.
+http://localhost:8000/web/ ../../build`. `node shot.mjs` in the same folder takes the README's
+screenshot of the playground.
