@@ -1,16 +1,18 @@
 This is a generated file for the l3build validation system.
 Don't change this file in any respect.
-florilegium: grew 4609 cells, 61 motifs, 533 stem points, 2825 KB; visitors: none
+florilegium: grew 4609 cells, 73 motifs, 567 stem points, 4922 KB; visitors: none
+florilegium: species eudicot 325044308, columbine 1511394489, lily 1583415831, daisy 2000561335
 florilegium test: page 1, 2 drawings
-  1. md5 0876d2acbccd2833087f2da73023091e, 2892716 bytes
+  1. md5 379d5405e8af5e2742e0f5fc64e68644, 5040202 bytes
   2. md5 8adb7afad9cf806bc75f6c9dfe89e91e, 3273 bytes
-  grew: bee 0, bells 1, blossoms 6, bud 10, budding 0, butterfly 0, cyme 12, flower 2, leaf 18, lily 2, seedhead 0, sprig 4, tendril 5, umbel 1 [1
+  grew: bee 0, bells 0, bloom:1 3, blossoms 0, bud 0, budding 0, budding:1 9, budding:2 5, budding:3 4, budding:4 0, butterfly 0, cyme 0, fern 4, flower 0, g:bloom 3, g:budding 18, g:leaf 13, g:spray 20, g:tendril 6, g:unit 9, g:visitor 0, leaf 0, leaf:1 8, leaf:2 5, leaf:4 0, lily 0, seedhead 0, spray:1 13, spray:2 2, spray:3 4, spray:4 1, sprig 0, tendril 0, tendril:2 6, umbel 0, unit:1 4, unit:2 3, unit:3 2, unit:4 0, visitor:1 0, visitor:2 0, visitor:3 0, visitor:4 0, visitor:stem 0 [1
 ]
-florilegium: grew 4604 cells, 63 motifs, 529 stem points, 2768 KB; visitors: 2 butterfly, 2 bee, 1 snail
+florilegium: grew 4604 cells, 69 motifs, 564 stem points, 4746 KB; visitors: snail, caterpillar
+florilegium: species eudicot 325044308, columbine 1511394489, lily 1583415831, daisy 2000561335
 florilegium test: page 2, 2 drawings
-  1. md5 5ea4e48e2104dbbce33d774c2904282b, 2834688 bytes
+  1. md5 0ed4ceeac8c27114865588f8394ea90c, 4859876 bytes
   2. md5 393acbd48fa10bbaf0764eb7777df4c7, 3287 bytes
-  grew: bee 2, bells 1, blossoms 6, bud 8, budding 0, butterfly 2, cyme 9, flower 3, leaf 15, lily 2, seedhead 0, snail 1, sprig 8, tendril 4, umbel 2 [2]
+  grew: bee 0, bells 0, bloom:1 2, blossoms 0, bud 0, budding 0, budding:1 10, budding:2 6, budding:3 3, budding:4 1, butterfly 0, cyme 0, flower 0, g:bloom 2, g:budding 20, g:leaf 8, g:spray 25, g:tendril 4, g:unit 9, g:visitor 0, leaf 0, leaf:1 5, leaf:2 1, leaf:4 2, lily 0, seedhead 0, snail 1, spray:1 16, spray:2 3, spray:3 4, spray:4 2, sprig 0, tendril 0, tendril:2 4, umbel 0, unit:1 5, unit:2 2, unit:3 2, unit:4 0, visitor:1 0, visitor:2 0, visitor:3 0, visitor:4 0, visitor:stem 0 [2]
 florilegium: grew 10231 cells, 159 motifs, 1107 stem points, 540 KB; visitors: 2 butterfly, 2 bee
 florilegium test: page 3, 2 drawings
   1. md5 32fa5037f0d624dc0a6cfd7594329385, 553103 bytes

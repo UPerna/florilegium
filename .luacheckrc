@@ -26,5 +26,3 @@ files["tools/*.lua"] = { globals = stubs }
 -- l3build reads its settings from the globals build.lua sets, which nothing in it reads
 files["build.lua"] = { allow_defined_top = true, ignore = { "131" } }
 
--- the tests read what florilegium.sty's global florilegium recorded on the page
-files["testfiles/support/*.lua"] = { globals = { "florilegium" } }

@@ -591,7 +591,8 @@ function M.pool(docseed)
   local rng = ink.rng(docseed * 104729 + 307)
   local pool, used = {}, {}
   for i, role in ipairs(SLOTS) do
-    local sp, tries = nil, 0
+    local sp
+    local tries = 0
     repeat
       sp = M.sample(1 + floor(rng.u() * 2147483645), role)
       tries = tries + 1

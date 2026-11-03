@@ -1,0 +1,24 @@
+% pics.lvt -- the TikZ library's pics under LuaLaTeX, drawn by its Lua engine (the default
+% there, florilegium-native.lua): a flower, a leaf, a cluster in spring, a plant, a fern's
+% crown and a visitor, each from its own seed. Pure TikZ (engine=tikz, and pdfLaTeX) writes
+% pgf's own path code, which this fingerprint leaves out; tools/tikzcheck.lua draw compares
+% the two engines' renders.
+\input{regression-test}
+\documentclass{article}
+\usepackage[a4paper,margin=12mm]{geometry}
+\usepackage{tikz}
+\usetikzlibrary{florilegium}
+\directlua{require("fingerprint")}
+\pagestyle{empty}
+\begin{document}
+\START
+\begin{tikzpicture}
+  \pic at (0,0) {florilegium flower={seed=7, role=hero, size=2.6cm}};
+  \pic at (3,-1.3) {florilegium leaf={seed=7, role=hero, size=3.4cm}};
+  \pic at (6,-1.3) {florilegium inflorescence={seed=20, role=heath, scale=1.3, season=0.3}};
+  \pic at (10,0) {florilegium visitor={seed=3, role=butterfly, size=3cm}};
+  \pic at (0,-14) {florilegium plant={seed=11, role=rose, size=10cm, width=5cm}};
+  \pic at (8,-14) {florilegium fern={seed=4, size=7cm, season=0.5}};
+\end{tikzpicture}
+\clearpage
+\END

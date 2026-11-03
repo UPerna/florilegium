@@ -28,7 +28,8 @@ end
 
 local function log(s) texio.write_nl("log", s) end
 local M = {}
-local RELEASE = require("florilegium").version
+local FLO = require("florilegium")     -- the package's own module (a TikZ-only test loads no .sty)
+local RELEASE = FLO.version
 
 function M.try(label, fn)
   local ok, err = pcall(fn)
@@ -47,16 +48,16 @@ luatexbase.add_to_callback("pre_shipout_filter", function(head)
   local found = literals(head, {})
   log(("florilegium test: page %d, %d drawings"):format(page, #found))
   for i, s in ipairs(found) do log(("  %d. md5 %s, %d bytes"):format(i, md5.sumhexa(s), #s)) end
-  local stats = florilegium.last_stats
+  local stats = FLO.last_stats
   if stats and stats.counts then
     local parts = {}
     for _, k in ipairs(sorted(stats.counts)) do parts[#parts + 1] = k .. " " .. stats.counts[k] end
     log("  grew: " .. table.concat(parts, ", "))
   end
-  for _, c in ipairs(florilegium.last_captions or {}) do
+  for _, c in ipairs(FLO.last_captions or {}) do
     log(("  caption at (%.2f, %.2f): %s"):format(c[1] or c.x, c[2] or c.y, c[3] or c.text))
   end
-  florilegium.last_stats, florilegium.last_captions = nil, nil
+  FLO.last_stats, FLO.last_captions = nil, nil
   return true
 end, "florilegium test fingerprint")
 

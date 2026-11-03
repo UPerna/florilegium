@@ -713,7 +713,7 @@ function M.page(g)
 
   -- ---------------------------------------------------------- 1. stems
   local root = { layout.range(1.0, 1.6), 0.75 }
-  local cx = g.colright * 0.47
+  local midx = g.colright * 0.47              -- where the stems sway about
   local amp = g.colright * 0.2
   local mains, mainev = {}, {}
   local tops = { g.ph - 2.6, g.ph * layout.range(0.6, 0.72), g.ph * layout.range(0.36, 0.48) }
@@ -724,7 +724,7 @@ function M.page(g)
     local pts = {}
     local y = root[2]
     while y <= tops[k] do
-      local x = cx + amp * f(y / lam + ph) + (k - 2) * 0.35
+      local x = midx + amp * f(y / lam + ph) + (k - 2) * 0.35
       x = lerp(x0, x, smoothstep(0, 4, y - root[2]))
       x = max(0.9, min(g.colright - 0.9, x))
       pts[#pts + 1] = { x, y }
@@ -1393,7 +1393,7 @@ function M.page(g)
     local _, bi = layout.best(free, #gx, 0.85, 1.15, sdist, REACH)
     if not bi or free[bi] < SMALLEST / sqrt(D) or nbranch >= NBMAX then break end
     local f, px, py = free[bi], gx[bi], gy[bi]
-    local S, sd = nearest_stem(px, py)
+    local S = nearest_stem(px, py)
     -- statement motifs have a hard cap; the others only lose weight as they repeat
     -- (species: the rows of the plant whose stem is nearest)
     local elig, wts, wsum = {}, {}, 0

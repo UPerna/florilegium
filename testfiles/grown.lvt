@@ -1,5 +1,6 @@
 % grown.lvt -- the grown margin over two pages. Page 1: a flower at each heading
-% (option sections), one asked for by \florilegiumbloom[umbel], and a decorated initial;
+% (option sections), one asked for by \florilegiumbloom[spray] (the page's spray plant), and a
+% decorated initial;
 % page 2: spring (\florilegiumage), and the space under the text (\florilegiumtextend).
 \input{regression-test}
 \documentclass[11pt,a4paper]{article}
@@ -21,7 +22,7 @@
 \florilegiuminitial{T}his paragraph opens with a decorated initial: a vine over and under
 the letter, leaflets, and flowers in its gaps.\par
 \paras{5}
-This line asks the margin for an umbel.\florilegiumbloom[umbel]\par
+This line asks the margin for the spray's flowers.\florilegiumbloom[spray]\par
 \paras{4}
 \newpage
 \florilegiumage{0.1}

@@ -14,9 +14,10 @@
 
 module = "florilegium"
 
--- the package is plain files, nothing to unpack: each test runs with these beside it
-sourcefiles  = { "florilegium.sty", "florilegium*.lua" }
-installfiles = { "florilegium.sty", "florilegium*.lua" }
+-- the package and the TikZ library are plain files, nothing to unpack: each test runs with
+-- these beside it
+sourcefiles  = { "florilegium.sty", "florilegium*.lua", "tikzlibraryflorilegium*.code.tex" }
+installfiles = { "florilegium.sty", "florilegium*.lua", "tikzlibraryflorilegium*.code.tex" }
 
 -- l3build's folders go under the Makefile's build/, and `l3build clean` leaves the
 -- root alone (by default it deletes every *.pdf there, the documents included)

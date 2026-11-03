@@ -42,10 +42,11 @@ jobs:
         run: lua5.3 tools/speciescheck.lua 4000 && lua5.4 tools/speciescheck.lua 4000
 
   # The four documents, which a release carries, and pages that are only checked: the
-  # species sheet (the Lua engine under LuaLaTeX, by the library's default, and pure TikZ under
-  # pdfLaTeX), and the specimen sheets and the ornaments, which draw through \florilegiumdraw and \florilegiumornament,
-  # which read pgf's transform from its internal macros (florilegium.lua: sync_transform), so a
-  # pgf that renamed them would fail here and not in someone's document.
+  # species sheet (the Lua engine under LuaLaTeX, by the library's default; pure TikZ is the
+  # tikz job's), and the specimen sheets and the ornaments, which draw through
+  # \florilegiumdraw and \florilegiumornament, which read pgf's transform from its internal
+  # macros (florilegium.lua: sync_transform), so a pgf that renamed them would fail here and
+  # not in someone's document.
   pdfs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -66,25 +67,13 @@ jobs:
             ornaments.tex
             specimen-tikz.tex
           latexmk_use_lualatex: true
-          # the Lua engine (engine=lua) draws what pure TikZ draws: Lua does pgfmath's arithmetic
-          # exactly where the species need it (pgfmathcheck), samples the same species and visitors
-          # (tikzcheck), and draws the same pics, render against render (tikzcheck draw quick: a
-          # flower, a leaf and an inflorescence of every body plan, every kind of leaf, fern and
-          # visitor, a plant in three seasons)
+          # Lua does pgfmath's arithmetic exactly where the species need it (pgfmathcheck), and
+          # the TikZ library and the Lua sample the same species and visitors (tikzcheck); the
+          # tikz job below compares what the two engines draw
           post_compile: >-
             texlua tools/pgfmathcheck.lua 20000 &&
             texlua tools/tikzcheck.lua 1 1000 &&
-            texlua tools/tikzcheck.lua 1 1000 lualatex v:any &&
-            texlua tools/tikzcheck.lua draw quick
-      # the species in pure TikZ promise pdfLaTeX too; a strip of plants takes more of
-      # pdfTeX's main memory than its default 5 million words (specimen-tikz.tex says why).
-      # pre_compile runs in the shell that then runs latexmk, so the export reaches pdflatex
-      - name: the pure-TikZ species sheet (pdflatex)
-        uses: xu-cheng/latex-action@6549dc21effb2730855a1281407ecfcececc6c1b # 4.1.0
-        with:
-          root_file: specimen-tikz.tex
-          latexmk_use_lualatex: false
-          pre_compile: export extra_mem_top=20000000
+            texlua tools/tikzcheck.lua 1 1000 lualatex v:any
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: florilegium-pdfs
@@ -94,6 +83,30 @@ jobs:
             florilegium-grow.pdf
             showcase.pdf
             spread.pdf
+
+  # The species in pure TikZ, which promise pdfLaTeX too. pgfmath computes every point of the
+  # specimen sheet under pdflatex; a strip of plants takes more of pdfTeX's main memory than its
+  # default 5 million words (specimen-tikz.tex says why), and pre_compile runs in the shell that
+  # then runs latexmk, so the export reaches pdflatex. Then tikzcheck draw quick builds the same
+  # pics with engine=tikz and engine=lua and compares their renders (pdftoppm, which the
+  # image lacks: poppler-utils): a flower, a leaf and an inflorescence of every body plan,
+  # every kind of cluster, leaf, fern and visitor, a plant in three seasons. Pure TikZ is slow,
+  # about 25 minutes for both on a fast desktop, so it runs beside pdfs, not in it.
+  tikz:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: the pure-TikZ species sheet (pdflatex), and the two engines' pics compared
+        uses: xu-cheng/latex-action@6549dc21effb2730855a1281407ecfcececc6c1b # 4.1.0
+        with:
+          root_file: specimen-tikz.tex
+          latexmk_use_lualatex: false
+          extra_system_packages: poppler-utils
+          pre_compile: export extra_mem_top=20000000
+          post_compile: texlua tools/tikzcheck.lua draw quick
 
   # l3build's regression tests (build.lua, testfiles/): each test typesets a few pages and logs
   # the md5 of every drawing on them, so a change that moves one point of one drawing fails
@@ -120,8 +133,9 @@ jobs:
 
   # A release starts with a tag: git tag -a v1.3 -m v1.3 && git push origin v1.3, after a
   # commit that sets the version everywhere (CLAUDE.md, Releases); the lua job stops a tag
-  # that florilegium.sty and the Lua files don't agree with, and the l3build job one whose
-  # drawings moved without their logs being recorded again. This job
+  # that florilegium.sty and the Lua files don't agree with, the l3build job one whose
+  # drawings moved without their logs being recorded again, and the tikz job one whose two
+  # engines no longer draw the same species. This job
   # signs a build provenance attestation for the PDFs built from that tag and opens a draft
   # release with them attached, along with the attestation itself as
   # florilegium-pdfs.sigstore.json. The notes are written by hand, and publishing the draft
@@ -133,7 +147,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [lua, pdfs, l3build]
+    needs: [lua, pdfs, l3build, tikz]
     if: startsWith(github.ref, 'refs/tags/v')
     permissions:
       contents: write           # create the draft release
