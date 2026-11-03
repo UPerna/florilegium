@@ -1,0 +1,18 @@
+This is a generated file for the l3build validation system.
+Don't change this file in any respect.
+florilegium: grew 4609 cells, 61 motifs, 533 stem points, 2825 KB; visitors: none
+florilegium test: page 1, 2 drawings
+  1. md5 0876d2acbccd2833087f2da73023091e, 2892716 bytes
+  2. md5 8adb7afad9cf806bc75f6c9dfe89e91e, 3273 bytes
+  grew: bee 0, bells 1, blossoms 6, bud 10, budding 0, butterfly 0, cyme 12, flower 2, leaf 18, lily 2, seedhead 0, sprig 4, tendril 5, umbel 1 [1
+]
+florilegium: grew 4604 cells, 63 motifs, 529 stem points, 2768 KB; visitors: 2 butterfly, 2 bee, 1 snail
+florilegium test: page 2, 2 drawings
+  1. md5 5ea4e48e2104dbbce33d774c2904282b, 2834688 bytes
+  2. md5 393acbd48fa10bbaf0764eb7777df4c7, 3287 bytes
+  grew: bee 2, bells 1, blossoms 6, bud 8, budding 0, butterfly 2, cyme 9, flower 3, leaf 15, lily 2, seedhead 0, snail 1, sprig 8, tendril 4, umbel 2 [2]
+florilegium: grew 10231 cells, 159 motifs, 1107 stem points, 540 KB; visitors: 2 butterfly, 2 bee
+florilegium test: page 3, 2 drawings
+  1. md5 32fa5037f0d624dc0a6cfd7594329385, 553103 bytes
+  2. md5 ddeefc59be3c2ce6cf1d7715554df4a0, 521 bytes
+  grew: bee 2, bells 2, blossoms 16, bud 17, budding 0, butterfly 2, crystal 5, cyme 33, flower 7, leaf 36, lily 5, seedhead 0, sprig 15, tendril 12, umbel 7 [3]

@@ -1,0 +1,19 @@
+% dials.lvt -- the package's dials turned down, and another ink: density=0.4 (fewer
+% stems and branches), intensity=0.5 (paler tones, the same detail), no visitors.
+\input{regression-test}
+\documentclass[11pt,a4paper]{article}
+\renewcommand\rmdefault{cmr}
+\usepackage[T1]{fontenc}
+\usepackage[a4paper,left=68mm,right=22mm,top=32mm,bottom=30mm,headsep=8mm]{geometry}
+\def\florilegiumseed{5}
+\usepackage[grown,density=0.4,intensity=0.5,novisitors]{florilegium}
+\definecolor{ink}{HTML}{1D6E7A}
+\definecolor{accent}{HTML}{C9A227}
+\directlua{require("fingerprint")}
+\begin{document}
+\START
+A page with the dials turned down: fewer stems and branches, paler tones, no visitors,
+and a teal ink with an ochre accent.
+\florilegiumtextend
+\clearpage
+\END

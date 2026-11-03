@@ -1,0 +1,17 @@
+% math.lvt -- the math theme's own composition: a corner figure, families of figures
+% down the column, equations along the foot and under the text. Its captions are TeX,
+% set by florilegium.lua as TikZ nodes; the log lists where each one goes.
+\input{regression-test}
+\documentclass[11pt,a4paper]{article}
+\renewcommand\rmdefault{cmr}
+\usepackage[T1]{fontenc}
+\usepackage[a4paper,left=68mm,right=22mm,top=32mm,bottom=30mm,headsep=8mm]{geometry}
+\def\florilegiumseed{9}
+\usepackage[grown,theme=math]{florilegium}
+\directlua{require("fingerprint")}
+\begin{document}
+\START
+A short page, so that the figures and equations also fill the space under the text.
+\florilegiumtextend
+\clearpage
+\END

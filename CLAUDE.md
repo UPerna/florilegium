@@ -41,9 +41,10 @@ published to GitHub Pages.
 | `ornaments.tex` | `\florilegiumornament` demo (`gallery/ornaments.png`). |
 | `gallery.tex`, `tools/gallery.py` | one short page per variant (`\galleryink`, `\galleryage`, `\gallerytheme`) → `gallery/seeds.png` + `seeds.gif`, `inks.png`, `seasons.png`, `themes.png`, `dials.png` (`--options density=0.4,...`, via `\PassOptionsToPackage`). |
 | `animation.tex`, `tools/animate.py` | growth animation: one page per frame (`\florilegiumframe`), parallel LuaLaTeX jobs, pdftoppm, ffmpeg → `build/grow-N.gif` + `.mp4`. `tools/animcheck.lua` checks that the last frame equals the page. |
-| `tools/Dockerfile`, `tools/in-docker` | TeX Live 2023 image (Ubuntu 24.04, pinned by digest for Scorecard; Dependabot leaves it alone); `make RUN=tools/in-docker` when there's no local TeX. |
+| `tools/Dockerfile`, `tools/in-docker` | TeX Live 2023 image (Ubuntu 24.04, pinned by digest for Scorecard; Dependabot leaves it alone), luacheck in a layer of its own; `make RUN=tools/in-docker` when there's no local TeX. |
+| `build.lua`, `testfiles/`, `.luacheckrc` | `build.lua`: l3build's settings (LuaLaTeX, one run; `builddir` `build/l3build`, `cleanfiles = {}`). `testfiles/*.lvt`: 7 regression tests (`grown spread dials math authored ornaments versions`), each with its saved log (`.tlg`): the md5 and size of every drawing on its pages, what grew, the math captions (`support/fingerprint.lua`, on `pre_shipout_filter`). `.luacheckrc`: std lua53, LuaTeX's globals read-only, unused arguments allowed, the TeX stubs of `florilegium-svg.lua` and `tools/`. |
 | `postscript/florilegium.ps` | the PostScript port: ink + flora + grow (no animation, initials, themes, mirror, density/intensity, ornaments or authored page) and a two-page text that describes itself, with heading marks and the spill. One file, run by Ghostscript (`make postscript`, local `gs`, not the Docker image) or a printer. Not kept in sync automatically: a change to a primitive or to `florilegium-grow.lua` has to be made there too. |
-| `.github/`, `.gitattributes` | `workflows/build.yml` (jobs `lua` = `tools/versioncheck.sh` (with the tag on a `v*` tag) then `tools/svgcheck.sh lua5.3 lua5.4`, and `pdfs` = the four documents plus `specimen`, `specimen-geometric` and `ornaments`, which check pgf's internal transform macros, on every PR and push, uploading the four; `release` on a `v*` tag push: attestation + draft release with the PDFs and the attestation as `florilegium-pdfs.sigstore.json`, which Scorecard counts as a signature; `gallery` on dispatch), `pages.yml`, `scorecard.yml` (OpenSSF, weekly; must stay shaped like Scorecard's example), `dependabot.yml` (one grouped PR a month, 7-day cooldown), issue forms, PR template. `.gitattributes` leaves `process/` and `gallery/` out of GitHub's "Source code" downloads (`export-ignore`; 33 MB down to 0.5 MB); `tools/` stays, since README's Docker build needs it. |
+| `.github/`, `.gitattributes` | `workflows/build.yml` (jobs `lua` = `tools/versioncheck.sh` (with the tag on a `v*` tag), `luacheck .`, then `tools/svgcheck.sh lua5.3 lua5.4`; `l3build` = `l3build check` on ubuntu-24.04 with apt's TeX Live 2023, the one the logs were recorded with; and `pdfs` = the four documents plus `specimen`, `specimen-geometric` and `ornaments`, which check pgf's internal transform macros, on every PR and push, uploading the four; `release` on a `v*` tag push, after all three: attestation + draft release with the PDFs and the attestation as `florilegium-pdfs.sigstore.json`, which Scorecard counts as a signature; `gallery` on dispatch), `pages.yml`, `scorecard.yml` (OpenSSF, weekly; must stay shaped like Scorecard's example), `dependabot.yml` (one grouped PR a month, 7-day cooldown), issue forms, PR template. `.gitattributes` leaves `process/` and `gallery/` out of GitHub's "Source code" downloads (`export-ignore`; 33 MB down to 0.5 MB); `tools/` stays, since README's Docker build needs it. |
 | `tools/svgcheck.sh`, `tools/sri.sh`, `tools/versioncheck.sh` | `svgcheck.sh [lua...]`: 7 varied pages through `florilegium-svg.lua` under each interpreter given, byte-identical across them (default `lua5.3 lua5.4`). `sri.sh`: fetches each `['https://…', 'sha384-…']` pin in `web/*.js` and checks its hash. `versioncheck.sh [tag]`: the `.sty`'s v-number and every `M.version` agree, and with a tag that they are its version. |
 | `SECURITY.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `CITATION.cff` | the security policy (private reporting; what the package promises not to do; `gh attestation verify`), the contributor guide, Contributor Covenant 2.1 (reports through the private reporting form), citation metadata (no version, so it can't go stale). |
 | `PROCESS.md`, `process/` | the user's write-up of how the repo was made: `process/claude-ai.md` (the Claude.ai chat; the files it attached are in `process/claude-ai/`, and `response-final/florilegium-repo.zip` is the original repo) and `process/claude-code.md` (the first Claude Code session, up to v1.0). Historical: never update them along with the code. |
@@ -69,6 +70,8 @@ cd tools/playcheck && npm install && node check.mjs http://localhost:8000/web/ .
 tools/svgcheck.sh texlua                  # 7 pages through florilegium-svg.lua; with several interpreters, byte-identical across them (CI: lua5.3 lua5.4)
 tools/sri.sh                              # the CDN files still hash to what web/*.js pins
 tools/versioncheck.sh [v1.3]              # the .sty and every Lua file name one release (and the tag's)
+make luacheck RUN=tools/in-docker         # luacheck over every Lua file (.luacheckrc), as CI's lua job does
+make check RUN=tools/in-docker            # l3build's 7 regression tests (~10 s); after an intended change: tools/in-docker l3build save <test>
 ```
 
 Fixed seed: `lualatex "\def\florilegiumseed{7}\input{florilegium-grow.tex}"`. Any
@@ -176,6 +179,20 @@ is ~70 KB of path operators, a page ~3 MB uncompressed, ~0.7 MB in the PDF.
   spill × summer/novisitors/spring/autumn-marks, + authored) to a directory (~170 MB); run it
   before and after a change that should move nothing (`build/ident-before`, `-after`) and
   `diff -r`.
+- **Regression tests** (`make check`, l3build): each `testfiles/*.lvt` logs, per page, the md5 and
+  size of every literal that starts `q 1 J 1 j` (ink's), the grown counts and the math captions; the
+  `.tlg` beside it is the record. They were recorded with Ubuntu 24.04's TeX Live 2023 (the Docker
+  image, CI's `l3build` job), and another TeX Live may set the text differently and move a heading's
+  flower, so record and check there. A change that should move nothing leaves `make check` green (the
+  quick counterpart of `tools/ident.lua`, through the real `.sty`); after an intended one,
+  `l3build save <test>`, look at the pages, and say so in the PR. `versions.lvt` writes "this
+  release" for the number, so a release bump needs no new log. `build.lua` keeps l3build in
+  `build/l3build` with `cleanfiles = {}`: by default `l3build clean` deletes the root's PDFs.
+- **luacheck** (`make luacheck`): every Lua file passes `luacheck .`. Unused arguments are allowed
+  (primitives, motif rows and figures share signatures); line length is not checked. A deliberate
+  exception is an inline `-- luacheck: ignore <code> (why)` on its line, as theme-geometric's `by`
+  (W241 counts `by.blossoms.draw = f` as changing `by`, never reading it). A new file under
+  `tools/` or `testfiles/support/` is checked too.
 - **Never wrap typeset text in `q`…`Q` page literals**: `Q` drops the `Tf` LuaTeX set
   inside and the rest of the page's text disappears. The initial's invisible letter uses
   `3 Tr` / `0 Tr` instead. (ActualText on a path-only span is ignored by poppler.)

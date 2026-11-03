@@ -336,6 +336,8 @@ make grow-6                 # growth animation of seed 6 -> build/grow-6.gif + .
 make grow-6 EXPLAIN=1       # the same with the free discs marked -> build/grow-6-explain.*
 make svg SEED=7             # the same page as SVG, without TeX -> build/svg-7.svg
 make playground             # the browser playground at http://localhost:8000/web/
+make luacheck               # luacheck over the Lua (.luacheckrc)
+make check                  # l3build's regression tests: every drawing on their pages, by its md5
 ```
 
 No TeX installed? Build the image once and run everything in it:
@@ -345,7 +347,7 @@ docker build -t florilegium-tex tools
 make RUN=tools/in-docker
 ```
 
-Or paste `florilegium.sty`, the `.lua` files and one of the `.tex` files into an
+Or paste `florilegium.sty`, every `florilegium*.lua` and one of the `.tex` files into an
 [Overleaf](https://www.overleaf.com) project and set the compiler to LuaLaTeX.
 
 Use it in your own document:

@@ -1,0 +1,30 @@
+% spread.lvt -- a two-sided document: the garden grows in the wider outer margin, mirrored on
+% the right-hand pages; from page 3 on it is cut from the geometric theme's flat shapes, and
+% it spills into the space under the text there.
+\input{regression-test}
+\documentclass[11pt,a4paper,twoside]{article}
+\renewcommand\rmdefault{cmr}
+\usepackage[T1]{fontenc}
+\usepackage[a4paper,inner=22mm,outer=68mm,top=32mm,bottom=30mm,headsep=8mm]{geometry}
+\def\florilegiumseed{3}
+\usepackage[grown,sections]{florilegium}
+\directlua{require("fingerprint")}
+\newcount\paracount
+\newcommand\paras[1]{\paracount=0
+  \loop On a right-hand page the outer margin is on the right, so the layout is computed as
+  if it were on the left and reflected as it is drawn.\par
+  \advance\paracount 1 \ifnum\paracount<#1 \repeat}
+\begin{document}
+\START
+\section{A right-hand page}
+\paras{8}
+\newpage
+\section{A left-hand page}
+\paras{8}
+\newpage
+\florilegiumtheme{geometric}
+\section{Another theme}
+\paras{3}
+\florilegiumtextend
+\clearpage
+\END

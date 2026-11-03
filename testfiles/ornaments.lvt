@@ -1,0 +1,23 @@
+% ornaments.lvt -- single primitives without a margin (option nomargin): ornaments in the
+% text, with each of their keys, and \florilegiumdraw inside a rotated, scaled TikZ scope,
+% which reads pgf's transform from its internal macros (florilegium.lua: sync_transform).
+\input{regression-test}
+\documentclass[11pt]{article}
+\renewcommand\rmdefault{cmr}
+\usepackage[T1]{fontenc}
+\usepackage[nomargin]{florilegium}
+\directlua{require("fingerprint")}
+\begin{document}
+\START
+\florilegiumornament{leaf} \florilegiumornament[size=2.4em,angle=-10]{flower}
+\florilegiumornament[ink=5B2A1F,accent=2F6B4F]{butterfly}
+\florilegiumornament[seed=5]{hedera} \florilegiumornament{sparkle}
+
+\begin{tikzpicture}
+  \begin{scope}[shift={(2,1)},rotate=20,scale=0.8]
+    \florilegiumdraw{flower}{1.9}
+    \florilegiumdraw{leaf}{4, {lobes=4, depth=0.5}}
+  \end{scope}
+\end{tikzpicture}
+\clearpage
+\END

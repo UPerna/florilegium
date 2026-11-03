@@ -31,6 +31,10 @@ explains each of them in its "Conventions and traps" section.
   LuaLaTeX, Lua 5.3, Lua 5.4 and the playground. `tools/svgcheck.sh` checks this, and CI runs
   it on every pull request. A change that should leave the drawing alone must leave it
   byte-identical; `tools/ident.lua` writes 45 pages to compare before and after.
+- **Lint and regression tests.** `make luacheck` runs luacheck over the Lua, and `make check`
+  runs l3build's tests in `testfiles/`, which record a fingerprint of every drawing on their
+  pages; the Docker image has both, and CI runs both. After a change that is meant to move a
+  drawing, record the test again (`l3build save <test>`) and say so in the pull request.
 - **The playground** has its own check: serve the repository (`make playground`) and run
   `tools/playcheck` (see the comment at the top of `check.mjs`).
 - **US spelling** everywhere, in code, comments and docs.
