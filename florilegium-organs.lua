@@ -125,7 +125,16 @@ local function drawseed(n) rng.load(n) rng.step() rng.step() end         -- \flo
 
 -- ---------------------------------------------------------------- output
 local OUT
-local function out(s) OUT[#OUT + 1] = s end
+-- (M8f1 prototype) with M.stream set, each piece of code is painted as it is written
+local function out(s) local st = M.stream if st then st(s) else OUT[#OUT + 1] = s end end
+-- (M8f1 prototype) with M.nv set (florilegium-native.lua), the petals and the face-on
+-- flowers are drawn by it instead: the same draws, in floats, straight to ink
+function M.nvpen()
+  local nv = M.nv
+  nv.pen.lift = R.lift / U nv.pen.accent = R.rampname == "flo@aramp"
+  return nv
+end
+function M.nvval(v, whole) if v == nil or v == "" then return nil end if whole then return v // U end return v / U end
 local function P(x, y) return "\\pgfqpoint{" .. str(x) .. "pt}{" .. str(y) .. "pt}" end
 local function moveto(x, y) out("\\pgfpathmoveto{" .. P(x, y) .. "}") end
 local function lineto(x, y) out("\\pgfpathlineto{" .. P(x, y) .. "}") end
@@ -384,6 +393,12 @@ end
 
 -- \flo@vpetal: along +y, length 1, from \flo@vp@pointed, @W, @bend, @tone, @ns, @heart, @u
 local function vpetal()
+  if M.nv then
+    local val = M.nvval
+    return M.nvpen().petal({ pointed = R["vp@pointed"] == U, W = val(R["vp@W"]), bend = val(R["vp@bend"]),
+      tone = R["vp@tone"] / U, ns = val(R["vp@ns"], true), heart = R["vp@heart"] == U, u = R["vp@u"] / U,
+      notchp = R["vp@notchp"] / U, notchk = R["vp@notchk"] / U })
+  end
   if R["vp@W"] == "" then
     if R["vp@pointed"] == U then V.pW = range(K"0.15", K"0.2") else V.pW = range(K"0.40", K"0.48") end
   else V.pW = R["vp@W"] end
@@ -513,6 +528,11 @@ local function vheart(n)
 end
 -- \flo@vflower{u}{n}: n broad petals seen from the front, petal length 1
 local function vflower(u, n)
+  if M.nv then
+    local val = M.nvval
+    return M.nvpen().flower(u / U, n // U, { pointed = R["vf@pointed"] == U, tone = val(R["vf@tone"]),
+      W = val(R["vf@W"]), ns = val(R["vf@ns"], true), notchp = R["vp@notchp"] / U, notchk = R["vp@notchk"] / U })
+  end
   V.vu = u
   if R["vf@pointed"] ~= nil then V["vp@pointed"] = R["vf@pointed"] else V["vp@pointed"] = 0 end
   V.spin = range(0, 72 * U)
@@ -914,6 +934,11 @@ local function vlily(u)
 end
 -- \flo@vfloret{r}{n}: a small flower of n petals, radius 1; r its radius in cm
 local function vfloret(r, n)
+  if M.nv then
+    local star = R["vf@star"]
+    if star == "" then star = nil else star = star == U end
+    return M.nvpen().floret(r / U, n // U, { star = star, tone = M.nvval(R["vf@tone"]) })
+  end
   if R["vf@star"] == "" then
     if chance(K"0.5") then V.star = U else V.star = 0 end
   else V.star = R["vf@star"] end
@@ -1043,6 +1068,10 @@ end
 local vblossom, vboss
 -- \flo@sdaisy{d}: a daisy head, diameter 1
 local function sdaisy(d)
+  if M.nv then
+    return M.nvpen().daisy(d / U, tr("merosity") // U, { tone = M.nvval(R["vf@tone"]),
+      notchp = R["vp@notchp"] / U, notchk = R["vp@notchk"] / U })
+  end
   V.nr = tr("merosity") V.spin = range(0, 360 * U)
   if R["vf@tone"] == "" then V.tq = range(K"0.3", K"0.46") else V.tq = R["vf@tone"] end
   V.vu = E("(%1)*0.36/28.45276", { d })
@@ -1117,6 +1146,7 @@ local function sflower(d)
 end
 -- \flo@vboss: the rose family's ring of stamens, face on
 function vboss()
+  if M.nv then return M.nvpen().boss(tr("stamens") == "exserted") end
   if tr("stamens") == "exserted" then V.bl = K"0.04" else V.bl = 0 end
   V.bn = int(36, 52) V.bph = range(0, 360 * U)
   local spk, spa = {}, {}
@@ -1728,6 +1758,7 @@ function leaf_(len)
 end
 -- \flo@vblossom{r}{n}: flora.blossom, n round petals, radius 1; r its radius in cm
 function vblossom(r, n)
+  if M.nv then return M.nvpen().blossom(r / U, n // U, { tone = M.nvval(R["vf@tone"]) }) end
   V.bnp = n V.spin = range(0, 72 * U)
   if R["vf@tone"] == "" then V.tq = range(K"0.30", K"0.45") else V.tq = R["vf@tone"] end
   loop("#ka", 0, function() return I("bnp") - 1 end, function()
@@ -5824,13 +5855,21 @@ local function organ(kind, s, z, o)
   return concat(OUT)
 end
 M.organ = organ                   -- the code itself, for tests
+-- (M8f1 prototype) the native petals and flowers on or off; FLORILEGIUM_NATIVE=1 turns them on
+function M.native(on)
+  if on then
+    M.nv = require("florilegium-native")
+    M.nv.use(rng)
+  else M.nv = nil end
+end
+if os.getenv("FLORILEGIUM_NATIVE") == "1" then M.native(true) end
 
 -- the pgf code read back and painted with ink, under ink's current transform: a point
 -- (pt in the code) is a cm; line widths stay absolute
 local KAPPA, PT_BP = 0.55228475, 72 / 72.27
 local BLACK = { 0, 0, 0 }
-local function paint(code)
-  code = code:gsub("\\pgfqpoint{(%-?[%d.]+)pt}{(%-?[%d.]+)pt}", "%1 %2")
+-- (M8f1 prototype: a painter fed piece by piece, M.stream)
+function M.painter()
   local st = { fill = BLACK, fop = 1, stroke = BLACK, sop = 1, w = 0.4 * PT_BP, mult = false, colors = {}, clips = 0,
     dash = nil }
   local stack, aramp = {}, {}
@@ -5859,6 +5898,8 @@ local function paint(code)
     for v in a:gmatch("%-?[%d.]+") do t[#t + 1] = tonumber(v) end
     return t
   end
+  local function feed(code)
+  code = code:gsub("\\pgfqpoint{(%-?[%d.]+)pt}{(%-?[%d.]+)pt}", "%1 %2")
   for name, a in code:gmatch("\\([%a@]+)([^\\]*)") do
     if name == "pgfpathcurveto" then
       local v = nums(a) ink.curveto(v[1], v[2], v[3], v[4], v[5], v[6])
@@ -5926,8 +5967,10 @@ local function paint(code)
       error("florilegium-organs: ink cannot paint \\" .. name)
     end
   end
-  assert(#stack == 0, "florilegium-organs: a scope left open")
+  end
+  return feed, function() assert(#stack == 0, "florilegium-organs: a scope left open") end
 end
+local function paint(code) local feed, done = M.painter() feed(code) done() end
 
 -- draw an organ (see organ() above) with ink. With M.keep set (the growth animation
 -- paints every motif several times), each organ's code is computed once per page.
@@ -5935,6 +5978,16 @@ M.keep = false
 local kept_code = {}
 function M.forget() kept_code = {} end
 function M.draw(kind, s, z, o)
+  if M.nv then                    -- (M8f1 prototype) painted as it is computed
+    M.nv.fresh()
+    local feed, done = M.painter()
+    M.stream = feed
+    local ok, err = pcall(organ, kind, s, z, o)
+    M.stream = nil
+    if not ok then error(err, 0) end
+    done()
+    return
+  end
   local code
   if M.keep then
     local key = table.concat({ kind, s.seed, s.role, z, tostring(o.k), tostring(o.season), tostring(o.late), tostring(o.size),

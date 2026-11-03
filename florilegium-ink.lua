@@ -53,11 +53,10 @@ end
 -- rnd is (z mod 100001) written as five decimals and read as a TeX dimension,
 -- rand the same over (z mod 200001) - 100000, random(a,b) is a + z mod (b-a+1).
 -- Values are returned as TeX holds them: whole scaled points (1/65536 pt).
-local function decimals_sp(n)               -- TeX's round_decimals of the five digits of n
-  local a = 0
-  for _ = 1, 5 do a = (a + (n % 10) * 131072) // 10 n = n // 10 end
-  return (a + 1) // 2
-end
+-- TeX's round_decimals of the five digits of n (0 <= n < 100000): it takes the digits from
+-- the last, a = (a + digit * 2^17) div 10, then (a + 1) div 2; the digits are whole numbers,
+-- so the five truncations are one, of n * 2^17 / 10^5 (checked for every n)
+local function decimals_sp(n) return (n * 131072 // 100000 + 1) // 2 end
 function M.pgfrng(seed)
   local z = floor(seed)
   assert(z >= 1 and z <= 2147483646, "florilegium: a pgf seed is an integer from 1 to 2147483646")
