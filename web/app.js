@@ -105,7 +105,8 @@ function colophon() {
   const what = isMath() ? 'figures' : 'garden'
   // a seed that no visitor came to says so, or the switch would seem to do nothing
   const counts = current && current.key === grownKey() && current.stats && current.stats.counts
-  const none = counts && !VISITORS.some((k) => counts[k] > 0) ? ', though none came to this seed' : ''
+  const vs = current && current.key === grownKey() && current.stats && current.stats.visitors   // species: the visitors that came
+  const none = counts && (vs ? !vs.length : !VISITORS.some((k) => counts[k] > 0)) ? ', though none came to this seed' : ''
   return `This proof is ${P.art} ${term('paper', P.name)} page, its ${what} in a ${term('margin', s.margin + ' mm')} margin on the
     ${term('side', s.side)}. It grew from seed <span class="nowrap"><button class="stepper" data-step="-1" aria-label="Previous seed">‹</button>${term('seed', s.seed)}<button class="stepper" data-step="1" aria-label="Next seed">›</button></span>
     ${isMath() ? '' : `in ${term('season', s.season)}, `}as ${term('style', styleName())} ${term('density', densityWord(s.density))}, and it is
@@ -455,7 +456,17 @@ function pageText(m) {
         Each branch became stem in its turn, so the next could start from it, and ${m.stats.stems} points of stem now hold the garden together.`)
     }
     const came = VISITORS.filter((k) => counts[k] > 0)
-    P.push(!s.visitors ? 'Visitors were asked to stay away: no butterflies, bees, snails or birds.'
+    // species: each visitor in florilegium-species.lua's words, where it came (florilegium-grow.lua: stats.visitors)
+    const vs = sp && m && m.stats && m.stats.visitors
+    const an = (t) => `${/^[aeiou]/.test(t) ? 'an' : 'a'} ${t}`
+    const DID = { flowers: 'came to the flowers', monocot: 'flew by the monocot', stem: 'climbed a stem', leaf: 'fed on a leaf of its own', twig: 'perched on a twig' }
+    // what it did, with the words after a comma ("resting with its wings closed") after the verb
+    const visited = (v) => { const [head, ...tail] = v.text.split(', '); return `${an(head)} ${DID[v.at]}${tail.length ? ', ' + tail.join(', ') : ''}` }
+    const semi = (xs) => xs.length < 2 ? xs.join('') : xs.slice(0, -1).join('; ') + '; and ' + xs[xs.length - 1]
+    P.push(!s.visitors ? (sp ? 'Visitors were asked to stay away, so no insects, snails or birds came.' : 'Visitors were asked to stay away: no butterflies, bees, snails or birds.')
+      : vs && vs.length ? `Each visitor was sampled from a genome too, and came for what it lives on, as a plant's flowers draw the visitor they are made for.
+        On this page ${semi(vs.map(visited))}. Another seed brings others, or none.`
+      : vs ? 'No visitors came to this page. On another seed a bee works the flowers it is made for, a caterpillar eats a leaf or a ladybird climbs a stem; nothing here decides that but the seed.'
       : came.length ? `${upper(list(came.map((k) => count(counts[k], k))))} came to visit; another seed brings others, or none.`
       : 'No visitors came to this page. On another seed a butterfly crosses the margin, a bee works the flowers, or a snail climbs a stem; nothing here decides that but the seed.')
     P.push(s.season === 'summer' ? 'It is summer, and everything is in flower.'

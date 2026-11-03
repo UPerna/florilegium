@@ -7,7 +7,8 @@
 % grows a margin; page 2: each body plan's flower and leaf close up, and one plant through
 % the seasons; page 3: every flower form as its plant holds it; page 4: every kind of
 % cluster, and one cluster through the seasons; pages 5 and 6: every kind of leaf, by its
-% blade, its edge and veins, and compound; page 7: fronds, and one fern through the year.
+% blade, its edge and veins, and compound; page 7: fronds, and one fern through the year;
+% page 8: the visitors, one or two of each kind.
 % Copyright (c) 2026 Kevin Raymond. MIT License.
 %   lualatex specimen-tikz.tex
 %   extra_mem_top=20000000 pdflatex specimen-tikz.tex
@@ -36,6 +37,11 @@
   \begin{minipage}[b]{0.245\linewidth}\centering
     \begin{tikzpicture}\pic {florilegium inflorescence={seed=#2, role=#1, scale=1.3, season=#3}};\end{tikzpicture}\par
     \smallskip{\scriptsize #4\\ \textit{#1 #2}}\par\medskip
+  \end{minipage}}
+\newcommand\visit[4][2.6cm]{% [its size] #2 role, #3 seed, #4 the visitor in words
+  \begin{minipage}[b]{0.245\linewidth}\centering
+    \begin{tikzpicture}\pic {florilegium visitor={seed=#3, role=#2, size=#1}};\end{tikzpicture}\par
+    \smallskip{\scriptsize #4\\ \textit{#2 #3}}\par\medskip
   \end{minipage}}
 \newcommand\leafof[4][2.9cm]{% [its length] #2 role, #3 seed, #4 what it shows: the species' leaf
   \begin{minipage}[b]{0.163\linewidth}\centering
@@ -214,4 +220,35 @@ dimorphic fern sends up a narrow fertile frond.}\par\bigskip
 {\footnotesize Fern 20 unrolls its fronds from fiddleheads in spring, each a little ahead of
 the season or behind it. From midsummer its fertile frond stands in the middle, beaded with
 spores and painted in the copper, and in autumn a frond turns.}
+\newpage
+{\large Visitors}\par\medskip
+{\small A visitor is sampled from a genome of its own, first its kind, then the traits that
+kind has (a butterfly's wing tips, edges, tails and the systems of its pattern, a bee's bands and
+hair, a dragonfly's tinted wings, a beetle's spots, a caterpillar's stripes, tufts and horn,
+a snail's whorls and spire, a bird's bill). In a margin each plant draws the visitor its
+flowers are for, a bee to a bee flower and a hawkmoth to a pale one that opens at dusk,
+and none comes to a plant the wind pollinates; a snail climbs a stem, a caterpillar feeds on
+a leaf of its own, a dragonfly or damselfly flies by the page's lily or grass, a ladybird climbs a stem, and a small
+bird perches on a twig.}\par\bigskip
+\visit[2.8cm]{butterfly}{4}{a blue butterfly with tails and a row of eyespots}\hfill
+\visit[2.8cm]{butterfly}{1}{an orange butterfly with toothed wings}\hfill
+\visit[2.6cm]{moth}{1}{a moth resting with its wings folded like a tent}\hfill
+\visit[3cm]{moth}{3}{a brown hawkmoth hovering}\par
+\visit[1.7cm]{honeybee}{5}{a honeybee with pollen on its legs}\hfill
+\visit[1.9cm]{bumblebee}{6}{a bumblebee with a pale tail}\hfill
+\visit[1.5cm]{solitarybee}{1}{a dark solitary bee}\hfill
+\visit[1.5cm]{hoverfly}{2}{a yellow-banded hoverfly}\par
+\visit[2.6cm]{dragonfly}{4}{a red dragonfly}\hfill
+\visit[2.4cm]{damselfly}{5}{a blue damselfly with tinted wings}\hfill
+\visit[1.6cm]{beetle}{4}{a blue beetle with striped wing cases}\hfill
+\visit[1.2cm]{ladybird}{1}{a red ladybird with seven black spots}\par
+\visit[1.8cm]{caterpillar}{3}{a caterpillar with tufts and a horn, on its bitten leaf}\hfill
+\visit[1.8cm]{caterpillar}{2}{a looping caterpillar}\hfill
+\visit[1.8cm]{snail}{4}{a pale snail with a banded shell}\hfill
+\visit[3cm]{perch}{12}{a russet seed-eater with a crest}\par
+\visit[3cm]{hummingbird}{1}{a nectar bird hovering}\hfill
+\begin{minipage}[b]{0.72\linewidth}\footnotesize Sizes are free here; in a margin a visitor is
+drawn at about its real size enlarged, the small ones most, as an illustrator enlarges them:
+a butterfly about 1.3~cm across and a bee 0.8~cm long, as v1.3's, and about three come to a
+page.\par\medskip\end{minipage}
 \end{document}

@@ -448,6 +448,33 @@ local function species_rows(sp, i, sea)
   return rows
 end
 
+-- the species' visitors (M7f), sampled from genomes of their own (florilegium-species.lua's
+-- vsample) and drawn by florilegium-organs.lua. A visitor's size on the page (cm) from
+-- its real one (mm), small ones enlarged most, as an illustrator draws them: a butterfly
+-- about 1.3 cm across and a bee 0.8 cm long, as v1.3's; a bird half as large again
+local function vsize(v) return 0.29 * v.size ^ 0.38 * (v.group == "bird" and 1.4 or 1) end
+-- the room it takes, in sizes: half a wingspan, a bee's or a bird's spread wings, a
+-- dragonfly's four
+local VROOM = { lepidoptera = 0.5, bee = 0.6, fly = 0.6, beetle = 0.5, odonate = 0.72, bird = 0.6, larva = 0.8,
+  snail = 0.6 }
+local VSP = { seed = 0, role = "visitor" }           -- florilegium-organs' draw wants a species; a visitor has none
+local function vdraw(z, role, s) ORG.draw("visitor", VSP, 0, { seed = z, role = role, size = s }) end
+-- a visitor as a motif row that flies in (pollinators, by the plant whose row it is; a
+-- dragonfly by the monocot): one of each a page, of its own size, a butterfly's head up
+-- and a bird upright
+local function visitor_row(name, z, role)
+  local v = SPC.vsample(z, role)
+  -- a nectar bird at the flowers hovers (perched, it would stand on nothing): the next seed
+  while v.group == "bird" and v.pose ~= "hover" do z = z % 2147483645 + 1 v = SPC.vsample(z, role) end
+  local s = vsize(v)
+  return { name = name, kind = "visitor", group = "g:visitor", fly = true, visitor = v, w = 1.5,
+    smin = s, smax = s, hard = true, limit = 1, layer = L_ACCENT,
+    heading = v.group == "lepidoptera" and "up" or v.group == "bird" and "upright" or "any",
+    r = function(k) return VROOM[v.group] * k end, off = function() return 0 end,
+    draw = function(_, k) vdraw(z, role, k) end }
+end
+M.VCAP = 4                                           -- flying visitors a page, at most
+
 -- ---------------------------------------------------------------- page
 -- With g.anim set, the page is recorded instead of written, and the
 -- recording is returned with its events timed: { rec, total }.
@@ -478,11 +505,22 @@ function M.page(g)
     return e
   end
   if anim then ink.record(true) end
-  -- visitors come from their own stream, so a page without them is unchanged
-  local vis = ink.rng(g.seed * 7919 + 101)
-  local visiting = g.visitors == false and {} or
-    { butterfly = vis.chance(0.75), bee = vis.chance(0.6), snail = vis.chance(0.4), bird = vis.chance(0.22) }
-  if D < 0.3 then visiting.snail, visiting.bird = false, false end
+  -- visitors come from their own stream, so a page without them is unchanged; the
+  -- species' visitors from one of their own, as they are other animals: pollinators
+  -- (flower), a snail, a bird on a twig, a caterpillar on its leaf, a dragonfly or
+  -- damselfly by the monocot or a ladybird on a stem
+  local spc = g.species and F == flora
+  local vis = ink.rng(g.seed * 7919 + (spc and 503 or 101))
+  local visiting
+  if g.visitors == false then visiting = {}
+  elseif spc then
+    visiting = { flower = vis.chance(0.9), snail = vis.chance(0.4), bird = vis.chance(0.22), leaf = vis.chance(0.35),
+      stem = vis.chance(0.35) }
+  else
+    visiting = { butterfly = vis.chance(0.75), bee = vis.chance(0.6), snail = vis.chance(0.4), bird = vis.chance(0.22) }
+  end
+  if D < 0.3 then visiting.snail, visiting.bird, visiting.leaf, visiting.stem = false, false, false, false end
+  local vlist = {}                          -- species: the visitors that came, for the page's words
   -- the season (g.age: 0 spring, 0.5 summer, 1 autumn; nil is summer as it always
   -- was): a value for each season, blended; its own stream for what it adds
   local age = g.age
@@ -497,7 +535,8 @@ function M.page(g)
   -- species: the page's plants (comm[k] grows on main stem k, comm[4], a spray, on the footer),
   -- their rows, and the organs' season; nil without the option (or with a theme)
   local comm, rowsof, osea = nil, nil, nil
-  if g.species and F == flora then
+  local stemv                               -- species: a ladybird for a stem
+  if spc then
     if not ORG then SPC, ORG = require("florilegium-species"), require("florilegium-organs") end
     comm = SPC.community(SPC.pool(g.docseed or 0), ink.rng(g.seed * 7919 + 307))
     osea = season(0.3, 0.75, 1.25)
@@ -506,9 +545,22 @@ function M.page(g)
     rowsof = {}
     for i, sp in ipairs(comm) do
       local rows = species_rows(sp, i, osea)
-      for _, m in ipairs(motifs) do if m.fly then rows[#rows + 1] = m end end   -- visitors stay as they are
+      -- the visitor its flowers are for (none for the wind)
+      if sp.syndrome ~= "wind" then
+        local r = visitor_row("visitor:" .. i, pgfseed(vis), sp.syndrome)
+        rows[#rows + 1] = r visiting[r.name] = visiting.flower
+      end
       rowsof[sp] = rows
     end
+    -- off the flowers: a dragonfly or damselfly flies by the monocot, a ladybird climbs a stem
+    local z = pgfseed(vis)
+    local v = SPC.vsample(z, "stem")
+    if v.group == "odonate" then
+      if comm[3] then
+        local r = visitor_row("visitor:stem", z, "stem")
+        rowsof[comm[3]][#rowsof[comm[3]] + 1] = r visiting[r.name] = visiting.stem
+      end
+    else stemv = { z = z, v = v } end
   end
   local topof = {}                          -- species: the height of each plant's top
 
@@ -802,6 +854,7 @@ function M.page(g)
   if comm then
     for _, sp in ipairs(comm) do for _, m in ipairs(rowsof[sp]) do counts[m.name] = 0 end end
     for group in pairs(M.GROUPS) do counts["g:" .. group] = 0 end
+    counts["g:visitor"] = 0
     -- the same draws as below, so the stems and their tops stay where they were
     local p, q = mains[1][#mains[1]], mains[1][#mains[1] - 2]
     local hx, hy = norm(p[1] - q[1], p[2] - q[2])
@@ -1000,7 +1053,9 @@ function M.page(g)
     return norm(b[1] - a[1], b[2] - a[2])
   end
   if visiting.snail then
-    local s, best, c = vis.range(0.75, 0.9), -1, nil
+    local s, sz, sv                          -- species: the genome's snail, at its size
+    if comm then sz = pgfseed(vis) sv = SPC.vsample(sz, "snail") s = vsize(sv) else s = vis.range(0.75, 0.9) end
+    local best, c = -1, nil
     for _ = 1, 12 do
       local k = vis.int(1, NSTEM)
       local pts = mains[k]
@@ -1026,13 +1081,19 @@ function M.page(g)
       end
       local x, y, a = at(1)
       event({ kind = "bloom", parent = mainev[c.k], at = sa[c.i] / La, till_end = true })
-      place(L_ACCENT, x, y, a, function() ink.scale(c.side, 1) F.snail(rng.fork(), s) end, at, 40)
+      place(L_ACCENT, x, y, a, function()
+        ink.scale(c.side, 1)
+        if sv then vdraw(sz, "snail", s) else F.snail(rng.fork(), s) end
+      end, at, 40)
       disc(pts[c.i][1] + c.nx * 0.36 * s, pts[c.i][2] + c.ny * 0.36 * s, 0.5 * s, 1)
       counts.snail = 1
+      if sv then vlist[#vlist + 1] = { kind = "snail", group = "snail", text = SPC.vdescribe(sv), at = "stem" } end
     end
   end
   if visiting.bird then
-    local s, best, c = vis.range(2.3, 2.7), -1, nil
+    local s, bz, bv                          -- species: a seed-eater from its genome
+    if comm then bz = pgfseed(vis) bv = SPC.vsample(bz, "perch") s = vsize(bv) else s = vis.range(2.3, 2.7) end
+    local best, c = -1, nil
     for _ = 1, 24 do
       local k = vis.int(1, NSTEM)
       local pts = mains[k]
@@ -1058,11 +1119,76 @@ function M.page(g)
       add_stem_points(twig, 0.05, 0.02, 2, comm and comm[c.k])
       local perch = twig[max(1, floor(#twig * 0.85))]
       event({ kind = "bloom", parent = tev, at = 1, span = 1.4 })
-      place(L_ACCENT, perch[1], perch[2], 90, function() F.bird(rng.fork(), s, { facing = c.facing }) end,
-        arrive(perch[1], perch[2], 90, 3.5, c.facing > 0 and 160 or 20, 0.6), FLYSTEPS)
+      place(L_ACCENT, perch[1], perch[2], 90, function()
+        if bv then ink.scale(c.facing, 1) vdraw(bz, "perch", s) else F.bird(rng.fork(), s, { facing = c.facing }) end
+      end, arrive(perch[1], perch[2], 90, 3.5, c.facing > 0 and 160 or 20, 0.6), FLYSTEPS)
       disc(c.cx, c.cy, 0.36 * s, 0.9)
       disc(perch[1] - c.facing * 0.35 * s, perch[2] + 0.15 * s, 0.2 * s, 0.9)
       counts.bird = 1
+      if bv then vlist[#vlist + 1] = { kind = bv.kind, group = "bird", text = SPC.vdescribe(bv), at = "twig" } end
+    end
+  end
+  -- species: a caterpillar on a leaf of its own at a node of a broad-leaved plant (its
+  -- leaf, bitten, as long as one and a half caterpillars, held out and up from the stem)
+  if comm and visiting.leaf then
+    local cz = pgfseed(vis)
+    local cv = SPC.vsample(cz, "caterpillar")
+    local s = vsize(cv)
+    local Lf, best, c = 1.5 * s, -1, nil
+    for _ = 1, 16 do
+      local k = vis.int(1, min(2, NSTEM))
+      local pts = mains[k]
+      local i = vis.int(max(4, floor(#pts * 0.2)), max(5, floor(#pts * 0.7)))
+      local side = vis.chance(0.5) and 1 or -1
+      local tx, ty = tangent(pts, i)
+      local ax, ay = norm(ty * side + tx, -tx * side + ty)       -- out from the stem, leaning up
+      local f = free_at(pts[i][1] + ax * 0.6 * Lf, pts[i][2] + ay * 0.6 * Lf) / (0.42 * Lf)
+      if f > best then best, c = f, { k = k, i = i, side = side, ax = ax, ay = ay } end
+    end
+    if c and best > 0.8 then
+      local p = mains[c.k][c.i]
+      local sa, La = ink.arclen(mains[c.k])
+      event({ kind = "bloom", parent = mainev[c.k], at = sa[c.i] / La, size = 0.5 * Lf })
+      place(L_ACCENT, p[1], p[2], deg(c.ax, c.ay), function()
+        if c.side < 0 then ink.scale(-1, 1) end
+        vdraw(cz, "caterpillar", s)
+      end)
+      disc(p[1] + c.ax * 0.6 * Lf, p[2] + c.ay * 0.6 * Lf, 0.5 * Lf, 0.9)
+      vlist[#vlist + 1] = { kind = "caterpillar", group = "larva", text = SPC.vdescribe(cv), at = "leaf" }
+    end
+  end
+  -- species: a ladybird climbing a main stem
+  if stemv and visiting.stem then
+    local s = vsize(stemv.v)
+    local best, c = -1, nil
+    for _ = 1, 12 do
+      local k = vis.int(1, NSTEM)
+      local pts = mains[k]
+      local i = vis.int(max(10, floor(#pts * 0.2)), max(11, floor(#pts * 0.7)))
+      local tx, ty = tangent(pts, i)
+      local p = pts[i]
+      local f = min(free_at(p[1] + ty * 0.5 * s, p[2] - tx * 0.5 * s),
+        free_at(p[1] - ty * 0.5 * s, p[2] + tx * 0.5 * s))
+      if f > best then best, c = f, { k = k, i = i } end
+    end
+    if c and best > 0.3 * s then
+      local pts = mains[c.k]
+      local sa, La = ink.arclen(pts)
+      local i0 = max(1, c.i - 6)                       -- it climbs the last centimeter and a half
+      local function at(e)
+        local j = lerp(i0, c.i, e)
+        local j0 = floor(j)
+        local j1 = min(#pts, j0 + 1)
+        local p, q = pts[j0], pts[j1]
+        local tx, ty = tangent(pts, j0)
+        local u = j - j0
+        return lerp(p[1], q[1], u), lerp(p[2], q[2], u), deg(tx, ty)
+      end
+      local x, y, a = at(1)
+      event({ kind = "bloom", parent = mainev[c.k], at = sa[c.i] / La, till_end = true })
+      place(L_ACCENT, x, y, a, function() vdraw(stemv.z, "stem", s) end, at, 30)
+      disc(x, y, 0.55 * s, 1)
+      vlist[#vlist + 1] = { kind = stemv.v.kind, group = "beetle", text = SPC.vdescribe(stemv.v), at = "stem" }
     end
   end
 
@@ -1217,6 +1343,7 @@ function M.page(g)
   for _, m in ipairs(motifs) do caps[m.name] = m.fly and floor(m.max * min(1, 2 * D) + 0.5) or floor(m.max * af * D + 0.5) end   -- visitors stay few
   if comm then
     for group, mx in pairs(M.GROUPS) do caps["g:" .. group] = floor(mx * af * D + 0.5) end
+    caps["g:visitor"] = floor(M.VCAP * min(1, 2 * D) + 0.5)
   end
   local nbranch = 0
   local NBMAX = D < 1 and max(1, floor(40 * D)) or math.huge
@@ -1262,10 +1389,23 @@ function M.page(g)
       overlay(bev, px, py, f, S)
       if pick.fly then
         -- a visitor: no branch, any heading, and in the animation it flies in
-        local a = pick.name == "bee" and layout.range(0, 360) or 90 + layout.sym(50)
+        local a
+        if pick.heading == "upright" then a = 90
+        elseif pick.name == "bee" or pick.heading == "any" then a = layout.range(0, 360)
+        else a = 90 + layout.sym(50) end
         event({ kind = "bloom", parent = bev, at = 1, span = 1.2 })
-        place(pick.layer, px, py, a, function(p) pick.draw(rng.fork(), s, p) end,
-          arrive(px, py, a, 3, layout.range(0, 360), layout.sym(0.8)))
+        if pick.visitor then
+          -- species: a bird faces the plant it came to
+          local facing = pick.heading == "upright" and (S[1] < px and -1 or 1) or 1
+          place(pick.layer, px, py, a, function(p) ink.scale(facing, 1) pick.draw(rng.fork(), s, p) end,
+            arrive(px, py, a, 3, layout.range(0, 360), layout.sym(0.8)))
+          local v = pick.visitor
+          vlist[#vlist + 1] = { kind = v.kind, group = v.group, text = SPC.vdescribe(v),
+            at = pick.name == "visitor:stem" and "monocot" or "flowers" }
+        else
+          place(pick.layer, px, py, a, function(p) pick.draw(rng.fork(), s, p) end,
+            arrive(px, py, a, 3, layout.range(0, 360), layout.sym(0.8)))
+        end
       else
         if dist(ox, oy, S[1], S[2]) > 0.12 then
           branch_to(S, ox, oy, pick.hang and dx or ax, pick.hang and -0.3 or ay, 0.04, bev)
@@ -1410,8 +1550,12 @@ function M.page(g)
   ink.unclip()
   local n, seen = 0, {}
   for k, v in pairs(counts) do if k:sub(1, 2) ~= "g:" then n = n + v end end
-  for _, name in ipairs({ "butterfly", "bee", "snail", "bird" }) do
-    if (counts[name] or 0) > 0 then seen[#seen + 1] = counts[name] .. " " .. name end
+  if comm then
+    for _, v in ipairs(vlist) do seen[#seen + 1] = v.kind end
+  else
+    for _, name in ipairs({ "butterfly", "bee", "snail", "bird" }) do
+      if (counts[name] or 0) > 0 then seen[#seen + 1] = counts[name] .. " " .. name end
+    end
   end
   if anim then
     local total = schedule(events)
@@ -1444,7 +1588,8 @@ function M.page(g)
   -- what grew, for a page that describes its own garden (florilegium-svg.lua and the playground)
   -- the fern, if the page has one (not among the four: it has no stem of its own)
   local fernstat = fern and { plan = fern.plan, seed = fern.seed, text = SPC.describe(fern), fronds = nfronds } or nil
-  return { stats = { motifs = n, counts = counts, stems = #spts, cells = #gx, species = plants, fern = fernstat } }
+  return { stats = { motifs = n, counts = counts, stems = #spts, cells = #gx, species = plants, fern = fernstat,
+    visitors = comm and vlist or nil } }
 end
 
 return M

@@ -5532,17 +5532,19 @@ function L.bird(size)
     end
   end)
 end
--- \flo@visitor: a visitor of the kind last drawn, size on the page in pt (sp)
-function T.visitor(size)
+-- \flo@visitor: a visitor of the kind last drawn, size on the page in pt (sp); the
+-- margin's organ scales by cm (sp) instead, as its code is read in cm
+function T.visitor(size, cm)
+  local u = cm or size
   V.vg = L.xtr("group")
-  if R.vg == "lepidoptera" then V.t = E("(%1)/2", { size }) scale(R.t) T.lepid(size) end
-  if R.vg == "bee" then scale(size) L.bee(size) end
-  if R.vg == "fly" then scale(size) L.bee(size) end
-  if R.vg == "odonate" then scale(size) L.odo(size) end
-  if R.vg == "beetle" then scale(size) L.beetle(size) end
-  if R.vg == "larva" then scale(size) L.caterpillar(size) end
-  if R.vg == "snail" then scale(size) L.snail(size) end
-  if R.vg == "bird" then scale(size) L.bird(size) end
+  if R.vg == "lepidoptera" then V.t = E("(%1)/2", { u }) scale(R.t) T.lepid(size) end
+  if R.vg == "bee" then scale(u) L.bee(size) end
+  if R.vg == "fly" then scale(u) L.bee(size) end
+  if R.vg == "odonate" then scale(u) L.odo(size) end
+  if R.vg == "beetle" then scale(u) L.beetle(size) end
+  if R.vg == "larva" then scale(u) L.caterpillar(size) end
+  if R.vg == "snail" then scale(u) L.snail(size) end
+  if R.vg == "bird" then scale(u) L.bird(size) end
 end
 function T.visitorsetup(o)
   L.florilegiumvisitor(o.seed, o.role or "any")
@@ -5751,8 +5753,18 @@ local function fx(x) return math.floor(x * U + 0.5) end      -- a Lua number as 
 --   leaf     len (cm), bend, lc (0..1, the autumn draw), season
 --   frond    len (cm), unroll (0..1), arch (degrees), fertile, under, lc, season: a fern's
 --   ghost    d: a plain pale flower of the species, as the garden's ghost
+--   visitor  seed, role, size (cm; a wingspan for butterflies and moths): the visitor that
+--            \florilegiumvisitor{seed}{role} samples, drawn from seed + 1 as its pic is (s, z unused)
 local function organ(kind, s, z, o)
   reset()
+  if kind == "visitor" then
+    scope(function()
+      T.visitorsetup({ seed = o.seed, role = o.role })
+      V.t = E("%1*28.45276", { fx(o.size) }) T.visitor(R.t, fx(o.size))
+    end)
+    assert(level == 0, "florilegium-organs: a group left open")
+    return concat(OUT)
+  end
   florilegiumspecies(s.seed, s.role)
   drawseed(z)
   local function body()
@@ -5802,7 +5814,8 @@ local KAPPA, PT_BP = 0.55228475, 72 / 72.27
 local BLACK = { 0, 0, 0 }
 local function paint(code)
   code = code:gsub("\\pgfqpoint{(%-?[%d.]+)pt}{(%-?[%d.]+)pt}", "%1 %2")
-  local st = { fill = BLACK, fop = 1, stroke = BLACK, sop = 1, w = 0.4 * PT_BP, mult = false, colors = {}, clips = 0 }
+  local st = { fill = BLACK, fop = 1, stroke = BLACK, sop = 1, w = 0.4 * PT_BP, mult = false, colors = {}, clips = 0,
+    dash = nil }
   local stack, aramp = {}, {}
   local function color(spec)
     local c = st.colors[spec]
@@ -5842,7 +5855,8 @@ local function paint(code)
       local c = {}
       for k, v in pairs(st.colors) do c[k] = v end
       stack[#stack + 1] = st
-      st = { fill = st.fill, fop = st.fop, stroke = st.stroke, sop = st.sop, w = st.w, mult = st.mult, colors = c, clips = 0 }
+      st = { fill = st.fill, fop = st.fop, stroke = st.stroke, sop = st.sop, w = st.w, mult = st.mult, colors = c, clips = 0,
+        dash = st.dash }
     elseif name == "end" then
       for _ = 1, st.clips do ink.unclip() end
       st = table.remove(stack)
@@ -5853,13 +5867,15 @@ local function paint(code)
     elseif name == "pgfusepath" then
       local how = a:match("{([^}]*)}")
       if how == "fill" then ink.fill(st.fill, st.fop, st.mult)
-      elseif how == "stroke" then ink.stroke(st.stroke, st.w, st.sop, st.mult)
+      elseif how == "stroke" then ink.stroke(st.stroke, st.w, st.sop, st.mult, st.dash)
       elseif how == "clip" then ink.clip() st.clips = st.clips + 1
       else error("florilegium-organs: no path use '" .. tostring(how) .. "'") end
     elseif name == "pgfsetfillcolor" then st.fill = color(a:match("{([^}]*)}"))
     elseif name == "pgfsetstrokecolor" then st.stroke = color(a:match("{([^}]*)}"))
     elseif name == "pgfsetfillopacity" then st.fop = nums(a)[1]
     elseif name == "pgfsetstrokeopacity" then st.sop = nums(a)[1]
+    elseif name == "pgfsetdash" then                       -- {{on}{off}}{phase}, in bp
+      local v = nums(a) st.dash = string.format("[%.2f %.2f] %.2f", v[1], v[2], v[3])
     elseif name == "pgfsetblendmode" then st.mult = a:match("{([^}]*)}") == "multiply"
     elseif name == "pgfsetlinewidth" then
       local v, unit = a:match("{(%-?[%d.]+)(%a%a)}")
@@ -5906,7 +5922,7 @@ function M.draw(kind, s, z, o)
   if M.keep then
     local key = table.concat({ kind, s.seed, s.role, z, tostring(o.k), tostring(o.season), tostring(o.late), tostring(o.size),
       tostring(o.d), tostring(o.stage), tostring(o.len), tostring(o.bend), tostring(o.lc), tostring(o.fore),
-      tostring(o.unroll), tostring(o.arch), tostring(o.fertile), tostring(o.under),
+      tostring(o.unroll), tostring(o.arch), tostring(o.fertile), tostring(o.under), tostring(o.seed), tostring(o.role),
       o.sheath and (o.sheath[1] .. "/" .. o.sheath[2]) or "" }, " ")
     code = kept_code[key]
     if not code then code = organ(kind, s, z, o) kept_code[key] = code end
