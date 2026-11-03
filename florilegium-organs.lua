@@ -3792,6 +3792,392 @@ function florilegiumspecies(seed, role)
   end
 end
 
+-- ================================================================ visitors
+do
+local L = {}
+-- \florilegiumvisitor{seed}{role}: the visitor's traits into the store (\flo@x@<trait>),
+-- the generator where the TikZ library leaves pgf's (in a block: the main chunk is at
+-- Lua's limit of 200 locals)
+function L.florilegiumvisitor(seed, role)
+  local v, r = species.vsample(seed, role)
+  rng.load(r.save())
+  V["x@seed"] = seed V["x@role"] = role V["x@kind"] = v.kind
+  for i = 2, #species.VTRAITS do
+    local t = species.VTRAITS[i]
+    V["x@" .. t] = traitval(v[t])
+  end
+end
+function L.xtr(name) return R["x@" .. name] end
+function L.xscale(s) out("\\pgftransformxscale{" .. str(s) .. "}") end
+function L.pellipse(cx, cy, ax, ay, bx, by)
+  out("\\pgfpathellipse{" .. P(cx, cy) .. "}{" .. P(ax, ay) .. "}{" .. P(bx, by) .. "}")
+end
+-- butterflies and moths: \flo@lepid and its helpers (\flo@wg...)
+function L.wx(w, i) return R["wg" .. w .. "X" .. i] end
+function L.wy(w, i) return R["wg" .. w .. "Y" .. i] end
+function L.wput(w, i, x, y) V["wg" .. w .. "X" .. i] = x V["wg" .. w .. "Y" .. i] = y end
+L.SHAPE = {
+  fw = { { "0.05", "0.1" }, { "0.3", "0.45" }, { "0.65", "0.68" }, { "0.92", "0.66" }, { "1", "0.5" },
+    { "0.88", "0.25" }, { "0.55", "0.05" }, { "0.15", "-0.02" } },
+  hw = { { "0.06", "-0.02" }, { "0.45", "-0.02" }, { "0.72", "-0.22" }, { "0.7", "-0.5" }, { "0.5", "-0.72" },
+    { "0.25", "-0.7" }, { "0.08", "-0.35" } },
+}
+L.APEX = {
+  rounded = {},
+  angular = { { "fw", 3, "0.66", "0.7" }, { "fw", 4, "1", "0.72" }, { "fw", 5, "0.98", "0.52" } },
+  falcate = { { "fw", 3, "0.66", "0.72" }, { "fw", 4, "1.04", "0.78" }, { "fw", 5, "0.9", "0.55" } },
+  pointed = { { "fw", 1, "0.05", "0.08" }, { "fw", 2, "0.35", "0.36" }, { "fw", 3, "0.72", "0.42" },
+    { "fw", 4, "1", "0.38" }, { "fw", 5, "0.97", "0.28" }, { "fw", 6, "0.7", "0.16" },
+    { "fw", 7, "0.38", "0.04" }, { "fw", 8, "0.12", "-0.02" },
+    { "hw", 2, "0.4", "-0.02" }, { "hw", 3, "0.55", "-0.12" }, { "hw", 4, "0.52", "-0.28" },
+    { "hw", 5, "0.38", "-0.38" }, { "hw", 6, "0.2", "-0.36" }, { "hw", 7, "0.07", "-0.2" } },
+}
+function L.wgshape()
+  for _, w in ipairs({ "fw", "hw" }) do
+    for i, p in ipairs(L.SHAPE[w]) do L.wput(w, i, K(p[1]), K(p[2])) end
+  end
+  for _, p in ipairs(L.APEX[L.xtr("apex")]) do L.wput(p[1], p[2], K(p[3]), K(p[4])) end
+end
+function L.wgjit(w, n)
+  loop("#Wa", 1, n, function()
+    local i = R["#Wa"]
+    V.t = sym(K"0.03") V.xa = E("%1+@t", { L.wx(w, i) })
+    V.t = sym(K"0.03") V.ya = E("%1+@t", { L.wy(w, i) })
+    L.wput(w, i, R.xa, R.ya)
+  end)
+end
+L.TAIL = { { "-0.05", "-0.04" }, { "-0.06", "-0.19" }, { "-0.1", "-0.25" }, { "-0.15", "-0.2" }, { "-0.13", "-0.04" } }
+function L.wgtailpts()
+  V.xb = L.wx("hw", 5) V.yb = L.wy("hw", 5)
+  loop("#Wb", 1, 5, function()
+    local k = R["#Wb"]
+    V.xa = E("@xb+%1", { K(L.TAIL[k][1]) })
+    V.ya = E("@yb+%1", { K(L.TAIL[k][2]) })
+    V["#Wc"] = R["#Wc"] + 1 put(R["#Wc"], R.xa, R.ya)
+  end)
+end
+function L.wgoutline(w, n, m0, m1)
+  V["#Wc"] = 0
+  loop("#Wa", 1, n, function()
+    local a = R["#Wa"]
+    V["#Wc"] = R["#Wc"] + 1 put(R["#Wc"], L.wx(w, a), L.wy(w, a))
+    if I("wgtail") == a then L.wgtailpts() end
+    if R.wgdep > 0 and a < m1 and a > m0 - 1 then
+      V.wgn = (a + 1) * U
+      local b = a + 1
+      loop("#Wb", 1, 3, function()
+        V.t = E"#Wb/4"
+        V.xa = E("%1+(%2-(%1))*@t", { L.wx(w, a), L.wx(w, b) })
+        V.ya = E("%1+(%2-(%1))*@t", { L.wy(w, a), L.wy(w, b) })
+        if R["#Wb"] % 2 == 1 then V.xa = E"@xa*(1-@wgdep)" V.ya = E"@ya*(1-@wgdep)" end
+        V["#Wc"] = R["#Wc"] + 1 put(R["#Wc"], R.xa, R.ya)
+      end)
+    end
+  end)
+  smoothprep(R["#Wc"])
+end
+function L.wgat(w, m0, m1, s, f)
+  V.wm = (m1 - m0) * U
+  V.wq = E("(%1)*@wm", { s }) V.wk = pm.int(E"min(@wm-1,floor(@wq))")
+  V.wf = E"@wq-@wk"
+  V.wi = (m0 + I("wk")) * U V.wj = (m0 + I("wk") + 1) * U
+  local i, j = I("wi"), I("wj")
+  V.wx = E("(%1+(%2-(%1))*@wf)*(%3)", { L.wx(w, i), L.wx(w, j), f })
+  V.wy = E("(%1+(%2-(%1))*@wf)*(%3)", { L.wy(w, i), L.wy(w, j), f })
+end
+function L.wgeye(x, y, r)
+  vtone("flo@c", K"0.08") vfill("flo@c", K"0.85", 0, function() circle(x, y, r) end)
+  if L.xtr("rings") > U then V.t = E("(%1)*0.68", { r }) vfill("white", K"0.85", 0, function() circle(x, y, R.t) end) end
+  V.t = E("(%1)*(@x@rings>2 ? 0.46 : 0.34)", { r })
+  vaccent("flo@c", 0) vfill("flo@c", U, 0, function() circle(x, y, R.t) end)
+  if L.xtr("rings") > 2 * U then
+    V.t = E("(%1)*0.22", { r }) vtone("flo@c", K"0.06") vfill("flo@c", U, 0, function() circle(x, y, R.t) end)
+    V.xa = E("%1+(%2)*0.1", { x, r }) V.ya = E("%1+(%2)*0.1", { y, r }) V.t = E("(%1)*0.08", { r })
+    vfill("white", K"0.9", 0, function() circle(R.xa, R.ya, R.t) end)
+  end
+  if L.xtr("parafocal") == U then
+    local a = { x, y, r }
+    V.wa = E("atan2(%2,%1)", a) V.wr = E("(%3)*1.5", a)
+    V.xa = E("%1+@wr*cos(@wa-55)", a) V.ya = E("%2+@wr*sin(@wa-55)", a)
+    V.xb = E("%1+@wr*1.15*cos(@wa-20)", a) V.yb = E("%2+@wr*1.15*sin(@wa-20)", a)
+    V.xc = E("%1+@wr*1.15*cos(@wa+20)", a) V.yc = E("%2+@wr*1.15*sin(@wa+20)", a)
+    V.xd = E("%1+@wr*cos(@wa+55)", a) V.yd = E("%2+@wr*sin(@wa+55)", a)
+    V.twa = E("(%3)*0.22", a) V.twb = E("(%3)*0.22", a)
+    vtone("flo@c", K"0.08")
+    vfill("flo@c", K"0.6", 1, function() vtaper(R.xa, R.ya, R.xb, R.yb, R.xc, R.yc, R.xd, R.yd) end)
+  end
+end
+L.BASE = { fw = { "0.12", "0.12" }, hw = { "0.12", "-0.12" } }
+L.ROOTY = { fw = "0.04", hw = "-0.04" }
+L.SPOTR = { fw = "0.03", hw = "0.034" }
+L.BAND = {
+  fw = function()
+    V.xa = E"0.47+@wgcj" V.xb = E"0.42+@wgcj"
+    vtaper(K"0.5", K"0.66", R.xa, K"0.45", R.xb, K"0.25", K"0.36", K"0.04")
+  end,
+  hw = function()
+    V.xa = E"0.37+@wgcj" V.xb = E"0.28+@wgcj"
+    vtaper(K"0.42", K"-0.02", R.xa, K"-0.2", R.xb, K"-0.38", K"0.14", K"-0.55")
+  end,
+}
+L.SPOTS = {
+  fw = function() V.xa = E"0.47+@wgcj" V.xb = E"0.42+@wgcj" V.ya = K"0.45" V.yb = K"0.25" end,
+  hw = function() V.xa = E"0.37+@wgcj" V.xb = E"0.28+@wgcj" V.ya = K"-0.2" V.yb = K"-0.38" end,
+}
+L.DISCAL = {
+  fw = function() V.xa = E"0.47+@wgcj*0.5" V.ya = K"0.42" end,
+  hw = function() V.xa = E"0.34+@wgcj*0.5" V.ya = K"-0.27" end,
+}
+function L.wgpaint(w, n, m0, m1)
+  vtone("flo@c", R.wgt) vfill("flo@c", R.wgop, 0, function() kept("wg" .. w) end)
+  if R.wgblur ~= 0 then return end
+  scope(function()
+    kept("wg" .. w) usepath("clip")
+    V.ta = E"@wgt-0.2" V.tb = E"@wgt+0.2"
+    if R.fine == U then vmottle(K"-1.2", K"-1.2", K"1.2", K"1.2", 9, K"0.14", R.ta, R.tb, 8)
+    else vmottle(K"-1.2", K"-1.2", K"1.2", K"1.2", 4, K"0.14", R.ta, R.tb, 0) end
+    if L.xtr("basal") == U then
+      vblob(K(L.BASE[w][1]), K(L.BASE[w][2]), K"0.2", K"0.15", K"0.3", 9)
+      V.t = E"@wgt-0.18" vtone("flo@c", R.t) vfill("flo@c", K"0.45", 1, smoothpath)
+    end
+    V.wgsys = L.xtr("central")
+    if R.wgsys == "band" then
+      V.twa = R.wgcw V.twb = E"@wgcw*0.8"
+      V.t = E"@wgt-0.2" vtone("flo@c", R.t)
+      vfill("flo@c", K"0.6", 1, L.BAND[w])
+    end
+    if R.wgsys == "spots" then
+      L.SPOTS[w]()
+      V.xc = E"(@xa+@xb)/2" V.yc = E"(@ya+@yb)/2"
+      V.t = E"@wgt-0.22" vtone("flo@c", R.t)
+      vfill("flo@c", K"0.65", 1, function()
+        circle(R.xa, R.ya, K"0.045") circle(R.xb, R.yb, K"0.045") circle(R.xc, R.yc, K"0.04")
+      end)
+    end
+    if L.xtr("discal") == U then
+      L.DISCAL[w]()
+      V.t = E"@wgt-0.25" vtone("flo@c", R.t)
+      vfill("flo@c", K"0.75", 1, function() L.pellipse(R.xa, R.ya, K"0.03", 0, 0, K"0.045") end)
+    end
+    V.wgsys = L.xtr("border")
+    if R.wgsys == "band" then
+      V.t = E"6.8*@wgu" V.ta = E"@wgt-0.22" vtone("flo@c", R.ta)
+      vstroke("flo@c", R.t, K"0.55", 1, function() kept("wg" .. w) end)
+    end
+    vtone("flo@c", K"0.05") V.t = E"7.37*@wgu" vstroke("flo@c", R.t, K"0.55", 1, function() kept("wg" .. w) end)
+    if R.wgsys == "spots" then
+      vtone("flo@c", K"0.06")
+      loop("#Wb", 1, function() return L.xtr("eyes") // U end, function()
+        V.t = E"(#Wb-0.5)/@x@eyes" L.wgat(w, m0, m1, R.t, K"0.86")
+        vfill("flo@c", K"0.8", 0, function() circle(R.wx, R.wy, K(L.SPOTR[w])) end)
+      end)
+    end
+    if R.wgsys == "eyes" then
+      loop("#Wb", 1, function() return I("wgne@" .. w) end, function()
+        V.t = E("%1+(#Wb-1)*%2", { R["wges@" .. w], R["wged@" .. w] })
+        L.wgat(w, m0, m1, R.t, K"0.78")
+        L.wgeye(R.wx, R.wy, R["wger@" .. w])
+      end)
+    end
+    if L.xtr("lunules") > 0 then
+      V.wgnc = 2 * (m1 - m0) * U
+      loop("#Wc", 1, function() return L.xtr("lunules") // U end, function()
+        V.wgf = E"0.95-0.07*(#Wc-1)"
+        loop("#Wb", 1, function() return I("wgnc") end, function()
+          V.t = E"(#Wb-0.85)/@wgnc" L.wgat(w, m0, m1, R.t, R.wgf)
+          V.xc = R.wx V.yc = R.wy
+          V.t = E"(#Wb-0.15)/@wgnc" L.wgat(w, m0, m1, R.t, R.wgf)
+          V.xa = E"@xc+(@wx-@xc)/3" V.ya = E"@yc+(@wy-@yc)/3"
+          V.xb = E"@xc+(@wx-@xc)*2/3" V.yb = E"@yc+(@wy-@yc)*2/3"
+          V.xa = E"@xa*0.96" V.ya = E"@ya*0.96" V.xb = E"@xb*0.96" V.yb = E"@yb*0.96"
+          V.twa = K"0.03" V.twb = K"0.008"
+          vfill("white", K"0.55", 0, function() vtaper(R.xc, R.yc, R.xa, R.ya, R.xb, R.yb, R.wx, R.wy) end)
+        end)
+      end)
+    end
+    if L.xtr("veins") == U then
+      V.wgrx = K"0.04" V.wgry = K(L.ROOTY[w])
+      loop("#Wb", 1, n, function()
+        local b = R["#Wb"]
+        V.f = range(K"0.7", K"0.88")
+        V.xd = E("@wgrx+(%1-@wgrx)*@f", { L.wx(w, b) })
+        V.yd = E("@wgry+(%1-(@wgry))*@f", { L.wy(w, b) })
+        put(1, R.wgrx, R.wgry)
+        V.xa = E"@wgrx+(@xd-@wgrx)*0.3" V.ya = E"@wgry+(@yd-(@wgry))*0.4" put(2, R.xa, R.ya)
+        V.xa = E"@wgrx+(@xd-@wgrx)*0.7" V.ya = E"@wgry+(@yd-(@wgry))*0.75" put(3, R.xa, R.ya)
+        put(4, R.xd, R.yd)
+        V.op = range(K"0.35", K"0.6") vstreak(4, K"0.035", K"0.004", "white", R.op)
+        if R.wgsys == "none" and R.fine == U and b > 1 and b < n then
+          V.xa = E("@wgrx+(%1-@wgrx)*0.9", { L.wx(w, b) })
+          V.ya = E("@wgry+(%1-(@wgry))*0.9", { L.wy(w, b) })
+          V.t = range(K"0.025", K"0.04") vfill("white", K"0.8", 0, function() circle(R.xa, R.ya, R.t) end)
+        end
+      end)
+    end
+  end)
+  if L.xtr("tails") == 2 * U and w == "hw" then
+    V.xb = L.wx("hw", 5) V.yb = L.wy("hw", 5)
+    V.twa = K"0.022" V.twb = K"0.006" vtone("flo@c", K"0.08")
+    vfill("flo@c", K"0.9", 0, function()
+      V.xa = E"@xb-0.05" V.ya = E"@yb-0.02" V.xd = E"@xb-0.02" V.yd = E"@yb-0.26"
+      V.xc = E"@xb-0.04" V.yc = E"@yb-0.1" V.xe = E"@xb-0.025" V.ye = E"@yb-0.18"
+      vtaper(R.xa, R.ya, R.xc, R.yc, R.xe, R.ye, R.xd, R.yd)
+      V.xa = E"@xb-0.14" V.xd = E"@xb-0.13" V.yd = E"@yb-0.2"
+      V.xc = E"@xb-0.14" V.yc = E"@yb-0.08" V.xe = E"@xb-0.135" V.ye = E"@yb-0.14"
+      vtaper(R.xa, R.yb, R.xc, R.yc, R.xe, R.ye, R.xd, R.yd)
+    end)
+  end
+end
+function L.wgbody()
+  loop("#Wb", 0, 10, function()
+    local b = R["#Wb"]
+    V.v = E"#Wb/10" V.h = E"@wgaw*sin(180*pow(@v,0.7))"
+    V.ya = E"-@wgal+@wgal*@v" V.xa = E"-@h"
+    put(b + 1, R.xa, R.ya)
+    if b > 0 and b < 10 then put(21 - b, R.h, R.ya) end
+  end)
+  smoothprep(20) vtone("flo@c", K"0.06") vfill("flo@c", U, 0, smoothpath)
+  if L.xtr("bands") > 0 then
+    V.twa = K"0.03" V.twb = K"0.03"
+    loop("#Wb", 1, function() return L.xtr("bands") // U end, function()
+      V.ya = E"-@wgal*#Wb/(@x@bands+1)" V.xa = E"@wgaw*0.9" V.xb = E"-@wgaw*0.9"
+      V.xc = E"@wgaw*0.3" V.xd = E"-@wgaw*0.3"
+      vfill("white", K"0.45", 0, function() vtaper(R.xb, R.ya, R.xd, R.ya, R.xc, R.ya, R.xa, R.ya) end)
+    end)
+  end
+  vtone("flo@c", K"0.04") vfill("flo@c", U, 0, function() L.pellipse(0, K"0.08", R.wgtw, 0, 0, K"0.13") end)
+  if L.xtr("hair") > 0 then
+    V.wgnh = pm.int(E"4+12*@x@hair") vtone("flo@c", K"0.12")
+    V.twa = K"0.022" V.twb = K"0.003"
+    loop("#Wb", 1, function() return I("wgnh") end, function()
+      V.wa = range(0, 360 * U) V.t = range(K"0.03", K"0.06")
+      V.xa = E"@wgtw*cos(@wa)" V.ya = E"0.08+0.13*sin(@wa)"
+      V.xd = E"(@wgtw+@t)*cos(@wa)" V.yd = E"0.08+(0.13+@t)*sin(@wa)"
+      V.xb = E"@xa+(@xd-@xa)/3" V.yb = E"@ya+(@yd-@ya)/3"
+      V.xc = E"@xa+(@xd-@xa)*2/3" V.yc = E"@ya+(@yd-@ya)*2/3"
+      vfill("flo@c", K"0.7", 0, function() vtaper(R.xa, R.ya, R.xb, R.yb, R.xc, R.yc, R.xd, R.yd) end)
+    end)
+  end
+  vtone("flo@c", K"0.04") vfill("flo@c", U, 0, function() circle(0, K"0.27", R.wghr) end)
+  V.wgw = E"max(0.3,0.5*@wgu)"
+  loop("#Wb", 1, 2, function()
+    local b = R["#Wb"]
+    if R.wgsides == U then V.sx = U elseif b == 1 then V.sx = -U else V.sx = U end
+    V.t = L.xtr("antenna")
+    if R.t == "clubbed" then V.ex = range(K"0.22", K"0.3") V.ey = range(K"0.78", K"0.9") end
+    if R.t == "thread" then V.ex = range(K"0.26", K"0.36") V.ey = range(K"0.72", K"0.88") end
+    if R.t == "feathery" then V.ex = range(K"0.24", K"0.32") V.ey = range(K"0.62", K"0.72") end
+    if R.wgsides == U and b == 2 then V.ex = E"@ex*0.8" V.ey = E"@ey*0.95" end
+    V.ex = E"@sx*@ex" V.xa = E"@sx*0.02" V.xb = E"@sx*0.05"
+    V.xc = E"@ex*0.6" V.yc = E"@ey*0.9"
+    vtone("flo@c", K"0.08")
+    vstroke("flo@c", R.wgw, U, 0, function() moveto(R.xa, K"0.31") curveto(R.xb, K"0.5", R.xc, R.yc, R.ex, R.ey) end)
+    if R.t == "clubbed" then
+      vtone("flo@c", K"0.06") vfill("flo@c", U, 0, function() circle(R.ex, R.ey, K"0.025") end)
+    end
+    if R.t == "feathery" then
+      V.t = E"0.5*@wgw"
+      vstroke("flo@c", R.t, U, 0, function()
+        loop("#Wc", 3, 9, function()
+          V.v = E"#Wc/10" V.wf = E"1-@v"
+          V.wx = E"@wf*@wf*@wf*@xa+3*@wf*@wf*@v*@xb+3*@wf*@v*@v*@xc+@v*@v*@v*@ex"
+          V.wy = E"@wf*@wf*@wf*0.31+3*@wf*@wf*@v*0.5+3*@wf*@v*@v*@yc+@v*@v*@v*@ey"
+          V.da = E"3*@wf*@wf*(@xb-@xa)+6*@wf*@v*(@xc-@xb)+3*@v*@v*(@ex-@xc)"
+          V.db = E"3*@wf*@wf*0.19+6*@wf*@v*(@yc-0.5)+3*@v*@v*(@ey-@yc)"
+          nrm(R.da, R.db, "nx", "ny") V.wr = E"0.05*(1.1-@v)"
+          V.xd = E"@wx+@nx*@wr" V.yd = E"@wy+@ny*@wr"
+          V.xe = E"@wx-@nx*@wr" V.ye = E"@wy-@ny*@wr"
+          moveto(R.xd, R.yd) lineto(R.xe, R.ye)
+        end)
+      end)
+    end
+  end)
+  if R.wgsides == U then
+    vtone("flo@c", K"0.08")
+    vstroke("flo@c", R.wgw, U, 0, function()
+      loop("#Wb", 0, 2, function()
+        V.ya = E"0.16-0.08*#Wb" V.yb = E"@ya+0.03" V.yc = E"@ya-0.12"
+        moveto(K"-0.03", R.ya) lineto(K"-0.12", R.yb) lineto(K"-0.2", R.yc)
+      end)
+    end)
+  end
+  if R.fine == U and R.wgk == "butterfly" then
+    V.t = E"@wgal/0.62"
+    V.ya = E"-0.55*@t" put(1, K"-0.015", R.ya) V.ya = E"-0.35*@t" put(2, K"-0.02", R.ya)
+    V.ya = E"-0.1*@t" put(3, K"-0.02", R.ya) put(4, K"-0.01", 0)
+    vstreak(4, K"0.015", K"0.004", "white", K"0.45")
+  end
+end
+function L.wgwing(w, rot, n, m0, m1)
+  scope(function()
+    shift(K"0.04", 0) rotate(rot) shift(K"-0.04", 0)
+    L.wgpaint(w, n, m0, m1)
+  end)
+end
+-- \flo@lepid: a butterfly or moth, size its wingspan on the page in pt (sp)
+function T.lepid(size)
+  V.wgu = E("(%1)/56.90552", { size })
+  if R.wgu > K"0.3" then V.fine = U else V.fine = 0 end
+  V.wgk = L.xtr("kind") V.wgpose = L.xtr("pose") V.wgground = L.xtr("ground")
+  V.wgt = L.xtr("tone")
+  if R.wgground == "pale" then V.wgt = E"min(0.78,@wgt+0.32)" end
+  if R.wgground == "dark" then V.wgt = E"@wgt-0.12" end
+  if R.wgground == "copper" then V.rampname = "flo@aramp" end
+  V.wgsides = 2 * U V.wgop = U V.wgblur = 0 V.wgxs = U
+  V.wgrf = 0 V.wgrh = 0 V.wgpass = U
+  if R.wgpose == "closed" then V.wgsides = U V.wgrf = 18 * U V.wgrh = 18 * U V.wgt = E"min(0.8,@wgt+0.12)" end
+  if R.wgpose == "flat" then V.wgrf = -18 * U V.wgrh = -10 * U end
+  if R.wgpose == "tent" then V.wgrf = -58 * U V.wgrh = -38 * U V.wgxs = K"0.8" end
+  if R.wgpose == "hover" then V.wgop = K"0.3" V.wgblur = U V.wgpass = 2 * U end
+  V.wgaw = K"0.05" V.wgal = K"0.62" V.wgtw = K"0.075" V.wghr = K"0.06"
+  if R.wgk == "moth" then V.wgaw = K"0.075" V.wgtw = K"0.095" V.wghr = K"0.07" end
+  if R.wgk == "hawkmoth" then V.wgaw = K"0.075" V.wgal = K"0.85" V.wgtw = K"0.09" V.wghr = K"0.07" end
+  if R.wgsides == U then V.wgaw = E"@wgaw*0.8" end
+  L.wgshape() L.wgjit("fw", 8) L.wgjit("hw", 7)
+  V.t = L.xtr("wingedge") V.wgdep = 0
+  if R.t == "scalloped" then V.wgdep = K"0.045" end
+  if R.t == "toothed" then V.wgdep = K"0.09" end
+  V.wgtail = 0 L.wgoutline("fw", 8, 4, 6) keep("wgfw")
+  if L.xtr("tails") == U then V.wgtail = 5 * U end
+  L.wgoutline("hw", 7, 3, 6) keep("wghw")
+  V.wgcw = range(K"0.07", K"0.11") V.wgcj = sym(K"0.04")
+  V["wgne@hw"] = L.xtr("eyes") V["wgne@fw"] = 0
+  if L.xtr("eyes") > 2 * U then V["wgne@fw"] = U end
+  if I("wgne@hw") > 0 then
+    V["wger@hw"] = E"min(0.1,0.34/@wgne@hw)" V["wges@hw"] = E"0.5/@wgne@hw"
+    V["wged@hw"] = E"1/@wgne@hw"
+  end
+  V["wger@fw"] = K"0.065" V["wges@fw"] = K"0.22" V["wged@fw"] = 0
+  if R.wgsides == U then rotate(90 * U) end
+  loop("#Wa", 1, function() return I("wgsides") end, function()
+    scope(function()
+      if R["#Wa"] == 2 then L.xscale(-U) end
+      if R.wgxs < U then L.xscale(R.wgxs) end
+      loop("#Wd", 1, function() return I("wgpass") end, function()
+        if R.wgpass == 2 * U then
+          if R["#Wd"] == 1 then V.wgrf = 14 * U V.wgrh = 14 * U else V.wgrf = -14 * U V.wgrh = -14 * U end
+        end
+        if R.wgsides == U then
+          L.wgwing("fw", R.wgrf, 8, 4, 6) L.wgwing("hw", R.wgrh, 7, 3, 6)
+        else
+          L.wgwing("hw", R.wgrh, 7, 3, 6) L.wgwing("fw", R.wgrf, 8, 4, 6)
+        end
+      end)
+    end)
+  end)
+  L.wgbody()
+end
+-- \flo@visitor: a visitor of the kind last drawn, size on the page in pt (sp)
+function T.visitor(size)
+  V.t = L.xtr("group")
+  if R.t == "lepidoptera" then V.t = E("(%1)/2", { size }) scale(R.t) T.lepid(size) end
+end
+function T.visitorsetup(o)
+  L.florilegiumvisitor(o.seed, o.role or "any")
+  drawseed(o.draw or (o.seed == 2147483646 and 1 or o.seed + 1))
+end
+end
+
 -- ---------------------------------------------------------------- the garden
 -- \flo@garden: the plants pp 1..Np from one root, walked once per layer
 local function garden()
@@ -3901,6 +4287,10 @@ function M.pic(kind, o)
     o.role = "fern" picsetup(o)
     V.gH = sizecm(o.size) V["o@season"] = o.season or K"0.75"
     T.ferncrown()
+  elseif kind == "visitor" then
+    T.visitorsetup(o)
+    out("\\pgfsetroundcap\\pgfsetroundjoin")
+    T.visitor(o.size)
   elseif kind == "plants" then
     V["#Np"] = #o.plants
     for k, p in ipairs(o.plants) do V["pp@s" .. k] = p[1] V["pp@r" .. k] = p[2] end

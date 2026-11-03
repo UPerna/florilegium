@@ -11,13 +11,14 @@
 -- library and once with the hybrid (engine=lua: florilegium-organs.lua computes, TikZ
 -- draws), uncompressed, and compares each page's content stream: the same operators in
 -- the same order and every number within 0.05 bp; the streams are expected to be equal.
---   texlua tools/tikzcheck.lua draw [quick|full|fern] (quick: fronds of every division,
+--   texlua tools/tikzcheck.lua draw [quick|full|fern|visitors] (quick: fronds of every division,
 --   outline and edge, fern crowns in three seasons, then one flower, one leaf and one
 --   inflorescence of every body plan, one inflorescence of every kind and of every view,
 --   a pea's leaves and plant with tendrils, compound leaves of every kind, curled tips,
 --   plants whose leaves come in crossed pairs or sheathe the stem, the v1.3 pics, a plant in three
---   seasons; full: also two strips of three plants, as specimen-tikz.tex
---   draws them, several minutes in pure TikZ; fern: the ferns alone)
+--   seasons, butterflies and moths of every wing, pattern, ground, pose and feeler; full:
+--   also two strips of three plants, as specimen-tikz.tex draws them, several minutes in
+--   pure TikZ; fern: the ferns alone; visitors: the visitors alone)
 package.path = "./?.lua;" .. package.path
 local fmt = string.format
 os.execute("mkdir -p build")
@@ -53,13 +54,14 @@ local function compare(a, b, tol)
 end
 
 if arg[1] == "draw" then
-  local full, fernonly = arg[2] == "full", arg[2] == "fern"
+  local full, fernonly, visonly = arg[2] == "full", arg[2] == "fern", arg[2] == "visitors"
   local species = require("florilegium-species")
   local pics = {}
   local function pic(spec) pics[#pics + 1] = spec end
   -- ferns: fronds of every division, outline and edge, scaly and bare; crowns in spring,
   -- summer and autumn (fiddleheads, fronds unrolling, some turned over to show each kind of
   -- sori, copper in autumn), a dimorphic fern's fertile frond, a fern as a plant pic
+  if not visonly then
   local function fern(want)
     local seed = 1
     while not want(species.sample(seed, "fern")) do seed = seed + 1 end
@@ -85,7 +87,8 @@ if arg[1] == "draw" then
     end
   end
   pic(fmt("florilegium plant={seed=%d, role=fern, size=5cm, season=0.6}", fern(function(f) return f.hairy == 1 end)))
-  if not fernonly then
+  end
+  if not fernonly and not visonly then
   for i, p in ipairs(species.PLANS) do
     if not p.apart then pic(fmt("florilegium flower={seed=%d, role=%s, size=2.6cm}", 10 + 7 * i, p.name)) end
     pic(fmt("florilegium leaf={seed=%d, role=%s, size=3.4cm}", 11 + 7 * i, p.name))
@@ -221,6 +224,40 @@ if arg[1] == "draw" then
   end
   pic("florilegium v13 flower={seed=7, size=1.9cm}")
   pic("florilegium v13 leaf={seed=7, size=4cm}")
+  end
+  if not fernonly then
+  -- visitors: a butterfly or moth with each wing tip, edge and tail, each pattern system
+  -- (central band or spots, base, discal spot, border band, spots, eyespots of one to three
+  -- rings, arcs, lunules, no veins), each ground and pose, each kind of feeler, a hawkmoth;
+  -- one small, drawn simpler
+  local vseen = {}
+  for _, w in ipairs({
+      { "butterfly", function(v) return v.apex == "rounded" and v.wingedge == "smooth" and v.pose == "open" end },
+      { "butterfly", function(v) return v.apex == "angular" and v.tails == 1 end },
+      { "butterfly", function(v) return v.apex == "falcate" and v.wingedge == "toothed" end },
+      { "butterfly", function(v) return v.wingedge == "scalloped" and v.tails == 2 end },
+      { "butterfly", function(v) return v.central == "band" and v.basal == 1 and v.discal == 1 end },
+      { "butterfly", function(v) return v.central == "spots" and v.border == "band" end },
+      { "butterfly", function(v) return v.border == "spots" and v.lunules == 2 end },
+      { "butterfly", function(v) return v.border == "eyes" and v.rings == 1 and v.veins == 0 end },
+      { "butterfly", function(v) return v.border == "eyes" and v.rings == 2 and v.parafocal == 1 end },
+      { "butterfly", function(v) return v.border == "eyes" and v.rings == 3 and v.eyes >= 4 end },
+      { "butterfly", function(v) return v.pose == "closed" and v.border == "eyes" end },
+      { "butterfly", function(v) return v.ground == "copper" end },
+      { "butterfly", function(v) return v.ground == "pale" end },
+      { "moth", function(v) return v.kind == "moth" and v.pose == "tent" and v.antenna == "feathery" end },
+      { "moth", function(v) return v.kind == "moth" and v.pose == "flat" and v.antenna == "thread" end },
+      { "moth", function(v) return v.kind == "moth" and v.border == "eyes" end },
+      { "moth", function(v) return v.kind == "hawkmoth" end } }) do
+    local seed = 1
+    while vseen[w[1] .. seed] or not w[2](species.vsample(seed, w[1])) do seed = seed + 1 end
+    vseen[w[1] .. seed] = true
+    pic(fmt("florilegium visitor={seed=%d, role=%s, size=3cm}", seed, w[1]))
+  end
+  pic("florilegium visitor={seed=4, role=butterfly, size=0.9cm}")
+  pic("florilegium visitor={seed=3, role=moth, size=0.5cm}")
+  end
+  if not fernonly and not visonly then
   for _, s in ipairs({ "0.15", "0.75", "1.3" }) do
     pic(fmt("florilegium plant={seed=17, role=rose, size=8.5cm, width=5.2cm, season=%s}", s))
   end

@@ -3848,3 +3848,364 @@
       \flo@calc\flo@t{\flo@fela-90}\pgftransformrotate{\flo@t}\pgftransformscale{\flo@fell}%
       \flo@calc\flo@t{\flo@fell*28.45276}\flo@frond\flo@t}%
   \fi\fi}
+
+% ================================================================ visitors
+% A visitor is drawn as a plant is: the pic samples it (\florilegiumvisitor), then
+% reseeds pgf's generator for the drawing (draw=, or the seed + 1).
+%
+% Butterflies and moths: florilegium-flora.lua's butterfly, shaped and painted by the
+% genome. In units of half the wingspan, the thorax at the origin, the head toward +y; a
+% side's wings are drawn to the right, the left side mirrored, so the pattern is the
+% same on both and only the wash differs. The forewing's tip sets its outline (rounded,
+% angular, falcate: hooked, pointed: a hawkmoth's narrow swept wing); a scalloped or
+% toothed edge gets three points between each two along the outer margin, every other one
+% drawn toward the root; a tail hangs from the hindwing, or two thread tails. Inside each
+% wing, as flora paints one: the wash and mottle, then the groundplan's systems (Nijhout
+% 1991): a dark wash at the base, a central band or a row of spots with a discal spot on
+% the cell, at the border a dark band, a row of spots or of eyespots with one to three
+% rings (and an arc outside each), pale lunules along the edge; the pooled rim; white
+% veins from the root and pale spots at the rim. Poses: open; a moth's flat or tent (its
+% forewings swept back over the hindwings); closed (one side seen from the side, the
+% underside paler, the legs gripping); hover (a hawkmoth's wings a blur).
+\newcount\flo@Wa \newcount\flo@Wb \newcount\flo@Wc \newcount\flo@Wd
+\def\flo@wgput#1#2#3#4{\expandafter\edef\csname flo@wg#1X#2\endcsname{#3}\expandafter\edef\csname flo@wg#1Y#2\endcsname{#4}}
+\def\flo@wgx#1#2{\csname flo@wg#1X#2\endcsname}
+\def\flo@wgy#1#2{\csname flo@wg#1Y#2\endcsname}
+% the outlines (flora's), then the forewing's tip
+\def\flo@wgshape{%
+  \flo@wgput{fw}1{0.05}{0.1}\flo@wgput{fw}2{0.3}{0.45}\flo@wgput{fw}3{0.65}{0.68}%
+  \flo@wgput{fw}4{0.92}{0.66}\flo@wgput{fw}5{1}{0.5}\flo@wgput{fw}6{0.88}{0.25}%
+  \flo@wgput{fw}7{0.55}{0.05}\flo@wgput{fw}8{0.15}{-0.02}%
+  \flo@wgput{hw}1{0.06}{-0.02}\flo@wgput{hw}2{0.45}{-0.02}\flo@wgput{hw}3{0.72}{-0.22}%
+  \flo@wgput{hw}4{0.7}{-0.5}\flo@wgput{hw}5{0.5}{-0.72}\flo@wgput{hw}6{0.25}{-0.7}%
+  \flo@wgput{hw}7{0.08}{-0.35}%
+  \csname flo@wgap@\flo@xget{apex}\endcsname}
+\def\flo@wgap@rounded{}
+\def\flo@wgap@angular{\flo@wgput{fw}3{0.66}{0.7}\flo@wgput{fw}4{1}{0.72}\flo@wgput{fw}5{0.98}{0.52}}
+\def\flo@wgap@falcate{\flo@wgput{fw}3{0.66}{0.72}\flo@wgput{fw}4{1.04}{0.78}\flo@wgput{fw}5{0.9}{0.55}}
+\def\flo@wgap@pointed{%
+  \flo@wgput{fw}1{0.05}{0.08}\flo@wgput{fw}2{0.35}{0.36}\flo@wgput{fw}3{0.72}{0.42}%
+  \flo@wgput{fw}4{1}{0.38}\flo@wgput{fw}5{0.97}{0.28}\flo@wgput{fw}6{0.7}{0.16}%
+  \flo@wgput{fw}7{0.38}{0.04}\flo@wgput{fw}8{0.12}{-0.02}%
+  \flo@wgput{hw}2{0.4}{-0.02}\flo@wgput{hw}3{0.55}{-0.12}\flo@wgput{hw}4{0.52}{-0.28}%
+  \flo@wgput{hw}5{0.38}{-0.38}\flo@wgput{hw}6{0.2}{-0.36}\flo@wgput{hw}7{0.07}{-0.2}}
+% each point of wing #1 (#2 points) moved a little (flora: rng.sym(0.03) each way)
+\def\flo@wgjit#1#2{\flo@loop{wgj#1}\flo@Wa{1}{#2}{%
+  \flo@sym\flo@t{0.03}\flo@calc\flo@xa{\flo@wgx{#1}{\the\flo@Wa}+\flo@t}%
+  \flo@sym\flo@t{0.03}\flo@calc\flo@ya{\flo@wgy{#1}{\the\flo@Wa}+\flo@t}%
+  \flo@wgput{#1}{\the\flo@Wa}\flo@xa\flo@ya}}
+% a tail strap after the hindwing's point 5: five points off it
+\expandafter\def\csname flo@wgtx1\endcsname{-0.05}\expandafter\def\csname flo@wgty1\endcsname{-0.04}
+\expandafter\def\csname flo@wgtx2\endcsname{-0.06}\expandafter\def\csname flo@wgty2\endcsname{-0.19}
+\expandafter\def\csname flo@wgtx3\endcsname{-0.1}\expandafter\def\csname flo@wgty3\endcsname{-0.25}
+\expandafter\def\csname flo@wgtx4\endcsname{-0.15}\expandafter\def\csname flo@wgty4\endcsname{-0.2}
+\expandafter\def\csname flo@wgtx5\endcsname{-0.13}\expandafter\def\csname flo@wgty5\endcsname{-0.04}
+\def\flo@wgtailpts{%
+  \edef\flo@xb{\flo@wgx{hw}5}\edef\flo@yb{\flo@wgy{hw}5}%
+  \flo@loop{wgtl}\flo@Wb{1}{5}{%
+    \flo@calc\flo@xa{\flo@xb+\csname flo@wgtx\the\flo@Wb\endcsname}%
+    \flo@calc\flo@ya{\flo@yb+\csname flo@wgty\the\flo@Wb\endcsname}%
+    \advance\flo@Wc by1 \flo@put{\the\flo@Wc}\flo@xa\flo@ya}}
+% the outline of wing #1 (#2 points; the edge from point #3 to #4) into flo@X/Y, prepared
+\def\flo@wgoutline#1#2#3#4{%
+  \flo@Wc=0
+  \flo@loop{wgo#1}\flo@Wa{1}{#2}{%
+    \advance\flo@Wc by1 \flo@put{\the\flo@Wc}{\flo@wgx{#1}{\the\flo@Wa}}{\flo@wgy{#1}{\the\flo@Wa}}%
+    \ifnum\flo@wgtail=\flo@Wa\relax\flo@wgtailpts\fi
+    \ifdim\flo@wgdep pt>0pt \ifnum\flo@Wa<#4 \ifnum\flo@Wa>\numexpr#3-1\relax
+      \edef\flo@wgn{\the\numexpr\flo@Wa+1\relax}%
+      \flo@loop{wgs#1}\flo@Wb{1}{3}{%
+        \flo@calc\flo@t{\the\flo@Wb/4}%
+        \flo@calc\flo@xa{\flo@wgx{#1}{\the\flo@Wa}+(\flo@wgx{#1}\flo@wgn-(\flo@wgx{#1}{\the\flo@Wa}))*\flo@t}%
+        \flo@calc\flo@ya{\flo@wgy{#1}{\the\flo@Wa}+(\flo@wgy{#1}\flo@wgn-(\flo@wgy{#1}{\the\flo@Wa}))*\flo@t}%
+        \ifodd\flo@Wb\flo@calc\flo@xa{\flo@xa*(1-\flo@wgdep)}\flo@calc\flo@ya{\flo@ya*(1-\flo@wgdep)}\fi
+        \advance\flo@Wc by1 \flo@put{\the\flo@Wc}\flo@xa\flo@ya}%
+    \fi\fi\fi}%
+  \flo@smoothprep{\the\flo@Wc}}
+% a point s (0..1) along wing #1's edge from point #2 to #3, #5 of the way out from the
+% root: \flo@wx, \flo@wy
+\def\flo@wgat#1#2#3#4#5{%
+  \edef\flo@wm{\the\numexpr#3-#2\relax}%
+  \flo@calc\flo@wq{(#4)*\flo@wm}\pgfmathtruncatemacro\flo@wk{min(\flo@wm-1,floor(\flo@wq))}%
+  \flo@calc\flo@wf{\flo@wq-\flo@wk}%
+  \edef\flo@wi{\the\numexpr#2+\flo@wk\relax}\edef\flo@wj{\the\numexpr#2+\flo@wk+1\relax}%
+  \flo@calc\flo@wx{(\flo@wgx{#1}\flo@wi+(\flo@wgx{#1}\flo@wj-(\flo@wgx{#1}\flo@wi))*\flo@wf)*(#5)}%
+  \flo@calc\flo@wy{(\flo@wgy{#1}\flo@wi+(\flo@wgy{#1}\flo@wj-(\flo@wgy{#1}\flo@wi))*\flo@wf)*(#5)}}
+% an eyespot at (#1,#2), radius #3: dark, a pale ring, a copper ring or pupil, a dark
+% pupil with a white glint, as many as its rings
+\def\flo@wgeye#1#2#3{%
+  \flo@vtone{flo@c}{0.08}\flo@vfill{flo@c}{0.85}{0}{\pgfpathcircle{\flo@P{#1}{#2}}{#3pt}}%
+  \ifnum\flo@xget{rings}>1 \flo@calc\flo@t{(#3)*0.68}\flo@vfill{white}{0.85}{0}{\pgfpathcircle{\flo@P{#1}{#2}}{\flo@t pt}}\fi
+  \flo@calc\flo@t{(#3)*(\flo@xget{rings}>2 ? 0.46 : 0.34)}%
+  \flo@vaccent{flo@c}{0}\flo@vfill{flo@c}{1}{0}{\pgfpathcircle{\flo@P{#1}{#2}}{\flo@t pt}}%
+  \ifnum\flo@xget{rings}>2
+    \flo@calc\flo@t{(#3)*0.22}\flo@vtone{flo@c}{0.06}\flo@vfill{flo@c}{1}{0}{\pgfpathcircle{\flo@P{#1}{#2}}{\flo@t pt}}%
+    \flo@calc\flo@xa{#1+(#3)*0.1}\flo@calc\flo@ya{#2+(#3)*0.1}\flo@calc\flo@t{(#3)*0.08}%
+    \flo@vfill{white}{0.9}{0}{\pgfpathcircle{\flo@P\flo@xa\flo@ya}{\flo@t pt}}%
+  \fi
+  % the parafocal arc, outside it, facing away from the root
+  \ifnum\flo@xget{parafocal}=1
+    \flo@calc\flo@wa{atan2(#2,#1)}\flo@calc\flo@wr{(#3)*1.5}%
+    \flo@calc\flo@xa{#1+\flo@wr*cos(\flo@wa-55)}\flo@calc\flo@ya{#2+\flo@wr*sin(\flo@wa-55)}%
+    \flo@calc\flo@xb{#1+\flo@wr*1.15*cos(\flo@wa-20)}\flo@calc\flo@yb{#2+\flo@wr*1.15*sin(\flo@wa-20)}%
+    \flo@calc\flo@xc{#1+\flo@wr*1.15*cos(\flo@wa+20)}\flo@calc\flo@yc{#2+\flo@wr*1.15*sin(\flo@wa+20)}%
+    \flo@calc\flo@xd{#1+\flo@wr*cos(\flo@wa+55)}\flo@calc\flo@yd{#2+\flo@wr*sin(\flo@wa+55)}%
+    \flo@calc\flo@twa{(#3)*0.22}\flo@calc\flo@twb{(#3)*0.22}%
+    \flo@vtone{flo@c}{0.08}\flo@vfill{flo@c}{0.6}{1}{\flo@vtaper\flo@xa\flo@ya\flo@xb\flo@yb\flo@xc\flo@yc\flo@xd\flo@yd}%
+  \fi}
+% the band, spots and wash anchors of each wing
+\def\flo@wgbx@fw{0.12}\def\flo@wgby@fw{0.12}\def\flo@wgbx@hw{0.12}\def\flo@wgby@hw{-0.12}
+\def\flo@wgry@fw{0.04}\def\flo@wgry@hw{-0.04}
+\def\flo@wgcb@fw{\flo@calc\flo@xa{0.47+\flo@wgcj}\flo@calc\flo@xb{0.42+\flo@wgcj}%
+  \flo@vtaper{0.5}{0.66}\flo@xa{0.45}\flo@xb{0.25}{0.36}{0.04}}
+\def\flo@wgcb@hw{\flo@calc\flo@xa{0.37+\flo@wgcj}\flo@calc\flo@xb{0.28+\flo@wgcj}%
+  \flo@vtaper{0.42}{-0.02}\flo@xa{-0.2}\flo@xb{-0.38}{0.14}{-0.55}}
+\def\flo@wgcs@fw{\flo@calc\flo@xa{0.47+\flo@wgcj}\flo@calc\flo@xb{0.42+\flo@wgcj}%
+  \def\flo@ya{0.45}\def\flo@yb{0.25}}
+\def\flo@wgcs@hw{\flo@calc\flo@xa{0.37+\flo@wgcj}\flo@calc\flo@xb{0.28+\flo@wgcj}%
+  \def\flo@ya{-0.2}\def\flo@yb{-0.38}}
+\def\flo@wgds@fw{\flo@calc\flo@xa{0.47+\flo@wgcj*0.5}\def\flo@ya{0.42}}
+\def\flo@wgds@hw{\flo@calc\flo@xa{0.34+\flo@wgcj*0.5}\def\flo@ya{-0.27}}
+% paint wing #1 (#2 points, its edge from #3 to #4): the wash, then in its clip the
+% mottle, the pattern, the pooled rim, veins and rim spots; a hindwing's thread tails
+\def\flo@wgpaint#1#2#3#4{%
+  \flo@vtone{flo@c}{\flo@wgt}\flo@vfill{flo@c}{\flo@wgop}{0}{\flo@kept{wg#1}}%
+  \ifnum\flo@wgblur=0
+  \begin{pgfscope}%
+    \flo@kept{wg#1}\pgfusepath{clip}%
+    \flo@calc\flo@ta{\flo@wgt-0.2}\flo@calc\flo@tb{\flo@wgt+0.2}%
+    \ifnum\flo@fine=1 \flo@vmottle{-1.2}{-1.2}{1.2}{1.2}{9}{0.14}\flo@ta\flo@tb{8}%
+    \else\flo@vmottle{-1.2}{-1.2}{1.2}{1.2}{4}{0.14}\flo@ta\flo@tb{0}\fi
+    \ifnum\flo@xget{basal}=1
+      \flo@vblob{\csname flo@wgbx@#1\endcsname}{\csname flo@wgby@#1\endcsname}{0.2}{0.15}{0.3}{9}%
+      \flo@calc\flo@t{\flo@wgt-0.18}\flo@vtone{flo@c}\flo@t\flo@vfill{flo@c}{0.45}{1}{\flo@smoothpath}%
+    \fi
+    \edef\flo@wgsys{\flo@xget{central}}%
+    \def\flo@tmp{band}\ifx\flo@wgsys\flo@tmp
+      \edef\flo@twa{\flo@wgcw}\flo@calc\flo@twb{\flo@wgcw*0.8}%
+      \flo@calc\flo@t{\flo@wgt-0.2}\flo@vtone{flo@c}\flo@t
+      \flo@vfill{flo@c}{0.6}{1}{\csname flo@wgcb@#1\endcsname}%
+    \fi
+    \def\flo@tmp{spots}\ifx\flo@wgsys\flo@tmp
+      \csname flo@wgcs@#1\endcsname
+      \flo@calc\flo@xc{(\flo@xa+\flo@xb)/2}\flo@calc\flo@yc{(\flo@ya+\flo@yb)/2}%
+      \flo@calc\flo@t{\flo@wgt-0.22}\flo@vtone{flo@c}\flo@t
+      \flo@vfill{flo@c}{0.65}{1}{\pgfpathcircle{\flo@P\flo@xa\flo@ya}{0.045pt}%
+        \pgfpathcircle{\flo@P\flo@xb\flo@yb}{0.045pt}\pgfpathcircle{\flo@P\flo@xc\flo@yc}{0.04pt}}%
+    \fi
+    \ifnum\flo@xget{discal}=1
+      \csname flo@wgds@#1\endcsname
+      \flo@calc\flo@t{\flo@wgt-0.25}\flo@vtone{flo@c}\flo@t
+      \flo@vfill{flo@c}{0.75}{1}{\pgfpathellipse{\flo@P\flo@xa\flo@ya}{\flo@P{0.03}0}{\flo@P0{0.045}}}%
+    \fi
+    \edef\flo@wgsys{\flo@xget{border}}%
+    \def\flo@tmp{band}\ifx\flo@wgsys\flo@tmp
+      \flo@calc\flo@t{6.8*\flo@wgu}\flo@calc\flo@ta{\flo@wgt-0.22}\flo@vtone{flo@c}\flo@ta
+      \flo@vstroke{flo@c}{\flo@t}{0.55}{1}{\flo@kept{wg#1}}%
+    \fi
+    % the pooled rim (flora: tone 0.05, 0.26 of a unit wide, multiplied)
+    \flo@vtone{flo@c}{0.05}\flo@calc\flo@t{7.37*\flo@wgu}\flo@vstroke{flo@c}{\flo@t}{0.55}{1}{\flo@kept{wg#1}}%
+    \def\flo@tmp{spots}\ifx\flo@wgsys\flo@tmp
+      \flo@vtone{flo@c}{0.06}%
+      \flo@loop{wgsp#1}\flo@Wb{1}{\flo@xget{eyes}}{%
+        \flo@calc\flo@t{(\the\flo@Wb-0.5)/\flo@xget{eyes}}\flo@wgat{#1}{#3}{#4}\flo@t{0.86}%
+        \flo@vfill{flo@c}{0.8}{0}{\pgfpathcircle{\flo@P\flo@wx\flo@wy}{\csname flo@wgsr@#1\endcsname pt}}}%
+    \fi
+    \def\flo@tmp{eyes}\ifx\flo@wgsys\flo@tmp
+      \flo@loop{wgey#1}\flo@Wb{1}{\csname flo@wgne@#1\endcsname}{%
+        \flo@calc\flo@t{\csname flo@wges@#1\endcsname+(\the\flo@Wb-1)*\csname flo@wged@#1\endcsname}%
+        \flo@wgat{#1}{#3}{#4}\flo@t{0.78}%
+        \flo@wgeye\flo@wx\flo@wy{\csname flo@wger@#1\endcsname}}%
+    \fi
+    % lunules: rows of pale crescents along the edge
+    \ifnum\flo@xget{lunules}>0
+      \edef\flo@wgnc{\the\numexpr2*(#4-#3)\relax}%
+      \flo@loop{wglr#1}\flo@Wc{1}{\flo@xget{lunules}}{%
+        \flo@calc\flo@wgf{0.95-0.07*(\the\flo@Wc-1)}%
+        \flo@loop{wglu#1}\flo@Wb{1}{\flo@wgnc}{%
+          \flo@calc\flo@t{(\the\flo@Wb-0.85)/\flo@wgnc}\flo@wgat{#1}{#3}{#4}\flo@t\flo@wgf
+          \let\flo@xc\flo@wx\let\flo@yc\flo@wy
+          \flo@calc\flo@t{(\the\flo@Wb-0.15)/\flo@wgnc}\flo@wgat{#1}{#3}{#4}\flo@t\flo@wgf
+          \flo@calc\flo@xa{\flo@xc+(\flo@wx-\flo@xc)/3}\flo@calc\flo@ya{\flo@yc+(\flo@wy-\flo@yc)/3}%
+          \flo@calc\flo@xb{\flo@xc+(\flo@wx-\flo@xc)*2/3}\flo@calc\flo@yb{\flo@yc+(\flo@wy-\flo@yc)*2/3}%
+          \flo@calc\flo@xa{\flo@xa*0.96}\flo@calc\flo@ya{\flo@ya*0.96}\flo@calc\flo@xb{\flo@xb*0.96}\flo@calc\flo@yb{\flo@yb*0.96}%
+          \def\flo@twa{0.03}\def\flo@twb{0.008}%
+          \flo@vfill{white}{0.55}{0}{\flo@vtaper\flo@xc\flo@yc\flo@xa\flo@ya\flo@xb\flo@yb\flo@wx\flo@wy}}}%
+    \fi
+    % veins: white streaks fanning from the root to each point (flora), pale spots at the rim
+    \ifnum\flo@xget{veins}=1
+      \def\flo@wgrx{0.04}\edef\flo@wgry{\csname flo@wgry@#1\endcsname}%
+      \flo@loop{wgvn#1}\flo@Wb{1}{#2}{%
+        \flo@range\flo@f{0.7}{0.88}%
+        \flo@calc\flo@xd{\flo@wgrx+(\flo@wgx{#1}{\the\flo@Wb}-\flo@wgrx)*\flo@f}%
+        \flo@calc\flo@yd{\flo@wgry+(\flo@wgy{#1}{\the\flo@Wb}-(\flo@wgry))*\flo@f}%
+        \flo@put1\flo@wgrx\flo@wgry
+        \flo@calc\flo@xa{\flo@wgrx+(\flo@xd-\flo@wgrx)*0.3}\flo@calc\flo@ya{\flo@wgry+(\flo@yd-(\flo@wgry))*0.4}\flo@put2\flo@xa\flo@ya
+        \flo@calc\flo@xa{\flo@wgrx+(\flo@xd-\flo@wgrx)*0.7}\flo@calc\flo@ya{\flo@wgry+(\flo@yd-(\flo@wgry))*0.75}\flo@put3\flo@xa\flo@ya
+        \flo@put4\flo@xd\flo@yd
+        \flo@range\flo@op{0.35}{0.6}\flo@vstreak{4}{0.035}{0.004}{white}\flo@op
+        \def\flo@tmp{none}\ifx\flo@wgsys\flo@tmp\ifnum\flo@fine=1 \ifnum\flo@Wb>1 \ifnum\flo@Wb<#2
+          \flo@calc\flo@xa{\flo@wgrx+(\flo@wgx{#1}{\the\flo@Wb}-\flo@wgrx)*0.9}%
+          \flo@calc\flo@ya{\flo@wgry+(\flo@wgy{#1}{\the\flo@Wb}-(\flo@wgry))*0.9}%
+          \flo@range\flo@t{0.025}{0.04}\flo@vfill{white}{0.8}{0}{\pgfpathcircle{\flo@P\flo@xa\flo@ya}{\flo@t pt}}%
+        \fi\fi\fi\fi}%
+    \fi
+  \end{pgfscope}%
+  % thread tails off the hindwing
+  \ifnum\flo@xget{tails}=2 \def\flo@tmp{#1}\def\flo@tmpb{hw}\ifx\flo@tmp\flo@tmpb
+    \edef\flo@xb{\flo@wgx{hw}5}\edef\flo@yb{\flo@wgy{hw}5}%
+    \def\flo@twa{0.022}\def\flo@twb{0.006}\flo@vtone{flo@c}{0.08}%
+    \flo@vfill{flo@c}{0.9}{0}{%
+      \flo@calc\flo@xa{\flo@xb-0.05}\flo@calc\flo@ya{\flo@yb-0.02}\flo@calc\flo@xd{\flo@xb-0.02}\flo@calc\flo@yd{\flo@yb-0.26}%
+      \flo@calc\flo@xc{\flo@xb-0.04}\flo@calc\flo@yc{\flo@yb-0.1}\flo@calc\flo@xe{\flo@xb-0.025}\flo@calc\flo@ye{\flo@yb-0.18}%
+      \flo@vtaper\flo@xa\flo@ya\flo@xc\flo@yc\flo@xe\flo@ye\flo@xd\flo@yd
+      \flo@calc\flo@xa{\flo@xb-0.14}\flo@calc\flo@xd{\flo@xb-0.13}\flo@calc\flo@yd{\flo@yb-0.2}%
+      \flo@calc\flo@xc{\flo@xb-0.14}\flo@calc\flo@yc{\flo@yb-0.08}\flo@calc\flo@xe{\flo@xb-0.135}\flo@calc\flo@ye{\flo@yb-0.14}%
+      \flo@vtaper\flo@xa\flo@yb\flo@xc\flo@yc\flo@xe\flo@ye\flo@xd\flo@yd}%
+  \fi\fi
+  \fi}
+% the body: abdomen (a blade, flora's), banded on a hawkmoth; thorax, hairy on a moth;
+% head; feelers clubbed, threadlike or feathery; legs in profile
+\def\flo@wgbody{%
+  \flo@loop{wgab}\flo@Wb{0}{10}{%
+    \flo@calc\flo@v{\the\flo@Wb/10}\flo@calc\flo@h{\flo@wgaw*sin(180*pow(\flo@v,0.7))}%
+    \flo@calc\flo@ya{-\flo@wgal+\flo@wgal*\flo@v}\flo@calc\flo@xa{-\flo@h}%
+    \flo@put{\the\numexpr\flo@Wb+1\relax}\flo@xa\flo@ya
+    \ifnum\flo@Wb>0 \ifnum\flo@Wb<10 \flo@put{\the\numexpr21-\flo@Wb\relax}\flo@h\flo@ya\fi\fi}%
+  \flo@smoothprep{20}\flo@vtone{flo@c}{0.06}\flo@vfill{flo@c}{1}{0}{\flo@smoothpath}%
+  \ifnum\flo@xget{bands}>0
+    \def\flo@twa{0.03}\def\flo@twb{0.03}%
+    \flo@loop{wgbd}\flo@Wb{1}{\flo@xget{bands}}{%
+      \flo@calc\flo@ya{-\flo@wgal*\the\flo@Wb/(\flo@xget{bands}+1)}\flo@calc\flo@xa{\flo@wgaw*0.9}\flo@calc\flo@xb{-\flo@wgaw*0.9}%
+      \flo@calc\flo@xc{\flo@wgaw*0.3}\flo@calc\flo@xd{-\flo@wgaw*0.3}%
+      \flo@vfill{white}{0.45}{0}{\flo@vtaper\flo@xb\flo@ya\flo@xd\flo@ya\flo@xc\flo@ya\flo@xa\flo@ya}}%
+  \fi
+  \flo@vtone{flo@c}{0.04}\flo@vfill{flo@c}{1}{0}{\pgfpathellipse{\flo@P0{0.08}}{\flo@P\flo@wgtw0}{\flo@P0{0.13}}}%
+  \ifdim\flo@xget{hair}pt>0pt
+    \pgfmathtruncatemacro\flo@wgnh{4+12*\flo@xget{hair}}\flo@vtone{flo@c}{0.12}%
+    \def\flo@twa{0.022}\def\flo@twb{0.003}%
+    \flo@loop{wghr}\flo@Wb{1}{\flo@wgnh}{%
+      \flo@range\flo@wa{0}{360}\flo@range\flo@t{0.03}{0.06}%
+      \flo@calc\flo@xa{\flo@wgtw*cos(\flo@wa)}\flo@calc\flo@ya{0.08+0.13*sin(\flo@wa)}%
+      \flo@calc\flo@xd{(\flo@wgtw+\flo@t)*cos(\flo@wa)}\flo@calc\flo@yd{0.08+(0.13+\flo@t)*sin(\flo@wa)}%
+      \flo@calc\flo@xb{\flo@xa+(\flo@xd-\flo@xa)/3}\flo@calc\flo@yb{\flo@ya+(\flo@yd-\flo@ya)/3}%
+      \flo@calc\flo@xc{\flo@xa+(\flo@xd-\flo@xa)*2/3}\flo@calc\flo@yc{\flo@ya+(\flo@yd-\flo@ya)*2/3}%
+      \flo@vfill{flo@c}{0.7}{0}{\flo@vtaper\flo@xa\flo@ya\flo@xb\flo@yb\flo@xc\flo@yc\flo@xd\flo@yd}}%
+  \fi
+  \flo@vtone{flo@c}{0.04}\flo@vfill{flo@c}{1}{0}{\pgfpathcircle{\flo@P0{0.27}}{\flo@wghr pt}}%
+  % feelers: from the head, a cubic out to (\flo@ex,\flo@ey)
+  \flo@calc\flo@wgw{max(0.3,0.5*\flo@wgu)}%
+  \flo@loop{wgan}\flo@Wb{1}{2}{%
+    \ifnum\flo@wgsides=1 \def\flo@sx{1}\else\ifnum\flo@Wb=1 \def\flo@sx{-1}\else\def\flo@sx{1}\fi\fi
+    \edef\flo@t{\flo@xget{antenna}}%
+    \def\flo@tmp{clubbed}\ifx\flo@t\flo@tmp\flo@range\flo@ex{0.22}{0.3}\flo@range\flo@ey{0.78}{0.9}\fi
+    \def\flo@tmp{thread}\ifx\flo@t\flo@tmp\flo@range\flo@ex{0.26}{0.36}\flo@range\flo@ey{0.72}{0.88}\fi
+    \def\flo@tmp{feathery}\ifx\flo@t\flo@tmp\flo@range\flo@ex{0.24}{0.32}\flo@range\flo@ey{0.62}{0.72}\fi
+    \ifnum\flo@wgsides=1 \ifnum\flo@Wb=2 \flo@calc\flo@ex{\flo@ex*0.8}\flo@calc\flo@ey{\flo@ey*0.95}\fi\fi
+    \flo@calc\flo@ex{\flo@sx*\flo@ex}\flo@calc\flo@xa{\flo@sx*0.02}\flo@calc\flo@xb{\flo@sx*0.05}%
+    \flo@calc\flo@xc{\flo@ex*0.6}\flo@calc\flo@yc{\flo@ey*0.9}%
+    \flo@vtone{flo@c}{0.08}%
+    \flo@vstroke{flo@c}{\flo@wgw}{1}{0}{\pgfpathmoveto{\flo@P\flo@xa{0.31}}%
+      \pgfpathcurveto{\flo@P\flo@xb{0.5}}{\flo@P\flo@xc\flo@yc}{\flo@P\flo@ex\flo@ey}}%
+    \def\flo@tmp{clubbed}\ifx\flo@t\flo@tmp
+      \flo@vtone{flo@c}{0.06}\flo@vfill{flo@c}{1}{0}{\pgfpathcircle{\flo@P\flo@ex\flo@ey}{0.025pt}}\fi
+    \def\flo@tmp{feathery}\ifx\flo@t\flo@tmp
+      \flo@calc\flo@t{0.5*\flo@wgw}%
+      \flo@vstroke{flo@c}{\flo@t}{1}{0}{%
+        \flo@loop{wgbb}\flo@Wc{3}{9}{%
+          \flo@calc\flo@v{\the\flo@Wc/10}\flo@calc\flo@wf{1-\flo@v}%
+          \flo@calc\flo@wx{\flo@wf*\flo@wf*\flo@wf*\flo@xa+3*\flo@wf*\flo@wf*\flo@v*\flo@xb+3*\flo@wf*\flo@v*\flo@v*\flo@xc+\flo@v*\flo@v*\flo@v*\flo@ex}%
+          \flo@calc\flo@wy{\flo@wf*\flo@wf*\flo@wf*0.31+3*\flo@wf*\flo@wf*\flo@v*0.5+3*\flo@wf*\flo@v*\flo@v*\flo@yc+\flo@v*\flo@v*\flo@v*\flo@ey}%
+          \flo@calc\flo@da{3*\flo@wf*\flo@wf*(\flo@xb-\flo@xa)+6*\flo@wf*\flo@v*(\flo@xc-\flo@xb)+3*\flo@v*\flo@v*(\flo@ex-\flo@xc)}%
+          \flo@calc\flo@db{3*\flo@wf*\flo@wf*0.19+6*\flo@wf*\flo@v*(\flo@yc-0.5)+3*\flo@v*\flo@v*(\flo@ey-\flo@yc)}%
+          \flo@nrm\flo@da\flo@db\flo@nx\flo@ny\flo@calc\flo@wr{0.05*(1.1-\flo@v)}%
+          \flo@calc\flo@xd{\flo@wx+\flo@nx*\flo@wr}\flo@calc\flo@yd{\flo@wy+\flo@ny*\flo@wr}%
+          \flo@calc\flo@xe{\flo@wx-\flo@nx*\flo@wr}\flo@calc\flo@ye{\flo@wy-\flo@ny*\flo@wr}%
+          \pgfpathmoveto{\flo@P\flo@xd\flo@yd}\pgfpathlineto{\flo@P\flo@xe\flo@ye}}}%
+    \fi}%
+  % legs, seen from the side
+  \ifnum\flo@wgsides=1
+    \flo@vtone{flo@c}{0.08}%
+    \flo@vstroke{flo@c}{\flo@wgw}{1}{0}{%
+      \flo@loop{wglg}\flo@Wb{0}{2}{%
+        \flo@calc\flo@ya{0.16-0.08*\the\flo@Wb}\flo@calc\flo@yb{\flo@ya+0.03}\flo@calc\flo@yc{\flo@ya-0.12}%
+        \pgfpathmoveto{\flo@P{-0.03}\flo@ya}\pgfpathlineto{\flo@P{-0.12}\flo@yb}\pgfpathlineto{\flo@P{-0.2}\flo@yc}}}%
+  \fi
+  \ifnum\flo@fine=1 \def\flo@tmp{butterfly}\ifx\flo@wgk\flo@tmp
+    \flo@calc\flo@t{\flo@wgal/0.62}%
+    \flo@calc\flo@ya{-0.55*\flo@t}\flo@put1{-0.015}\flo@ya\flo@calc\flo@ya{-0.35*\flo@t}\flo@put2{-0.02}\flo@ya
+    \flo@calc\flo@ya{-0.1*\flo@t}\flo@put3{-0.02}\flo@ya\flo@put4{-0.01}{0}%
+    \flo@vstreak{4}{0.015}{0.004}{white}{0.45}%
+  \fi\fi}
+% a wing of the side: rotated #2 degrees about its root, painted (#1, then the paint's arguments)
+\def\flo@wgwing#1#2#3#4#5{\begin{pgfscope}%
+  \pgftransformshift{\flo@P{0.04}{0}}\pgftransformrotate{#2}\pgftransformshift{\flo@P{-0.04}{0}}%
+  \flo@wgpaint{#1}{#3}{#4}{#5}\end{pgfscope}}
+% a butterfly or moth; #1 its wingspan on the page in pt
+\def\flo@lepid#1{%
+  \flo@calc\flo@wgu{(#1)/56.90552}%
+  \ifdim\flo@wgu pt>0.3pt \def\flo@fine{1}\else\def\flo@fine{0}\fi
+  \edef\flo@wgk{\flo@xget{kind}}\edef\flo@wgpose{\flo@xget{pose}}\edef\flo@wgground{\flo@xget{ground}}%
+  % the wash: the ink's, paler, darker, or the copper's; the underside paler
+  \edef\flo@wgt{\flo@xget{tone}}%
+  \def\flo@tmp{pale}\ifx\flo@wgground\flo@tmp\flo@calc\flo@wgt{min(0.78,\flo@wgt+0.32)}\fi
+  \def\flo@tmp{dark}\ifx\flo@wgground\flo@tmp\flo@calc\flo@wgt{\flo@wgt-0.12}\fi
+  \def\flo@tmp{copper}\ifx\flo@wgground\flo@tmp\def\flo@rampname{flo@aramp}\fi
+  \def\flo@wgsides{2}\def\flo@wgop{1}\def\flo@wgblur{0}\def\flo@wgxs{1}%
+  \def\flo@wgrf{0}\def\flo@wgrh{0}\def\flo@wgpass{1}%
+  \def\flo@tmp{closed}\ifx\flo@wgpose\flo@tmp\def\flo@wgsides{1}\def\flo@wgrf{18}\def\flo@wgrh{18}%
+    \flo@calc\flo@wgt{min(0.8,\flo@wgt+0.12)}\fi
+  \def\flo@tmp{flat}\ifx\flo@wgpose\flo@tmp\def\flo@wgrf{-18}\def\flo@wgrh{-10}\fi
+  \def\flo@tmp{tent}\ifx\flo@wgpose\flo@tmp\def\flo@wgrf{-58}\def\flo@wgrh{-38}\def\flo@wgxs{0.8}\fi
+  \def\flo@tmp{hover}\ifx\flo@wgpose\flo@tmp\def\flo@wgop{0.3}\def\flo@wgblur{1}\def\flo@wgpass{2}\fi
+  % the body's proportions: a moth's stouter
+  \def\flo@wgaw{0.05}\def\flo@wgal{0.62}\def\flo@wgtw{0.075}\def\flo@wghr{0.06}%
+  \def\flo@tmp{moth}\ifx\flo@wgk\flo@tmp\def\flo@wgaw{0.075}\def\flo@wgtw{0.095}\def\flo@wghr{0.07}\fi
+  \def\flo@tmp{hawkmoth}\ifx\flo@wgk\flo@tmp\def\flo@wgaw{0.075}\def\flo@wgal{0.85}\def\flo@wgtw{0.09}\def\flo@wghr{0.07}\fi
+  \ifnum\flo@wgsides=1 \flo@calc\flo@wgaw{\flo@wgaw*0.8}\fi
+  % the wings' outlines
+  \flo@wgshape\flo@wgjit{fw}{8}\flo@wgjit{hw}{7}%
+  \edef\flo@t{\flo@xget{wingedge}}\def\flo@wgdep{0}%
+  \def\flo@tmp{scalloped}\ifx\flo@t\flo@tmp\def\flo@wgdep{0.045}\fi
+  \def\flo@tmp{toothed}\ifx\flo@t\flo@tmp\def\flo@wgdep{0.09}\fi
+  \def\flo@wgtail{0}\flo@wgoutline{fw}{8}{4}{6}\flo@keep{wgfw}%
+  \ifnum\flo@xget{tails}=1 \def\flo@wgtail{5}\fi\flo@wgoutline{hw}{7}{3}{6}\flo@keep{wghw}%
+  % the pattern's place: the central band's width and sway; eyespots, a row on the hindwing
+  % and one at the forewing's tip
+  \flo@range\flo@wgcw{0.07}{0.11}\flo@sym\flo@wgcj{0.04}%
+  \edef\flo@wgne@hw{\flo@xget{eyes}}\def\flo@wgne@fw{0}\ifnum\flo@xget{eyes}>2 \def\flo@wgne@fw{1}\fi
+  \ifnum\flo@wgne@hw>0 \flo@calc\flo@wger@hw{min(0.1,0.34/\flo@wgne@hw)}\flo@calc\flo@wges@hw{0.5/\flo@wgne@hw}%
+    \flo@calc\flo@wged@hw{1/\flo@wgne@hw}\fi
+  \def\flo@wger@fw{0.065}\def\flo@wges@fw{0.22}\def\flo@wged@fw{0}%
+  \def\flo@wgsr@fw{0.03}\def\flo@wgsr@hw{0.034}%
+  % closed, it stands: the body level, the head to the left, the wings raised
+  \ifnum\flo@wgsides=1 \pgftransformrotate{90}\fi
+  \flo@loop{wgsd}\flo@Wa{1}{\flo@wgsides}{%
+    \begin{pgfscope}%
+      \ifnum\flo@Wa=2 \pgftransformxscale{-1}\fi
+      \ifdim\flo@wgxs pt<1pt \pgftransformxscale{\flo@wgxs}\fi
+      \flo@loop{wgps}\flo@Wd{1}{\flo@wgpass}{%
+        \ifnum\flo@wgpass=2 \ifnum\flo@Wd=1 \def\flo@wgrf{14}\def\flo@wgrh{14}\else\def\flo@wgrf{-14}\def\flo@wgrh{-14}\fi\fi
+        \ifnum\flo@wgsides=1
+          \flo@wgwing{fw}\flo@wgrf{8}{4}{6}\flo@wgwing{hw}\flo@wgrh{7}{3}{6}%
+        \else
+          \flo@wgwing{hw}\flo@wgrh{7}{3}{6}\flo@wgwing{fw}\flo@wgrf{8}{4}{6}%
+        \fi}%
+    \end{pgfscope}}%
+  \flo@wgbody}
+% a visitor of the kind last drawn; #1 its size on the page in pt (a wingspan, a length)
+\def\flo@visitor#1{%
+  \edef\flo@t{\flo@xget{group}}\def\flo@tmp{lepidoptera}%
+  \ifx\flo@t\flo@tmp\flo@calc\flo@t{(#1)/2}\pgftransformscale{\flo@t}\flo@lepid{#1}\fi}
+% sample the visitor, then reseed for the drawing
+\def\flo@vispicsetup#1{%
+  \pgfkeys{/florilegium,#1}\flo@colors
+  \florilegiumvisitor{\flo@o@seed}{\flo@o@role}%
+  \ifx\flo@o@draw\pgfutil@empty
+    \edef\flo@o@draw{\the\numexpr\ifnum\flo@o@seed=2147483646 1\else\flo@o@seed+1\fi\relax}\fi
+  \flo@drawseed\flo@o@draw
+  \pgfmathsetlength\pgf@x{\flo@o@size}\edef\flo@sizept{\pgf@sys@tonumber\pgf@x}}
+% \pic {florilegium visitor={seed=7, role=butterfly, size=3cm}}: a visitor of the role
+% (or a kind: role=moth, role=ladybird), size its wingspan or length
+\tikzset{pics/florilegium visitor/.style={code={\flo@engine{#1}{visitor}{%
+  \flo@vispicsetup{#1}\pgfsetroundcap\pgfsetroundjoin\flo@visitor\flo@sizept}}}}

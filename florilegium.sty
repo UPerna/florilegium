@@ -139,29 +139,29 @@
 %% pass the current colors to Lua, and whether the pages are two-sided
 \def\florilegium@twoside{\directlua{florilegium.twoside = \if@twoside true\else false\fi}}
 \def\florilegium@colors{%
-  \extractcolorspecs{ink}{\flo@m}{\flo@s}\convertcolorspec{\flo@m}{\flo@s}{rgb}\flo@ink
-  \extractcolorspecs{accent}{\flo@m}{\flo@s}\convertcolorspec{\flo@m}{\flo@s}{rgb}\flo@acc
-  \directlua{florilegium.colors(\flo@ink, \flo@acc)}}
+  \extractcolorspecs{ink}{\flo@colm}{\flo@cols}\convertcolorspec{\flo@colm}{\flo@cols}{rgb}\flo@ink
+  \extractcolorspecs{accent}{\flo@colm}{\flo@cols}\convertcolorspec{\flo@colm}{\flo@cols}{rgb}\flo@accrgb
+  \directlua{florilegium.colors(\flo@ink, \flo@accrgb)}}
 
 %% one primitive inside a tikzpicture, under the current transformation
 \newcommand\florilegiumdraw[2]{\florilegium@colors\directlua{florilegium.draw("#1", #2)}}
 
 %% one primitive in the text, in a box the size of a letter (florilegium.lua):
 %% \florilegiumornament{leaf}, \florilegiumornament[size=2em,ink=5B2A1F,angle=20,seed=random]{flower}
-\newdimen\flo@o@size
+\newdimen\flo@orn@size
 \pgfqkeys{/florilegium/ornament}{
-  size/.store in=\flo@o@sz, size=1em,
-  ink/.store in=\flo@o@ink, ink=,
-  accent/.store in=\flo@o@acc, accent=,
-  angle/.store in=\flo@o@angle, angle=0,
-  seed/.store in=\flo@o@seed, seed=}
+  size/.store in=\flo@orn@sz, size=1em,
+  ink/.store in=\flo@orn@ink, ink=,
+  accent/.store in=\flo@orn@acc, accent=,
+  angle/.store in=\flo@orn@angle, angle=0,
+  seed/.store in=\flo@orn@seed, seed=}
 \newcommand\florilegiumornament[2][]{\leavevmode\begingroup
   \pgfqkeys{/florilegium/ornament}{#1}%
-  \flo@o@size=\flo@o@sz\relax
+  \flo@orn@size=\flo@orn@sz\relax
   \florilegium@colors
-  \hbox to\flo@o@size{\directlua{florilegium.ornament("\luaescapestring{#2}", \number\flo@o@size,
-      "\luaescapestring{\flo@o@ink}", "\luaescapestring{\flo@o@acc}", \flo@o@angle, "\luaescapestring{\flo@o@seed}")}%
-    \hss\vrule height .85\flo@o@size depth .15\flo@o@size width 0pt}%
+  \hbox to\flo@orn@size{\directlua{florilegium.ornament("\luaescapestring{#2}", \number\flo@orn@size,
+      "\luaescapestring{\flo@orn@ink}", "\luaescapestring{\flo@orn@acc}", \flo@orn@angle, "\luaescapestring{\flo@orn@seed}")}%
+    \hss\vrule height .85\flo@orn@size depth .15\flo@orn@size width 0pt}%
   \endgroup}
 
 %% ---------------------------------------------------------------- page seed
