@@ -55,6 +55,47 @@ Both PDFs are self-describing: the body text is the write-up of how the margin i
 *300 dpi crop. Mottled washes with white streaks lifted out, lobed leaves with white veins,
 forget-me-not cymes, a pale ghost flower behind the stems.*
 
+## What 2.0 changes
+
+Nothing in either release is an image: every shape is computed from a seed. What the code
+decides is another matter. In 1.3 the margin is grown, but what grows in it comes from a
+fixed set of *hand-designed kinds*, shapes written by hand (a flower, a lily, a leaf, a
+butterfly ...) whose sizes and details are random. In 2.0 the grown margin's plants and
+animals are *species* sampled from genomes: a plant's form, clusters, leaves and colors, an
+animal's kind and markings, so each document's seed grows plants of its own. The same
+species can be drawn on their own with the TikZ library, in pure TikZ.
+
+| what | release | where things go | the plants and animals | drawn by |
+|---|---|---|---|---|
+| grown margin | 1.3 | **procedural**, grown into the free space | hand-designed kinds | Lua (LuaLaTeX) |
+| grown margin | 2.0 | **procedural**, grown into the free space | **procedural** species from genomes | Lua (LuaLaTeX) |
+| authored page | both | placed by hand | hand-designed kinds | Lua (LuaLaTeX) |
+| geometric theme | both | **procedural**, grown | hand-designed kinds, cut flat | Lua (LuaLaTeX) |
+| math theme | both | **procedural**, packed into the free space | figures computed from their mathematics, and TeX's equations | Lua and TeX (LuaLaTeX) |
+| ornaments and initials | both | set in the text; an initial's vine grown round its letter | hand-designed kinds | Lua (LuaLaTeX) |
+| TikZ pics (`\usetikzlibrary{florilegium}`) | 2.0 | **procedural**, each pic grows its own plants | **procedural** species from genomes | pure TikZ (pdfLaTeX or LuaLaTeX), or Lua (LuaLaTeX's default) |
+| SVG without TeX, and the playground | both | as that release's margin | as that release's margin | any Lua 5.3 or 5.4, a browser |
+| PostScript (`postscript/florilegium.ps`) | both | **procedural**, grown | hand-designed kinds (1.3's garden) | PostScript |
+
+A species page draws about 1.7 times as much as a 1.3 page, and takes a little under twice
+as long:
+
+| | 1.3 | 2.0 |
+|---|---|---|
+| ten pages of text, no margin (LuaLaTeX) | 0.4 s, 33 KB | 0.4 s, 33 KB |
+| the same ten pages with the grown margin (LuaLaTeX) | 7.1 s, 6.3 MB | 12.7 s, 10.9 MB |
+| what the margin adds to a page | 0.67 s, 0.63 MB | 1.24 s, 1.1 MB |
+| one TikZ strip of three plants, pdfLaTeX, pure TikZ | not in 1.3 | 86 s, 1.2 MB (6.2 million words of TeX's memory) |
+| the same strip, LuaLaTeX, pure TikZ (`engine=tikz`) | not in 1.3 | 97 s, 1.2 MB |
+| the same strip, LuaLaTeX, Lua engine (the default) | not in 1.3 | 0.8 s, 0.5 MB |
+
+*`tools/bench.tex` (seed 7, the last page short) and `tools/bench-tikz.tex`, timed on
+2026-11-03 on an Intel Core i9-13900K with LuaHBTeX 1.17.0 (TeX Live 2023), each time the
+median of three runs (pure TikZ: one run). What the margin adds is the difference from the same
+text without one (option `nomargin`), per page. The Lua engine draws the same plants as pure TikZ,
+within a fraction of a point (`tools/tikzcheck.lua draw` compares their renders). `make bench`
+measures every row again and prints both tables.*
+
 ## Watch it grow
 
 | as it grows | with the free space it fills |

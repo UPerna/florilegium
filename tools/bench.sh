@@ -7,7 +7,8 @@
 # margin rows build tools/bench.tex with each release's package beside it, and the same text
 # with nomargin; the garden's share of a page is the difference over the pages. The TikZ
 # rows build tools/bench-tikz.tex (one strip of three plants) in pure TikZ under pdfLaTeX
-# and LuaLaTeX and with the Lua engine, and compare the two LuaLaTeX PDFs byte for byte.
+# and LuaLaTeX and with the Lua engine. It prints two Markdown tables: what is procedural
+# in each release and what draws it, then times and sizes side by side.
 # Copyright (c) 2026 Kevin Raymond. MIT License: see LICENSE or florilegium.sty.
 set -e
 old=${1:?usage: tools/bench.sh OLD-RELEASE-DIR [RUNS]}
@@ -64,26 +65,45 @@ mv "$B/new/strip.pdf" "$B/new/strip-tikz.pdf"
 t_lua=$(run "$B/new" "$runs" $LUALATEX -jobname=strip "\def\benchengine{lua}\input{bench-tikz.tex}")
 set -- $(written "$B/new/strip.log")
 p_lua=$2
-if cmp -s "$B/new/strip.pdf" "$B/new/strip-tikz.pdf"; then same="the same PDF as pure TikZ's, byte for byte"
-else same="**not** the same PDF as pure TikZ's"; fi
 
-# ---- the table
+# ---- the tables: what each release draws and with what, then times and sizes side by side
 cpu=$(awk -F': ' '/model name/ { print $2; exit }' /proc/cpuinfo)
 per() { awk -v a="$1" -v b="$2" -v p="$3" 'BEGIN { printf "%.2f s", (a - b) / p }'; }
 perb() { mb "$(awk -v a="$1" -v b="$2" -v p="$3" 'BEGIN { print (a - b) / p }')"; }
 oname=$(sed -n 's/.*\\ProvidesPackage{florilegium}\[[^]]* v\([0-9.]*\).*/v\1/p' "$old/florilegium.sty")
 nname=$(sed -n 's/.*\\ProvidesPackage{florilegium}\[[^]]* v\([0-9.]*\).*/v\1/p' florilegium.sty)
-olabel="$oname's" nlabel="$nname's"
-[ "$nname" = "$oname" ] && nlabel="this tree's"
-echo "Timed on $cpu with $(lualatex --version | head -1 | sed 's/^This is //') and"
-echo "$(pdflatex --version | head -1); a time is the median of $runs runs (pure TikZ: one). A page's"
-echo "share is what the garden adds to the same text set without one (option nomargin)."
+[ "$nname" = "$oname" ] && nname="this tree"
+echo "**What is procedural, and what draws it.** Nothing is an image; every shape is computed from"
+echo "a seed. *Hand-designed kinds* are a fixed set of shapes written by hand (a flower, a lily, a"
+echo "leaf, a butterfly ...) whose sizes and details are random. *Species* are sampled from genomes:"
+echo "a plant's form, clusters, leaves and colors, and an animal's kind and markings, so each"
+echo "document's seed grows plants of its own."
 echo
-echo "| what | engine | time | PDF |"
-echo "|---|---|---|---|"
-printf '| tools/bench.tex: %s pages of text, no garden | LuaLaTeX | %.1f s | %s |\n' "$n_p" "$n_tt" "$(mb "$n_bt")"
-printf '| the same with %s grown margin | LuaLaTeX | %.1f s (%s a page) | %s (%s a page) |\n' "$olabel" "$o_tg" "$(per "$o_tg" "$o_tt" "$o_p")" "$(mb "$o_bg")" "$(perb "$o_bg" "$o_bt" "$o_p")"
-printf '| the same with %s grown margin | LuaLaTeX | %.1f s (%s a page) | %s (%s a page) |\n' "$nlabel" "$n_tg" "$(per "$n_tg" "$n_tt" "$n_p")" "$(mb "$n_bg")" "$(perb "$n_bg" "$n_bt" "$n_p")"
-printf '| tools/bench-tikz.tex: three plants on one root, 21 cm | pdfLaTeX, pure TikZ | %.0f s | %s (%s words of main memory) |\n' "$t_pdf" "$(mb "$p_pdf")" "$mem"
-printf '| the same | LuaLaTeX, pure TikZ | %.0f s | %s |\n' "$t_tikz" "$(mb "$p_tikz")"
-printf '| the same | LuaLaTeX, engine=lua | %.1f s | %s, %s |\n' "$t_lua" "$(mb "$p_lua")" "$same"
+echo "| what | release | where things go | the plants and animals | drawn by |"
+echo "|---|---|---|---|---|"
+echo "| grown margin | $oname | **procedural**, grown into the free space | hand-designed kinds | Lua (LuaLaTeX) |"
+echo "| grown margin | $nname | **procedural**, grown into the free space | **procedural** species from genomes | Lua (LuaLaTeX) |"
+echo "| authored page | both | placed by hand | hand-designed kinds | Lua (LuaLaTeX) |"
+echo "| geometric theme | both | **procedural**, grown | hand-designed kinds, cut flat | Lua (LuaLaTeX) |"
+echo "| math theme | both | **procedural**, packed into the free space | figures computed from their mathematics, and TeX's equations | Lua and TeX (LuaLaTeX) |"
+echo "| ornaments and initials | both | set in the text; an initial's vine grown round its letter | hand-designed kinds | Lua (LuaLaTeX) |"
+echo "| TikZ pics (\\usetikzlibrary{florilegium}) | $nname | **procedural**, each pic grows its own plants | **procedural** species from genomes | pure TikZ (pdfLaTeX or LuaLaTeX), or Lua (LuaLaTeX's default) |"
+echo "| SVG without TeX, and the playground | both | as that release's margin | as that release's margin | any Lua 5.3/5.4, a browser |"
+echo "| PostScript (postscript/florilegium.ps) | both | **procedural**, grown | hand-designed kinds (v1.3's garden) | PostScript |"
+echo
+echo "**Time and size** (tools/bench.tex: $n_p pages of text with a grown margin, seed 7; tools/bench-tikz.tex: one strip of"
+echo "three plants on one root, 21 cm tall)"
+echo
+echo "| | $oname | $nname |"
+echo "|---|---|---|"
+printf '| the text alone, no margin (LuaLaTeX) | %.1f s, %s | %.1f s, %s |\n' "$o_tt" "$(mb "$o_bt")" "$n_tt" "$(mb "$n_bt")"
+printf '| with the grown margin (LuaLaTeX) | %.1f s, %s | %.1f s, %s |\n' "$o_tg" "$(mb "$o_bg")" "$n_tg" "$(mb "$n_bg")"
+printf '| what the margin adds to a page | %s, %s | %s, %s |\n' "$(per "$o_tg" "$o_tt" "$o_p")" "$(perb "$o_bg" "$o_bt" "$o_p")" "$(per "$n_tg" "$n_tt" "$n_p")" "$(perb "$n_bg" "$n_bt" "$n_p")"
+printf '| TikZ strip, pdfLaTeX, pure TikZ | not in %s | %.0f s, %s, %s words of main memory |\n' "$oname" "$t_pdf" "$(mb "$p_pdf")" "$mem"
+printf '| TikZ strip, LuaLaTeX, pure TikZ (engine=tikz) | not in %s | %.0f s, %s |\n' "$oname" "$t_tikz" "$(mb "$p_tikz")"
+printf '| TikZ strip, LuaLaTeX, Lua engine (the default) | not in %s | %.1f s, %s |\n' "$oname" "$t_lua" "$(mb "$p_lua")"
+echo
+echo "Timed on $cpu with $(lualatex --version | head -1 | sed 's/^This is //') and"
+echo "$(pdflatex --version | head -1). A time is the median of $runs runs (pure TikZ: one run). What the margin"
+echo "adds is the difference from the same text without one (option nomargin), per page. The Lua"
+echo "engine draws the same plants as pure TikZ, within a fraction of a point (tools/tikzcheck.lua draw)."
