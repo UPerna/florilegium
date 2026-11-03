@@ -4549,12 +4549,446 @@
   \flo@bgfur\flo@bgty\flo@bgtr\flo@bgnf\flo@bgrb\flo@bgrb{t}%
   \flo@bghead\flo@bgfeelers
   \flo@loop{bgsw}\flo@Wa{1}{2}{\begin{pgfscope}\ifnum\flo@Wa=2 \pgftransformxscale{-1}\fi\flo@bgwings\end{pgfscope}}}
+% ---------------------------------------------------------------- jointed legs
+% The legs of a side (drawn to the right) from table #1: per leg its root, knee, foot and
+% the end of its tarsus, (x, y) from (0, \flo@lgy), times \flo@lgx; the knee, foot and end
+% further out by \flo@lgex and moved a little (up to \flo@lgj); the feet of the first and
+% last legs shifted \flo@lgph along the body and the middle one's back (a walking gait);
+% thigh, shank and tarsus tapered from the width \flo@lgw
+\def\flo@lgoi{{0.025}{0.03}{0.06}{0.06}{0.07}{0.11}{0.065}{0.15}}
+\def\flo@lgoii{{0.03}{0}{0.075}{0.02}{0.095}{0.07}{0.095}{0.1}}
+\def\flo@lgoiii{{0.03}{-0.03}{0.085}{-0.03}{0.11}{0.01}{0.115}{0.045}}
+\def\flo@lgbi{{0.06}{0.08}{-0.06}{0.13}{0.02}{0.27}{0.04}{0.34}}
+\def\flo@lgbii{{0.08}{-0.04}{0}{-0.02}{0.1}{-0.1}{0.15}{-0.14}}
+\def\flo@lgbiii{{0.08}{-0.12}{-0.02}{-0.24}{0.06}{-0.42}{0.08}{-0.5}}
+\def\flo@lgpts#1#2#3#4#5#6#7#8{%
+  \edef\flo@lgi{\the\flo@Wb}%
+  \ifnum\flo@Wb=2 \flo@calc\flo@lgp{-(\flo@lgph)}\else\edef\flo@lgp{\flo@lgph}\fi
+  \flo@calc\flo@t{(#1)*\flo@lgx}\expandafter\let\csname flo@lg\flo@lgi a\endcsname\flo@t
+  \flo@calc\flo@t{\flo@lgy+(#2)*\flo@lgx}\expandafter\let\csname flo@lg\flo@lgi b\endcsname\flo@t
+  \flo@sym\flo@v{\flo@lgj}\flo@calc\flo@t{(#3)*\flo@lgx+\flo@lgex+\flo@v}\expandafter\let\csname flo@lg\flo@lgi c\endcsname\flo@t
+  \flo@sym\flo@v{\flo@lgj}\flo@calc\flo@t{\flo@lgy+(#4)*\flo@lgx+\flo@v}\expandafter\let\csname flo@lg\flo@lgi d\endcsname\flo@t
+  \flo@sym\flo@v{\flo@lgj}\flo@calc\flo@lgfx{(#5)*\flo@lgx+\flo@lgex+\flo@v}\expandafter\let\csname flo@lg\flo@lgi e\endcsname\flo@lgfx
+  \flo@sym\flo@v{\flo@lgj}\flo@calc\flo@lgfy{\flo@lgy+(#6)*\flo@lgx+\flo@lgp+\flo@v}\expandafter\let\csname flo@lg\flo@lgi f\endcsname\flo@lgfy
+  \flo@calc\flo@t{\flo@lgfx+((#7)-(#5))*\flo@lgx}\expandafter\let\csname flo@lg\flo@lgi g\endcsname\flo@t
+  \flo@calc\flo@t{\flo@lgfy+((#8)-(#6))*\flo@lgx}\expandafter\let\csname flo@lg\flo@lgi h\endcsname\flo@t}
+% a segment of a leg from (#1,#2) to (#3,#4), widths \flo@twa to \flo@twb
+\def\flo@lgseg#1#2#3#4{%
+  \flo@calc\flo@xb{#1+(#3-(#1))/3}\flo@calc\flo@yb{#2+(#4-(#2))/3}%
+  \flo@calc\flo@xc{#1+(#3-(#1))*2/3}\flo@calc\flo@yc{#2+(#4-(#2))*2/3}%
+  \flo@vtaper{#1}{#2}\flo@xb\flo@yb\flo@xc\flo@yc{#3}{#4}}
+\def\flo@vlegs#1{%
+  \flo@loop{lgpt}\flo@Wb{1}{3}{%
+    \expandafter\expandafter\expandafter\flo@lgpts\csname flo@lg#1\romannumeral\flo@Wb\endcsname}%
+  \flo@vfill{flo@c}{1}{0}{\flo@loop{lgdr}\flo@Wb{1}{3}{%
+    \edef\flo@lgi{\the\flo@Wb}%
+    \edef\flo@lga{\csname flo@lg\flo@lgi a\endcsname}\edef\flo@lgb{\csname flo@lg\flo@lgi b\endcsname}%
+    \edef\flo@lgc{\csname flo@lg\flo@lgi c\endcsname}\edef\flo@lgd{\csname flo@lg\flo@lgi d\endcsname}%
+    \edef\flo@lge{\csname flo@lg\flo@lgi e\endcsname}\edef\flo@lgf{\csname flo@lg\flo@lgi f\endcsname}%
+    \edef\flo@lgg{\csname flo@lg\flo@lgi g\endcsname}\edef\flo@lgh{\csname flo@lg\flo@lgi h\endcsname}%
+    \edef\flo@twa{\flo@lgw}\flo@calc\flo@twb{\flo@lgw*0.8}\flo@lgseg\flo@lga\flo@lgb\flo@lgc\flo@lgd
+    \flo@calc\flo@twa{\flo@lgw*0.75}\flo@calc\flo@twb{\flo@lgw*0.45}\flo@lgseg\flo@lgc\flo@lgd\flo@lge\flo@lgf
+    \flo@calc\flo@twa{\flo@lgw*0.4}\flo@calc\flo@twb{\flo@lgw*0.2}\flo@lgseg\flo@lge\flo@lgf\flo@lgg\flo@lgh}}}
+% ---------------------------------------------------------------- dragonflies and damselflies
+% Dragonflies and damselflies, seen from above, in units of the body's length, the head
+% toward +y. A dragonfly perches with its four wings held out flat (pose cross), the hind
+% ones broader at the root, and its eyes meet on top of its head. A damselfly is a needle
+% with its eyes far apart and its wings narrow at the root, folded together along its back
+% or held half open (spread). The wings: a clear or tinted wash, the long veins and, when
+% large, the net of cross veins between them; the dark spot near the tip of the leading
+% edge (stigma). The abdomen: ten segments, the hindmost ringed dark, as many as its bands.
+% a wing's outline: ten points (along the wing, across it in units of its width), table #1
+\def\flo@odWd#1#2#3#4{\expandafter\def\csname flo@odW#1x#2\endcsname{#3}\expandafter\def\csname flo@odW#1y#2\endcsname{#4}}
+\flo@odWd f1{0.01}{0.35}\flo@odWd f2{0.12}{0.75}\flo@odWd f3{0.45}{0.95}\flo@odWd f4{0.8}{0.9}\flo@odWd f5{0.97}{0.55}
+\flo@odWd f6{1}{0.1}\flo@odWd f7{0.93}{-0.45}\flo@odWd f8{0.7}{-0.75}\flo@odWd f9{0.35}{-0.85}\flo@odWd f{10}{0.08}{-0.6}
+\flo@odWd h1{0.01}{0.35}\flo@odWd h2{0.15}{0.8}\flo@odWd h3{0.5}{0.95}\flo@odWd h4{0.85}{0.85}\flo@odWd h5{1}{0.3}
+\flo@odWd h6{0.96}{-0.35}\flo@odWd h7{0.75}{-0.75}\flo@odWd h8{0.45}{-1}\flo@odWd h9{0.2}{-1.45}\flo@odWd h{10}{0.04}{-0.8}
+\flo@odWd d1{0}{0.1}\flo@odWd d2{0.2}{0.2}\flo@odWd d3{0.45}{0.8}\flo@odWd d4{0.78}{0.98}\flo@odWd d5{0.98}{0.6}
+\flo@odWd d6{1}{0}\flo@odWd d7{0.94}{-0.6}\flo@odWd d8{0.75}{-0.9}\flo@odWd d9{0.45}{-0.6}\flo@odWd d{10}{0.2}{-0.2}
+% the long veins of table #1, 0 the leading edge's side and 5 the trailing edge's (both
+% outside the wing): across the wing at its root, middle and tip
+\def\flo@odVd#1#2#3#4#5{\expandafter\def\csname flo@odV#1#2\endcsname{{#3}{#4}{#5}}}
+\flo@odVd f0{1.3}{1.3}{1.3}\flo@odVd f1{0.45}{0.72}{0.5}\flo@odVd f2{0.15}{0.3}{0.05}
+\flo@odVd f3{-0.1}{-0.3}{-0.45}\flo@odVd f4{-0.3}{-0.7}{-0.8}\flo@odVd f5{-1.6}{-1.6}{-1.6}
+\flo@odVd h0{1.3}{1.3}{1.3}\flo@odVd h1{0.45}{0.72}{0.5}\flo@odVd h2{0.15}{0.3}{0.05}
+\flo@odVd h3{-0.1}{-0.35}{-0.45}\flo@odVd h4{-0.4}{-0.9}{-0.8}\flo@odVd h5{-1.6}{-1.6}{-1.6}
+\flo@odVd d0{1.3}{1.3}{1.3}\flo@odVd d1{0.06}{0.6}{0.4}\flo@odVd d2{0.02}{0.2}{0}
+\flo@odVd d3{-0.02}{-0.25}{-0.4}\flo@odVd d4{-0.06}{-0.5}{-0.7}\flo@odVd d5{-1.6}{-1.6}{-1.6}
+% \flo@odvat{vein}{u}: the vein's place across the wing at u along it, into \flo@odvv
+\def\flo@odvat#1#2{\expandafter\expandafter\expandafter\flo@odvat@\csname flo@odV\flo@odwk#1\endcsname{#2}}
+\def\flo@odvat@#1#2#3#4{\flo@calc\flo@odvv{(#4<0.5 ? #1+(#2-(#1))*2*#4 : #2+(#3-(#2))*(2*#4-1))}}
+% a wing's outline from table #1, #2 long and #3 wide, each point moved a little; kept as #4
+\def\flo@odwingshape#1#2#3#4{%
+  \flo@loop{odws}\flo@Wb{1}{10}{%
+    \flo@sym\flo@t{0.008}\flo@calc\flo@xa{\csname flo@odW#1x\the\flo@Wb\endcsname*(#2)+\flo@t}%
+    \flo@sym\flo@t{0.008}\flo@calc\flo@ya{\csname flo@odW#1y\the\flo@Wb\endcsname*(#3)+\flo@t}%
+    \flo@put{\the\flo@Wb}\flo@xa\flo@ya}%
+  \flo@smoothprep{10}\flo@keep{#4}}
+% wing #1 (kept, table \flo@odwk, \flo@odwl long, \flo@odww wide) at its root (#2,#3),
+% turned #4 degrees: its wash, a tinted wing's darker root, the stigma, the veins, the rim
+\def\flo@odwing#1#2#3#4{\begin{pgfscope}%
+  \pgftransformshift{\flo@P{#2}{#3}}\pgftransformrotate{#4}%
+  \begin{pgfscope}\def\flo@rampname{flo@ramp}%
+    \flo@vtone{flo@c}{\flo@odwt}\flo@vfill{flo@c}{\flo@odwo}{0}{\flo@kept{#1}}\end{pgfscope}%
+  \begin{pgfscope}\flo@kept{#1}\pgfusepath{clip}%
+    \def\flo@tmp{tinted}\edef\flo@t{\flo@xget{tint}}\ifx\flo@t\flo@tmp
+      \flo@calc\flo@xa{0.1*\flo@odwl}\flo@calc\flo@ya{-0.2*\flo@odww}\flo@calc\flo@xb{0.2*\flo@odwl}\flo@calc\flo@yb{1.2*\flo@odww}%
+      \flo@vtone{flo@c}{0.45}\flo@vfill{flo@c}{0.3}{0}{\flo@bgell\flo@xa\flo@ya\flo@xb\flo@yb}%
+    \fi
+    \ifnum\flo@xget{stigma}=1
+      \flo@calc\flo@xa{0.83*\flo@odwl}\flo@calc\flo@xb{0.91*\flo@odwl}\flo@calc\flo@ya{1.3*\flo@odww}\flo@calc\flo@yb{0.55*\flo@odww}%
+      \flo@vtone{flo@c}{0.06}\flo@vfill{flo@c}{0.9}{0}{\pgfpathmoveto{\flo@P\flo@xa\flo@ya}\pgfpathlineto{\flo@P\flo@xb\flo@ya}%
+        \pgfpathlineto{\flo@P\flo@xb\flo@yb}\pgfpathlineto{\flo@P\flo@xa\flo@yb}\pgfpathclose}%
+    \fi
+    \ifnum\flo@fine=1
+      \begin{pgfscope}\def\flo@rampname{flo@ramp}\flo@vtone{flo@c}{0.15}%
+      \flo@vstroke{flo@c}{\flo@odvw}{0.6}{0}{\flo@loop{odvl}\flo@Wc{1}{4}{%
+        \expandafter\expandafter\expandafter\flo@odvein\csname flo@odV\flo@odwk\the\flo@Wc\endcsname}}%
+      \ifnum\flo@odnet=1
+        \flo@vtone{flo@c}{0.2}\flo@vstroke{flo@c}{\flo@odnw}{0.45}{0}{%
+          \flo@loop{odng}\flo@Wc{1}{5}{%
+            \flo@loop{odnt}\flo@Wd{1}{22}{%
+              \flo@sym\flo@t{0.3}\flo@calc\flo@u{(\the\flo@Wd-0.5+\flo@t)/22*0.96+0.02}%
+              \flo@odvat{\the\numexpr\flo@Wc-1\relax}\flo@u\flo@calc\flo@ya{\flo@odvv*\flo@odww}%
+              \flo@odvat{\the\flo@Wc}\flo@u\flo@calc\flo@yb{\flo@odvv*\flo@odww}%
+              \flo@calc\flo@xa{\flo@u*\flo@odwl}\flo@sym\flo@t{0.01}\flo@calc\flo@xb{(\flo@u+\flo@t)*\flo@odwl}%
+              \pgfpathmoveto{\flo@P\flo@xa\flo@ya}\pgfpathlineto{\flo@P\flo@xb\flo@yb}}}}%
+      \fi\end{pgfscope}%
+    \fi
+  \end{pgfscope}%
+  \ifnum\flo@fine=1 \begin{pgfscope}\def\flo@rampname{flo@ramp}%
+    \flo@vtone{flo@c}{0.15}\flo@vstroke{flo@c}{\flo@odlw}{0.7}{0}{\flo@kept{#1}}\end{pgfscope}\fi
+  \end{pgfscope}}
+\def\flo@odvein#1#2#3{%
+  \flo@calc\flo@ya{(#1)*\flo@odww}\pgfpathmoveto{\flo@P0\flo@ya}%
+  \flo@calc\flo@xa{0.5*\flo@odwl}\flo@calc\flo@ya{(#2)*\flo@odww}\pgfpathlineto{\flo@P\flo@xa\flo@ya}%
+  \flo@calc\flo@ya{(#3)*\flo@odww}\pgfpathlineto{\flo@P\flo@odwl\flo@ya}}
+% the wings of the side: the hind one under the fore
+\def\flo@odwings{%
+  \flo@odwingshape\flo@odhk\flo@odHl\flo@odHw{odwh}\flo@odwingshape\flo@odfk\flo@odFl\flo@odFw{odwf}%
+  \flo@calc\flo@ya{\flo@odty-\flo@odhd}\edef\flo@odwk{\flo@odhk}\let\flo@odwl\flo@odHl\let\flo@odww\flo@odHw
+  \flo@odwing{odwh}{\flo@odrx}\flo@ya\flo@odah
+  \flo@calc\flo@ya{\flo@odty+\flo@odfd}\edef\flo@odwk{\flo@odfk}\let\flo@odwl\flo@odFl\let\flo@odww\flo@odFw
+  \flo@odwing{odwf}{\flo@odrx}\flo@ya\flo@odaf}
+% the abdomen's outline: twelve points down each side, swollen at its root, round at its
+% tip; kept as odab
+\def\flo@odabdomen{%
+  \flo@loop{odao}\flo@Wa{0}{11}{%
+    \flo@calc\flo@v{\the\flo@Wa/11}%
+    \flo@calc\flo@h{\flo@odaw*(1+\flo@odbul*exp(-min(9,\flo@v*\flo@v/0.012)))*min(1,(1.04-\flo@v)*5)}%
+    \flo@calc\flo@ya{\flo@odat+(\flo@odtip-\flo@odat)*\flo@v}\flo@calc\flo@xa{-\flo@h}%
+    \flo@put{\the\numexpr\flo@Wa+1\relax}\flo@h\flo@ya\flo@put{\the\numexpr24-\flo@Wa\relax}\flo@xa\flo@ya}%
+  \flo@smoothprep{24}\flo@keep{odab}}
+% the end of segment #1 down the abdomen, into \flo@odsv (0 its root, 1 its tip)
+\def\flo@odseg#1{\flo@calc\flo@odsv{(#1)<1 ? 0 : pow((#1)/10,1.12)}}
+% the abdomen: its wash, the dark rings, the joints, a highlight, the pooled rim
+\def\flo@odpaintab{%
+  \flo@vtone{flo@c}{\flo@odt}\flo@vfill{flo@c}{1}{0}{\flo@kept{odab}}%
+  \begin{pgfscope}\flo@kept{odab}\pgfusepath{clip}%
+    \ifnum\flo@xget{bands}>0
+      \flo@vtone{flo@c}{0.04}\flo@vfill{flo@c}{0.85}{0}{%
+        \flo@loop{odbd}\flo@Wb{1}{\flo@xget{bands}}{%
+          \edef\flo@odsn{\the\numexpr10-\flo@xget{bands}+\flo@Wb\relax}%
+          \flo@odseg{\flo@odsn-1}\let\flo@odsa\flo@odsv\flo@odseg\flo@odsn
+          \flo@calc\flo@ya{\flo@odat+(\flo@odtip-\flo@odat)*(\flo@odsa+0.6*(\flo@odsv-\flo@odsa))}%
+          \flo@calc\flo@yb{\flo@odat+(\flo@odtip-\flo@odat)*\flo@odsv-0.01}%
+          \flo@bgband\flo@ya\flo@yb{0.004}}}%
+    \fi
+    \ifnum\flo@fine=1
+      \flo@vtone{flo@c}{0.05}\flo@vstroke{flo@c}{\flo@odjw}{0.5}{0}{%
+        \flo@loop{odjn}\flo@Wb{1}{9}{%
+          \flo@odseg{\the\flo@Wb}\flo@calc\flo@ya{\flo@odat+(\flo@odtip-\flo@odat)*\flo@odsv}%
+          \pgfpathmoveto{\flo@P{-0.1}\flo@ya}\pgfpathlineto{\flo@P{0.1}\flo@ya}}}%
+      \flo@calc\flo@t{\flo@odtip-\flo@odat}%
+      \flo@calc\flo@xa{-0.4*\flo@odaw}\flo@calc\flo@ya{\flo@odat+0.06*\flo@t}\flo@put1\flo@xa\flo@ya
+      \flo@calc\flo@xa{-0.45*\flo@odaw}\flo@calc\flo@ya{\flo@odat+0.3*\flo@t}\flo@put2\flo@xa\flo@ya
+      \flo@calc\flo@xa{-0.45*\flo@odaw}\flo@calc\flo@ya{\flo@odat+0.6*\flo@t}\flo@put3\flo@xa\flo@ya
+      \flo@calc\flo@xa{-0.35*\flo@odaw}\flo@calc\flo@ya{\flo@odat+0.85*\flo@t}\flo@put4\flo@xa\flo@ya
+      \flo@calc\flo@stw{0.5*\flo@odaw}\flo@vstreak{4}\flo@stw{0.004}{white}{0.45}%
+    \fi
+    \flo@vtone{flo@c}{0.05}\flo@calc\flo@t{1.4*\flo@odu}\flo@vstroke{flo@c}{\flo@t}{0.35}{1}{\flo@kept{odab}}%
+  \end{pgfscope}%
+  \ifnum\flo@fine=1
+    \flo@calc\flo@ya{\flo@odtip+0.012}\flo@calc\flo@yb{\flo@odtip-0.022}%
+    \flo@calc\flo@xa{0.5*\flo@odaw}\flo@calc\flo@xb{0.9*\flo@odaw}%
+    \flo@vtone{flo@c}{0.05}\flo@vstroke{flo@c}{\flo@odjw}{1}{0}{\pgfpathmoveto{\flo@P{-\flo@xa}\flo@ya}%
+      \pgfpathlineto{\flo@P{-\flo@xb}\flo@yb}\pgfpathmoveto{\flo@P\flo@xa\flo@ya}\pgfpathlineto{\flo@P\flo@xb\flo@yb}}%
+  \fi}
+% the thorax: a blob, a dragonfly's pale stripes on its shoulders, the rim
+\def\flo@odthorax{%
+  \flo@vblob{0}\flo@odty\flo@odtr\flo@odth{0.06}{10}\flo@keep{odth}%
+  \flo@vtone{flo@c}{\flo@odtt}\flo@vfill{flo@c}{1}{0}{\flo@kept{odth}}%
+  \begin{pgfscope}\flo@kept{odth}\pgfusepath{clip}%
+    \ifnum\flo@fine=1
+      \flo@calc\flo@twa{0.3*\flo@odtr}\flo@calc\flo@twb{0.12*\flo@odtr}%
+      \flo@vfill{white}{0.35}{0}{\flo@loop{odts}\flo@Wb{1}{2}{%
+        \ifnum\flo@Wb=1 \def\flo@sx{-1}\else\def\flo@sx{1}\fi
+        \flo@calc\flo@xa{\flo@sx*0.3*\flo@odtr}\flo@calc\flo@ya{\flo@odty+0.75*\flo@odth}%
+        \flo@calc\flo@xd{\flo@sx*0.6*\flo@odtr}\flo@calc\flo@yd{\flo@odty-0.45*\flo@odth}%
+        \flo@lgseg\flo@xa\flo@ya\flo@xd\flo@yd}}%
+    \fi
+    \flo@vtone{flo@c}{0.05}\flo@calc\flo@t{1.2*\flo@odu}\flo@vstroke{flo@c}{\flo@t}{0.4}{1}{\flo@kept{odth}}%
+  \end{pgfscope}}
+% the head: a dragonfly's eyes meet on top, a damselfly's stand apart; a glint in each
+\def\flo@odhead{%
+  \flo@vtone{flo@c}{0.06}\flo@vfill{flo@c}{1}{0}{\flo@bgell0\flo@odhy\flo@odhx\flo@odhr}%
+  \flo@calc\flo@ya{\flo@odhy+\flo@odey}%
+  \flo@vtone{flo@c}{\flo@odet}\flo@vfill{flo@c}{1}{0}{\flo@bgell{-\flo@odex}\flo@ya\flo@oder\flo@oder
+    \flo@bgell\flo@odex\flo@ya\flo@oder\flo@oder}%
+  \ifnum\flo@fine=1
+    \flo@calc\flo@xa{\flo@odex-0.35*\flo@oder}\flo@calc\flo@yb{\flo@ya+0.4*\flo@oder}\flo@calc\flo@t{0.22*\flo@oder}%
+    \flo@vfill{white}{0.7}{0}{\pgfpathcircle{\flo@P{-\flo@xa}\flo@yb}{\flo@t pt}\pgfpathcircle{\flo@P\flo@xa\flo@yb}{\flo@t pt}}%
+  \fi}
+% a dragonfly or a damselfly; #1 its length on the page in pt
+\def\flo@odo#1{%
+  \flo@calc\flo@odu{(#1)/28.45276}%
+  \ifdim\flo@odu pt>0.4pt \def\flo@fine{1}\else\def\flo@fine{0}\fi
+  \ifdim\flo@odu pt>1.5pt \def\flo@odnet{1}\else\def\flo@odnet{0}\fi
+  \edef\flo@odk{\flo@xget{kind}}\edef\flo@odpose{\flo@xget{pose}}\edef\flo@odground{\flo@xget{ground}}%
+  \edef\flo@odt{\flo@xget{tone}}%
+  \def\flo@tmp{dark}\ifx\flo@odground\flo@tmp\flo@calc\flo@odt{\flo@odt-0.12}\fi
+  \def\flo@tmp{copper}\ifx\flo@odground\flo@tmp\def\flo@rampname{flo@aramp}\fi
+  \flo@calc\flo@odtt{max(0.05,\flo@odt-0.08)}\flo@calc\flo@odet{max(0.06,\flo@odt-0.1)}%
+  \def\flo@tmp{tinted}\edef\flo@t{\flo@xget{tint}}%
+  \ifx\flo@t\flo@tmp\def\flo@odwt{0.7}\def\flo@odwo{0.42}\else\def\flo@odwt{0.88}\def\flo@odwo{0.28}\fi
+  % proportions: a dragonfly's, then a damselfly's
+  \def\flo@odaw{0.032}\def\flo@odbul{0.7}\def\flo@odat{0.16}\def\flo@odtip{-0.62}%
+  \def\flo@odty{0.235}\def\flo@odtr{0.066}\def\flo@odth{0.08}%
+  \def\flo@odhy{0.34}\def\flo@odhx{0.075}\def\flo@odhr{0.048}\def\flo@odex{0.038}\def\flo@odey{0.006}\def\flo@oder{0.046}%
+  \def\flo@odfk{f}\def\flo@odhk{h}\def\flo@odFl{0.62}\def\flo@odFw{0.065}\def\flo@odHl{0.6}\def\flo@odHw{0.075}%
+  \def\flo@odrx{0.02}\def\flo@odfd{0.03}\def\flo@odhd{0.035}\def\flo@odaf{8}\def\flo@odah{-6}%
+  \def\flo@lgx{1}\def\flo@lgw{0.014}%
+  \def\flo@tmp{damselfly}\ifx\flo@odk\flo@tmp
+    \def\flo@odaw{0.016}\def\flo@odbul{0.5}\def\flo@odat{0.2}\def\flo@odtip{-0.66}%
+    \def\flo@odty{0.26}\def\flo@odtr{0.04}\def\flo@odth{0.058}%
+    \def\flo@odhy{0.34}\def\flo@odhx{0.075}\def\flo@odhr{0.028}\def\flo@odex{0.058}\def\flo@odey{0}\def\flo@oder{0.026}%
+    \def\flo@odfk{d}\def\flo@odhk{d}\def\flo@odFl{0.5}\def\flo@odFw{0.06}\def\flo@odHl{0.48}\def\flo@odHw{0.06}%
+    \def\flo@odrx{0.012}\def\flo@odfd{0.02}\def\flo@odhd{0.02}\def\flo@odaf{-84}\def\flo@odah{-88}%
+    \def\flo@lgx{0.75}\def\flo@lgw{0.01}%
+    \def\flo@tmp{spread}\ifx\flo@odpose\flo@tmp\def\flo@odaf{-38}\def\flo@odah{-50}\else\def\flo@odFw{0.032}\def\flo@odHw{0.032}\fi
+  \fi
+  % line widths
+  \flo@calc\flo@odlw{max(0.18,0.3*\flo@odu)}\flo@calc\flo@odvw{max(0.12,0.22*\flo@odu)}%
+  \flo@calc\flo@odnw{max(0.08,0.1*\flo@odu)}\flo@calc\flo@odjw{max(0.1,0.18*\flo@odu)}%
+  % the legs, the abdomen, the thorax, the head, the wings
+  \edef\flo@lgy{\flo@odty}\def\flo@lgex{0}\def\flo@lgj{0.006}\def\flo@lgph{0}%
+  \flo@vtone{flo@c}{0.06}%
+  \flo@loop{odsl}\flo@Wa{1}{2}{\begin{pgfscope}\ifnum\flo@Wa=2 \pgftransformxscale{-1}\fi\flo@vlegs{o}\end{pgfscope}}%
+  \flo@odabdomen\flo@odpaintab\flo@odthorax\flo@odhead
+  \flo@loop{odsw}\flo@Wa{1}{2}{\begin{pgfscope}\ifnum\flo@Wa=2 \pgftransformxscale{-1}\fi\flo@odwings\end{pgfscope}}}
+% ---------------------------------------------------------------- beetles and ladybirds
+% Beetles and ladybirds, seen from above as they walk, in units of the body's length, the
+% head toward +y. The wing cases (elytra) meet down a seam; in front of them the shield
+% of the thorax (pronotum) and the head, a small triangle (scutellum) at the top of the
+% seam; six jointed legs, a gait apart on the two sides; feelers like threads, clubbed or
+% combed. A beetle's cases are plain, striped or spotted, glossy; a ladybird is a dome, red
+% with black spots (or black with red), its shield black with white patches at the front.
+\def\flo@btelytra{%
+  \flo@loop{bteo}\flo@Wa{1}{16}{%
+    \flo@calc\flo@wa{22.5*\the\flo@Wa-11.25}\flo@calc\flo@t{cos(\flo@wa)}\flo@calc\flo@v{sin(\flo@wa)}%
+    \flo@calc\flo@xa{\flo@btew*(\flo@t<0 ? -1 : 1)*pow(abs(\flo@t),\flo@btsq)}%
+    \flo@calc\flo@ya{\flo@btey+\flo@v*(\flo@v<0 ? \flo@btrb : \flo@btrt)}%
+    \flo@put{\the\flo@Wa}\flo@xa\flo@ya}%
+  \flo@smoothprep{16}\flo@keep{btel}}
+% the shield behind the head: ten points, its back #1 wide and over the cases by
+% \flo@btso, its front #2 wide and #3 ahead of the cases; kept as btpn
+\def\flo@btshield#1#2#3{%
+  \flo@calc\flo@btsa{\flo@btet-\flo@btso}\flo@calc\flo@btsb{\flo@btet+(#3)}\flo@calc\flo@btsl{\flo@btsb-\flo@btsa}%
+  \flo@calc\flo@xa{0.55*(#1)}\flo@calc\flo@xb{-\flo@xa}\flo@calc\flo@ya{\flo@btsa-0.01}\flo@put1\flo@xa\flo@ya\flo@put{10}\flo@xb\flo@ya
+  \flo@calc\flo@xa{#1}\flo@calc\flo@xb{-\flo@xa}\flo@put2\flo@xa\flo@btsa\flo@put9\flo@xb\flo@btsa
+  \flo@calc\flo@xa{\flo@btsw*(#1)}\flo@calc\flo@xb{-\flo@xa}\flo@calc\flo@ya{\flo@btsa+0.45*\flo@btsl}\flo@put3\flo@xa\flo@ya\flo@put8\flo@xb\flo@ya
+  \flo@calc\flo@xa{#2}\flo@calc\flo@xb{-\flo@xa}\flo@calc\flo@ya{\flo@btsb-0.15*\flo@btsl}\flo@put4\flo@xa\flo@ya\flo@put7\flo@xb\flo@ya
+  \flo@calc\flo@xa{0.5*(#2)}\flo@calc\flo@xb{-\flo@xa}\flo@put5\flo@xa\flo@btsb\flo@put6\flo@xb\flo@btsb
+  \flo@smoothprep{10}\flo@keep{btpn}}
+% the half-width of the cases at height #1, into \flo@h
+\def\flo@bthw#1{\flo@calc\flo@t{(#1-\flo@btey)/(#1>\flo@btey ? \flo@btrt : \flo@btrb)}%
+  \flo@calc\flo@h{\flo@btew*sqrt(max(0,1-\flo@t*\flo@t))}}
+% stripes: two down each case
+\def\flo@btstripes{%
+  \flo@calc\flo@t{\flo@btet-\flo@bttip}\def\flo@twa{0.045}\def\flo@twb{0.012}%
+  \flo@vfill{flo@c}{0.8}{0}{\flo@loop{btst}\flo@Wb{1}{4}{%
+    \ifnum\flo@Wb<3 \def\flo@sx{1}\else\def\flo@sx{-1}\fi
+    \ifodd\flo@Wb\def\flo@u{0.36}\else\def\flo@u{0.72}\fi
+    \flo@calc\flo@xa{\flo@sx*\flo@u*\flo@btew}\flo@calc\flo@ya{\flo@btet-0.03}%
+    \flo@calc\flo@xb{\flo@xa*1.04}\flo@calc\flo@yb{\flo@btet-0.35*\flo@t}%
+    \flo@calc\flo@xc{\flo@xa*0.9}\flo@calc\flo@yc{\flo@btet-0.7*\flo@t}%
+    \flo@calc\flo@xd{\flo@xa*0.35}\flo@calc\flo@yd{\flo@bttip+0.06}%
+    \flo@vtaper\flo@xa\flo@ya\flo@xb\flo@yb\flo@xc\flo@yc\flo@xd\flo@yd}}}
+% a spot at (#1,#2), radius about #3, filled in flo@c
+\def\flo@btspot#1#2#3{%
+  \flo@range\flo@t{0.85}{1.1}\flo@calc\flo@btsr{(#3)*\flo@t}\flo@calc\flo@t{\flo@btsr*0.92}%
+  \flo@vblob{#1}{#2}\flo@btsr\flo@t{0.1}{8}\flo@vfill{flo@c}{0.95}{0}{\flo@smoothpath}}
+% the spots: an odd one on the seam behind the shield, the rest in rows on each case,
+% the two sides alike
+\def\flo@btspots{%
+  \pgfmathtruncatemacro\flo@btm{floor(\flo@xget{spots}/2)}%
+  \flo@calc\flo@btr{\flo@xget{spotsize}*\flo@btew*1.6/sqrt(max(1,\flo@btm))}%
+  \ifnum\flo@btm<4 \def\flo@btc{1}\else\ifnum\flo@btm<8 \def\flo@btc{2}\else\def\flo@btc{3}\fi\fi
+  \pgfmathtruncatemacro\flo@btrows{floor((\flo@btm+\flo@btc-1)/\flo@btc)}%
+  \flo@calc\flo@t{\flo@xget{spots}-2*\flo@btm}\ifdim\flo@t pt>0pt
+    \flo@calc\flo@ya{\flo@btet-\flo@btso-0.6*\flo@btr}\flo@calc\flo@v{1.15*\flo@btr}\flo@btspot{0}\flo@ya\flo@v\fi
+  \flo@loop{btsp}\flo@Wb{1}{\flo@btm}{%
+    \pgfmathtruncatemacro\flo@btrow{floor((\the\flo@Wb-1)/\flo@btc)}%
+    \pgfmathtruncatemacro\flo@btcol{\the\flo@Wb-1-\flo@btc*\flo@btrow}%
+    \flo@sym\flo@t{0.04}\flo@calc\flo@v{(\flo@btrow+0.5)/\flo@btrows+\flo@t}%
+    \ifcase\flo@btc\or
+      \flo@calc\flo@u{\flo@btm==1 ? 0.5 : (\flo@btrow==1 ? 0.4 : 0.62)}%
+    \or
+      \flo@calc\flo@u{(\flo@btcol==0 ? 0.33 : 0.7)}%
+      \ifnum\flo@Wb=\flo@btm\relax\ifnum\flo@btcol=0 \def\flo@u{0.5}\fi\fi
+    \else
+      \flo@calc\flo@u{0.2+0.3*\flo@btcol}%
+    \fi
+    \flo@sym\flo@t{0.05}\flo@calc\flo@u{\flo@u+\flo@t}%
+    \flo@calc\flo@bty{\flo@btet-\flo@btso-0.04-\flo@v*(\flo@btet-\flo@btso-\flo@bttip-0.08)}\flo@bthw\flo@bty
+    \flo@calc\flo@btx{\flo@u*\flo@h}%
+    \flo@btspot\flo@btx\flo@bty\flo@btr\flo@btspot{-\flo@btx}\flo@bty\flo@btr}}
+% the wing cases: the wash, stripes or spots, mottle, the pooled rim, the gloss; the seam
+\def\flo@btpaintel{%
+  \flo@vtone{flo@c}{\flo@btt}\flo@vfill{flo@c}{1}{0}{\flo@kept{btel}}%
+  \begin{pgfscope}\flo@kept{btel}\pgfusepath{clip}%
+    \edef\flo@btpat{\flo@xget{pattern}}%
+    \def\flo@tmp{stripes}\ifx\flo@btpat\flo@tmp\flo@btmark\flo@btstripes\fi
+    \def\flo@tmp{spots}\ifx\flo@btpat\flo@tmp\flo@btmark\flo@btspots\fi
+    \ifnum\flo@fine=1
+      \flo@calc\flo@btxl{-\flo@btew}\flo@calc\flo@ta{\flo@btt-0.06}\flo@calc\flo@tb{\flo@btt+0.2}%
+      \flo@vmottle\flo@btxl\flo@bttip\flo@btew\flo@btet{3}{0.08}\flo@ta\flo@tb{0}%
+    \fi
+    \flo@vtone{flo@c}{0.04}\flo@calc\flo@t{2.6*\flo@btu}\flo@vstroke{flo@c}{\flo@t}{0.35}{1}{\flo@kept{btel}}%
+    \ifnum\flo@fine=1
+      \flo@calc\flo@btln{(\flo@btet-\flo@bttip)*\flo@btgl}\flo@calc\flo@stw{0.14*\flo@btew}%
+      \flo@loop{btgl}\flo@Wb{1}{2}{%
+        \ifnum\flo@Wb=1 \def\flo@sx{-1}\def\flo@sto{0.55}\else\def\flo@sx{1}\def\flo@sto{0.3}\fi
+        \flo@calc\flo@xa{\flo@sx*0.5*\flo@btew}\flo@calc\flo@ya{\flo@btet-\flo@btso-0.06*\flo@btln}\flo@put1\flo@xa\flo@ya
+        \flo@calc\flo@xa{\flo@sx*0.56*\flo@btew}\flo@calc\flo@ya{\flo@btet-\flo@btso-0.23*\flo@btln}\flo@put2\flo@xa\flo@ya
+        \flo@calc\flo@xa{\flo@sx*0.54*\flo@btew}\flo@calc\flo@ya{\flo@btet-\flo@btso-0.43*\flo@btln}\flo@put3\flo@xa\flo@ya
+        \flo@calc\flo@xa{\flo@sx*0.45*\flo@btew}\flo@calc\flo@ya{\flo@btet-\flo@btso-0.6*\flo@btln}\flo@put4\flo@xa\flo@ya
+        \flo@vstreak{4}\flo@stw{0.01}{white}\flo@sto}%
+    \fi
+  \end{pgfscope}%
+  \flo@vtone{flo@c}{0.04}\flo@vstroke{flo@c}{\flo@btw}{0.8}{0}{\pgfpathmoveto{\flo@P0\flo@btet}%
+    \pgfpathlineto{\flo@P0\flo@bttip}}}
+% the color of the stripes or spots: dark on a pale or red case; on a dark one pale, or a
+% black ladybird's red
+\def\flo@btmark{%
+  \def\flo@tmp{dark}\ifx\flo@btground\flo@tmp
+    \def\flo@tmp{ladybird}\ifx\flo@btk\flo@tmp\flo@vaccent{flo@c}{0}\else\flo@vtone{flo@c}{0.8}\fi
+  \else\flo@vtone{flo@c}{0.04}\fi}
+% feelers of the side: a thread, a club, a comb
+\def\flo@btfeeler{%
+  \edef\flo@t{\flo@xget{antenna}}%
+  \flo@calc\flo@xa{0.35*\flo@bthx}\flo@calc\flo@ya{\flo@bthy+0.6*\flo@bthr}%
+  \def\flo@tmp{thread}\ifx\flo@t\flo@tmp\flo@range\flo@xb{0.1}{0.14}\flo@range\flo@yb{0.1}{0.14}%
+    \flo@range\flo@xc{0.2}{0.28}\flo@range\flo@yc{0.24}{0.32}\fi
+  \def\flo@tmp{clubbed}\ifx\flo@t\flo@tmp\flo@range\flo@xb{0.06}{0.08}\flo@range\flo@yb{0.06}{0.08}%
+    \flo@range\flo@xc{0.1}{0.13}\flo@range\flo@yc{0.12}{0.15}\fi
+  \def\flo@tmp{comb}\ifx\flo@t\flo@tmp\flo@range\flo@xb{0.08}{0.1}\flo@range\flo@yb{0.08}{0.1}%
+    \flo@range\flo@xc{0.16}{0.2}\flo@range\flo@yc{0.18}{0.22}\fi
+  \flo@calc\flo@xb{\flo@xa+\flo@xb*\flo@btfs}\flo@calc\flo@yb{\flo@ya+\flo@yb*\flo@btfs}%
+  \flo@calc\flo@xc{\flo@xa+\flo@xc*\flo@btfs}\flo@calc\flo@yc{\flo@ya+\flo@yc*\flo@btfs}%
+  \flo@vstroke{flo@c}{\flo@btw}{1}{0}{\pgfpathmoveto{\flo@P\flo@xa\flo@ya}\pgfpathlineto{\flo@P\flo@xb\flo@yb}%
+    \pgfpathlineto{\flo@P\flo@xc\flo@yc}}%
+  \def\flo@tmp{clubbed}\ifx\flo@t\flo@tmp
+    \flo@calc\flo@da{\flo@xc-\flo@xb}\flo@calc\flo@db{\flo@yc-\flo@yb}\flo@nrm\flo@da\flo@db\flo@nx\flo@ny
+    \flo@calc\flo@xd{\flo@ny*0.034*\flo@btfs}\flo@calc\flo@yd{-(\flo@nx)*0.034*\flo@btfs}%
+    \flo@calc\flo@xe{\flo@nx*0.02*\flo@btfs}\flo@calc\flo@ye{\flo@ny*0.02*\flo@btfs}%
+    \flo@vfill{flo@c}{1}{0}{\pgfpathellipse{\flo@P\flo@xc\flo@yc}{\flo@P\flo@xd\flo@yd}{\flo@P\flo@xe\flo@ye}}%
+  \fi
+  \def\flo@tmp{comb}\ifx\flo@t\flo@tmp\ifnum\flo@fine=1
+    \flo@calc\flo@da{\flo@xc-\flo@xb}\flo@calc\flo@db{\flo@yc-\flo@yb}\flo@nrm\flo@da\flo@db\flo@nx\flo@ny
+    \flo@calc\flo@t{0.6*\flo@btw}%
+    \flo@vstroke{flo@c}{\flo@t}{1}{0}{\flo@loop{btcm}\flo@Wc{1}{6}{%
+      \flo@calc\flo@v{\the\flo@Wc/6}%
+      \flo@calc\flo@xd{\flo@xb+\flo@v*\flo@da}\flo@calc\flo@yd{\flo@yb+\flo@v*\flo@db}%
+      \flo@calc\flo@xe{\flo@xd-\flo@nx*0.035*\flo@btfs}\flo@calc\flo@ye{\flo@yd-\flo@ny*0.035*\flo@btfs}%
+      \pgfpathmoveto{\flo@P\flo@xd\flo@yd}\pgfpathlineto{\flo@P\flo@xe\flo@ye}}}%
+  \fi\fi}
+% the head, its eyes, a beetle's jaws; a ladybird's white dots
+\def\flo@bthead{%
+  \flo@vtone{flo@c}{\flo@btht}\flo@vfill{flo@c}{1}{0}{\flo@bgell0\flo@bthy\flo@bthx\flo@bthr}%
+  \def\flo@tmp{ladybird}\ifx\flo@btk\flo@tmp
+    \ifnum\flo@fine=1
+      \flo@calc\flo@xa{0.45*\flo@bthx}\flo@calc\flo@ya{\flo@bthy+0.3*\flo@bthr}\flo@calc\flo@t{0.22*\flo@bthx}%
+      \flo@bgwhite\flo@vfill{flo@c}{0.9}{0}{\pgfpathcircle{\flo@P{-\flo@xa}\flo@ya}{\flo@t pt}\pgfpathcircle{\flo@P\flo@xa\flo@ya}{\flo@t pt}}%
+    \fi
+  \else
+    \flo@calc\flo@xa{0.82*\flo@bthx}\flo@calc\flo@ya{\flo@bthy+0.1*\flo@bthr}\flo@calc\flo@xb{0.24*\flo@bthx}\flo@calc\flo@yb{0.42*\flo@bthr}%
+    \flo@vtone{flo@c}{0.02}\flo@vfill{flo@c}{1}{0}{\flo@bgell{-\flo@xa}\flo@ya\flo@xb\flo@yb\flo@bgell\flo@xa\flo@ya\flo@xb\flo@yb}%
+    \ifnum\flo@fine=1
+      \flo@calc\flo@twa{0.3*\flo@bthx}\def\flo@twb{0.004}%
+      \flo@vtone{flo@c}{0.05}\flo@vfill{flo@c}{1}{0}{\flo@loop{btjw}\flo@Wb{1}{2}{%
+        \ifnum\flo@Wb=1 \def\flo@sx{-1}\else\def\flo@sx{1}\fi
+        \flo@calc\flo@xa{\flo@sx*0.4*\flo@bthx}\flo@calc\flo@ya{\flo@bthy+0.8*\flo@bthr}%
+        \flo@calc\flo@xb{\flo@sx*0.5*\flo@bthx}\flo@calc\flo@yb{\flo@bthy+1.25*\flo@bthr}%
+        \flo@calc\flo@xc{\flo@sx*0.3*\flo@bthx}\flo@calc\flo@yc{\flo@bthy+1.55*\flo@bthr}%
+        \flo@calc\flo@xd{\flo@sx*0.08*\flo@bthx}\flo@calc\flo@yd{\flo@bthy+1.6*\flo@bthr}%
+        \flo@vtaper\flo@xa\flo@ya\flo@xb\flo@yb\flo@xc\flo@yc\flo@xd\flo@yd}}%
+    \fi
+  \fi}
+% the shield: its wash, a ladybird's white patches, a highlight, the rim
+\def\flo@btpaintpn{%
+  \flo@vtone{flo@c}{\flo@btpt}\flo@vfill{flo@c}{1}{0}{\flo@kept{btpn}}%
+  \begin{pgfscope}\flo@kept{btpn}\pgfusepath{clip}%
+    \def\flo@tmp{ladybird}\ifx\flo@btk\flo@tmp
+      \flo@calc\flo@xa{0.72*\flo@btpb}\flo@calc\flo@ya{\flo@btsa+0.62*\flo@btsl}%
+      \flo@calc\flo@xb{0.3*\flo@btpb}\flo@calc\flo@yb{0.4*\flo@btsl}%
+      \flo@bgwhite\flo@vfill{flo@c}{0.95}{0}{\flo@bgell{-\flo@xa}\flo@ya\flo@xb\flo@yb\flo@bgell\flo@xa\flo@ya\flo@xb\flo@yb}%
+    \fi
+    \ifnum\flo@fine=1
+      \flo@calc\flo@xa{-0.55*\flo@btpb}\flo@calc\flo@ya{\flo@btsa+0.3*\flo@btsl}\flo@put1\flo@xa\flo@ya
+      \flo@calc\flo@xa{-0.4*\flo@btpb}\flo@calc\flo@ya{\flo@btsa+0.62*\flo@btsl}\flo@put2\flo@xa\flo@ya
+      \flo@calc\flo@xa{-0.2*\flo@btpb}\flo@calc\flo@ya{\flo@btsa+0.8*\flo@btsl}\flo@put3\flo@xa\flo@ya
+      \flo@calc\flo@stw{0.12*\flo@btsl}\flo@vstreak{3}\flo@stw{0.006}{white}{0.4}%
+    \fi
+    \flo@vtone{flo@c}{0.03}\flo@calc\flo@t{2*\flo@btu}\flo@vstroke{flo@c}{\flo@t}{0.35}{1}{\flo@kept{btpn}}%
+  \end{pgfscope}}
+% a beetle or a ladybird; #1 its length on the page in pt
+\def\flo@beetle#1{%
+  \flo@calc\flo@btu{(#1)/28.45276}%
+  \ifdim\flo@btu pt>0.25pt \def\flo@fine{1}\else\def\flo@fine{0}\fi
+  \edef\flo@btk{\flo@xget{kind}}\edef\flo@btground{\flo@xget{ground}}%
+  \edef\flo@btt{\flo@xget{tone}}%
+  \def\flo@tmp{dark}\ifx\flo@btground\flo@tmp\flo@calc\flo@btt{max(0.04,\flo@btt-0.22)}%
+    \def\flo@tmp{ladybird}\ifx\flo@btk\flo@tmp\def\flo@btt{0.06}\fi\fi
+  \def\flo@tmp{copper}\ifx\flo@btground\flo@tmp\def\flo@rampname{flo@aramp}\fi
+  % proportions: a beetle's, then a ladybird's
+  \flo@calc\flo@btew{0.5*\flo@xget{build}}\def\flo@btet{0.14}\def\flo@bttip{-0.56}\def\flo@btrt{0.12}\def\flo@btsq{0.7}%
+  \flo@calc\flo@btpb{0.88*\flo@btew}\flo@calc\flo@btpf{0.62*\flo@btew}\def\flo@btpl{0.17}\def\flo@btso{0.012}\def\flo@btsw{1.02}%
+  \flo@calc\flo@bthx{0.36*\flo@btew}\def\flo@bthr{0.065}\def\flo@bthy{0.36}\def\flo@btfs{1}\def\flo@btgl{1}%
+  \flo@calc\flo@btpt{max(0.04,\flo@btt-0.06)}\flo@calc\flo@btht{max(0.04,\flo@btt-0.1)}%
+  \def\flo@lgw{0.03}\def\flo@lgj{0.015}\def\flo@lgx{1}\flo@calc\flo@lgex{\flo@btew}\def\flo@btly{0}%
+  \def\flo@tmp{ladybird}\ifx\flo@btk\flo@tmp
+    \def\flo@btet{0.22}\def\flo@bttip{-0.5}\def\flo@btrt{0.36}\def\flo@btsq{1}%
+    \flo@calc\flo@btpb{0.6*\flo@btew}\flo@calc\flo@btpf{0.4*\flo@btew}\def\flo@btpl{0.05}\def\flo@btso{0.075}\def\flo@btsw{0.92}%
+    \flo@calc\flo@bthx{0.3*\flo@btew}\def\flo@bthr{0.055}\def\flo@bthy{0.27}\def\flo@btfs{0.45}\def\flo@btgl{0.55}%
+    \def\flo@btpt{0.04}\def\flo@btht{0.04}\def\flo@lgw{0.032}\def\flo@lgj{0.01}\def\flo@lgx{0.7}%
+    \flo@calc\flo@lgex{0.8*\flo@btew}\def\flo@btly{0.12}%
+  \fi
+  \flo@calc\flo@btey{\flo@btet-\flo@btrt}\flo@calc\flo@btrb{\flo@btey-\flo@bttip}%
+  \flo@calc\flo@btw{max(0.25,0.4*\flo@btu)}%
+  % the legs, the feelers, the head, the wing cases, the shield, the scutellum
+  \flo@calc\flo@lgy{\flo@btet-\flo@btly}%
+  \flo@vtone{flo@c}{0.05}%
+  \flo@loop{btsl}\flo@Wa{1}{2}{\begin{pgfscope}%
+    \ifnum\flo@Wa=2 \pgftransformxscale{-1}\def\flo@lgph{-0.04}\else\def\flo@lgph{0.04}\fi
+    \flo@vlegs{b}\end{pgfscope}}%
+  \flo@vtone{flo@c}{0.05}%
+  \flo@loop{btsf}\flo@Wa{1}{2}{\begin{pgfscope}\ifnum\flo@Wa=2 \pgftransformxscale{-1}\fi\flo@btfeeler\end{pgfscope}}%
+  \flo@bthead\flo@btelytra\flo@btpaintel
+  \flo@btshield\flo@btpb\flo@btpf\flo@btpl\flo@btpaintpn
+  \def\flo@tmp{ladybird}\ifx\flo@btk\flo@tmp\else
+    \flo@calc\flo@ya{\flo@btet+0.004}\flo@calc\flo@yb{\flo@btet-0.05}%
+    \flo@vtone{flo@c}{\flo@btpt}\flo@vfill{flo@c}{1}{0}{\pgfpathmoveto{\flo@P{-0.035}\flo@ya}%
+      \pgfpathlineto{\flo@P{0.035}\flo@ya}\pgfpathlineto{\flo@P0\flo@yb}\pgfpathclose}%
+  \fi}
 % a visitor of the kind last drawn; #1 its size on the page in pt (a wingspan, a length)
 \def\flo@visitor#1{%
   \edef\flo@vg{\flo@xget{group}}%
   \def\flo@tmp{lepidoptera}\ifx\flo@vg\flo@tmp\flo@calc\flo@t{(#1)/2}\pgftransformscale{\flo@t}\flo@lepid{#1}\fi
   \def\flo@tmp{bee}\ifx\flo@vg\flo@tmp\pgftransformscale{#1}\flo@bee{#1}\fi
-  \def\flo@tmp{fly}\ifx\flo@vg\flo@tmp\pgftransformscale{#1}\flo@bee{#1}\fi}
+  \def\flo@tmp{fly}\ifx\flo@vg\flo@tmp\pgftransformscale{#1}\flo@bee{#1}\fi
+  \def\flo@tmp{odonate}\ifx\flo@vg\flo@tmp\pgftransformscale{#1}\flo@odo{#1}\fi
+  \def\flo@tmp{beetle}\ifx\flo@vg\flo@tmp\pgftransformscale{#1}\flo@beetle{#1}\fi}
 % sample the visitor, then reseed for the drawing
 \def\flo@vispicsetup#1{%
   \pgfkeys{/florilegium,#1}\flo@colors

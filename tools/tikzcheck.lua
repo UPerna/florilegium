@@ -17,7 +17,8 @@
 --   a pea's leaves and plant with tendrils, compound leaves of every kind, curled tips,
 --   plants whose leaves come in crossed pairs or sheathe the stem, the v1.3 pics, a plant in three
 --   seasons, butterflies and moths of every wing, pattern, ground, pose and feeler, bees
---   and hoverflies of every kind, ground and pose; full:
+--   and hoverflies of every kind, ground and pose, dragonflies, damselflies, beetles and
+--   ladybirds of every ground, pose, tint and pattern; full:
 --   also two strips of three plants, as specimen-tikz.tex draws them, several minutes in
 --   pure TikZ; fern: the ferns alone; visitors: the visitors alone)
 package.path = "./?.lua;" .. package.path
@@ -231,7 +232,10 @@ if arg[1] == "draw" then
   -- (central band or spots, base, discal spot, border band, spots, eyespots of one to three
   -- rings, arcs, lunules, no veins), each ground and pose, each kind of feeler, a hawkmoth;
   -- honeybees, bumblebees and solitary bees of each ground and pose, with and without pollen,
-  -- bands and a pale tail; hoverflies resting and hovering; small ones, drawn simpler
+  -- bands and a pale tail; hoverflies resting and hovering; dragonflies of each ground and
+  -- tint, with and without the stigma and rings; damselflies folded and spread; beetles
+  -- plain, striped and spotted, of each ground and feeler; ladybirds red and black, with
+  -- 0, 7, 14 and 22 spots; small ones, drawn simpler
   local vseen = {}
   for _, w in ipairs({
       { "butterfly", function(v) return v.apex == "rounded" and v.wingedge == "smooth" and v.pose == "open" end },
@@ -262,7 +266,27 @@ if arg[1] == "draw" then
       { "bee", function(v) return v.kind == "solitarybee" and v.ground == "copper" end },
       { "fly", function(v) return v.pose == "rest" and v.ground == "copper" end },
       { "fly", function(v) return v.pose == "hover" and v.ground == "ink" end },
-      { "fly", function(v) return v.pose == "rest" and v.bands == 4 end } }) do
+      { "fly", function(v) return v.pose == "rest" and v.bands == 4 end },
+      { "dragonfly", function(v) return v.ground == "ink" and v.tint == "clear" and v.stigma == 1 and v.bands >= 6 end },
+      { "dragonfly", function(v) return v.ground == "copper" and v.tint == "tinted" end },
+      { "dragonfly", function(v) return v.ground == "dark" and v.stigma == 0 end },
+      { "dragonfly", function(v) return v.bands == 0 end },
+      { "damselfly", function(v) return v.pose == "folded" and v.tint == "clear" end },
+      { "damselfly", function(v) return v.pose == "spread" and v.tint == "tinted" and v.stigma == 1 end },
+      { "damselfly", function(v) return v.pose == "folded" and v.ground == "copper" end },
+      { "beetle", function(v) return v.kind == "beetle" and v.pattern == "plain" and v.ground == "dark" end },
+      { "beetle", function(v) return v.kind == "beetle" and v.pattern == "stripes" and v.ground == "ink" end },
+      { "beetle", function(v) return v.kind == "beetle" and v.pattern == "stripes" and v.ground == "dark" end },
+      { "beetle", function(v) return v.kind == "beetle" and v.pattern == "spots" and v.spots % 2 == 1 end },
+      { "beetle", function(v) return v.kind == "beetle" and v.pattern == "spots" and v.spots >= 8 end },
+      { "beetle", function(v) return v.kind == "beetle" and v.antenna == "comb" end },
+      { "beetle", function(v) return v.kind == "beetle" and v.antenna == "clubbed" end },
+      { "beetle", function(v) return v.kind == "beetle" and v.ground == "copper" end },
+      { "ladybird", function(v) return v.ground == "copper" and v.spots == 7 end },
+      { "ladybird", function(v) return v.ground == "dark" and v.spots > 0 end },
+      { "ladybird", function(v) return v.spots == 22 end },
+      { "ladybird", function(v) return v.spots == 14 end },
+      { "ladybird", function(v) return v.spots == 0 end } }) do
     local seed = 1
     while vseen[w[1] .. seed] or not w[2](species.vsample(seed, w[1])) do seed = seed + 1 end
     vseen[w[1] .. seed] = true
@@ -272,6 +296,10 @@ if arg[1] == "draw" then
   pic("florilegium visitor={seed=3, role=moth, size=0.5cm}")
   pic("florilegium visitor={seed=8, role=bee, size=0.22cm}")
   pic("florilegium visitor={seed=2, role=fly, size=0.6cm}")
+  pic("florilegium visitor={seed=3, role=dragonfly, size=1.2cm}")
+  pic("florilegium visitor={seed=5, role=damselfly, size=0.8cm}")
+  pic("florilegium visitor={seed=4, role=beetle, size=0.22cm}")
+  pic("florilegium visitor={seed=6, role=ladybird, size=0.2cm}")
   end
   if not fernonly and not visonly then
   for _, s in ipairs({ "0.15", "0.75", "1.3" }) do
