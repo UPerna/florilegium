@@ -1224,4 +1224,633 @@ function M.bloom(d, st, o)
   pen.accent = was
 end
 
+-- ================================================================ M8f3: clusters and stages
+-- ---------------------------------------------------------------- stems
+-- \flo@vstem: a filled ribbon along the points (cm), widths w0 to w1, or a stroke under 0.7 bp
+local function stem(pts, w0, w1, t)
+  local w = (w0 + w1) / 2 * 28.3465
+  local c = tone(t)
+  if w < 0.7 then smooth(pts, false) stroke(c, w, 1, false) return end
+  local nr, n = normals(pts), #pts
+  local s, acc = { 0 }, 0
+  for i = 2, n do
+    local dx, dy = pts[i][1] - pts[i - 1][1], pts[i][2] - pts[i - 1][2]
+    acc = acc + sqrt(dx * dx + dy * dy)
+    s[i] = acc
+  end
+  local out = {}
+  for i = 1, n do
+    local h = (w0 + (w1 - w0) * s[i] / acc) / 2
+    local p, q = pts[i], nr[i]
+    out[i] = { p[1] + q[1] * h, p[2] + q[2] * h }
+    out[2 * n + 1 - i] = { p[1] - q[1] * h, p[2] - q[2] * h }
+  end
+  smooth(out, true) fill(c, 1)
+end
+local function line(x1, y1, x2, y2, c, w, op) moveto(x1, y1) lineto(x2, y2) stroke(c, w, op, false) end
+-- \flo@hair: a pedicel
+local function hair(x1, y1, x2, y2) line(x1, y1, x2, y2, tone(0.12), 0.25, 0.9) end
+-- \pgfpathellipse: center, first and second axis
+local KAPPA = 0.55228475
+local function ellipse(cx, cy, ax, ay, bx, by)
+  local k = KAPPA
+  moveto(cx + ax, cy + ay)
+  curveto(cx + ax + k * bx, cy + ay + k * by, cx + bx + k * ax, cy + by + k * ay, cx + bx, cy + by)
+  curveto(cx + bx - k * ax, cy + by - k * ay, cx - ax + k * bx, cy - ay + k * by, cx - ax, cy - ay)
+  curveto(cx - ax - k * bx, cy - ay - k * by, cx - bx - k * ax, cy - by - k * ay, cx - bx, cy - by)
+  curveto(cx - bx + k * ax, cy - by + k * ay, cx + ax - k * bx, cy + ay - k * by, cx + ax, cy + ay)
+  close()
+end
+local function atan2(y, x) return math.atan(y, x) / RAD end
+-- \flo@walk: n steps from (x, y), heading h turning by dh in all, len long; the n+1 points
+local function walk(x, y, h, dh, len, n)
+  local pts, ds = { { x, y } }, len / n
+  for k = 1, n do
+    local a = h + dh * (k - 0.5) / n
+    x, y = x + ds * cos(a), y + ds * sin(a)
+    pts[k + 1] = { x, y }
+  end
+  return pts, x, y
+end
+-- an axis of `steps` steps bending away to one side, as flora's cyme bends (raceme, curl)
+local function bent(len, steps, h, side, turn)
+  local pts, x, y, ds = { { 0, 0 } }, 0, 0, len / steps
+  for k = 1, steps do
+    local v = (k - 0.5) / steps
+    local a = h + side * turn * v * v * sqrt(sqrt(v))
+    x, y = x + ds * cos(a), y + ds * sin(a)
+    pts[k + 1] = { x, y }
+  end
+  return pts
+end
+-- \flo@fdiam: the flower's diameter in a cluster at scale k
+local function fdiam(k) return min(2.8, 0.7 + 0.032 * S.size) * k end
+
+-- ---------------------------------------------------------------- the flowers of a cluster
+-- a cluster collects its flowers (\flo@fadd) and draws them after its stalks (\flo@fdraw);
+-- \flo@fat: a dot below stage -0.25, else the bloom, its side from its angle
+local FAN = false                               -- \flo@bfan: a head's flowers point out already
+local function flowers() return {} end
+local function fadd(list, x, y, a, d, st) list[#list + 1] = { x, y, a, d, st } end
+local function fdraw(list)
+  for _, f in ipairs(list) do
+    local x, y, a, d, st = f[1], f[2], f[3], f[4], f[5]
+    ink.push() ink.translate(x, y) ink.rotate(a)
+    if st < -0.25 then circle(0, 0, 0.3 * d) fill(tone(0.2), 1)
+    else M.bloom(d, st, { side = a < 0 and -1 or 1, fan = FAN }) end
+    ink.pop()
+  end
+end
+-- a flower on a pedicel from (px, py) to (qx, qy): a dot when f > lim, the bloom otherwise
+local function pedicel(px, py, qx, qy, s, st, sg, f, lim, dot)
+  ink.push() ink.translate(qx, qy) ink.rotate(atan2(qy - py, qx - px) - 90)
+  if f > lim then circle(0, 0, dot * s) fill(tone(0.2), 1)
+  else M.bloom(s, st, { side = sg }) end
+  ink.pop()
+end
+-- a stalk from the origin to (x, y) (\flo@blossoms, \flo@budding)
+local function stalkto(dd, x, y)
+  moveto(0, 0) curveto(0, 0.4 * dd, 0.6 * x, 0.7 * y, x, y) stroke(tone(0.1), 0.35, 1, false)
+end
+
+-- ---------------------------------------------------------------- single flowers and buds
+-- \flo@blossoms: two to five flowers on curved stalks, a bud at the fork
+local function blossoms(d, st)
+  local center = S.openorder == "center"
+  local n = int(2, 4)
+  if S.count > 9 then n = n + 1 end
+  for k = 1, n do
+    local f = k - (n + 1) / 2
+    local a = f * 38 + sym(10)
+    local dd = d * range(0.55, 0.95)
+    if k > 1 then dd = dd * range(0.85, 1.1) end
+    local x, y = dd * sin(a), dd * cos(a)
+    stalkto(dd, x, y)
+    local m = max(1, (n - 1) / 2)
+    local t = center and st - 0.3 * abs(f) / m or st - 0.3 * (1 - abs(f) / m)
+    local s = d * range(0.8, 1.05)
+    ink.push() ink.translate(x, y) M.bloom(s, t, { side = a < 0 and 1 or -1 }) ink.pop()
+  end
+  if chance(0.6) then
+    local t, s = sym(50), 0.45 * d
+    local was = pen.accent
+    ink.push() ink.rotate(t) ink.scale(s)
+    M.bud(s, stone())
+    ink.pop()
+    pen.accent = was
+  end
+end
+-- \flo@budding: two to four buds on stalks; d the flowers' diameter
+function M.budding(d)
+  local was = pen.accent
+  local n = int(2, 4)
+  local tq = stone()
+  for k = 1, n do
+    local a = (k - (n + 1) / 2) * 34 + sym(10)
+    local dd = d * range(0.5, 0.85)
+    local x, y = dd * sin(a), dd * cos(a)
+    stalkto(dd, x, y)
+    local s = d * range(0.45, 0.6)
+    ink.push() ink.translate(x, y) ink.rotate(-0.6 * a) ink.scale(s) M.bud(s, tq) ink.pop()
+  end
+  pen.accent = was
+end
+
+-- ---------------------------------------------------------------- umbels and racemes
+-- \flo@umbelunit: a compound umbel, rays fanning upward to umbellets of starry florets
+local function cumbel(reach, st)
+  local tq = stone()
+  local nr = floor(max(8, min(13, S.count + 3)))
+  local ns = floor(max(5, min(8, S.rays / 2)))
+  local lo, hi = 0.25, 0.42
+  if tq then lo, hi = min(0.5, tq - 0.05), min(0.62, tq + 0.05) end
+  for g = 1, nr do
+    local a = 90 + (g - (nr + 1) / 2) * (110 / nr) + sym(4)
+    local L = reach * range(0.78, 1) * (1 - 0.15 * abs(a - 90) / 55)
+    local ex, ey = L * cos(a), L * sin(a)
+    moveto(0, 0) curveto(0.15 * ex, 0.5 * ey, 0.6 * ex, 0.95 * ey, ex, ey) stroke(tone(0.12), 0.25, 0.9, false)
+    for h = 1, ns do
+      local b = a + (h - (ns + 1) / 2) * 16 + sym(5)
+      local l = reach * range(0.12, 0.2)
+      local fx, fy = ex + l * cos(b), ey + l * sin(b)
+      line(ex, ey, fx, fy, tone(0.14), 0.18, 0.85)
+      local r = reach * range(0.035, 0.05)
+      local t = range(lo, hi)
+      ink.push() ink.translate(fx, fy)
+      if st > 1.15 then                       -- the fruit: a pair of seeds
+        ink.rotate(b - 90) ink.scale(r)
+        ellipse(-0.35, 0.9, 0.32, 0, 0, 0.9) ellipse(0.35, 0.9, 0.32, 0, 0, 0.9)
+        fill(tone(0.16), 1)
+      elseif st < 0.3 then circle(0, 0, 0.45 * r) fill(tone(0.2), 1)
+      else ink.scale(r) M.floret(r, 5, { star = true, tone = t }) end
+      ink.pop()
+    end
+  end
+  for g = -1, 1 do                               -- the bracts
+    local a = g * 40 + sym(10) + 180
+    local s = reach * range(0.15, 0.22)
+    ink.push() ink.rotate(a) ink.scale(s) M.leaflet({ W = 0.06, u = s }) ink.pop()
+  end
+end
+-- \flo@racemeunit: flowers along a bending axis, the lowest oldest; ped the pedicel's length
+local function raceme(len, ped, bend, st)
+  local side = chance(0.5) and 1 or -1
+  local turn = bend * range(0.75, 1.25)
+  local h = 90 + sym(8)
+  local pts = bent(len, 24, h, side, turn)
+  local nr = normals(pts)
+  stem(pts, 0.03, 0.006, 0.1)
+  stone()
+  local fd = min(1.0, 0.5 + 0.03 * S.size) * 0.8
+  if bend > 150 then fd = min(0.32, fd) end
+  local n = floor(min(S.count, int(8, 12)))
+  for g = 1, n do
+    local v = g / n
+    local f = 0.1 + 0.88 * sqrt(v) * sqrt(sqrt(v))
+    local ri = floor(max(2, min(25, floor(f * 24 + 1.5))))
+    local sg = g % 2 == 1 and -1 or 1
+    local px, py, nx, ny = pts[ri][1], pts[ri][2], nr[ri][1], nr[ri][2]
+    local stalk = (ped * (1 - f) + 0.03 * f) * range(0.8, 1.2)
+    local qx, qy = px + (nx * sg * 0.75 + ny * 0.65) * stalk, py + (ny * sg * 0.75 - nx * 0.65) * stalk
+    if stalk > 0.03 then hair(px, py, qx, qy) end
+    local s = fd * (1 - 0.5 * f) * range(0.85, 1.15)
+    pedicel(px, py, qx, qy, s, st + 0.35 - 1.1 * f, sg, f, 0.86, 0.18)
+  end
+end
+
+-- ---------------------------------------------------------------- cymes and the rest
+-- \flo@curl: a coiled cyme from (x, y), its flowers outside the coil or alternating
+local function curl(x, y, len, w, late, h, side, n, fd, st)
+  local turn = (100 + 170 * S.coil) * range(0.85, 1.15)
+  local pts = bent(len, 36, h, side, turn)
+  for _, p in ipairs(pts) do p[1], p[2] = p[1] + x, p[2] + y end
+  local nr = normals(pts)
+  stem(pts, w, 0.006, 0.1)
+  local same = S.siderule == "same"
+  for g = 1, n do
+    local v = g / n
+    local f = 0.18 + 0.82 * sqrt(v) * sqrt(sqrt(v))
+    local ri = floor(max(2, min(37, floor(f * 36 + 1.5))))
+    local sg
+    if same then sg = -side elseif g % 2 == 1 then sg = -1 else sg = 1 end
+    local px, py, nx, ny = pts[ri][1], pts[ri][2], nr[ri][1], nr[ri][2]
+    local stalk = (0.1 - 0.08 * f) * range(0.7, 1.2)
+    local qx, qy = px + nx * sg * stalk, py + ny * sg * stalk
+    if stalk > 0.03 then hair(px, py, qx, qy) end
+    local s = fd * (1 - 0.74 * f) * range(0.85, 1.15)
+    pedicel(px, py, qx, qy, s, st + 0.55 - f - late, sg, f, 0.8, 0.3)
+  end
+  return pts
+end
+-- \flo@curlunit: flora's cyme as the species' coiled cyme, sometimes forked
+local function monochasium(len, st)
+  stone()
+  local side = chance(0.5) and 1 or -1
+  local h = 90 + sym(10)
+  local fd = min(0.4, 0.17 + 0.014 * S.size)
+  local n = floor(max(9, min(17, S.count + 2)))
+  local pts = curl(0, 0, len, 0.026, 0, h, side, n, fd, st)
+  if chance(0.6) then
+    local ci = floor(37 * range(0.25, 0.4))
+    local xa, ya, xb, yb = pts[ci][1], pts[ci][2], pts[ci + 1][1], pts[ci + 1][2]
+    h = atan2(yb - ya, xb - xa) - side * range(30, 50)
+    local L = len * range(0.45, 0.65)
+    curl(xa, ya, L, 0.018, 0.15, h, -side, floor(max(6, n * 0.7)), fd, st)
+  end
+end
+-- \flo@forkunit: flora's sprig as the species' forked cyme, a flower in every fork
+local function dichasium(len, st)
+  stone()
+  local list = flowers()
+  local depth = floor(min(3, S.depth + 1))
+  local fd = min(0.45, 0.16 + 0.012 * S.size)
+  local B = { { x = 0, y = 0, h = 90 + sym(8), l = len * 0.4, w = 0.024, v = 0 } }
+  local i = 1
+  while i <= #B do
+    local b = B[i]
+    local h, l, w, v = b.h, b.l, b.w, b.v
+    local db = sym(20)
+    local pts, x, y = walk(b.x, b.y, h, db, l, 6)
+    local we = 0.72 * w
+    stem(pts, w, we, 0.1)
+    h = h + db
+    local t = st - 0.3 * v + sym(0.05)
+    local s = fd * (1 - 0.1 * v) * range(0.85, 1.1)
+    if v < depth then
+      if v < 2 and chance(0.4) then             -- a leaflet at the fork
+        local sg = chance(0.5) and 1 or -1
+        local a = h - 90 + sg * range(40, 70)
+        local ls = l * range(0.35, 0.55)
+        ink.push() ink.translate(x, y) ink.rotate(a) ink.scale(ls) M.leaflet({ W = 0.14, u = ls }) ink.pop()
+      end
+      local k = chance(0.2) and 3 or 2
+      for j = 1, k do
+        local a
+        if k == 2 then
+          a = range(16, 34)
+          if j == 1 then a = -a end
+        else a = (j - 2) * range(22, 36) end
+        B[#B + 1] = { x = x, y = y, h = h + a, l = l * range(0.62, 0.8), w = we, v = v + 1 }
+      end
+      local xa, ya = x + 0.22 * l * cos(h), y + 0.22 * l * sin(h)
+      hair(x, y, xa, ya)
+      fadd(list, xa, ya, h - 90, s, t)
+    else
+      fadd(list, x, y, h - 90, s, t)
+    end
+    i = i + 1
+  end
+  fdraw(list)
+end
+-- \flo@axis: a raceme-like axis; \flo@axisat: its point, normal and heading at fraction f
+local function axis(len, bend, w)
+  local side = chance(0.5) and 1 or -1
+  local turn = bend * range(0.75, 1.25)
+  local pts = bent(len, 24, 90 + sym(8), side, turn)
+  local nr = normals(pts)
+  stem(pts, w, 0.006, 0.1)
+  return pts, nr
+end
+local function axisat(pts, nr, f)
+  local i = floor(max(2, min(25, floor(f * 24 + 1.5))))
+  local nx, ny = nr[i][1], nr[i][2]
+  return pts[i][1], pts[i][2], nx, ny, atan2(-nx, ny)
+end
+-- \flo@panicleunit: branches up an axis, each with a flower at its end and a few on hairs
+local function panicle(len, st)
+  stone()
+  local list = flowers()
+  local fd = min(0.34, 0.15 + 0.01 * S.size)
+  local A, AN = axis(len, 30, 0.026)
+  local m = floor(max(3, min(7, S.count / 4 + 1)))
+  local sg = chance(0.5) and 1 or -1
+  for g = 1, m do
+    local f = 0.1 + 0.66 * (g - 1) / max(1, m - 1) + sym(0.03)
+    local px, py, _, _, ah = axisat(A, AN, f)
+    sg = -sg
+    local ang = range(40, 58)
+    local h = ah + sg * ang
+    local l = len * 0.42 * (1 - 0.7 * f) * range(0.8, 1.2)
+    local db = -sg * 0.55 * ang
+    local pts, x, y = walk(px, py, h, db, l, 8)
+    local nr = normals(pts)
+    fadd(list, x, y, h + db - 90, fd * (1 - 0.3 * f), st + 0.2 - 0.9 * f)
+    local k = int(1, 3)
+    if S.depth == 2 and f < 0.45 then k = k + 1 end
+    for j = 1, k do
+      local v = 0.3 + 0.5 * (j - 1) / max(1, k - 1)
+      local q = floor(1 + floor(v * 8 + 0.5))
+      local s2 = j % 2 == 1 and 1 or -1
+      local xa, ya, nx, ny = pts[q][1], pts[q][2], nr[q][1], nr[q][2]
+      local t = range(0.1, 0.18)
+      local xb, yb = xa + (nx * s2 * 0.8 + ny * 0.6) * t, ya + (ny * s2 * 0.8 - nx * 0.6) * t
+      hair(xa, ya, xb, yb)
+      fadd(list, xb, yb, atan2(yb - ya, xb - xa) - 90, fd * (0.9 - 0.3 * f), st + 0.3 - 0.9 * f - 0.25 * (1 - v))
+    end
+    stem(pts, 0.012, 0.005, 0.12)
+  end
+  local _, _, _, _, ah = axisat(A, AN, 1)
+  fadd(list, A[25][1], A[25][2], ah - 90, 0.6 * fd, st - 0.6)
+  fdraw(list)
+end
+-- \flo@thyrseunit: little forked cymes in pairs up an axis
+local function thyrse(len, st)
+  stone()
+  local list = flowers()
+  local fd = min(0.42, 0.15 + 0.012 * S.size)
+  local A, AN = axis(len, 20, 0.028)
+  local m = floor(max(6, min(11, S.count / 2.5)))
+  for g = 1, m do
+    local f = 0.08 + 0.84 * (g - 1) / max(1, m - 1)
+    local px, py, _, _, ah = axisat(A, AN, f)
+    for n = 0, 1 do
+      local sg = n == 0 and 1 or -1
+      local h = ah + sg * range(45, 65)
+      local l = len * 0.17 * (1 - 0.75 * f) * range(0.8, 1.2)
+      local xa, ya = px + l * cos(h), py + l * sin(h)
+      hair(px, py, xa, ya)
+      local t, s = st + 0.3 - 1.0 * f, fd * (1 - 0.4 * f)
+      if f < 0.8 then
+        for j = 0, 1 do
+          local a = h + (j == 0 and 1 or -1) * range(30, 50)
+          local xb, yb = xa + 0.55 * l * cos(a), ya + 0.55 * l * sin(a)
+          hair(xa, ya, xb, yb)
+          fadd(list, xb, yb, a - 90, 0.85 * s, t - 0.2)
+        end
+      end
+      fadd(list, xa + 0.15 * l * cos(h), ya + 0.15 * l * sin(h), h - 90, s, t)
+    end
+  end
+  local _, _, _, _, ah = axisat(A, AN, 1)
+  fadd(list, A[25][1], A[25][2], ah - 90, 0.6 * fd, st - 0.75)
+  fdraw(list)
+end
+-- \flo@corymbunit: stalks of falling length, the flowers level at the top; fd the flowers' size
+local function corymb(len, fd, st)
+  stone()
+  local list = flowers()
+  local cfd = min(0.6, 0.3 * fd)
+  local m = floor(max(3, min(9, min(S.count, 2.6 / cfd))))
+  local W, top, ca = len * 0.7, len * 0.92, len * 0.5
+  local t = sym(0.06)
+  moveto(0, 0) curveto(t, 0.35 * ca, t, 0.7 * ca, 0, ca) stroke(tone(0.1), 0.5, 1, false)
+  local sg = chance(0.5) and 1 or -1
+  for g = 1, m do
+    local v = (g - 1) / max(1, m - 1)
+    sg = -sg
+    local ya = ca * (0.12 + 0.88 * v)
+    local xb = sg * W * (1 - 0.85 * v) * range(0.75, 1)
+    local yb = top - 0.32 * xb * xb / W + sym(0.08)
+    moveto(0, ya) curveto(0.55 * xb, ya + 0.25 * (yb - ya), 0.95 * xb, yb - 0.45 * (yb - ya), xb, yb)
+    stroke(tone(0.12), 0.3, 0.9, false)
+    local s = cfd * range(0.85, 1.1)
+    fadd(list, xb, yb, -20 * xb / W, s, st - 0.35 * v)
+  end
+  local c = tone(0.12)
+  local xb = sym(0.04)
+  line(0, ca, xb, top, c, 0.3, 0.9)
+  fadd(list, xb, top, 0, 0.9 * cfd, st - 0.42)
+  fdraw(list)
+end
+-- \flo@spikeunit: flowers close along an axis, in threes
+local function spike(len, st)
+  stone()
+  local list = flowers()
+  local fd = min(0.5, 0.2 + 0.014 * S.size)
+  local A, AN = axis(len, 14, 0.03)
+  local m = floor(max(14, min(30, S.count + 4)))
+  for g = 1, m do
+    local f = 0.06 + 0.92 * (g - 1) / max(1, m - 1) + sym(0.01)
+    local px, py, nx, ny, ah = axisat(A, AN, f)
+    local s = fd * (1 - 0.45 * f) * range(0.85, 1.1)
+    local t = st + 0.35 - 1.2 * f
+    local k = g % 3
+    if k == 0 then fadd(list, px, py, ah - 90 + sym(10), s, t)
+    else
+      local sg = k == 1 and 1 or -1
+      local a = ah - 90 + sg * range(30, 55)
+      fadd(list, px + nx * sg * 0.42 * s, py + ny * sg * 0.42 * s, a, s, t)
+    end
+  end
+  fdraw(list)
+end
+-- \flo@umbelsunit: a simple umbel, its rays opening from the middle or the edge
+local function umbel(len, st)
+  stone()
+  local list = flowers()
+  local center = S.openorder == "center"
+  local fd = min(0.8, 0.24 + 0.02 * S.size)
+  local m = floor(max(4, min(12, S.count)))
+  local ang = range(50, 75)
+  for g = 1, m do
+    local k = g % 2 == 1 and nediv(g + 1, 2) or m + 1 - nediv(g, 2)
+    local f = (k - (m + 1) / 2) / max(1, (m - 1) / 2)
+    local a = 90 + f * ang + sym(5)
+    local R = len * range(0.88, 1.05) * (1 - 0.12 * abs(f))
+    local xb, yb = R * cos(a), R * sin(a)
+    moveto(0, 0) curveto(0.15 * xb, 0.5 * yb, 0.6 * xb, 0.95 * yb, xb, yb) stroke(tone(0.12), 0.25, 0.9, false)
+    local t = center and st - 0.35 * abs(f) or st - 0.35 * (1 - abs(f))
+    t = t + sym(0.05)
+    local s = fd * range(0.85, 1.1)
+    fadd(list, xb, yb, a - 90, s, t)
+  end
+  for g = -1, 1 do                               -- the bracts
+    local a = g * 40 + sym(10) + 180
+    local s = len * range(0.12, 0.18)
+    ink.push() ink.rotate(a) ink.scale(s) M.leaflet({ W = 0.06, u = s }) ink.pop()
+  end
+  fdraw(list)
+end
+-- \flo@headunit: a head of flowers on Vogel's spiral at the top of a stalk
+local function head(len, st)
+  stone()
+  local list = flowers()
+  local A, AN = axis(len, 18, 0.024)
+  local px, py, nx, ny = axisat(A, AN, 1)
+  local r = (0.26 + 0.006 * S.count) * range(0.9, 1.1)
+  local cx, cy = px + 0.75 * r * ny, py - 0.75 * r * nx
+  local m = floor(max(18, min(34, S.count + 6)))
+  for g = 1, m do
+    local k = m + 1 - g
+    local v, a = sqrt(k / m), 137.508 * k
+    local x, y = cx + 0.8 * r * v * cos(a), cy + 0.72 * r * v * sin(a)
+    local s = r * 0.65 * (0.7 + 0.3 * v) * range(0.9, 1.1)
+    fadd(list, x, y, a - 90, s, st - 0.45 * (1 - v))
+  end
+  FAN = true
+  fdraw(list)
+  FAN = false
+end
+-- \flo@catkinunit: hanging tassels from a twig, fruit in autumn
+local function catkin(len, st)
+  local tq = stone()
+  local h, db = 90 + sym(10), sym(15)
+  local A = walk(0, 0, h, db, len, 6)
+  stem(A, 0.028, 0.016, 0.1)
+  local m = int(2, 4)
+  local w = 0.11 + 0.02 * S.size
+  local we, t0 = 0.4 * w, tq or 0.4
+  for g = 1, m do
+    local xa, ya = A[8 - g][1], A[8 - g][2]
+    local sg = g % 2 == 1 and 1 or -1
+    local hd = h + db + sg * range(40, 80)
+    if st > 1.15 then
+      local xb, yb = xa + 0.25 * cos(hd), ya + 0.25 * sin(hd)
+      hair(xa, ya, xb, yb)
+      ink.push() ink.translate(xb, yb) ink.rotate(hd - 90) ink.scale(0.3) M.fruit(0.3) ink.pop()
+    else
+      local tg = sg == 1 and 270 or -90
+      local L = len * 2.2 * range(0.7, 1.1) * min(1, 0.45 + 0.6 * st)
+      local ph, r = sym(180), hd - tg
+      local pts, x, y, ds = { { xa, ya } }, xa, ya, L / 18
+      for k = 1, 18 do
+        local v = (k - 0.5) / 18
+        local a = tg + r * (1 - min(1, v * 3)) + 7 * sin(360 * v + ph)
+        x, y = x + ds * cos(a), y + ds * sin(a)
+        pts[k + 1] = { x, y }
+      end
+      smooth({ pts[1], pts[2], pts[3], pts[4], pts[5] }, false) stroke(tone(0.1), 0.4, 1, false)
+      local tassel = {}
+      for k = 4, 19 do tassel[k - 3] = pts[k] end
+      local nr = normals(tassel)
+      stem(tassel, w, we, t0)
+      local c = tone(0.16)
+      for k = 2, 15 do
+        local s2 = k % 2 == 1 and 1 or -1
+        local s = w * 0.5 * (1 - 0.6 * (k - 1) / 15)
+        local px, py, nx, ny = tassel[k][1], tassel[k][2], nr[k][1], nr[k][2]
+        local xb, yb = px + nx * s2 * s, py + ny * s2 * s
+        local xc, yc = px + ny * 0.6 * s, py - nx * 0.6 * s
+        moveto(xb, yb) curveto(xc, yc, xc, yc, px, py) stroke(c, 0.3, 0.7, true)
+        circle(xb, yb, range(0.008, 0.014)) fill(c, 0.9)
+      end
+    end
+  end
+end
+
+-- ---------------------------------------------------------------- the inflorescence
+-- \flo@unitdraw: the species' inflorescence at scale k, at the origin along +y; st the
+-- stage of its oldest flower
+function M.unit(k, st)
+  local was = pen.accent
+  local fd = fdiam(k)
+  local f = S.inflo
+  if f == "solitary" then M.bloom(fd, st, {})
+  elseif f == "cumbel" then cumbel(range(0.95, 1.35) * k, st)
+  else
+    local L = range(1.5, 2.3) * k
+    if f == "raceme" then raceme(L, 0.3, 40, st)
+    elseif f == "spike" then spike(L, st)
+    elseif f == "panicle" then panicle(L, st)
+    elseif f == "thyrse" then thyrse(L, st)
+    elseif f == "monochasium" then monochasium(L, st)
+    elseif f == "catkin" then catkin(0.3 * L, st)
+    elseif f == "dichasium" then dichasium(0.8 * L, st)
+    elseif f == "corymb" then corymb(0.75 * L, fd, st)
+    elseif f == "umbel" then umbel(0.55 * L, st)
+    elseif f == "head" then head(0.35 * L, st)
+    else blossoms(0.85 * fd, st) end
+  end
+  pen.accent = was
+end
+
+-- ---------------------------------------------------------------- tendrils
+-- \flo@vcurl: a tendril, each its own (run, side, turns, tightness): 45 points
+local function vcurl(size)
+  local hand = chance(0.5) and 1 or -1
+  local d = size * range(0.2, 0.9) / 8
+  local db = sym(4)
+  local t = G.rnd()
+  local T = hand * (4 + 21 * t * sqrt(t))
+  local r = size * range(0.18, 0.35)
+  local q = range(0.12, 0.45)
+  local a, x, y = 90, 0, 0
+  local pts = { { 0, 0 } }
+  for k = 1, 8 do
+    a = a + db
+    x, y = x + d * cos(a), y + d * sin(a)
+    pts[k + 1] = { x, y }
+  end
+  for k = 1, 36 do
+    a = a + T
+    local s = r * q ^ (k / 36) * abs(T) * 0.0174533
+    x, y = x + s * cos(a), y + s * sin(a)
+    pts[k + 9] = { x, y }
+  end
+  return pts
+end
+M.vcurl = vcurl
+-- \flo@vtendril: a climber's tendril on a stalk of its own
+function M.tendril(size)
+  stem(vcurl(1.6 * size), 0.022, 0.004, 0.12)
+end
+
+-- ================================================================ organs
+-- the layout's questions, in cm: the disc an inflorescence at scale k fills (its center's
+-- offset along the axis, its radius, its kind), and how much later than the top one at
+-- height h (0..1) opens
+local KIND = { solitary = "solitary", cumbel = "umbel", umbel = "umbel", corymb = "umbel", dichasium = "umbel",
+  raceme = "raceme", spike = "raceme", panicle = "raceme", thyrse = "raceme", monochasium = "raceme",
+  head = "head", catkin = "catkin" }
+function M.unitdisc(s, k)
+  local kind = KIND[s.inflo] or "blossoms"
+  local fd = min(2.8, 0.7 + 0.032 * s.size) * k
+  if kind == "umbel" then return 0.69 * k, 0.86 * k, kind end
+  if kind == "raceme" then return 0.95 * k, 0.75 * k, kind end
+  if kind == "blossoms" then return 0.5 * fd, 0.8 * fd, kind end
+  if kind == "head" then return 0.8 * k, 0.5 * k, kind end
+  if kind == "catkin" then return 0.2 * k, 0.9 * k, kind end
+  return 0, 0.5 * fd, kind
+end
+local BELOW = { raceme = true, spike = true, catkin = true }
+function M.lateness(s, h) return BELOW[s.inflo] and 0.4 * h or 0.4 * (1 - h) end
+
+-- a species given by seed and role only is sampled (once)
+local species = require("florilegium-species")
+local sampled = {}
+local function full(s)
+  if s.plan then return s end
+  local key = s.seed .. "/" .. s.role
+  if not sampled[key] then sampled[key] = species.sample(s.seed, s.role) end
+  return sampled[key]
+end
+-- One organ of species s (a table from florilegium-species, or just its seed and role),
+-- drawn from pgf seed z at the origin with its axis along +y, in cm, under ink's current
+-- transform. o by kind:
+--   unit     k (scale), season, late: the inflorescence
+--   budding  k: buds on stalks       tendril  size     bloom  d (diameter cm), stage
+--   ghost    d: a plain pale flower of the species, as the garden's ghost
+-- Returns false for a kind not yet drawn here (leaf, frond, visitor).
+local DRAWN = { unit = true, budding = true, tendril = true, bloom = true, ghost = true }
+function M.draw(kind, s, z, o)
+  if not DRAWN[kind] then return false end
+  S = full(s)
+  G = ink.pgfrng(z) G.step() G.step()             -- \flo@drawseed
+  M.fresh()
+  pen.lift, pen.accent = 0, false
+  ink.push()
+  if kind == "unit" then
+    local st = 1.2 * o.season - o.late + sym(0.08) + S.phenology
+    M.unit(o.k, st)
+  elseif kind == "budding" then
+    M.budding(min(1.1, fdiam(o.k)))
+  elseif kind == "tendril" then
+    ink.rotate(90) M.tendril(o.size)
+  elseif kind == "bloom" then
+    M.bloom(o.d, o.stage, {})
+  else                                            -- the ghost: a plain rotate flower, pale
+    pen.lift = 0.62
+    local tq = stone()
+    local g = {}
+    for k, v in pairs(S) do g[k] = v end
+    g.form = "rotate"
+    if g.merosity > 6 then g.merosity = 5 end
+    S = g
+    ink.scale(o.d)
+    M.sflower(o.d * 28.45276, { tone = tq, notchp = 0.4, notchk = 1 })
+  end
+  ink.pop()
+  return true
+end
+
 return M

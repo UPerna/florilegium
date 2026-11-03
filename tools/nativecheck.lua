@@ -125,15 +125,23 @@ if arg[1] == "forms" then
     end
     local key = "fo=" .. sp.form .. "/" .. sp.orient
     if not seen[key] then seen[key] = true new = true end
-    if new and sp.form ~= "none" then
+    if new then
       local s = { seed = i, role = role }
       local name = fmt("seed %d %s %s/%s/%s", i, role, sp.form, sp.orient, sp.fruit)
       for _, c in ipairs({ { 0.2, 1.2 }, { 0.7, 0.2 }, { 0.7, 0.6 }, { 0.7, 1.5 }, { 1.08, 1.6 }, { 1.3, 1.2 } }) do
         case(name .. fmt(" bloom %.1f at %.2f", c[2], c[1]), "bloom", s, nextz(), { d = c[2], stage = c[1] })
       end
       case(name .. " ghost", "ghost", s, nextz(), { d = 2.2 })
-      case(name .. " unit 1", "unit", s, nextz(), { k = 1, season = 0.55, late = 0 })
+      for _, c in ipairs({ { 1, 0.55, 0 }, { 1.6, 0.1, 0 }, { 0.6, 0.8, 0.2 }, { 1.2, 1, 0 } }) do
+        case(name .. fmt(" unit %.1f at %.2f", c[1], c[2]), "unit", s, nextz(), { k = c[1], season = c[2], late = c[3] })
+      end
     end
+  end
+end
+if arg[1] == "forms" then                      -- a fern's "inflorescence": the blossoms fallback
+  for doc = 0, 3 do
+    local f = species.fern(doc)
+    case(fmt("fern %d blossoms", doc), "unit", { seed = f.seed, role = "fern" }, nextz(), { k = 1, season = 0.5, late = 0 })
   end
 end
 for doc = 0, ndoc - 1 do
@@ -147,17 +155,31 @@ for doc = 0, ndoc - 1 do
     case(name .. " ghost", "ghost", s, nextz(), { d = 2.2 })
     case(name .. " unit 1", "unit", s, nextz(), { k = 1, season = 0.5, late = 0 })
     case(name .. " unit 0.5", "unit", s, nextz(), { k = 0.5, season = 0.6, late = 0.1 })
+    case(name .. " unit in bud", "unit", s, nextz(), { k = 1.4, season = 0.1, late = 0 })
+    case(name .. " unit in fruit", "unit", s, nextz(), { k = 1.2, season = 1, late = 0 })
+    case(name .. " budding", "budding", s, nextz(), { k = 1 })
+    case(name .. " tendril", "tendril", s, nextz(), { size = 0.4 })
   end
 end
 
--- both ways
+-- both ways: today's path, then florilegium-native.lua's own organs where it has them
+-- (FLORILEGIUM_NATIVE's hooks for the rest)
+local NV = require("florilegium-native")
+local function native(kind, sp, seed, o)
+  ink.set_transform({ CM, 0, 0, CM, 10 * CM, 10 * CM })
+  data = {}
+  ink.layer(5)
+  if not NV.draw(kind, sp, seed, o) then O.draw(kind, sp, seed, o) end
+  ink.flush()
+  return table.concat(data)
+end
 local before, now = {}, {}
 O.native(false)
 local t0 = os.clock()
 for i, c in ipairs(cases) do before[i] = draw(c.kind, c.sp, c.z, c.o) end
 local t1 = os.clock()
 O.native(true)
-for i, c in ipairs(cases) do now[i] = draw(c.kind, c.sp, c.z, c.o) end
+for i, c in ipairs(cases) do now[i] = native(c.kind, c.sp, c.z, c.o) end
 local t2 = os.clock()
 O.native(false)
 

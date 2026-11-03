@@ -2600,6 +2600,7 @@ local function blossoms(d, st)
 end
 -- \flo@budding{diameter}: two to four buds on stalks
 local function budding(d)
+  if M.stream then return M.nvpen().budding(d / U) end
   V.bfd = d V.bn = int(2, 4) stone()
   loop("#Gc", 1, function() return I("bn") end, function()
     V.t = sym(10 * U) V.a = E"(#Gc-(@bn+1)/2)*34+@t"
@@ -3128,6 +3129,7 @@ do
 end
 -- \flo@vtendril{size}: a tapered logarithmic spiral from the origin
 local function vtendril(size)
+  if M.stream then return M.nvpen().tendril(size / U) end
   V.t = E("1.6*(%1)", { size }) T.vcurl(R.t)
   vstem(45, K"0.022", K"0.004", K"0.12")
 end
@@ -3177,6 +3179,7 @@ local function unitdisc(x, y, axis, k)
   V.udx = E("(%1)+@uo*cos(%2)", { x, axis }) V.udy = E("(%1)+@uo*sin(%2)", { y, axis })
 end
 local function unitdraw(k)
+  if M.stream then return M.nvpen().unit(k / U, R.ust / U) end
   fdiam(k)
   local f = R["if"]
   if f == "solitary" then bloom(R.fd, R.ust)
@@ -6000,6 +6003,7 @@ local kept_code = {}
 function M.forget() kept_code = {} end
 function M.draw(kind, s, z, o)
   if M.nv then                    -- (M8f1 prototype) painted as it is computed
+    if M.nv.draw(kind, s, z, o) then return end   -- the organs it has of its own
     M.nv.fresh()
     local feed, done = M.painter()
     M.stream = feed
