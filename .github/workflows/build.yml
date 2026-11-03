@@ -19,7 +19,8 @@ jobs:
   # florilegium-svg.lua must draw the same page under every Lua (texlua, 5.3, 5.4 and the playground's
   # wasmoon); a few seconds, so a pull request hears about a broken page first. Before that,
   # florilegium.sty and every Lua file must name the same release, and on a v* tag the tag's,
-  # so that no release is drafted from files that say another version.
+  # so that no release is drafted from files that say another version; and the Lua must pass
+  # luacheck (.luacheckrc).
   lua:
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -31,8 +32,10 @@ jobs:
         env:
           TAG: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || '' }}
         run: tools/versioncheck.sh ${TAG:+"$TAG"}
-      - name: install Lua 5.3 and 5.4
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq lua5.3 lua5.4 > /dev/null
+      - name: install Lua 5.3, 5.4 and luacheck
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq lua5.3 lua5.4 lua-check > /dev/null
+      - name: the Lua passes luacheck
+        run: luacheck .
       - name: the same pages under both
         run: tools/svgcheck.sh lua5.3 lua5.4
       - name: every sampled species and visitor keeps the rules, and the TikZ tables are current
@@ -92,9 +95,33 @@ jobs:
             showcase.pdf
             spread.pdf
 
+  # l3build's regression tests (build.lua, testfiles/): each test typesets a few pages and logs
+  # the md5 of every drawing on them, so a change that moves one point of one drawing fails
+  # here. The logs were recorded with Ubuntu 24.04's TeX Live 2023, as tools/Dockerfile
+  # installs it, so the tests run there and not in latex-action's newer TeX Live (another
+  # TeX Live may set the text differently, and a heading's flower moves with it).
+  l3build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: install TeX Live 2023 as tools/Dockerfile does
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends texlive-luatex texlive-latex-recommended \
+            texlive-latex-extra texlive-pictures texlive-fonts-recommended lmodern cm-super > /dev/null
+      - name: every test logs what was recorded
+        run: l3build check
+      - name: what differs
+        if: failure()
+        run: cat build/l3build/test/*.diff
+
   # A release starts with a tag: git tag -a v1.3 -m v1.3 && git push origin v1.3, after a
   # commit that sets the version everywhere (CLAUDE.md, Releases); the lua job stops a tag
-  # that florilegium.sty and the Lua files don't agree with. This job
+  # that florilegium.sty and the Lua files don't agree with, and the l3build job one whose
+  # drawings moved without their logs being recorded again. This job
   # signs a build provenance attestation for the PDFs built from that tag and opens a draft
   # release with them attached, along with the attestation itself as
   # florilegium-pdfs.sigstore.json. The notes are written by hand, and publishing the draft
@@ -106,7 +133,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [lua, pdfs]
+    needs: [lua, pdfs, l3build]
     if: startsWith(github.ref, 'refs/tags/v')
     permissions:
       contents: write           # create the draft release

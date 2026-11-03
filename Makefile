@@ -85,6 +85,16 @@ postscript: postscript/florilegium.ps
 pscheck:
 	GS=$(GS) postscript/check.sh
 
+# luacheck over the Lua (.luacheckrc says which files, and what it allows)
+luacheck:
+	$(RUN) luacheck .
+
+# l3build's regression tests (build.lua, testfiles/), ~10 s: each test's pages, every drawing
+# on them by its md5, against the log saved beside it; after an intended change:
+# $(RUN) l3build save <test>, and look at the pages
+check:
+	$(RUN) l3build check
+
 preview: florilegium.pdf florilegium-grow.pdf showcase.pdf spread.pdf specimen-geometric.pdf ornaments.pdf build/geometric.pdf build/math.pdf
 	mkdir -p gallery build
 	pdftoppm -png -r 110 -singlefile ornaments.pdf gallery/ornaments
@@ -126,4 +136,4 @@ playground:
 clean:
 	rm -rf build *.aux *.log *.out *.synctex.gz
 
-.PHONY: all gallery animation preview postscript pscheck svg bench playground clean
+.PHONY: all gallery animation preview postscript pscheck luacheck check svg bench playground clean

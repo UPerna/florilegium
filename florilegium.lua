@@ -104,13 +104,13 @@ end
 local scaled = { leaf = true, leaflet = true, petal = true }
 local function primitives() return require("florilegium-grow").theme(M.theme) end
 function M.draw(name, s, o)
-  local flora = primitives()
-  local fn = flora[name]
+  local F = primitives()
+  local fn = F[name]
   if type(fn) ~= "function" then tex.error("florilegium: unknown primitive '" .. tostring(name) .. "'") return end
   sync_transform()
   local rng = page_rng.fork()
   if name == "ghost" then
-    flora.ghost(o and o.lift, function() M.draw_inner(s, o, rng) end)
+    F.ghost(o and o.lift, function() M.draw_inner(s, o, rng) end)
   elseif scaled[name] then
     ink.scale(s or 1) fn(rng, o)
   else
@@ -121,8 +121,8 @@ end
 -- \florilegiumdraw{ghost}{"flower", {s=1.4}} draws any primitive pale
 function M.draw_inner(name, o, rng)
   o = o or {}
-  local flora = primitives()
-  local fn = flora[name]
+  local F = primitives()
+  local fn = F[name]
   if scaled[name] then ink.scale(o.s or 1) fn(rng, o) else fn(rng, o.s or 1, o) end
 end
 
@@ -144,8 +144,8 @@ local ORNAMENT = {
 local function hex(h) return tonumber(h:sub(1, 2), 16) / 255, tonumber(h:sub(3, 4), 16) / 255, tonumber(h:sub(5, 6), 16) / 255 end
 local nornament = 0
 function M.ornament(name, size, inkhex, acchex, angle, seed)
-  local flora = primitives()
-  local fn = flora[name]
+  local F = primitives()
+  local fn = F[name]
   if type(fn) ~= "function" then tex.error("florilegium: unknown primitive '" .. tostring(name) .. "'") return end
   nornament = nornament + 1
   -- the k-th ornament of the document always gets the same shape, unless a seed
@@ -340,9 +340,9 @@ end
 -- some of the primitives (florilegium-grow.lua). In the document, \florilegiumtheme leaves a
 -- mark, so the theme changes from the page that the mark is on.
 M.theme = nil
-local function themes(marks)
+local function themes(list)
   local rest = {}
-  for _, m in ipairs(marks) do
+  for _, m in ipairs(list) do
     if m.kind == "theme" then M.theme = m.arg ~= "" and m.arg or nil else rest[#rest + 1] = m end
   end
   return rest

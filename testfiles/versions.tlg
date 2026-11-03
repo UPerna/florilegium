@@ -1,0 +1,6 @@
+This is a generated file for the l3build validation system.
+Don't change this file in any respect.
+Inserting `florilegium test fingerprint' in `pre_shipout_filter'.
+one release: no error
+florilegium-ink.lua from 0.9: florilegium: florilegium-ink.lua (florilegium-ink.lua) is from release 0.9, florilegium.lua from this release. Copy florilegium.sty and every florilegium*.lua from one release.
+florilegium.sty from 0.9: florilegium: florilegium.sty (florilegium.sty) is from release 0.9, florilegium.lua from this release. Copy florilegium.sty and every florilegium*.lua from one release.

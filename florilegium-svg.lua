@@ -126,8 +126,9 @@ function M.translate(stream, out, id)
         local kind, v = args[n]:match("^/flo([am])(%d+)$")
         if not kind then error("florilegium: unknown graphics state " .. tostring(args[n]), 0) end
         st.op, st.mult = tonumber(v) / 100, kind == "m"
-      elseif t == "J" or t == "j" then        -- always round (ink sets 1 J 1 j); the root group says so
-      else error("florilegium: florilegium-svg.lua cannot translate the PDF operator '" .. t .. "'", 0) end
+      elseif t ~= "J" and t ~= "j" then       -- J, j: always round (ink sets 1 J 1 j); the root group says so
+        error("florilegium: florilegium-svg.lua cannot translate the PDF operator '" .. t .. "'", 0)
+      end
       args = {}
     end
   end

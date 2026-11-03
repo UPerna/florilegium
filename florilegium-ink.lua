@@ -257,11 +257,6 @@ function M.set_pale(v) local old = pale pale = v return old end
 local T = { CM, 0, 0, CM, 0, 0 }           -- current transform: local cm -> page bp
 local stack = {}
 
-local function mul(A, B)                   -- A then B, i.e. B(A(p))
-  return { B[1] * A[1] + B[3] * A[2], B[2] * A[1] + B[4] * A[2],
-           B[1] * A[3] + B[3] * A[4], B[2] * A[3] + B[4] * A[4],
-           B[1] * A[5] + B[3] * A[6] + B[5], B[2] * A[5] + B[4] * A[6] + B[6] }
-end
 function M.set_transform(t) T = t end
 -- the page: cm from the lower-left corner of the paper -> bp. With `mirror` (the
 -- paper width in cm) x becomes mirror - x: a garden laid out in the left margin
@@ -431,9 +426,9 @@ end
 function M.emit(rec, keep)
   local parts = {}
   for _, k in ipairs(rec.keys) do
-    local L, T, out = rec.layers[k], rec.tags[k], {}
+    local L, tagged, out = rec.layers[k], rec.tags[k], {}
     for i = 1, #L do
-      local t = T[i]
+      local t = tagged[i]
       if t == nil or keep(t) then out[#out + 1] = L[i] end
     end
     if #out > 0 then parts[#parts + 1] = concat(out, "\n") end

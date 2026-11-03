@@ -1144,9 +1144,9 @@ function M.page(g)
       local ex, ey = p[1] + dir * L, p[2] + vis.range(0.05, 0.4)
       local bx, by = ex - dir * 0.25, ey
       local facing = vis.chance(0.65) and dir or -dir
-      local cx, cy = bx + facing * 0.03 * s, by + 0.4 * s
-      local f = min(free_at(cx, cy) / (0.36 * s), free_at(bx - facing * 0.35 * s, by + 0.15 * s) / (0.2 * s))
-      if f > best then best, c = f, { k = k, i = i, ex = ex, ey = ey, dir = dir, facing = facing, cx = cx, cy = cy } end
+      local bodyx, bodyy = bx + facing * 0.03 * s, by + 0.4 * s
+      local f = min(free_at(bodyx, bodyy) / (0.36 * s), free_at(bx - facing * 0.35 * s, by + 0.15 * s) / (0.2 * s))
+      if f > best then best, c = f, { k = k, i = i, ex = ex, ey = ey, dir = dir, facing = facing, cx = bodyx, cy = bodyy } end
     end
     if c and best > 1 then
       local pts = mains[c.k]
@@ -1506,10 +1506,10 @@ function M.page(g)
       local kind = layout.u()
       if kind < 0.4 then
         -- two leaflets in a V at the stem point
-        local base = deg(ax, ay)
+        local axis = deg(ax, ay)
         local ls = min(0.75, f * 1.6)
         for k = -1, 1, 2 do
-          local a = base + k * layout.range(20, 35)
+          local a = axis + k * layout.range(20, 35)
           place(L_LEAF, S[1], S[2], a, function() ink.scale(ls * layout.range(0.8, 1)) F.leaflet(rng.fork(), { bend = -k * 0.15 }) end)
         end
       elseif kind < 0.65 then

@@ -334,8 +334,6 @@ function M.bell(rng, s, o)
   ink.push() ink.scale(s) ink.rotate(rng.sym(8))
   local t0 = o.tone or rng.range(0.3, 0.4)
   -- body: a flared tube with a three-lobed rim
-  local rim = {}
-  local pts = { { 0.12, -0.02 } }
   local function side(sg)
     local out = {}
     for i = 0, 10 do
@@ -345,7 +343,7 @@ function M.bell(rng, s, o)
     return out
   end
   local R, Lft = side(1), side(-1)
-  pts = {}
+  local pts = {}
   for _, p in ipairs(R) do pts[#pts + 1] = p end
   -- lobes along the rim from right to left, pointed tips
   local tips = { { 0.44, -0.98 }, { 0.12, -1.0 }, { -0.16, -1.0 }, { -0.44, -0.98 } }
