@@ -4167,10 +4167,376 @@ function T.lepid(size)
   end)
   L.wgbody()
 end
+-- bees and hoverflies: \flo@bee and its helpers (\flo@bg...)
+function L.bgell(cx, cy, rx, ry) L.pellipse(cx, cy, rx, 0, 0, ry) end
+-- \flo@bgband: a band from y hi down to lo, its middle bow nearer the tail
+function L.bgband(hi, lo, bow)
+  V.bya = E("%1-(%2)", { hi, bow }) V.byb = E("%1-(%2)", { lo, bow })
+  moveto(K"-0.5", hi) curveto(K"-0.17", R.bya, K"0.17", R.bya, K"0.5", hi)
+  lineto(K"0.5", lo) curveto(K"0.17", R.byb, K"-0.17", R.byb, K"-0.5", lo)
+  closepath()
+end
+function L.bgabdomen()
+  loop("#Wa", 1, 16, function()
+    V.wa = E"22.5*#Wa-11.25" V.t = E"cos(@wa)" V.v = E"sin(@wa)"
+    V.xa = E"@bgrx*(@t<0 ? -1 : 1)*pow(abs(@t),@bgsq)"
+    V.ya = E"@bgay+@bgry*@v*(@v<0 ? @bgegg : 1)"
+    put(R["#Wa"], R.xa, R.ya)
+  end)
+  smoothprep(16) keep("bgab")
+end
+function L.bgwhite()
+  V.savedramp = R.rampname V.rampname = "flo@ramp" vtone("flo@c", K"0.93") V.rampname = R.savedramp
+end
+function L.bgpale(part)
+  loop("#Wb", 1, function() return L.xtr("bands") // U end, function()
+    local b = R["#Wb"]
+    if R["bgbp" .. b] == part then
+      vfill("flo@c", K"0.95", 0, function() L.bgband(R["bgbh" .. b], R["bgbl" .. b], K"0.02") end)
+    end
+  end)
+  if part == "a" and L.xtr("paletail") == U then
+    L.bgwhite() vfill("flo@c", U, 0, function() L.bgband(R.bgtl, K"-2", K"0.02") end)
+  end
+end
+-- \flo@bgcolorat: the hair's color at height y on the part (0 dark, 1 pale, 2 white)
+function L.bgcolorat(y, part)
+  V.bgc = 0
+  if R.bgk == "bumblebee" then
+    loop("#Wd", 1, function() return L.xtr("bands") // U end, function()
+      local d = R["#Wd"]
+      if R["bgbp" .. d] == part and y < R["bgbh" .. d] and y > R["bgbl" .. d] then V.bgc = 1 end
+    end)
+    if part == "a" and L.xtr("paletail") == U and y < R.bgtl then V.bgc = 2 end
+  end
+end
+-- \flo@bgfur: n hairs round the ellipse at (0,cy), half-width rx, ra above and rb below
+function L.bgfur(cy, rx, n, ra, rb, part)
+  local hairs = { {}, {}, {} }
+  V.bghl = E"0.5+@x@hair"
+  loop("#Wb", 1, n, function()
+    V.wa = range(0, 360 * U) V.t = range(K"0.02", K"0.045") V.wb = sym(25 * U)
+    V.t = E"@t*@bghl+0.014" V.v = E"sin(@wa)"
+    V.wr = E("(@v<0 ? %2 : %1)-0.014", { ra, rb })
+    V.xa = E("(%1-0.014)*cos(@wa)", { rx }) V.ya = E("%1+@wr*@v", { cy })
+    V.xd = E"@xa+@t*cos(@wa+@wb)" V.yd = E"@ya+@t*sin(@wa+@wb)"
+    V.xb = E"@xa+(@xd-@xa)/3" V.yb = E"@ya+(@yd-@ya)/3"
+    V.xc = E"@xa+(@xd-@xa)*2/3" V.yc = E"@ya+(@yd-@ya)*2/3"
+    local h = { R.xa, R.ya, R.xb, R.yb, R.xc, R.yc, R.xd, R.yd }
+    L.bgcolorat(R.ya, part)
+    local t = hairs[R.bgc + 1]
+    t[#t + 1] = h
+  end)
+  V.twa = K"0.013" V.twb = K"0.003"
+  local function fill(t) return function() for _, h in ipairs(t) do vtaper(table.unpack(h)) end end end
+  if #hairs[1] > 0 then vtone("flo@c", R.bgfd) vfill("flo@c", K"0.8", 0, fill(hairs[1])) end
+  if #hairs[2] > 0 then vtone("flo@c", R.bgpt) vfill("flo@c", K"0.9", 0, fill(hairs[2])) end
+  if #hairs[3] > 0 then L.bgwhite() vfill("flo@c", K"0.9", 0, fill(hairs[3])) end
+end
+-- \flo@bgab@<kind>: the abdomen's pattern, in its clip
+function L.bgbands(f)
+  return function() loop("#Wb", 1, function() return L.xtr("bands") // U end, f) end
+end
+L.BGAB = {
+  honeybee = function()
+    V.bgsp = E"@bgla/(@x@bands+0.6)" V.bgbt = E"0.42*@bgsp"
+    vtone("flo@c", K"0.05")
+    vfill("flo@c", K"0.88", 0, L.bgbands(function()
+      V.ya = E"@bgat-@bgsp*(#Wb+0.15)+@bgbt/2" V.yb = E"@ya-@bgbt"
+      L.bgband(R.ya, R.yb, K"0.03")
+    end))
+  end,
+  bumblebee = function() vtone("flo@c", R.bgpt) L.bgpale("a") end,
+  solitarybee = function()
+    vfill("white", K"0.6", 0, L.bgbands(function()
+      V.ya = E"@bgat-@bgla*(0.12+0.17*#Wb)" V.yb = E"@ya-0.035"
+      L.bgband(R.ya, R.yb, K"0.025")
+    end))
+  end,
+  hoverfly = function()
+    V.bgsp = E"@bgla/(@x@bands+0.5)"
+    if R.bgground == "copper" then vaccent("flo@c", K"0.1")
+    else V.t = E"min(0.86,@bgt+0.4)" vtone("flo@c", R.t) end
+    vfill("flo@c", K"0.92", 0, L.bgbands(function()
+      V.yd = E"@bgat-@bgsp*(#Wb-0.2)"
+      V.twa = E"0.42*@bgsp" if R["#Wb"] == 1 then V.twa = E"0.3*@bgsp" end
+      V.twb = E"0.15*@bgsp"
+      loop("#Wc", 1, 2, function()
+        if R["#Wc"] == 1 then V.sx = -U else V.sx = U end
+        V.xa = E"@sx*0.03" V.ya = E"@yd+0.01"
+        V.xb = E"@sx*@bgrx*0.4" V.yb = E"@yd+0.03"
+        V.xc = E"@sx*@bgrx*0.75" V.yc = E"@yd"
+        V.xe = E"@sx*@bgrx*1.05" V.ye = E"@yd-0.04"
+        vtaper(R.xa, R.ya, R.xb, R.yb, R.xc, R.yc, R.xe, R.ye)
+      end)
+    end))
+  end,
+}
+function L.bgpaintab()
+  vtone("flo@c", R.bgabt) vfill("flo@c", U, 0, function() kept("bgab") end)
+  scope(function()
+    kept("bgab") usepath("clip")
+    L.BGAB[R.bgk]()
+    if R.fine == U then
+      V.bgxl = E"-@bgrx" V.bgyl = E"@bgat-@bgla"
+      V.ta = E"@bgabt-0.18" V.tb = E"@bgabt+0.17"
+      vmottle(R.bgxl, R.bgyl, R.bgrx, R.bgat, 4, K"0.06", R.ta, R.tb, I("bgspk"))
+    end
+    vtone("flo@c", K"0.05") V.t = E"3.4*@bgu" vstroke("flo@c", R.t, R.bgrim, 1, function() kept("bgab") end)
+    V.t = E"@bgrx/0.19" V.v = E"@bgry/0.3"
+    V.xa = E"-0.1*@t" V.ya = E"@bgay-0.18*@v" put(1, R.xa, R.ya)
+    V.xa = E"-0.13*@t" V.ya = E"@bgay-0.05*@v" put(2, R.xa, R.ya)
+    V.xa = E"-0.12*@t" V.ya = E"@bgay+0.08*@v" put(3, R.xa, R.ya)
+    V.xa = E"-0.08*@t" V.ya = E"@bgay+0.2*@v" put(4, R.xa, R.ya)
+    vstreak(4, K"0.04", K"0.008", "white", K"0.5")
+  end)
+end
+function L.bgthorax()
+  V.t = E"@bgtr*0.93" vblob(0, R.bgty, R.bgtr, R.t, K"0.1", 12) keep("bgth")
+  vtone("flo@c", R.bgtt) vfill("flo@c", U, 0, function() kept("bgth") end)
+  scope(function()
+    kept("bgth") usepath("clip")
+    if R.bgk == "bumblebee" then vtone("flo@c", R.bgpt) L.bgpale("t") end
+    if R.fine == U then
+      V.bgxl = E"-@bgtr" V.bgyl = E"@bgty-@bgtr" V.bgyh = E"@bgty+@bgtr"
+      V.ta = E"@bgtt-0.04" V.tb = E"@bgtt+0.24"
+      vmottle(R.bgxl, R.bgyl, R.bgtr, R.bgyh, 3, K"0.05", R.ta, R.tb, 6)
+    end
+  end)
+end
+function L.bghead()
+  vtone("flo@c", R.bght) vfill("flo@c", U, 0, function() L.bgell(0, R.bghy, R.bghx, R.bghr) end)
+  V.ya = E"@bghy+0.008"
+  if R.bgk == "hoverfly" then V.xa = K"0.055" V.xb = K"0.068" V.yb = K"0.08"
+  else V.xa = E"@bghx-0.022" V.xb = K"0.028" V.yb = K"0.05" end
+  vtone("flo@c", K"0.02")
+  vfill("flo@c", U, 0, function() L.bgell(-R.xa, R.ya, R.xb, R.yb) L.bgell(R.xa, R.ya, R.xb, R.yb) end)
+  if R.fine == U then
+    V.xc = E"@xa-0.3*@xb" V.yc = E"@ya+0.35*@yb"
+    vfill("white", K"0.7", 0, function() circle(-R.xc, R.yc, K"0.011") circle(R.xc, R.yc, K"0.011") end)
+  end
+end
+function L.bgfeelers()
+  vtone("flo@c", K"0.06")
+  if R.bgk == "hoverfly" then
+    V.ya = E"@bghy+0.07" V.yb = E"@bghy+0.11" V.yc = E"@bghy+0.14"
+    vstroke("flo@c", R.bgw, U, 0, function()
+      moveto(K"-0.02", R.ya) lineto(K"-0.035", R.yb) moveto(K"0.02", R.ya) lineto(K"0.035", R.yb)
+    end)
+    vfill("flo@c", U, 0, function() circle(K"-0.035", R.yb, K"0.014") circle(K"0.035", R.yb, K"0.014") end)
+    if R.fine == U then
+      V.t = E"0.5*@bgw"
+      vstroke("flo@c", R.t, U, 0, function()
+        moveto(K"-0.035", R.yb) lineto(K"-0.075", R.yc) moveto(K"0.035", R.yb) lineto(K"0.075", R.yc)
+      end)
+    end
+  else
+    V.ya = E"@bghy+0.05"
+    vstroke("flo@c", R.bgw, U, 0, function()
+      loop("#Wb", 1, 2, function()
+        if R["#Wb"] == 1 then V.sx = -U else V.sx = U end
+        V.xb = range(K"0.05", K"0.08") V.yb = range(K"0.11", K"0.15")
+        V.xc = range(K"0.11", K"0.17") V.yc = range(K"0.17", K"0.23")
+        V.xa = E"@sx*0.03" V.xb = E"@sx*@xb" V.yb = E"@bghy+@yb"
+        V.xc = E"@sx*@xc" V.yc = E"@bghy+@yc"
+        moveto(R.xa, R.ya) lineto(R.xb, R.yb) lineto(R.xc, R.yc)
+      end)
+    end)
+  end
+end
+-- the legs of a side: root, knee and foot, spread on a flower (v) or hanging in flight (f)
+L.BGL = {
+  v = { { "0.05", "0.06", "0.17", "0.1", "0.2", "0.22" }, { "0.06", "0", "0.23", "-0.03", "0.3", "-0.15" },
+    { "0.06", "-0.06", "0.28", "-0.16", "0.32", "-0.42" } },
+  f = { { "0.05", "0.04", "0.13", "0", "0.15", "-0.1" }, { "0.06", "0", "0.17", "-0.08", "0.18", "-0.24" },
+    { "0.06", "-0.05", "0.21", "-0.16", "0.22", "-0.44" } },
+}
+function L.bglegpts(p)
+  local i = R["#Wb"]
+  V.t = E("(%1)*@bglx", { K(p[1]) }) V["bgLa" .. i] = R.t
+  V.t = E("@bgty+(%1)", { K(p[2]) }) V["bgLb" .. i] = R.t
+  V.v = sym(K"0.02") V.t = E("(%1)*@bglx+@v", { K(p[3]) }) V["bgLc" .. i] = R.t
+  V.v = sym(K"0.02") V.t = E("@bgty+(%1)+@v", { K(p[4]) }) V["bgLd" .. i] = R.t
+  V.v = sym(K"0.025") V.t = E("(%1)*@bglx+@v", { K(p[5]) }) V["bgLe" .. i] = R.t
+  V.v = sym(K"0.025") V.t = E("@bgty+(%1)+@v", { K(p[6]) }) V["bgLf" .. i] = R.t
+end
+function L.bglegs()
+  loop("#Wb", 1, 3, function() L.bglegpts(L.BGL[R.bglp][R["#Wb"]]) end)
+  vtone("flo@c", K"0.08")
+  vfill("flo@c", U, 0, function()
+    loop("#Wb", 1, 3, function()
+      local i = R["#Wb"]
+      V.xa = R["bgLa" .. i] V.ya = R["bgLb" .. i]
+      V.xd = R["bgLc" .. i] V.yd = R["bgLd" .. i]
+      V.xe = R["bgLe" .. i] V.ye = R["bgLf" .. i]
+      V.xb = E"@xa+(@xd-@xa)/3" V.yb = E"@ya+(@yd-@ya)/3"
+      V.xc = E"@xa+(@xd-@xa)*2/3" V.yc = E"@ya+(@yd-@ya)*2/3"
+      V.twa = R.bgfw V.twb = E"@bgfw*0.8"
+      vtaper(R.xa, R.ya, R.xb, R.yb, R.xc, R.yc, R.xd, R.yd)
+      V.xb = E"@xd+(@xe-@xd)/3" V.yb = E"@yd+(@ye-@yd)/3"
+      V.xc = E"@xd+(@xe-@xd)*2/3" V.yc = E"@yd+(@ye-@yd)*2/3"
+      V.twa = E"@bgfw*0.8" V.twb = E"@bgfw*0.35"
+      vtaper(R.xd, R.yd, R.xb, R.yb, R.xc, R.yc, R.xe, R.ye)
+    end)
+  end)
+  if L.xtr("pollen") == U then
+    V.da = E"@bgLe3-(@bgLc3)" V.db = E"@bgLf3-(@bgLd3)"
+    nrm(R.da, R.db, "nx", "ny")
+    V.xa = E"@bgLc3+0.45*@da" V.ya = E"@bgLd3+0.45*@db"
+    V.xb = E"@ny*0.065*@bgpr" V.yb = E"-(@nx)*0.065*@bgpr"
+    V.xc = E"@nx*0.042*@bgpr" V.yc = E"@ny*0.042*@bgpr"
+    vaccent("flo@c", 0) vfill("flo@c", U, 0, function() L.pellipse(R.xa, R.ya, R.xb, R.yb, R.xc, R.yc) end)
+    if R.fine == U then
+      V.xa = E"@xa+0.35*@xc-0.25*@xb" V.ya = E"@ya+0.35*@yc-0.25*@yb"
+      vfill("white", K"0.6", 0, function() circle(R.xa, R.ya, K"0.012") end)
+    end
+  end
+end
+-- a wing's outline, a teardrop l long and w wide each way, kept as name
+L.BGW = { { "0.02", "0" }, { "0.15", "0.55" }, { "0.45", "0.95" }, { "0.8", "0.85" }, { "1", "0.25" },
+  { "0.92", "-0.45" }, { "0.6", "-0.8" }, { "0.25", "-0.55" } }
+function L.bgwingshape(l, w, name)
+  loop("#Wb", 1, 8, function()
+    local p = L.BGW[R["#Wb"]]
+    V.t = sym(K"0.012") V.xa = E("%1*(%2)+@t", { K(p[1]), l })
+    V.t = sym(K"0.012") V.ya = E("%1*(%2)+@t", { K(p[2]), w })
+    put(R["#Wb"], R.xa, R.ya)
+  end)
+  smoothprep(8) keep(name)
+end
+function L.bgvm(u, v) V.xa = E("(%1)*@bgwl", { K(u) }) V.ya = E("(%1)*@bgww", { K(v) }) moveto(R.xa, R.ya) end
+function L.bgvl(u, v) V.xa = E("(%1)*@bgwl", { K(u) }) V.ya = E("(%1)*@bgww", { K(v) }) lineto(R.xa, R.ya) end
+L.BGV = {
+  f = function()
+    L.bgvm("0.03", "0.3") L.bgvl("0.35", "0.72") L.bgvl("0.62", "0.78")
+    L.bgvm("0.03", "0.05") L.bgvl("0.3", "0.2") L.bgvl("0.62", "0.25") L.bgvl("0.85", "0.32")
+    L.bgvm("0.05", "-0.15") L.bgvl("0.35", "-0.25") L.bgvl("0.6", "-0.3")
+    L.bgvm("0.62", "0.78") L.bgvl("0.62", "0.25") L.bgvl("0.6", "-0.3")
+  end,
+  h = function() L.bgvm("0.03", "0.05") L.bgvl("0.55", "0.15") end,
+  v = function()
+    L.bgvm("0.03", "0.35") L.bgvl("0.5", "0.8") L.bgvl("0.85", "0.62")
+    L.bgvm("0.03", "0") L.bgvl("0.5", "0.1") L.bgvl("0.78", "0.22") L.bgvl("0.92", "0.05")
+    L.bgvm("0.05", "-0.2") L.bgvl("0.45", "-0.32") L.bgvl("0.72", "-0.28") L.bgvl("0.86", "-0.08")
+    L.bgvm("0.5", "0.8") L.bgvl("0.5", "0.1") L.bgvl("0.45", "-0.32")
+  end,
+}
+function L.bgwing(name, x, y, rot, op, rim, veins)
+  scope(function()
+    V.rampname = "flo@ramp"
+    shift(x, y) rotate(rot)
+    vtone("flo@c", K"0.85") vfill("flo@c", op, 0, function() kept(name) end)
+    if rim == 1 then
+      vtone("flo@c", K"0.15") vstroke("flo@c", R.bglw, K"0.75", 0, function() kept(name) end)
+      if R.fine == U then vtone("flo@c", K"0.2") vstroke("flo@c", R.bgvw, K"0.6", 0, L.BGV[veins]) end
+    end
+  end)
+end
+function L.bgwings()
+  L.bgwingshape(R.bgFl, R.bgFw, "bgwf")
+  if R.bgHl > 0 then L.bgwingshape(R.bgHl, R.bgHw, "bgwh") end
+  V.bgyf = E"@bgty+0.05" V.bgyh = E"@bgty-0.01"
+  if R.bgblur == U then
+    loop("#Wb", 1, 3, function()
+      if R.bgHl > 0 then V.t = E"@bgah+(#Wb-2)*@bgdl" L.bgwing("bgwh", K"0.06", R.bgyh, R.t, K"0.16", 0, "h") end
+      V.t = E"@bgaf+(#Wb-2)*@bgdl" L.bgwing("bgwf", K"0.06", R.bgyf, R.t, K"0.16", 0, "f")
+    end)
+  else
+    if R.bgHl > 0 then V.bgwl = R.bgHl V.bgww = R.bgHw L.bgwing("bgwh", K"0.06", R.bgyh, R.bgah, K"0.55", 1, "h") end
+    V.bgwl = R.bgFl V.bgww = R.bgFw L.bgwing("bgwf", K"0.06", R.bgyf, R.bgaf, K"0.55", 1, R.bgvn)
+  end
+end
+-- flora's flight path, dotted, looping away behind
+function L.bgtrail()
+  V.bgtc = range(K"0.16", K"0.22") V.bgtn = range(U, K"1.3")
+  if chance(K"0.5") then V.sx = U else V.sx = -U end
+  V.t = E"max(0.6,1.1*@bgu)" V.v = E"max(2.2,3.2*@bgu)"
+  scope(function()
+    out("\\pgfsetdash{{0bp}{" .. str(R.v) .. "bp}}{0bp}")
+    vtone("flo@c", K"0.18")
+    vstroke("flo@c", R.t, K"0.7", 0, function()
+      loop("#Wb", 0, 40, function()
+        V.wa = E"#Wb/40*@bgtn*360"
+        V.xa = E"@sx*0.32*sin(@wa)"
+        V.ya = E"@bgtip-0.06-@bgtc*@wa*0.0174533+0.192*(cos(@wa)-1)"
+        if R["#Wb"] == 0 then moveto(R.xa, R.ya) else lineto(R.xa, R.ya) end
+      end)
+    end)
+  end)
+end
+-- \flo@bee: a bee or a hoverfly, size its length on the page in pt (sp)
+function L.bee(size)
+  V.bgu = E("(%1)/28.45276", { size })
+  if R.bgu > K"0.25" then V.fine = U else V.fine = 0 end
+  V.bgk = L.xtr("kind") V.bgpose = L.xtr("pose") V.bgground = L.xtr("ground")
+  V.bgt = L.xtr("tone") V.bgpt = K"0.74"
+  if R.bgground == "dark" then V.bgt = E"@bgt-0.12" end
+  if R.bgground == "copper" then V.rampname = "flo@aramp" V.bgpt = K"0.6" end
+  V.bgrx = E"0.48*@x@build" V.bgry = K"0.3" V.bgsq = U V.bgegg = K"1.12"
+  V.bgtr = K"0.13" V.bghx = K"0.09" V.bghr = K"0.075"
+  V.bgFl = K"0.52" V.bgFw = K"0.12" V.bgHl = K"0.38" V.bgHw = K"0.08" V.bgvn = "f"
+  V.bgfw = K"0.032" V.bgpr = U
+  V.bgabt = R.bgt V.bgtt = K"0.06" V.bght = K"0.04" V.bgfd = R.bgt
+  V.bgspk = 4 * U V.bgrim = K"0.4"
+  if R.bgk == "honeybee" then V.bgtt = E"max(0.06,@bgt-0.24)" end
+  if R.bgk == "bumblebee" then
+    V.bgegg = U V.bgtr = K"0.16" V.bghx = K"0.1" V.bgFl = K"0.48" V.bgFw = K"0.11"
+    V.bgHl = K"0.34" V.bgfw = K"0.036" V.bgpr = K"1.2" V.bgabt = K"0.06" V.bgtt = K"0.05"
+    V.bgfd = K"0.08" V.bgspk = 14 * U V.bgrim = K"0.15"
+  end
+  if R.bgk == "solitarybee" then
+    V.bgry = K"0.32" V.bgtr = K"0.11" V.bghx = K"0.08" V.bgpr = K"0.9"
+    V.bgabt = E"max(0.05,@bgt-0.24)"
+  end
+  if R.bgk == "hoverfly" then
+    V.bgrx = E"0.42*@x@build" V.bgsq = K"0.8" V.bgegg = K"1.2" V.bgtr = K"0.12" V.bghx = K"0.13"
+    V.bghr = K"0.085" V.bgFl = K"0.62" V.bgHl = 0 V.bgvn = "v" V.bgfw = K"0.022"
+    V.bgabt = K"0.08" V.bgtt = K"0.08" V.bght = K"0.1" V.bgfd = K"0.25"
+  end
+  V.bgty = K"0.15" V.bghy = E"@bgty+@bgtr+0.04"
+  V.bgat = E"@bgty-@bgtr+0.09" V.bgay = E"@bgat-@bgry"
+  V.bgla = E"@bgry*(1+0.98*@bgegg)" V.bgtip = E"@bgat-@bgla"
+  V.bglx = E"0.6+2*@bgrx"
+  V.bgbp1 = "t" V.bgbp2 = "a" V.bgbp3 = "t" V.bgbp4 = "a"
+  V.bgbh1 = E"@bgty+@bgtr+0.03" V.bgbl1 = E"@bgty+0.4*@bgtr"
+  V.bgbh2 = E"@bgat-0.3*@bgla" V.bgbl2 = E"@bgat-0.5*@bgla"
+  V.bgbh3 = E"@bgty-0.5*@bgtr" V.bgbl3 = E"@bgty-@bgtr-0.03"
+  V.bgbh4 = E"@bgat+0.03" V.bgbl4 = E"@bgat-0.17*@bgla"
+  V.bgtl = E"@bgat-0.7*@bgla"
+  V.bgw = E"max(0.25,0.45*@bgu)" V.bglw = E"max(0.2,0.35*@bgu)"
+  V.bgvw = E"max(0.15,0.25*@bgu)"
+  V.bglp = "v" V.bgblur = 0 V.bgaf = -70 * U V.bgah = -78 * U V.bgdl = 0
+  if R.bgpose == "fly" then V.bglp = "f" V.bgblur = U V.bgaf = 14 * U V.bgah = -4 * U V.bgdl = 16 * U end
+  if R.bgpose == "rest" then V.bgaf = -45 * U end
+  if R.bgpose == "hover" then V.bglp = "f" V.bgblur = U V.bgaf = 10 * U V.bgdl = 22 * U end
+  if R.bgpose == "fly" then L.bgtrail() end
+  loop("#Wa", 1, 2, function()
+    scope(function() if R["#Wa"] == 2 then L.xscale(-U) end L.bglegs() end)
+  end)
+  L.bgabdomen() L.bgpaintab()
+  if R.bgk ~= "hoverfly" and R.bgk ~= "bumblebee" then
+    V.ya = E"@bgtip+0.04" V.yb = E"@bgtip-0.05"
+    vtone("flo@c", K"0.05")
+    vfill("flo@c", U, 0, function() moveto(K"-0.022", R.ya) lineto(0, R.yb) lineto(K"0.022", R.ya) closepath() end)
+  end
+  if R.bgk == "bumblebee" then
+    V.bgnf = pm.int(E"24+60*@x@hair") V.bgrb = E"@bgry*@bgegg"
+    L.bgfur(R.bgay, R.bgrx, I("bgnf"), R.bgry, R.bgrb, "a")
+  end
+  L.bgthorax()
+  V.bgnf = pm.int(E"6+40*@x@hair") V.bgrb = E"@bgtr*0.93"
+  L.bgfur(R.bgty, R.bgtr, I("bgnf"), R.bgrb, R.bgrb, "t")
+  L.bghead() L.bgfeelers()
+  loop("#Wa", 1, 2, function()
+    scope(function() if R["#Wa"] == 2 then L.xscale(-U) end L.bgwings() end)
+  end)
+end
 -- \flo@visitor: a visitor of the kind last drawn, size on the page in pt (sp)
 function T.visitor(size)
-  V.t = L.xtr("group")
-  if R.t == "lepidoptera" then V.t = E("(%1)/2", { size }) scale(R.t) T.lepid(size) end
+  V.vg = L.xtr("group")
+  if R.vg == "lepidoptera" then V.t = E("(%1)/2", { size }) scale(R.t) T.lepid(size) end
+  if R.vg == "bee" then scale(size) L.bee(size) end
+  if R.vg == "fly" then scale(size) L.bee(size) end
 end
 function T.visitorsetup(o)
   L.florilegiumvisitor(o.seed, o.role or "any")

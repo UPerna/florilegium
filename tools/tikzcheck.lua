@@ -16,7 +16,8 @@
 --   inflorescence of every body plan, one inflorescence of every kind and of every view,
 --   a pea's leaves and plant with tendrils, compound leaves of every kind, curled tips,
 --   plants whose leaves come in crossed pairs or sheathe the stem, the v1.3 pics, a plant in three
---   seasons, butterflies and moths of every wing, pattern, ground, pose and feeler; full:
+--   seasons, butterflies and moths of every wing, pattern, ground, pose and feeler, bees
+--   and hoverflies of every kind, ground and pose; full:
 --   also two strips of three plants, as specimen-tikz.tex draws them, several minutes in
 --   pure TikZ; fern: the ferns alone; visitors: the visitors alone)
 package.path = "./?.lua;" .. package.path
@@ -229,7 +230,8 @@ if arg[1] == "draw" then
   -- visitors: a butterfly or moth with each wing tip, edge and tail, each pattern system
   -- (central band or spots, base, discal spot, border band, spots, eyespots of one to three
   -- rings, arcs, lunules, no veins), each ground and pose, each kind of feeler, a hawkmoth;
-  -- one small, drawn simpler
+  -- honeybees, bumblebees and solitary bees of each ground and pose, with and without pollen,
+  -- bands and a pale tail; hoverflies resting and hovering; small ones, drawn simpler
   local vseen = {}
   for _, w in ipairs({
       { "butterfly", function(v) return v.apex == "rounded" and v.wingedge == "smooth" and v.pose == "open" end },
@@ -248,7 +250,19 @@ if arg[1] == "draw" then
       { "moth", function(v) return v.kind == "moth" and v.pose == "tent" and v.antenna == "feathery" end },
       { "moth", function(v) return v.kind == "moth" and v.pose == "flat" and v.antenna == "thread" end },
       { "moth", function(v) return v.kind == "moth" and v.border == "eyes" end },
-      { "moth", function(v) return v.kind == "hawkmoth" end } }) do
+      { "moth", function(v) return v.kind == "hawkmoth" end },
+      { "bee", function(v) return v.kind == "honeybee" and v.pose == "visit" and v.ground == "ink" end },
+      { "bee", function(v) return v.kind == "honeybee" and v.pose == "fly" and v.ground == "copper" and v.pollen == 1 end },
+      { "bee", function(v) return v.kind == "bumblebee" and v.bands == 1 and v.paletail == 1 and v.pose == "visit" end },
+      { "bee", function(v) return v.kind == "bumblebee" and v.bands == 4 end },
+      { "bee", function(v) return v.kind == "bumblebee" and v.paletail == 0 end },
+      { "bee", function(v) return v.kind == "bumblebee" and v.ground == "copper" and v.pose == "fly" end },
+      { "bee", function(v) return v.kind == "solitarybee" and v.ground == "dark" and v.pollen == 1 end },
+      { "bee", function(v) return v.kind == "solitarybee" and v.bands == 0 end },
+      { "bee", function(v) return v.kind == "solitarybee" and v.ground == "copper" end },
+      { "fly", function(v) return v.pose == "rest" and v.ground == "copper" end },
+      { "fly", function(v) return v.pose == "hover" and v.ground == "ink" end },
+      { "fly", function(v) return v.pose == "rest" and v.bands == 4 end } }) do
     local seed = 1
     while vseen[w[1] .. seed] or not w[2](species.vsample(seed, w[1])) do seed = seed + 1 end
     vseen[w[1] .. seed] = true
@@ -256,6 +270,8 @@ if arg[1] == "draw" then
   end
   pic("florilegium visitor={seed=4, role=butterfly, size=0.9cm}")
   pic("florilegium visitor={seed=3, role=moth, size=0.5cm}")
+  pic("florilegium visitor={seed=8, role=bee, size=0.22cm}")
+  pic("florilegium visitor={seed=2, role=fly, size=0.6cm}")
   end
   if not fernonly and not visonly then
   for _, s in ipairs({ "0.15", "0.75", "1.3" }) do

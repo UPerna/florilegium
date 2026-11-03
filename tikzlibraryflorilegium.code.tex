@@ -4193,10 +4193,368 @@
         \fi}%
     \end{pgfscope}}%
   \flo@wgbody}
+% ---------------------------------------------------------------- bees and hoverflies
+% Bees and hoverflies: florilegium-flora.lua's bee, shaped and painted by the genome. In
+% units of the body's length, seen from above, the head toward +y, the waist near the
+% origin. A honeybee's abdomen is an egg in the wash with dark bands across it; a
+% bumblebee is round and black with pale bands (as many as its bands: the collar, the
+% second segment, the back of the thorax, the first segment), a pale tail and a fringe of
+% hair all round that takes the color it grows from; a solitary bee is slim and dark with
+% thin bands of pale hair; a hoverfly is flat and dark with pairs of pale marks split by a
+% dark line down its back, a wide head that is nearly all eye, short feelers and one pair
+% of wings. Pollen is a copper lump on each hind leg. Poses: a bee visiting (legs spread,
+% wings folded back over the abdomen) or in flight (legs hanging, the wings a faint wash,
+% flora's dotted trail looping behind); a hoverfly resting (wings out at 45 degrees) or
+% hovering (its wings a wash).
+\newtoks\flo@spw
+\def\flo@bgell#1#2#3#4{\pgfpathellipse{\flo@P{#1}{#2}}{\flo@P{#3}0}{\flo@P0{#4}}}
+% a band across the body from y #1 down to #2, its middle #3 nearer the tail
+\def\flo@bgband#1#2#3{%
+  \flo@calc\flo@bya{#1-(#3)}\flo@calc\flo@byb{#2-(#3)}%
+  \pgfpathmoveto{\flo@P{-0.5}{#1}}\pgfpathcurveto{\flo@P{-0.17}\flo@bya}{\flo@P{0.17}\flo@bya}{\flo@P{0.5}{#1}}%
+  \pgfpathlineto{\flo@P{0.5}{#2}}\pgfpathcurveto{\flo@P{0.17}\flo@byb}{\flo@P{-0.17}\flo@byb}{\flo@P{-0.5}{#2}}%
+  \pgfpathclose}
+% the abdomen's outline: 16 points round an egg (a hoverfly's squarer), kept as bgab
+\def\flo@bgabdomen{%
+  \flo@loop{bgao}\flo@Wa{1}{16}{%
+    \flo@calc\flo@wa{22.5*\the\flo@Wa-11.25}\flo@calc\flo@t{cos(\flo@wa)}\flo@calc\flo@v{sin(\flo@wa)}%
+    \flo@calc\flo@xa{\flo@bgrx*(\flo@t<0 ? -1 : 1)*pow(abs(\flo@t),\flo@bgsq)}%
+    \flo@calc\flo@ya{\flo@bgay+\flo@bgry*\flo@v*(\flo@v<0 ? \flo@bgegg : 1)}%
+    \flo@put{\the\flo@Wa}\flo@xa\flo@ya}%
+  \flo@smoothprep{16}\flo@keep{bgab}}
+% a bumblebee's pale bands on part #1 (t the thorax, a the abdomen), in flo@c; its tail
+\def\flo@bgpale#1{%
+  \flo@loop{bgpl}\flo@Wb{1}{\flo@xget{bands}}{%
+    \edef\flo@t{\csname flo@bgbp\the\flo@Wb\endcsname}\def\flo@tmp{#1}%
+    \ifx\flo@t\flo@tmp
+      \flo@vfill{flo@c}{0.95}{0}{\flo@bgband{\csname flo@bgbh\the\flo@Wb\endcsname}{\csname flo@bgbl\the\flo@Wb\endcsname}{0.02}}%
+    \fi}%
+  \def\flo@t{#1}\def\flo@tmp{a}\ifx\flo@t\flo@tmp\ifnum\flo@xget{paletail}=1
+    \flo@bgwhite\flo@vfill{flo@c}{1}{0}{\flo@bgband\flo@bgtl{-2}{0.02}}\fi\fi}
+% a bumblebee's white: the ink's palest
+\def\flo@bgwhite{\let\flo@savedramp\flo@rampname\def\flo@rampname{flo@ramp}\flo@vtone{flo@c}{0.93}\let\flo@rampname\flo@savedramp}
+% the color of the hair at height #1 on part #2: \flo@bgc 0 dark, 1 pale, 2 white
+\def\flo@bgcolorat#1#2{%
+  \def\flo@bgc{0}%
+  \def\flo@tmp{bumblebee}\ifx\flo@bgk\flo@tmp
+    \flo@loop{bgct}\flo@Wd{1}{\flo@xget{bands}}{%
+      \edef\flo@t{\csname flo@bgbp\the\flo@Wd\endcsname}\def\flo@tmp{#2}%
+      \ifx\flo@t\flo@tmp
+        \ifdim#1pt<\csname flo@bgbh\the\flo@Wd\endcsname pt \ifdim#1pt>\csname flo@bgbl\the\flo@Wd\endcsname pt
+          \def\flo@bgc{1}\fi\fi
+      \fi}%
+    \def\flo@t{#2}\def\flo@tmp{a}\ifx\flo@t\flo@tmp\ifnum\flo@xget{paletail}=1 \ifdim#1pt<\flo@bgtl pt
+      \def\flo@bgc{2}\fi\fi\fi
+  \fi}
+% a fringe of #3 hairs round the ellipse at (0,#1), half-width #2, half-height #4 above
+% the middle and #5 below, on part #6; each hair the color of the band it grows from
+\def\flo@bgfur#1#2#3#4#5#6{%
+  \flo@spk={}\flo@spa={}\flo@spw={}\def\flo@bgnd{0}\def\flo@bgnp{0}\def\flo@bgnw{0}%
+  \flo@calc\flo@bghl{0.5+\flo@xget{hair}}%
+  \flo@loop{bgfr}\flo@Wb{1}{#3}{%
+    \flo@range\flo@wa{0}{360}\flo@range\flo@t{0.02}{0.045}\flo@sym\flo@wb{25}%
+    \flo@calc\flo@t{\flo@t*\flo@bghl+0.014}\flo@calc\flo@v{sin(\flo@wa)}%
+    \flo@calc\flo@wr{(\flo@v<0 ? #5 : #4)-0.014}%
+    \flo@calc\flo@xa{(#2-0.014)*cos(\flo@wa)}\flo@calc\flo@ya{#1+\flo@wr*\flo@v}%
+    \flo@calc\flo@xd{\flo@xa+\flo@t*cos(\flo@wa+\flo@wb)}\flo@calc\flo@yd{\flo@ya+\flo@t*sin(\flo@wa+\flo@wb)}%
+    \flo@calc\flo@xb{\flo@xa+(\flo@xd-\flo@xa)/3}\flo@calc\flo@yb{\flo@ya+(\flo@yd-\flo@ya)/3}%
+    \flo@calc\flo@xc{\flo@xa+(\flo@xd-\flo@xa)*2/3}\flo@calc\flo@yc{\flo@ya+(\flo@yd-\flo@ya)*2/3}%
+    \edef\flo@bghair{\noexpand\flo@vtaper{\flo@xa}{\flo@ya}{\flo@xb}{\flo@yb}{\flo@xc}{\flo@yc}{\flo@xd}{\flo@yd}}%
+    \flo@bgcolorat\flo@ya{#6}%
+    \ifcase\flo@bgc
+      \flo@spk\expandafter\expandafter\expandafter{\expandafter\the\expandafter\flo@spk\flo@bghair}%
+      \edef\flo@bgnd{\the\numexpr\flo@bgnd+1}%
+    \or
+      \flo@spa\expandafter\expandafter\expandafter{\expandafter\the\expandafter\flo@spa\flo@bghair}%
+      \edef\flo@bgnp{\the\numexpr\flo@bgnp+1}%
+    \else
+      \flo@spw\expandafter\expandafter\expandafter{\expandafter\the\expandafter\flo@spw\flo@bghair}%
+      \edef\flo@bgnw{\the\numexpr\flo@bgnw+1}%
+    \fi}%
+  \def\flo@twa{0.013}\def\flo@twb{0.003}%
+  \ifnum\flo@bgnd>0 \flo@vtone{flo@c}{\flo@bgfd}\flo@vfill{flo@c}{0.8}{0}{\the\flo@spk}\fi
+  \ifnum\flo@bgnp>0 \flo@vtone{flo@c}{\flo@bgpt}\flo@vfill{flo@c}{0.9}{0}{\the\flo@spa}\fi
+  \ifnum\flo@bgnw>0 \flo@bgwhite\flo@vfill{flo@c}{0.9}{0}{\the\flo@spw}\fi}
+% the abdomen's pattern, in its clip
+\def\flo@bgab@honeybee{%
+  \flo@calc\flo@bgsp{\flo@bgla/(\flo@xget{bands}+0.6)}\flo@calc\flo@bgbt{0.42*\flo@bgsp}%
+  \flo@vtone{flo@c}{0.05}\flo@vfill{flo@c}{0.88}{0}{%
+    \flo@loop{bghb}\flo@Wb{1}{\flo@xget{bands}}{%
+      \flo@calc\flo@ya{\flo@bgat-\flo@bgsp*(\the\flo@Wb+0.15)+\flo@bgbt/2}\flo@calc\flo@yb{\flo@ya-\flo@bgbt}%
+      \flo@bgband\flo@ya\flo@yb{0.03}}}}
+\def\flo@bgab@bumblebee{\flo@vtone{flo@c}{\flo@bgpt}\flo@bgpale{a}}
+\def\flo@bgab@solitarybee{%
+  \flo@vfill{white}{0.6}{0}{%
+    \flo@loop{bgsb}\flo@Wb{1}{\flo@xget{bands}}{%
+      \flo@calc\flo@ya{\flo@bgat-\flo@bgla*(0.12+0.17*\the\flo@Wb)}\flo@calc\flo@yb{\flo@ya-0.035}%
+      \flo@bgband\flo@ya\flo@yb{0.025}}}}
+\def\flo@bgab@hoverfly{%
+  \flo@calc\flo@bgsp{\flo@bgla/(\flo@xget{bands}+0.5)}%
+  \def\flo@tmp{copper}\ifx\flo@bgground\flo@tmp\flo@vaccent{flo@c}{0.1}%
+  \else\flo@calc\flo@t{min(0.86,\flo@bgt+0.4)}\flo@vtone{flo@c}\flo@t\fi
+  \flo@vfill{flo@c}{0.92}{0}{%
+    \flo@loop{bghf}\flo@Wb{1}{\flo@xget{bands}}{%
+      \flo@calc\flo@yd{\flo@bgat-\flo@bgsp*(\the\flo@Wb-0.2)}%
+      \flo@calc\flo@twa{0.42*\flo@bgsp}\ifnum\flo@Wb=1 \flo@calc\flo@twa{0.3*\flo@bgsp}\fi
+      \flo@calc\flo@twb{0.15*\flo@bgsp}%
+      \flo@loop{bghs}\flo@Wc{1}{2}{%
+        \ifnum\flo@Wc=1 \def\flo@sx{-1}\else\def\flo@sx{1}\fi
+        \flo@calc\flo@xa{\flo@sx*0.03}\flo@calc\flo@ya{\flo@yd+0.01}%
+        \flo@calc\flo@xb{\flo@sx*\flo@bgrx*0.4}\flo@calc\flo@yb{\flo@yd+0.03}%
+        \flo@calc\flo@xc{\flo@sx*\flo@bgrx*0.75}\flo@calc\flo@yc{\flo@yd}%
+        \flo@calc\flo@xe{\flo@sx*\flo@bgrx*1.05}\flo@calc\flo@ye{\flo@yd-0.04}%
+        \flo@vtaper\flo@xa\flo@ya\flo@xb\flo@yb\flo@xc\flo@yc\flo@xe\flo@ye}}}}
+% the abdomen: its wash, the pattern, mottle, the pooled rim and a highlight down one side
+\def\flo@bgpaintab{%
+  \flo@vtone{flo@c}{\flo@bgabt}\flo@vfill{flo@c}{1}{0}{\flo@kept{bgab}}%
+  \begin{pgfscope}\flo@kept{bgab}\pgfusepath{clip}%
+    \csname flo@bgab@\flo@bgk\endcsname
+    \ifnum\flo@fine=1
+      \flo@calc\flo@bgxl{-\flo@bgrx}\flo@calc\flo@bgyl{\flo@bgat-\flo@bgla}%
+      \flo@calc\flo@ta{\flo@bgabt-0.18}\flo@calc\flo@tb{\flo@bgabt+0.17}%
+      \flo@vmottle\flo@bgxl\flo@bgyl\flo@bgrx\flo@bgat{4}{0.06}\flo@ta\flo@tb\flo@bgspk
+    \fi
+    \flo@vtone{flo@c}{0.05}\flo@calc\flo@t{3.4*\flo@bgu}\flo@vstroke{flo@c}{\flo@t}{\flo@bgrim}{1}{\flo@kept{bgab}}%
+    \flo@calc\flo@t{\flo@bgrx/0.19}\flo@calc\flo@v{\flo@bgry/0.3}%
+    \flo@calc\flo@xa{-0.1*\flo@t}\flo@calc\flo@ya{\flo@bgay-0.18*\flo@v}\flo@put1\flo@xa\flo@ya
+    \flo@calc\flo@xa{-0.13*\flo@t}\flo@calc\flo@ya{\flo@bgay-0.05*\flo@v}\flo@put2\flo@xa\flo@ya
+    \flo@calc\flo@xa{-0.12*\flo@t}\flo@calc\flo@ya{\flo@bgay+0.08*\flo@v}\flo@put3\flo@xa\flo@ya
+    \flo@calc\flo@xa{-0.08*\flo@t}\flo@calc\flo@ya{\flo@bgay+0.2*\flo@v}\flo@put4\flo@xa\flo@ya
+    \flo@vstreak{4}{0.04}{0.008}{white}{0.5}%
+  \end{pgfscope}}
+% the thorax: a blob, a bumblebee's bands on it, mottle
+\def\flo@bgthorax{%
+  \flo@calc\flo@t{\flo@bgtr*0.93}\flo@vblob{0}\flo@bgty\flo@bgtr\flo@t{0.1}{12}\flo@keep{bgth}%
+  \flo@vtone{flo@c}{\flo@bgtt}\flo@vfill{flo@c}{1}{0}{\flo@kept{bgth}}%
+  \begin{pgfscope}\flo@kept{bgth}\pgfusepath{clip}%
+    \def\flo@tmp{bumblebee}\ifx\flo@bgk\flo@tmp\flo@vtone{flo@c}{\flo@bgpt}\flo@bgpale{t}\fi
+    \ifnum\flo@fine=1
+      \flo@calc\flo@bgxl{-\flo@bgtr}\flo@calc\flo@bgyl{\flo@bgty-\flo@bgtr}\flo@calc\flo@bgyh{\flo@bgty+\flo@bgtr}%
+      \flo@calc\flo@ta{\flo@bgtt-0.04}\flo@calc\flo@tb{\flo@bgtt+0.24}%
+      \flo@vmottle\flo@bgxl\flo@bgyl\flo@bgtr\flo@bgyh{3}{0.05}\flo@ta\flo@tb{6}%
+    \fi
+  \end{pgfscope}}
+% the head: eyes at its sides, or a hoverfly's that nearly cover it; a glint in each
+\def\flo@bghead{%
+  \flo@vtone{flo@c}{\flo@bght}\flo@vfill{flo@c}{1}{0}{\flo@bgell0\flo@bghy\flo@bghx\flo@bghr}%
+  \flo@calc\flo@ya{\flo@bghy+0.008}%
+  \def\flo@tmp{hoverfly}\ifx\flo@bgk\flo@tmp
+    \def\flo@xa{0.055}\def\flo@xb{0.068}\def\flo@yb{0.08}%
+  \else
+    \flo@calc\flo@xa{\flo@bghx-0.022}\def\flo@xb{0.028}\def\flo@yb{0.05}%
+  \fi
+  \flo@vtone{flo@c}{0.02}\flo@vfill{flo@c}{1}{0}{\flo@bgell{-\flo@xa}\flo@ya\flo@xb\flo@yb\flo@bgell\flo@xa\flo@ya\flo@xb\flo@yb}%
+  \ifnum\flo@fine=1
+    \flo@calc\flo@xc{\flo@xa-0.3*\flo@xb}\flo@calc\flo@yc{\flo@ya+0.35*\flo@yb}%
+    \flo@vfill{white}{0.7}{0}{\pgfpathcircle{\flo@P{-\flo@xc}\flo@yc}{0.011pt}\pgfpathcircle{\flo@P\flo@xc\flo@yc}{0.011pt}}%
+  \fi}
+% feelers: a bee's elbowed, a hoverfly's short with a bristle
+\def\flo@bgfeelers{%
+  \flo@vtone{flo@c}{0.06}%
+  \def\flo@tmp{hoverfly}\ifx\flo@bgk\flo@tmp
+    \flo@calc\flo@ya{\flo@bghy+0.07}\flo@calc\flo@yb{\flo@bghy+0.11}\flo@calc\flo@yc{\flo@bghy+0.14}%
+    \flo@vstroke{flo@c}{\flo@bgw}{1}{0}{\pgfpathmoveto{\flo@P{-0.02}\flo@ya}\pgfpathlineto{\flo@P{-0.035}\flo@yb}%
+      \pgfpathmoveto{\flo@P{0.02}\flo@ya}\pgfpathlineto{\flo@P{0.035}\flo@yb}}%
+    \flo@vfill{flo@c}{1}{0}{\pgfpathcircle{\flo@P{-0.035}\flo@yb}{0.014pt}\pgfpathcircle{\flo@P{0.035}\flo@yb}{0.014pt}}%
+    \ifnum\flo@fine=1 \flo@calc\flo@t{0.5*\flo@bgw}%
+      \flo@vstroke{flo@c}{\flo@t}{1}{0}{\pgfpathmoveto{\flo@P{-0.035}\flo@yb}\pgfpathlineto{\flo@P{-0.075}\flo@yc}%
+        \pgfpathmoveto{\flo@P{0.035}\flo@yb}\pgfpathlineto{\flo@P{0.075}\flo@yc}}%
+    \fi
+  \else
+    \flo@calc\flo@ya{\flo@bghy+0.05}%
+    \flo@vstroke{flo@c}{\flo@bgw}{1}{0}{%
+      \flo@loop{bgfl}\flo@Wb{1}{2}{%
+        \ifnum\flo@Wb=1 \def\flo@sx{-1}\else\def\flo@sx{1}\fi
+        \flo@range\flo@xb{0.05}{0.08}\flo@range\flo@yb{0.11}{0.15}\flo@range\flo@xc{0.11}{0.17}\flo@range\flo@yc{0.17}{0.23}%
+        \flo@calc\flo@xa{\flo@sx*0.03}\flo@calc\flo@xb{\flo@sx*\flo@xb}\flo@calc\flo@yb{\flo@bghy+\flo@yb}%
+        \flo@calc\flo@xc{\flo@sx*\flo@xc}\flo@calc\flo@yc{\flo@bghy+\flo@yc}%
+        \pgfpathmoveto{\flo@P\flo@xa\flo@ya}\pgfpathlineto{\flo@P\flo@xb\flo@yb}\pgfpathlineto{\flo@P\flo@xc\flo@yc}}}%
+  \fi}
+% the legs of a side, root, knee and foot (x along the side, y from the thorax's middle):
+% spread on a flower, hanging in flight
+\def\flo@bgLvi{{0.05}{0.06}{0.17}{0.1}{0.2}{0.22}}\def\flo@bgLvii{{0.06}{0}{0.23}{-0.03}{0.3}{-0.15}}
+\def\flo@bgLviii{{0.06}{-0.06}{0.28}{-0.16}{0.32}{-0.42}}
+\def\flo@bgLfi{{0.05}{0.04}{0.13}{0}{0.15}{-0.1}}\def\flo@bgLfii{{0.06}{0}{0.17}{-0.08}{0.18}{-0.24}}
+\def\flo@bgLfiii{{0.06}{-0.05}{0.21}{-0.16}{0.22}{-0.44}}
+% the points of leg \flo@Wb: \flo@bgL[a-f]<i>, the knee and foot moved a little
+\def\flo@bglegpts#1#2#3#4#5#6{%
+  \edef\flo@bgi{\the\flo@Wb}%
+  \flo@calc\flo@t{(#1)*\flo@bglx}\expandafter\let\csname flo@bgLa\flo@bgi\endcsname\flo@t
+  \flo@calc\flo@t{\flo@bgty+(#2)}\expandafter\let\csname flo@bgLb\flo@bgi\endcsname\flo@t
+  \flo@sym\flo@v{0.02}\flo@calc\flo@t{(#3)*\flo@bglx+\flo@v}\expandafter\let\csname flo@bgLc\flo@bgi\endcsname\flo@t
+  \flo@sym\flo@v{0.02}\flo@calc\flo@t{\flo@bgty+(#4)+\flo@v}\expandafter\let\csname flo@bgLd\flo@bgi\endcsname\flo@t
+  \flo@sym\flo@v{0.025}\flo@calc\flo@t{(#5)*\flo@bglx+\flo@v}\expandafter\let\csname flo@bgLe\flo@bgi\endcsname\flo@t
+  \flo@sym\flo@v{0.025}\flo@calc\flo@t{\flo@bgty+(#6)+\flo@v}\expandafter\let\csname flo@bgLf\flo@bgi\endcsname\flo@t}
+% the legs of the side (drawn to the right): thigh and shank tapered; pollen on the hind leg
+\def\flo@bglegs{%
+  \flo@loop{bglp}\flo@Wb{1}{3}{%
+    \expandafter\expandafter\expandafter\flo@bglegpts\csname flo@bgL\flo@bglp\romannumeral\flo@Wb\endcsname}%
+  \flo@vtone{flo@c}{0.08}%
+  \flo@vfill{flo@c}{1}{0}{\flo@loop{bglg}\flo@Wb{1}{3}{%
+    \edef\flo@bgi{\the\flo@Wb}%
+    \edef\flo@xa{\csname flo@bgLa\flo@bgi\endcsname}\edef\flo@ya{\csname flo@bgLb\flo@bgi\endcsname}%
+    \edef\flo@xd{\csname flo@bgLc\flo@bgi\endcsname}\edef\flo@yd{\csname flo@bgLd\flo@bgi\endcsname}%
+    \edef\flo@xe{\csname flo@bgLe\flo@bgi\endcsname}\edef\flo@ye{\csname flo@bgLf\flo@bgi\endcsname}%
+    \flo@calc\flo@xb{\flo@xa+(\flo@xd-\flo@xa)/3}\flo@calc\flo@yb{\flo@ya+(\flo@yd-\flo@ya)/3}%
+    \flo@calc\flo@xc{\flo@xa+(\flo@xd-\flo@xa)*2/3}\flo@calc\flo@yc{\flo@ya+(\flo@yd-\flo@ya)*2/3}%
+    \edef\flo@twa{\flo@bgfw}\flo@calc\flo@twb{\flo@bgfw*0.8}%
+    \flo@vtaper\flo@xa\flo@ya\flo@xb\flo@yb\flo@xc\flo@yc\flo@xd\flo@yd
+    \flo@calc\flo@xb{\flo@xd+(\flo@xe-\flo@xd)/3}\flo@calc\flo@yb{\flo@yd+(\flo@ye-\flo@yd)/3}%
+    \flo@calc\flo@xc{\flo@xd+(\flo@xe-\flo@xd)*2/3}\flo@calc\flo@yc{\flo@yd+(\flo@ye-\flo@yd)*2/3}%
+    \flo@calc\flo@twa{\flo@bgfw*0.8}\flo@calc\flo@twb{\flo@bgfw*0.35}%
+    \flo@vtaper\flo@xd\flo@yd\flo@xb\flo@yb\flo@xc\flo@yc\flo@xe\flo@ye}}%
+  \ifnum\flo@xget{pollen}=1
+    \flo@calc\flo@da{\csname flo@bgLe3\endcsname-(\csname flo@bgLc3\endcsname)}\flo@calc\flo@db{\csname flo@bgLf3\endcsname-(\csname flo@bgLd3\endcsname)}%
+    \flo@nrm\flo@da\flo@db\flo@nx\flo@ny
+    \flo@calc\flo@xa{\csname flo@bgLc3\endcsname+0.45*\flo@da}\flo@calc\flo@ya{\csname flo@bgLd3\endcsname+0.45*\flo@db}%
+    \flo@calc\flo@xb{\flo@ny*0.065*\flo@bgpr}\flo@calc\flo@yb{-(\flo@nx)*0.065*\flo@bgpr}%
+    \flo@calc\flo@xc{\flo@nx*0.042*\flo@bgpr}\flo@calc\flo@yc{\flo@ny*0.042*\flo@bgpr}%
+    \flo@vaccent{flo@c}{0}\flo@vfill{flo@c}{1}{0}{\pgfpathellipse{\flo@P\flo@xa\flo@ya}{\flo@P\flo@xb\flo@yb}{\flo@P\flo@xc\flo@yc}}%
+    \ifnum\flo@fine=1
+      \flo@calc\flo@xa{\flo@xa+0.35*\flo@xc-0.25*\flo@xb}\flo@calc\flo@ya{\flo@ya+0.35*\flo@yc-0.25*\flo@yb}%
+      \flo@vfill{white}{0.6}{0}{\pgfpathcircle{\flo@P\flo@xa\flo@ya}{0.012pt}}%
+    \fi
+  \fi}
+% a wing's outline: eight points round a teardrop #1 long and #2 wide each way, each
+% moved a little; kept as #3
+\def\flo@bgWd#1#2#3{\expandafter\def\csname flo@bgWx#1\endcsname{#2}\expandafter\def\csname flo@bgWy#1\endcsname{#3}}
+\flo@bgWd1{0.02}{0}\flo@bgWd2{0.15}{0.55}\flo@bgWd3{0.45}{0.95}\flo@bgWd4{0.8}{0.85}
+\flo@bgWd5{1}{0.25}\flo@bgWd6{0.92}{-0.45}\flo@bgWd7{0.6}{-0.8}\flo@bgWd8{0.25}{-0.55}
+\def\flo@bgwingshape#1#2#3{%
+  \flo@loop{bgws}\flo@Wb{1}{8}{%
+    \flo@sym\flo@t{0.012}\flo@calc\flo@xa{\csname flo@bgWx\the\flo@Wb\endcsname*(#1)+\flo@t}%
+    \flo@sym\flo@t{0.012}\flo@calc\flo@ya{\csname flo@bgWy\the\flo@Wb\endcsname*(#2)+\flo@t}%
+    \flo@put{\the\flo@Wb}\flo@xa\flo@ya}%
+  \flo@smoothprep{8}\flo@keep{#3}}
+% veins, at (#1 of the length, #2 of the width): \flo@bgvm moves there, \flo@bgvl draws to it
+\def\flo@bgvm#1#2{\flo@calc\flo@xa{(#1)*\flo@bgwl}\flo@calc\flo@ya{(#2)*\flo@bgww}\pgfpathmoveto{\flo@P\flo@xa\flo@ya}}
+\def\flo@bgvl#1#2{\flo@calc\flo@xa{(#1)*\flo@bgwl}\flo@calc\flo@ya{(#2)*\flo@bgww}\pgfpathlineto{\flo@P\flo@xa\flo@ya}}
+\def\flo@bgV@f{% a bee's forewing
+  \flo@bgvm{0.03}{0.3}\flo@bgvl{0.35}{0.72}\flo@bgvl{0.62}{0.78}%
+  \flo@bgvm{0.03}{0.05}\flo@bgvl{0.3}{0.2}\flo@bgvl{0.62}{0.25}\flo@bgvl{0.85}{0.32}%
+  \flo@bgvm{0.05}{-0.15}\flo@bgvl{0.35}{-0.25}\flo@bgvl{0.6}{-0.3}%
+  \flo@bgvm{0.62}{0.78}\flo@bgvl{0.62}{0.25}\flo@bgvl{0.6}{-0.3}}
+\def\flo@bgV@h{\flo@bgvm{0.03}{0.05}\flo@bgvl{0.55}{0.15}}
+\def\flo@bgV@v{% a hoverfly's wing: the vein that dips before the tip, the cross veins along the edge
+  \flo@bgvm{0.03}{0.35}\flo@bgvl{0.5}{0.8}\flo@bgvl{0.85}{0.62}%
+  \flo@bgvm{0.03}{0}\flo@bgvl{0.5}{0.1}\flo@bgvl{0.78}{0.22}\flo@bgvl{0.92}{0.05}%
+  \flo@bgvm{0.05}{-0.2}\flo@bgvl{0.45}{-0.32}\flo@bgvl{0.72}{-0.28}\flo@bgvl{0.86}{-0.08}%
+  \flo@bgvm{0.5}{0.8}\flo@bgvl{0.5}{0.1}\flo@bgvl{0.45}{-0.32}}
+% wing #1 (kept) at its root (#2,#3), turned #4 degrees, its wash at opacity #5 in the ink's
+% pale; with #6 = 1 its rim and veins (#7: f, h or v)
+\def\flo@bgwing#1#2#3#4#5#6#7{\begin{pgfscope}%
+  \def\flo@rampname{flo@ramp}%
+  \pgftransformshift{\flo@P{#2}{#3}}\pgftransformrotate{#4}%
+  \flo@vtone{flo@c}{0.85}\flo@vfill{flo@c}{#5}{0}{\flo@kept{#1}}%
+  \ifnum#6=1
+    \flo@vtone{flo@c}{0.15}\flo@vstroke{flo@c}{\flo@bglw}{0.75}{0}{\flo@kept{#1}}%
+    \ifnum\flo@fine=1 \flo@vtone{flo@c}{0.2}\flo@vstroke{flo@c}{\flo@bgvw}{0.6}{0}{\csname flo@bgV@#7\endcsname}\fi
+  \fi\end{pgfscope}}
+% the wings of the side: a bee's hindwing under its forewing; still, or a wash of three
+\def\flo@bgwings{%
+  \flo@bgwingshape\flo@bgFl\flo@bgFw{bgwf}%
+  \ifdim\flo@bgHl pt>0pt \flo@bgwingshape\flo@bgHl\flo@bgHw{bgwh}\fi
+  \flo@calc\flo@bgyf{\flo@bgty+0.05}\flo@calc\flo@bgyh{\flo@bgty-0.01}%
+  \ifnum\flo@bgblur=1
+    \flo@loop{bgwb}\flo@Wb{1}{3}{%
+      \ifdim\flo@bgHl pt>0pt \flo@calc\flo@t{\flo@bgah+(\the\flo@Wb-2)*\flo@bgdl}\flo@bgwing{bgwh}{0.06}\flo@bgyh\flo@t{0.16}{0}{h}\fi
+      \flo@calc\flo@t{\flo@bgaf+(\the\flo@Wb-2)*\flo@bgdl}\flo@bgwing{bgwf}{0.06}\flo@bgyf\flo@t{0.16}{0}{f}}%
+  \else
+    \ifdim\flo@bgHl pt>0pt \let\flo@bgwl\flo@bgHl\let\flo@bgww\flo@bgHw\flo@bgwing{bgwh}{0.06}\flo@bgyh\flo@bgah{0.55}{1}{h}\fi
+    \let\flo@bgwl\flo@bgFl\let\flo@bgww\flo@bgFw\flo@bgwing{bgwf}{0.06}\flo@bgyf\flo@bgaf{0.55}{1}\flo@bgvn
+  \fi}
+% flora's flight path: a dotted line looping away behind
+\def\flo@bgtrail{%
+  \flo@range\flo@bgtc{0.16}{0.22}\flo@range\flo@bgtn{1}{1.3}\flo@chance{0.5}%
+  \ifflo@yes\def\flo@sx{1}\else\def\flo@sx{-1}\fi
+  \flo@calc\flo@t{max(0.6,1.1*\flo@bgu)}\flo@calc\flo@v{max(2.2,3.2*\flo@bgu)}%
+  \begin{pgfscope}\pgfsetdash{{0bp}{\flo@v bp}}{0bp}%
+  \flo@vtone{flo@c}{0.18}\flo@vstroke{flo@c}{\flo@t}{0.7}{0}{%
+    \flo@loop{bgtr}\flo@Wb{0}{40}{%
+      \flo@calc\flo@wa{\the\flo@Wb/40*\flo@bgtn*360}%
+      \flo@calc\flo@xa{\flo@sx*0.32*sin(\flo@wa)}%
+      \flo@calc\flo@ya{\flo@bgtip-0.06-\flo@bgtc*\flo@wa*0.0174533+0.192*(cos(\flo@wa)-1)}%
+      \ifnum\flo@Wb=0 \pgfpathmoveto{\flo@P\flo@xa\flo@ya}\else\pgfpathlineto{\flo@P\flo@xa\flo@ya}\fi}}%
+  \end{pgfscope}}
+% a bee or a hoverfly; #1 its length on the page in pt
+\def\flo@bee#1{%
+  \flo@calc\flo@bgu{(#1)/28.45276}%
+  \ifdim\flo@bgu pt>0.25pt \def\flo@fine{1}\else\def\flo@fine{0}\fi
+  \edef\flo@bgk{\flo@xget{kind}}\edef\flo@bgpose{\flo@xget{pose}}\edef\flo@bgground{\flo@xget{ground}}%
+  \edef\flo@bgt{\flo@xget{tone}}\def\flo@bgpt{0.74}%
+  \def\flo@tmp{dark}\ifx\flo@bgground\flo@tmp\flo@calc\flo@bgt{\flo@bgt-0.12}\fi
+  \def\flo@tmp{copper}\ifx\flo@bgground\flo@tmp\def\flo@rampname{flo@aramp}\def\flo@bgpt{0.6}\fi
+  % proportions: the abdomen (its half-width from the build), the thorax, head, wings, legs;
+  % the tones of the abdomen, thorax, head, the hair and the pale bands
+  \flo@calc\flo@bgrx{0.48*\flo@xget{build}}\def\flo@bgry{0.3}\def\flo@bgsq{1}\def\flo@bgegg{1.12}%
+  \def\flo@bgtr{0.13}\def\flo@bghx{0.09}\def\flo@bghr{0.075}%
+  \def\flo@bgFl{0.52}\def\flo@bgFw{0.12}\def\flo@bgHl{0.38}\def\flo@bgHw{0.08}\def\flo@bgvn{f}%
+  \def\flo@bgfw{0.032}\def\flo@bgpr{1}%
+  \edef\flo@bgabt{\flo@bgt}\def\flo@bgtt{0.06}\def\flo@bght{0.04}\edef\flo@bgfd{\flo@bgt}%
+  \def\flo@bgspk{4}\def\flo@bgrim{0.4}%
+  \def\flo@tmp{honeybee}\ifx\flo@bgk\flo@tmp\flo@calc\flo@bgtt{max(0.06,\flo@bgt-0.24)}\fi
+  \def\flo@tmp{bumblebee}\ifx\flo@bgk\flo@tmp
+    \def\flo@bgegg{1}\def\flo@bgtr{0.16}\def\flo@bghx{0.1}\def\flo@bgFl{0.48}\def\flo@bgFw{0.11}%
+    \def\flo@bgHl{0.34}\def\flo@bgfw{0.036}\def\flo@bgpr{1.2}\def\flo@bgabt{0.06}\def\flo@bgtt{0.05}%
+    \def\flo@bgfd{0.08}\def\flo@bgspk{14}\def\flo@bgrim{0.15}\fi
+  \def\flo@tmp{solitarybee}\ifx\flo@bgk\flo@tmp
+    \def\flo@bgry{0.32}\def\flo@bgtr{0.11}\def\flo@bghx{0.08}\def\flo@bgpr{0.9}%
+    \flo@calc\flo@bgabt{max(0.05,\flo@bgt-0.24)}\fi
+  \def\flo@tmp{hoverfly}\ifx\flo@bgk\flo@tmp
+    \flo@calc\flo@bgrx{0.42*\flo@xget{build}}\def\flo@bgsq{0.8}\def\flo@bgegg{1.2}\def\flo@bgtr{0.12}\def\flo@bghx{0.13}%
+    \def\flo@bghr{0.085}\def\flo@bgFl{0.62}\def\flo@bgHl{0}\def\flo@bgvn{v}\def\flo@bgfw{0.022}%
+    \def\flo@bgabt{0.08}\def\flo@bgtt{0.08}\def\flo@bght{0.1}\def\flo@bgfd{0.25}\fi
+  % where things are along the body: the thorax, head, the abdomen's top, middle and tip
+  \def\flo@bgty{0.15}\flo@calc\flo@bghy{\flo@bgty+\flo@bgtr+0.04}%
+  \flo@calc\flo@bgat{\flo@bgty-\flo@bgtr+0.09}\flo@calc\flo@bgay{\flo@bgat-\flo@bgry}%
+  \flo@calc\flo@bgla{\flo@bgry*(1+0.98*\flo@bgegg)}\flo@calc\flo@bgtip{\flo@bgat-\flo@bgla}%
+  \flo@calc\flo@bglx{0.6+2*\flo@bgrx}%
+  % a bumblebee's pale bands: the collar, the second segment, the back of the thorax, the
+  % first segment; the tail
+  \expandafter\def\csname flo@bgbp1\endcsname{t}\expandafter\def\csname flo@bgbp2\endcsname{a}%
+  \expandafter\def\csname flo@bgbp3\endcsname{t}\expandafter\def\csname flo@bgbp4\endcsname{a}%
+  \flo@calc\flo@t{\flo@bgty+\flo@bgtr+0.03}\expandafter\let\csname flo@bgbh1\endcsname\flo@t
+  \flo@calc\flo@t{\flo@bgty+0.4*\flo@bgtr}\expandafter\let\csname flo@bgbl1\endcsname\flo@t
+  \flo@calc\flo@t{\flo@bgat-0.3*\flo@bgla}\expandafter\let\csname flo@bgbh2\endcsname\flo@t
+  \flo@calc\flo@t{\flo@bgat-0.5*\flo@bgla}\expandafter\let\csname flo@bgbl2\endcsname\flo@t
+  \flo@calc\flo@t{\flo@bgty-0.5*\flo@bgtr}\expandafter\let\csname flo@bgbh3\endcsname\flo@t
+  \flo@calc\flo@t{\flo@bgty-\flo@bgtr-0.03}\expandafter\let\csname flo@bgbl3\endcsname\flo@t
+  \flo@calc\flo@t{\flo@bgat+0.03}\expandafter\let\csname flo@bgbh4\endcsname\flo@t
+  \flo@calc\flo@t{\flo@bgat-0.17*\flo@bgla}\expandafter\let\csname flo@bgbl4\endcsname\flo@t
+  \flo@calc\flo@bgtl{\flo@bgat-0.7*\flo@bgla}%
+  % line widths
+  \flo@calc\flo@bgw{max(0.25,0.45*\flo@bgu)}\flo@calc\flo@bglw{max(0.2,0.35*\flo@bgu)}%
+  \flo@calc\flo@bgvw{max(0.15,0.25*\flo@bgu)}%
+  % the pose: legs, the wings' angles, a wash of three
+  \def\flo@bglp{v}\def\flo@bgblur{0}\def\flo@bgaf{-70}\def\flo@bgah{-78}\def\flo@bgdl{0}%
+  \def\flo@tmp{fly}\ifx\flo@bgpose\flo@tmp\def\flo@bglp{f}\def\flo@bgblur{1}\def\flo@bgaf{14}\def\flo@bgah{-4}\def\flo@bgdl{16}\fi
+  \def\flo@tmp{rest}\ifx\flo@bgpose\flo@tmp\def\flo@bgaf{-45}\fi
+  \def\flo@tmp{hover}\ifx\flo@bgpose\flo@tmp\def\flo@bglp{f}\def\flo@bgblur{1}\def\flo@bgaf{10}\def\flo@bgdl{22}\fi
+  % the trail, the legs, the abdomen (a bumblebee's furred), the thorax and its hair, the
+  % head and feelers, the wings
+  \def\flo@tmp{fly}\ifx\flo@bgpose\flo@tmp\flo@bgtrail\fi
+  \flo@loop{bgsl}\flo@Wa{1}{2}{\begin{pgfscope}\ifnum\flo@Wa=2 \pgftransformxscale{-1}\fi\flo@bglegs\end{pgfscope}}%
+  \flo@bgabdomen\flo@bgpaintab
+  \def\flo@tmp{hoverfly}\ifx\flo@bgk\flo@tmp\else\def\flo@tmp{bumblebee}\ifx\flo@bgk\flo@tmp\else
+    \flo@calc\flo@ya{\flo@bgtip+0.04}\flo@calc\flo@yb{\flo@bgtip-0.05}%
+    \flo@vtone{flo@c}{0.05}\flo@vfill{flo@c}{1}{0}{\pgfpathmoveto{\flo@P{-0.022}\flo@ya}%
+      \pgfpathlineto{\flo@P0\flo@yb}\pgfpathlineto{\flo@P{0.022}\flo@ya}\pgfpathclose}%
+  \fi\fi
+  \def\flo@tmp{bumblebee}\ifx\flo@bgk\flo@tmp
+    \pgfmathtruncatemacro\flo@bgnf{24+60*\flo@xget{hair}}\flo@calc\flo@bgrb{\flo@bgry*\flo@bgegg}%
+    \flo@bgfur\flo@bgay\flo@bgrx\flo@bgnf\flo@bgry\flo@bgrb{a}%
+  \fi
+  \flo@bgthorax
+  \pgfmathtruncatemacro\flo@bgnf{6+40*\flo@xget{hair}}\flo@calc\flo@bgrb{\flo@bgtr*0.93}%
+  \flo@bgfur\flo@bgty\flo@bgtr\flo@bgnf\flo@bgrb\flo@bgrb{t}%
+  \flo@bghead\flo@bgfeelers
+  \flo@loop{bgsw}\flo@Wa{1}{2}{\begin{pgfscope}\ifnum\flo@Wa=2 \pgftransformxscale{-1}\fi\flo@bgwings\end{pgfscope}}}
 % a visitor of the kind last drawn; #1 its size on the page in pt (a wingspan, a length)
 \def\flo@visitor#1{%
-  \edef\flo@t{\flo@xget{group}}\def\flo@tmp{lepidoptera}%
-  \ifx\flo@t\flo@tmp\flo@calc\flo@t{(#1)/2}\pgftransformscale{\flo@t}\flo@lepid{#1}\fi}
+  \edef\flo@vg{\flo@xget{group}}%
+  \def\flo@tmp{lepidoptera}\ifx\flo@vg\flo@tmp\flo@calc\flo@t{(#1)/2}\pgftransformscale{\flo@t}\flo@lepid{#1}\fi
+  \def\flo@tmp{bee}\ifx\flo@vg\flo@tmp\pgftransformscale{#1}\flo@bee{#1}\fi
+  \def\flo@tmp{fly}\ifx\flo@vg\flo@tmp\pgftransformscale{#1}\flo@bee{#1}\fi}
 % sample the visitor, then reseed for the drawing
 \def\flo@vispicsetup#1{%
   \pgfkeys{/florilegium,#1}\flo@colors
