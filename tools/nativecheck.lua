@@ -115,6 +115,8 @@ if arg[1] == "forms" then
   local seen, TR = {}, { "form", "orient", "fruit", "corona", "guides", "color", "apex", "stamens", "petalshape",
     "merovar", "clade", "inflo" }
   local roles = { "any", "hero", "spray", "monocot" }
+  local LTR = { "compound", "leafshape", "leafbase", "leafapex", "leafmargin", "venation", "attachment", "stipules",
+    "hairy", "tendrils", "turns", "leaflets" }
   for i = 1, 4000 do
     local role = roles[i % 4 + 1]
     local sp = species.sample(i, role)
@@ -135,6 +137,22 @@ if arg[1] == "forms" then
       for _, c in ipairs({ { 1, 0.55, 0 }, { 1.6, 0.1, 0 }, { 0.6, 0.8, 0.2 }, { 1.2, 1, 0 } }) do
         case(name .. fmt(" unit %.1f at %.2f", c[1], c[2]), "unit", s, nextz(), { k = c[1], season = c[2], late = c[3] })
       end
+    end
+    -- the leaves: every value of the leaf's traits, at three sizes, in spring and autumn,
+    -- copper, foreshortened and sheathing
+    local lnew = false
+    for _, t in ipairs(LTR) do
+      local lkey = t .. "=" .. tostring(sp[t])
+      if not seen[lkey] then seen[lkey] = true lnew = true end
+    end
+    if (lnew or new) and sp.compound ~= "frond" then
+      local s = { seed = i, role = role }
+      local name = fmt("seed %d %s %s/%s/%s/%s", i, role, sp.compound, sp.leafshape, sp.leafmargin, sp.venation)
+      for _, c in ipairs({ { 0.5, 0.55, 0.5 }, { 1.2, 0.55, 0.5 }, { 2.4, 0.6, 0.5 }, { 1.6, 0.2, 0.5 }, { 1.6, 1, 0.01 } }) do
+        case(name .. fmt(" leaf %.1f at %.2f", c[1], c[2]), "leaf", s, nextz(), { len = c[1], bend = 0.15, lc = c[3], season = c[2] })
+      end
+      case(name .. " leaf sheathing", "leaf", s, nextz(), { len = 1.8, bend = -0.2, lc = 0.5, season = 0.6, fore = 0.75,
+        sheath = { -25, 0.1 } })
     end
   end
 end
@@ -158,6 +176,11 @@ for doc = 0, ndoc - 1 do
     case(name .. " unit in bud", "unit", s, nextz(), { k = 1.4, season = 0.1, late = 0 })
     case(name .. " unit in fruit", "unit", s, nextz(), { k = 1.2, season = 1, late = 0 })
     case(name .. " budding", "budding", s, nextz(), { k = 1 })
+    for _, c in ipairs({ { 0.6, 0.55 }, { 1.4, 0.55 }, { 2.2, 0.3 }, { 1.8, 0.97 } }) do
+      case(name .. fmt(" leaf %.1f", c[1]), "leaf", s, nextz(), { len = c[1], bend = 0.12, lc = 0.02, season = c[2] })
+    end
+    case(name .. " leaf sheath", "leaf", s, nextz(), { len = 1.6, bend = -0.1, lc = 0.5, season = 0.6, fore = 0.8,
+      sheath = { 30, 0.12 } })
     case(name .. " tendril", "tendril", s, nextz(), { size = 0.4 })
   end
 end
@@ -189,7 +212,7 @@ for i, c in ipairs(cases) do
   count[how] = count[how] + 1
   if how ~= "tipped" and w > worst then worst = w end
   bytes[1], bytes[2] = bytes[1] + #before[i], bytes[2] + #now[i]
-  if how == "tipped" then print(fmt("tipped  %-58s %s", c.name, why)) end
+  if how == "tipped" then print(fmt("tipped  %-58s %s (z %d)", c.name, why, c.z)) end
 end
 print(fmt("%d organs: %d the same (numbers within %.2f bp), %d a shade apart, %d tipped",
   #cases, count.same, worst, count.shade, count.tipped))

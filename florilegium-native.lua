@@ -36,7 +36,10 @@ function M.use(rng) G = rng end
 local function range(a, b) return a + (b - a) * G.rnd() end                -- \flo@range
 local function sym(a) return a * G.rand() end                              -- \flo@sym
 local function int(a, b) return G.random(a, b) end                         -- \pgfmathrandominteger
--- \flo@chance: rnd < p, with p as TeX holds the constant (a whole number of sp)
+-- a constant as TeX holds it (a whole number of sp), for comparing a number TeX also holds
+-- exactly (an organ's length is one): 0.6 is 0.600006, and a 0.6 cm leaf is not above it
+local function K(x) return floor(x * 65536 + 0.5) / 65536 end
+-- \flo@chance: rnd < p, with p as TeX holds the constant
 local function chance(p) return G.rnd() * 65536 < floor(p * 65536 + 0.5) end
 -- \numexpr's division of integers: rounded, halves away from zero
 local function nediv(a, b)
@@ -501,7 +504,7 @@ function M.leaflet(o)
     return 0
   end)
   smooth(outline, true) fill(tone(lt), 1)
-  if o.u > 0.25 then
+  if o.u > K(0.25) then
     smooth(outline, true) ink.clip()
     -- the darker half: the midrib out, then back along a line one unit to one side
     local sd = chance(0.5) and 1 or -1
@@ -1785,6 +1788,615 @@ function M.tendril(size)
   stem(vcurl(1.6 * size), 0.022, 0.004, 0.12)
 end
 
+-- ================================================================ M8f4: leaves
+-- ---------------------------------------------------------------- the monocot's strap
+-- \flo@vstrap: a parallel-veined leaf in flora's manner, along +y, length 1; lW its half
+-- width's scale, bend (nil draws one), u its cm per unit
+local function strap(lW, bend, u)
+  local b = sym(0.25)
+  if bend then b = bend end
+  local lt = range(0.24, 0.34)
+  local spine = {}
+  for i = 0, 24 do local v = i / 24 spine[i + 1] = { b * v * v, v } end
+  local outline = blade(spine, function(_, v)
+    if v > 0 and v < 1 then return lW * 2.2 * v ^ 0.25 * (1 - v) ^ 0.6 end
+    return 0
+  end)
+  smooth(outline, true) fill(tone(lt), 1)
+  smooth(outline, true) ink.clip()
+  local sd = chance(0.5) and 1 or -1
+  for i = 0, 12 do
+    local v = i / 12
+    if i == 0 then moveto(b * v * v, v) else lineto(b * v * v, v) end
+  end
+  lineto(sd * 2, 1) lineto(sd * 2, 0) close()
+  fill(tone(0.12), 0.28, true)
+  mottle(-lW * 2.5, 0, lW * 2.5, 1, 10, 0.07, lt - 0.2, lt + 0.22, 8, true)
+  smooth(outline, true) stroke(tone(0.06), 1.3 * u, 0.22, true)
+  -- the midrib in white, and faint parallel veins either side
+  local mid = {}
+  for i = 0, 10 do local v = 0.02 + 0.93 * i / 10 mid[i + 1] = { b * v * v, v } end
+  streak(mid, 0.016, 0.002, WHITE, 0.7)
+  for k = 1, 4 do
+    local f = (k < 3 and k - 3 or k - 2) * 0.38
+    local pts = {}
+    for i = 0, 10 do
+      local v = 0.05 + 0.85 * i / 10
+      pts[i + 1] = { b * v * v + f * lW * 2.2 * v ^ 0.25 * (1 - v) ^ 0.6, v }
+    end
+    streak(pts, 0.007, 0.001, WHITE, range(0.18, 0.32))
+  end
+  ink.unclip()
+end
+
+-- ---------------------------------------------------------------- the species' blade
+-- \flo@sshape: the outline's numbers, the base first, then the shape (which may fix the
+-- base), then the apex: lvm the widest point, lkb/lka the base's and apex's superellipse
+-- exponents, ldrop basal lobes, lhl outward lobes, lobl an oblique base, lacu a drip tip,
+-- ltip a notch or a point, lround a round tip whatever the apex
+local LBASE = {
+  cuneate = function(s) s.kb = 1.15 end,
+  rounded = function(s) s.kb = 2 end,
+  truncate = function(s) s.kb = 3.5 end,
+  cordate = function(s) s.kb, s.drop = 2, 1 end,
+  auriculate = function(s) s.kb = 1.5 end,
+  oblique = function(s) s.kb, s.obl = 1.8, 0.08 end,
+}
+local LSHAPE = {
+  linear = function(s) s.vm, s.kb = 0.45, max(s.kb, 2.2) end,
+  lanceolate = function(s) s.vm = 0.3 end,
+  elliptic = function(s) s.vm = 0.5 end,
+  ovate = function(s) s.vm = 0.3 end,
+  obovate = function(s) s.vm = 0.68 end,
+  oblong = function(s) s.vm, s.kb = 0.5, max(s.kb, 2.4) end,
+  orbicular = function(s) s.vm, s.kb, s.round = 0.5, 2, true end,
+  cordate = function(s) s.vm = 0.3 end,
+  reniform = function(s) s.vm, s.kb, s.drop, s.round = 0.42, 2, 0.8, true end,
+  deltoid = function(s) s.vm, s.kb = 0.1, 3.5 end,
+  sagittate = function(s) s.vm, s.kb, s.drop = 0.32, 1.8, 2 end,
+  hastate = function(s) s.vm, s.kb, s.hl, s.drop = 0.38, 1.7, 1.05, 0.2 end,
+}
+local LAPEX = {
+  acute = function(s) s.ka = 1.25 end,
+  acuminate = function(s) s.ka, s.acu = 1.5, true end,
+  obtuse = function(s) s.ka = 2 end,
+  rounded = function(s) s.ka = 2.6 end,
+  emarginate = function(s) s.ka, s.tip = 2.6, -1 end,
+  mucronate = function(s) s.ka, s.tip = 2.3, 1 end,
+}
+local function sshape(leaflet)
+  local s = { W = max(0.035, min(0.6, 0.5 / S.leafaspect)), vm = 0.35, drop = 0, hl = 0, obl = 0, acu = false, tip = 0,
+    round = false }
+  LBASE[S.leafbase](s) LSHAPE[S.leafshape](s) LAPEX[S.leafapex](s)
+  if s.round then s.ka, s.acu = max(s.ka, 2.2), false end
+  if not leaflet and S.attachment == "clasping" and s.drop == 0 then s.drop, s.kb = 0.7, max(s.kb, 2) end
+  return s
+end
+-- \flo@shw: the blade's half-width at v along the spine, and the drop below it
+local function shw(s, v)
+  local h, dy
+  if v < s.vm then
+    local t = (s.vm - v) / s.vm
+    h = t > 0.9995 and 0 or s.W * (1 - t ^ s.kb) ^ (1 / s.kb)
+    dy = s.drop * s.W * sin(180 * (1 - t)) * t
+  else
+    local t = (v - s.vm) / (1 - s.vm)
+    h = t > 0.9995 and 0 or s.W * (1 - t ^ s.ka) ^ (1 / s.ka)
+    if s.acu and t > 0.2 then
+      t = min(1, (t - 0.2) / 0.65)
+      h = h * (1 - 0.7 * t * t * (3 - 2 * t))
+    end
+    dy = 0
+  end
+  if s.hl > 0 then
+    local t = max(0, 1 - abs(v - 0.11) / 0.11)
+    if t > 0 then h = max(h, s.hl * s.W * t) end
+  end
+  return h, dy
+end
+-- \flo@smargin: the body's margin samples { v, profile, left scale, right scale }, and
+-- the teeth's depth and the outline's tension
+local LMARGIN = {
+  undulate = function(m) m.k = 1 end,
+  serrate = function(m) m.k, m.tk, m.td = 2, 0.5, 1.2 end,
+  doubly = function(m) m.k, m.tk, m.td = 2, 0.5, 1.3 end,
+  dentate = function(m) m.k, m.tk, m.td = 2, 0.5, 1.3 end,
+  crenate = function(m) m.k, m.td = 2, 1.5 end,
+}
+local TOOTH = {                   -- each point's phase (plus the tooth's jitter where true) and profile
+  serrate = { { 0, 0 }, { 0.75, 1, true } },
+  doubly = { { 0, 0 }, { 0.38, 0.55 }, { 0.52, 0.3 }, { 0.82, 1, true } },
+  dentate = { { 0, 0 }, { 0.5, 1, true } },
+  crenate = { { 0, 0 }, { 0.2, 0.72 }, { 0.5, 1, true }, { 0.8, 0.72 } },
+}
+local function smargin(s, depth, bn, u, over)
+  local m = { k = 0, tk = 0.8, dep = 0, td = 1 }
+  local name = S.leafmargin
+  if over then name = over end
+  if depth <= 0 and LMARGIN[name] then LMARGIN[name](m) end
+  local ms = {}
+  if m.k < 2 then
+    local n
+    if m.k == 1 then n, m.dep = int(3, 5), (0.05 + S.dissection) * s.W * 2.4 end
+    for k = 0, bn do
+      local v = 0.5 - 0.5 * cos(180 * k / bn)
+      ms[#ms + 1] = { v, m.k == 1 and 0.5 + 0.5 * sin(360 * n * v) or 1, 1, 1 }
+    end
+  else
+    if over then m.dep = min(0.25, S.dissection) * s.W * m.td
+    else m.dep = S.dissection * s.W * m.td end
+    local tn = floor(min(S.teeth, max(4, floor(4 + 8 * u + 0.5))))
+    local tw = 0.81 / tn
+    for k = 0, 4 do ms[#ms + 1] = { 0.12 * (1 - cos(90 * k / 5)), 1, 1, 1 } end
+    for k = 1, tn do
+      local jl, jr, jp = range(0.65, 1.35), range(0.65, 1.35), sym(0.06)
+      local vo = 0.12 + tw * (k - 1)
+      for _, p in ipairs(TOOTH[name]) do ms[#ms + 1] = { vo + tw * (p[1] + (p[3] and jp or 0)), p[2], jl, jr } end
+    end
+    ms[#ms + 1] = { 0.93, 0, 1, 1 }
+    for k = 1, 5 do ms[#ms + 1] = { 0.93 + 0.07 * sin(90 * k / 5), 1, 1, 1 } end
+  end
+  return ms, m
+end
+-- \flo@sblade: the blade along +y, length 1, in flora.leaf's hand with the species' outline.
+-- o: bend (nil draws one), lobes, depth, tone (nil draws one), u (cm per unit), leaflet,
+-- over (a leaflet's margin in place of the species')
+local function sblade(s, o)
+  local lbend = o.bend or sym(0.25)
+  local lobes, depth = o.lobes, o.depth
+  local lt = o.tone or range(0.26, 0.38)
+  local u = o.u
+  local fine, bn = false, 24
+  if u > K(0.6) then fine, bn = true, 36 end
+  -- a leaflet's level of detail: under 1.4 cm a coarser edge, no mottle or side veins,
+  -- under 4 mm a flat shape
+  local lod = 2
+  if o.leaflet and u < K(1.4) then
+    lod, fine, bn = 1, false, 16
+    if u < K(0.4) then lod, bn = 0, 12 end
+  end
+  local bodyw, ent = 1, true
+  if depth > 0 then bodyw, ent = 1 - 0.75 * depth, false end
+  -- the spine, along a curled tip's circle beyond hv
+  local hk, hv, hl, hth, hp, ht, hn, hr = false
+  local function spine0(v) return lbend * v * v - 0.3 * lbend * v, v end
+  local function spine(v)
+    if hk and v > hv then
+      local a = (v - hv) / hl * hth
+      local sa, ca = sin(a), 1 - cos(a)
+      return hp[1] + hr * (sa * ht[1] + ca * hn[1]), hp[2] + hr * (sa * ht[2] + ca * hn[2])
+    end
+    return spine0(v)
+  end
+  local function tangent(v)
+    local ax, ay = spine(max(0, v - 0.01))
+    local bx, by = spine(min(1, v + 0.01))
+    local dx, dy = bx - ax, by - ay
+    local l = sqrt(dx * dx + dy * dy)
+    return dx / l, dy / l
+  end
+  -- a curled tip, on an unlobed leaf drawn in full 8 mm long or more, hairless unless broad
+  if lod == 2 and ent and (S.hairy == 0 or s.W >= K(0.15)) and u > K(0.8) then
+    if chance(min(0.55, max(0, S.curl + 0.25))) then
+      hl = range(0.25, 0.4)
+      hv = 1 - hl
+      local h = shw(s, hv)
+      hth = min(range(120, 190), hl / (1.8 * max(0.01, h)) * 57.29578)
+      if hth > 45 then
+        hk = true
+        local hs = lbend < 0 and -1 or 1
+        hp = { spine0(hv) }
+        local tx = 2 * lbend * hv - 0.3 * lbend
+        local l = sqrt(tx * tx + 1)
+        ht = { tx / l, 1 / l }
+        hn = { hs * ht[2], -hs * ht[1] }
+        hr = hl / hth * 57.29578
+      end
+    end
+  end
+  -- the body along its margin's samples
+  local ms, m = smargin(s, depth, bn, u, o.over)
+  local mn = #ms
+  local pts = {}
+  for i = 1, mn do pts[i] = { spine(ms[i][1]) } end
+  local nr = normals(pts)
+  local left, right = {}, {}
+  for i = 1, mn do
+    local v, sdd = ms[i][1], ms[i][2]
+    local h, dy = shw(s, v)
+    local cut = m.dep * min(1, h / (0.45 * s.W)) * (1 - sdd)
+    -- a curled tip narrows as it turns edge-on, the more the species' leaves twist
+    local hwf = 1
+    if hk and v > hv then
+      local t = min(1, (v - hv) / hl)
+      hwf = 1 - (0.25 + 0.008 * S.twist) * min(1, hth / 150) * t * t * (3 - 2 * t)
+    end
+    local p, q = pts[i], nr[i]
+    local e = max(0, h * bodyw - cut * ms[i][3]) * hwf
+    left[i] = { p[1] + q[1] * e, p[2] + q[2] * e - dy }
+    if s.obl > 0 then h, dy = shw(s, max(0, (v - s.obl) / (1 - s.obl))) end
+    e = max(0, h * bodyw - cut * ms[i][4]) * hwf
+    right[i] = { p[1] - q[1] * e, p[2] - q[2] * e - dy }
+  end
+  -- the tip: notched (emarginate) or a short point (mucronate)
+  if s.tip < 0 then left[mn][2] = left[mn][2] - 0.25 * s.W end
+  if s.tip > 0 then left[mn][2] = left[mn][2] + 0.04 end
+  local outline = {}
+  for i = 1, mn do outline[i] = left[i] end
+  for i = mn - 1, 2, -1 do outline[#outline + 1] = right[i] end
+  local shapes = { outline }
+  local tks = { m.tk }
+  -- a hairy leaf's fringe
+  if S.hairy == 1 and fine then
+    local on = normals(outline)
+    local c = tone(0.1)
+    for i = 1, #outline, 2 do
+      local h = range(0.008, 0.02)
+      local p, q = outline[i], on[i]
+      moveto(p[1], p[2]) lineto(p[1] + q[1] * h, p[2] + q[2] * h)
+    end
+    stroke(c, 0.15, 0.55, false)
+  end
+  -- the lobes, grown out of the body along the spine
+  local veins = {}
+  if depth > 0 then
+    local pal = S.leafmargin == "palmatelobed"
+    local wf, nl = 1, lobes
+    if pal then wf, nl = 1.3, floor(max(1, floor(lobes / 2))) end
+    for kc = 0, 1 do
+      local side = kc == 0 and -1 or 1
+      for ka = 1, nl do
+        local lv, L, ang, reach
+        if pal then
+          lv = 0.04 + 0.025 * ka
+        else
+          lv = 0.1 + 0.72 * (ka - (side > 0 and 0.25 or 0.75)) / lobes
+        end
+        local lx, ly = spine(lv)
+        local tx, ty = tangent(lv)
+        if pal then
+          L = 0.8 * (1 - 0.3 * (ka - 1) / nl) * range(0.9, 1.1)
+          ang = range(30, 40) + 45 * (ka - 1) / max(1, nl - 1)
+        else
+          reach = shw(s, min(0.95, lv + 0.08)) * range(0.95, 1.15)
+          ang = range(38, 58)
+        end
+        local c, sn = cos(ang), sin(ang) * side
+        local dx, dy = tx * c - ty * sn, tx * sn + ty * c
+        if not pal then L = reach / sin(ang) * 0.95 end
+        local lb = sym(0.25) - side * 0.15
+        local function at(t) return lx + dx * L * t - dy * lb * L * t * t, ly + dy * L * t + dx * lb * L * t * t end
+        local lp = {}
+        for k = 0, 11 do lp[k + 1] = { at(k / 11) } end
+        local ln = normals(lp)
+        local ll, lr = {}, {}
+        for k = 0, 11 do
+          local v = k / 11
+          local e = 0
+          if v > 0.2 then
+            local t = (v * 1.4 + ka) * 9
+            e = 0.006 * (1 - abs(2 * (t - floor(t)) - 1)) * L * 4
+          end
+          local g = v > 0 and max(0, sin(180 * v ^ 0.62)) ^ 0.75 or 0
+          local wa = max(0, L * range(0.26, 0.3) * wf * g + e)
+          local wb = max(0, L * range(0.26, 0.3) * wf * g + e)
+          local p, q = lp[k + 1], ln[k + 1]
+          ll[k + 1] = { p[1] + q[1] * wa, p[2] + q[2] * wa }
+          lr[k + 1] = { p[1] - q[1] * wb, p[2] - q[2] * wb }
+        end
+        local mx, my = at(0.45)
+        local ex, ey = at(0.92)
+        veins[#veins + 1] = { lx, ly, mx, my, ex, ey }
+        local lo = {}
+        for k = 1, 12 do lo[k] = ll[k] end
+        for k = 11, 2, -1 do lo[#lo + 1] = lr[k] end
+        shapes[#shapes + 1] = lo
+        tks[#tks + 1] = 0.8
+      end
+    end
+  end
+  local function trace() for i, sh in ipairs(shapes) do smooth(sh, true, tks[i]) end end
+  trace() fill(tone(lt), 1)
+  if lod == 0 then return end
+  trace() ink.clip()
+  -- the darker half
+  local sd = chance(0.5) and 1 or -1
+  for k = 0, 30 do
+    local x, y = spine(k / 30)
+    if k == 0 then moveto(x, y) else lineto(x, y) end
+  end
+  lineto(sd * 2, 1) lineto(sd * 2, -0.3) lineto(0, -0.3) close()
+  fill(tone(0.12), 0.28, true)
+  if lod == 2 then
+    if fine then mottle(-s.W * 2.5, -0.2, s.W * 2.5, 1, 13, 0.11, lt - 0.2, lt + 0.22, 12, true)
+    else mottle(-s.W * 2.5, -0.2, s.W * 2.5, 1, 6, 0.11, lt - 0.2, lt + 0.22, 0, true) end
+  end
+  trace() stroke(tone(0.06), 1.3 * u, 0.22, true)
+  -- midrib and veins in white
+  local mid = {}
+  for k = 0, 10 do mid[k + 1] = { spine(k / 10) } end
+  streak(mid, 0.03, 0.003, WHITE, 0.78)
+  for _, v in ipairs(veins) do
+    local op = range(0.5, 0.75)
+    taper(v[1], v[2], v[3], v[4], v[3] + (v[5] - v[3]) * 0.5, v[4] + (v[6] - v[4]) * 0.5, v[5], v[6], 0.017, 0.002)
+    fill(WHITE, op)
+  end
+  -- veins: pinnate, arcuate (curving up toward the tip) or palmate (two each side from the base)
+  if #veins == 0 and lod == 2 then
+    local vn = S.venation
+    local ka0, arc = 1, vn == "arcuate"
+    if vn == "palmate" then
+      ka0 = 5
+      local lx, ly = spine(0.03)
+      local tx, ty = tangent(0.03)
+      for kc = 0, 3 do
+        local side = kc < 2 and -1 or 1
+        local t, bl = 32, 1.5
+        if kc % 2 == 1 then t, bl = 64, 1.1 end
+        local ang = range(t - 5, t + 5)
+        local c, sn = cos(ang), sin(ang) * side
+        local dx, dy = tx * c - ty * sn, tx * sn + ty * c
+        local L = s.W * bl * range(0.85, 1)
+        local op = range(0.45, 0.7)
+        taper(lx, ly, lx + dx * L * 0.4, ly + dy * L * 0.4, lx + dx * L * 0.75 + tx * L * 0.25, ly + dy * L * 0.75 + ty * L * 0.25,
+          lx + dx * L * 0.9 + tx * L * 0.6, ly + dy * L * 0.9 + ty * L * 0.6, 0.016, 0.002)
+        fill(WHITE, op)
+      end
+    end
+    for ka = ka0, 9 do
+      local v = (ka - 0.3) / 10 * 0.9
+      local sg = ka % 2 == 1 and -1 or 1
+      local lx, ly = spine(v)
+      local tx, ty = tangent(v)
+      local nx, ny = -ty * sg, tx * sg
+      local L = shw(s, v) * bodyw * range(0.75, 0.95)
+      local a, b, c, d, e, f
+      if arc then
+        a, b = lx + nx * L * 0.3 + tx * L * 0.12, ly + ny * L * 0.3 + ty * L * 0.12
+        c, d = lx + nx * L * 0.62 + tx * L * 0.55, ly + ny * L * 0.62 + ty * L * 0.55
+        e, f = lx + nx * L * 0.72 + tx * L * 1.15, ly + ny * L * 0.72 + ty * L * 1.15
+      else
+        a, b = lx + nx * L * 0.4, ly + ny * L * 0.4
+        c, d = lx + nx * L * 0.75 + tx * L * 0.3, ly + ny * L * 0.75 + ty * L * 0.3
+        e, f = lx + nx * L * 0.95 + tx * L * 0.6, ly + ny * L * 0.95 + ty * L * 0.6
+      end
+      local op = range(0.45, 0.7)
+      taper(lx, ly, a, b, c, d, e, f, 0.014, 0.002) fill(WHITE, op)
+    end
+  end
+  ink.unclip()
+  if ent then smooth(outline, true, m.tk) stroke(tone(0.05), 0.18, 0.4, false) end
+  -- the curl's underside: the blade from just past its middle to the tip, paler
+  if hk and hth > 95 then
+    local hva = hv + 0.45 * hl
+    local ka = 0
+    for i = 1, mn do if ka == 0 and ms[i][1] > hva then ka = i end end
+    if ka > 1 and ka < mn then
+      local under = {}
+      for i = ka, mn do under[#under + 1] = left[i] end
+      for i = mn - 1, ka, -1 do under[#under + 1] = right[i] end
+      smooth(under, true, m.tk) fill(tone(min(0.64, lt + 0.26)), 1)
+      smooth(under, true, m.tk) ink.clip()
+      local sp = {}
+      for k = 0, 10 do sp[k + 1] = { spine(hva + (1 - hva) * k / 10) } end
+      streak(sp, 0.02, 0.003, WHITE, 0.6)
+      smooth(under, true, m.tk) stroke(tone(0.06), 1.3 * u, 0.3, true)
+      ink.unclip()
+    end
+  end
+end
+-- \flo@sleaf: stipules, a petiolate leaf's stalk, then the blade. o: bend, lobes, depth, u
+local function sleaf(o)
+  local s = sshape(false)
+  local lsc = min(1, 0.3 / s.W)
+  if S.leafmargin == "palmatelobed" then lsc = min(1, 0.3 / max(s.W, 0.55)) end
+  local u = o.u
+  ink.push()
+  if lsc < 1 then ink.scale(lsc) u = u * lsc end
+  if S.stipules ~= "none" and u > K(0.8) then
+    for kc = 0, 1 do
+      local t = range(40, 65)
+      if kc == 1 then t = -t end
+      local ts = range(0.1, 0.15)
+      ink.push() ink.translate(0, 0.01) ink.rotate(t) ink.scale(ts)
+      M.leaflet({ W = 0.3, tone = 0.3, u = u * ts })
+      ink.pop()
+    end
+  end
+  local lpf = S.attachment == "petiolate" and range(0.1, 0.2) or 0
+  if lpf > 0 then
+    local c = tone(0.16)
+    taper(0, 0, 0, lpf / 3, 0, 2 * lpf / 3, 0, lpf + 0.01, 0.024, 0.014) fill(c, 1)
+  end
+  ink.push()
+  if lpf > 0 then ink.translate(0, lpf) ink.scale(1 - lpf) u = u * (1 - lpf) end
+  sblade(s, { bend = o.bend, lobes = o.lobes, depth = o.depth, u = u })
+  ink.pop()
+  ink.pop()
+end
+-- \flo@sleaflet: a leaflet in the species' hand, no stalk or stipules, two or three lobes a
+-- side; +y, length 1; lt its tone, u its length on the page in cm
+local LOBED = { lobed = true, pinnatifid = true, palmatelobed = true }
+local function sleaflet(lt, u)
+  local depth, lobes, over = 0, 3, nil
+  local lm = S.leafmargin
+  if LOBED[lm] then
+    -- under 7 mm, scallops instead of lobes (a pinnatifid leaflet's: deep teeth)
+    if u < K(0.7) then over = lm == "pinnatifid" and "dentate" or "crenate"
+    else depth, lobes = min(0.85, max(0.3, S.dissection)), floor(max(2, min(3, S.teeth))) end
+  end
+  local s = sshape(true)
+  local lsc = min(1, 0.3 / s.W)
+  if lm == "palmatelobed" then lsc = min(1, 0.3 / max(s.W, 0.55)) end
+  ink.push()
+  if lsc < 1 then ink.scale(lsc) u = u * lsc end
+  sblade(s, { tone = lt, depth = depth, lobes = lobes, u = u, leaflet = true, over = over })
+  ink.pop()
+end
+
+-- ---------------------------------------------------------------- compound leaves
+-- the rachis and stalks are stroked with the pen compoundleaf sets: P.c, P.w (bp)
+local RP = {}
+local function rachis(y0, y1) moveto(0, y0) lineto(0, y1) stroke(RP.c, RP.w, 1, false) end
+-- \flo@pinnate: pairs sized to peak mid-rachis, then a terminal leaflet or a tendril;
+-- lpt the leaf's length in pt, n pairs, pl the longest leaflet, lt the tone, tend tendrils
+local function pinnate(lpt, n, pl, lt, tend)
+  local plw = max(0.035, min(0.6, 0.5 / S.leafaspect))
+  local pend, gap, pmax, pterm
+  if tend then
+    pend, gap = 0.92, 0.68 / max(1, n - 1)
+    pmax = min(pl, 0.45 * gap / plw)
+  else
+    pmax = min(pl, 0.3465 / (max(1, n - 1) * plw + 0.495))
+    pterm = min(pl, 1.1 * pmax)
+    pend = 1 - pterm
+    gap = (pend - 0.23) / max(1, n - 1)
+  end
+  rachis(0, pend)
+  for j = 1, n do
+    local v = 0.2 + gap * (j - 1)
+    local ll = pmax * (0.72 + 0.28 * sin(180 * (j - 0.5) / n))
+    for k = 0, 1 do
+      local ang = range(50, 68) - 14 * (j - 1) / n
+      local dv = sym(0.015)
+      ink.push() ink.translate(0, v + dv) ink.rotate(k == 0 and ang or -ang) ink.scale(ll)
+      sleaflet(range(lt - 0.07, lt + 0.07), lpt * ll / 28.45276)
+      ink.pop()
+    end
+  end
+  if tend then
+    local c, w = tone(0.22), 0.25 * 72 / 72.27
+    local tn = chance(0.4) and 2 or 1
+    for q = 1, tn do
+      ink.push() ink.translate(0, pend)
+      local t
+      if tn == 1 then t = sym(15)
+      else
+        t = range(10, 30)
+        if q == 2 then t = -t end
+      end
+      ink.rotate(t)
+      smooth(vcurl(range(0.35, 0.55)), false) stroke(c, w, 1, false)
+      ink.pop()
+    end
+  else
+    ink.push() ink.translate(0, pend) ink.scale(pterm)
+    sleaflet(lt, lpt * pterm / 28.45276)
+    ink.pop()
+  end
+end
+-- \flo@bipinnate: pinnae that are themselves odd-pinnate, and a terminal pinna
+local function bipinnate(lpt, lt)
+  local bk = floor(min(3, max(2, (S.leaflets + 1) / 3)))
+  local bl = floor(min(7, max(3, S.leaflets)))
+  lt = lt + 0.06
+  rachis(0, 0.7)
+  for m = 1, bk do
+    local v = 0.16 + 0.44 * (m - 1) / max(1, bk - 1)
+    local s = 0.48 * (1 - 0.5 * (m - 1) / bk)
+    local n = floor(max(2, bl - m + 1))
+    for p = 0, 1 do
+      local ang = range(48, 64) - 12 * (m - 1) / bk
+      ink.push() ink.translate(0, v) ink.rotate(p == 0 and ang or -ang) ink.scale(s)
+      pinnate(lpt * s, n, 0.4, lt, false)
+      ink.pop()
+    end
+  end
+  ink.push() ink.translate(0, 0.66) ink.scale(0.34)
+  pinnate(lpt * 0.34, floor(max(2, bl - bk)), 0.4, lt, false)
+  ink.pop()
+end
+-- \flo@palmate: leaflets from a petiole's tip, the center one the largest, from the outside in
+local function palmate(lpt, n, lt)
+  local pp = range(0.3, 0.38)
+  rachis(0, pp)
+  local hs = min(135, 20 * n - 10)
+  for q = 1, n do
+    local j = q % 2 == 1 and (q + 1) // 2 or n + 1 - q // 2
+    local f = (j - (n + 1) / 2) / max(1, (n - 1) / 2)
+    local ang = -f * hs + sym(6)
+    local ll = (1 - pp) * (1 - 0.45 * f * f)
+    ink.push() ink.translate(0, pp) ink.rotate(ang) ink.scale(ll)
+    sleaflet(range(lt - 0.06, lt + 0.06), lpt * ll / 28.45276)
+    ink.pop()
+  end
+end
+-- \flo@trifoliate: two side leaflets and a larger end one on a short stalk
+local function trifoliate(lpt, lt)
+  local pp, ps = range(0.3, 0.4), range(0, 0.1)
+  rachis(0, pp + ps)
+  for n = 0, 2 do
+    local ang, ll, pv
+    if n < 2 then
+      ang = range(48, 68)
+      if n == 1 then ang = -ang end
+      ll, pv = 0.8 * (1 - pp), pp
+    else ang, ll, pv = 0, 1 - pp - ps, pp + ps end
+    ink.push() ink.translate(0, pv) ink.rotate(ang) ink.scale(ll)
+    sleaflet(range(lt - 0.06, lt + 0.06), lpt * ll / 28.45276)
+    ink.pop()
+  end
+end
+-- the compound branch of \flo@leaf: stipules, the pen for rachis and stalks, the leaf
+local function compoundleaf(lpt)
+  local lt = range(0.24, 0.4)
+  if S.stipules ~= "none" then
+    local a, b, W = 0.05, 0.08, 0.3
+    if S.stipules == "leafy" then a, b, W = 0.1, 0.16, 0.36 end
+    for kc = 0, 1 do
+      local t = range(55, 80)
+      if kc == 1 then t = -t end
+      local ts = range(a, b)
+      ink.push() ink.translate(0, 0.01) ink.rotate(t) ink.scale(ts)
+      M.leaflet({ W = W, tone = 0.3, u = lpt * ts / 28.45276 })
+      ink.pop()
+    end
+  end
+  RP.c, RP.w = tone(0.07), max(0.25, 0.006 * lpt)
+  local cp = S.compound
+  if cp == "pinnate" then pinnate(lpt, floor(min(7, S.leaflets)), 0.4, lt, S.tendrils == 1) end
+  if cp == "bipinnate" then bipinnate(lpt, lt) end
+  if cp == "palmate" then palmate(lpt, S.leaflets, lt) end
+  if cp == "trifoliate" then trifoliate(lpt, lt) end
+end
+
+-- ---------------------------------------------------------------- the leaf
+-- the leaf's size on the page in cm (\flo@vl@u) as TeX finds it: its length (cm, held in sp)
+-- times 28.45276 and divided back, both in pgfmath, which can lose a scaled point. Only this
+-- one number is TeX's own: it decides a leaf's teeth and detail, and the layout gives some
+-- leaves round lengths (19/16 cm) that sit exactly on those thresholds
+local pm = require("florilegium-pgfmath")
+local TOPT, FROMPT = pm.compile("%1*28.45276"), pm.compile("(%1)/28.45276")
+local function leafu(len)
+  local x = floor(len * 65536 + 0.5)
+  return FROMPT({}, { TOPT({}, { x }) }) / 65536
+end
+-- \flo@leaf: the species' leaf along +y, length 1; len its length in cm, bend its bend, from a
+-- sheath's top where it has one (sheath: its direction from the leaf's, degrees, and width)
+function M.leaf(len, bend, sheath)
+  if sheath and S.attachment == "sheathing" then
+    local l = range(0.14, 0.22)
+    local x, y = -l * sin(sheath[1]), l * cos(sheath[1])
+    local w = sheath[2]
+    taper(0, 0, x / 3, y / 3, 2 * x / 3, 2 * y / 3, x, y, w, 0.8 * w) fill(tone(0.34), 1)
+    taper(0, 0, x / 3, y / 3, 2 * x / 3, 2 * y / 3, x, y, w, 0.8 * w) stroke(tone(0.08), 0.2, 0.6, false)
+    ink.push() ink.translate(x, y) M.leaf(len, bend) ink.pop()
+    return
+  end
+  local u, lpt = leafu(len), len * 28.45276
+  local cp = S.compound
+  if cp == "simple" then
+    if S.venation == "parallel" then strap(max(0.025, min(0.12, 0.42 / S.leafaspect)), bend, u)
+    else
+      local depth, lobes = 0, 3
+      if LOBED[S.leafmargin] then depth, lobes = min(0.85, max(0.3, S.dissection)), floor(max(2, min(6, S.teeth))) end
+      sleaf({ bend = bend, lobes = lobes, depth = depth, u = u })
+    end
+  else
+    compoundleaf(lpt)
+  end
+end
+
 -- ================================================================ organs
 -- the layout's questions, in cm: the disc an inflorescence at scale k fills (its center's
 -- offset along the axis, its radius, its kind), and how much later than the top one at
@@ -1820,10 +2432,26 @@ end
 --   unit     k (scale), season, late: the inflorescence
 --   budding  k: buds on stalks       tendril  size     bloom  d (diameter cm), stage
 --   ghost    d: a plain pale flower of the species, as the garden's ghost
--- Returns false for a kind not yet drawn here (leaf, frond, visitor).
-local DRAWN = { unit = true, budding = true, tendril = true, bloom = true, ghost = true }
+--   leaf     len (cm), bend, lc (0..1, the autumn draw), season, fore (a foreshortening),
+--            sheath ({direction from the leaf's in degrees, width in the leaf's units})
+-- Returns false for a kind not yet drawn here (frond, visitor).
+local DRAWN = { unit = true, budding = true, tendril = true, bloom = true, ghost = true, leaf = true }
+-- the organ's numbers as TeX holds them, in whole scaled points: a length the layout caps at
+-- 19/16 cm then gives the library's count of teeth, not one less
+local function sp(x) return floor(x * 65536 + 0.5) / 65536 end
+local function held(o)
+  local h = {}
+  for k, v in pairs(o) do
+    if type(v) == "number" then h[k] = sp(v)
+    elseif type(v) == "table" then h[k] = { sp(v[1]), sp(v[2]) }
+    else h[k] = v end
+  end
+  return h
+end
 function M.draw(kind, s, z, o)
   if not DRAWN[kind] then return false end
+  o = held(o)
+  if kind == "leaf" and full(s).compound == "frond" then return false end
   S = full(s)
   G = ink.pgfrng(z) G.step() G.step()             -- \flo@drawseed
   M.fresh()
@@ -1838,6 +2466,13 @@ function M.draw(kind, s, z, o)
     ink.rotate(90) M.tendril(o.size)
   elseif kind == "bloom" then
     M.bloom(o.d, o.stage, {})
+  elseif kind == "leaf" then
+    ink.scale(o.len)
+    if o.fore then yscale(o.fore) end
+    -- autumn turns some leaves copper; a spring leaf is young and pale
+    if S.turns == 1 and o.lc < max(0, o.season - 0.9) then pen.accent = true end
+    if o.season < 0.5 then pen.lift = 0.3 * (1 - o.season / 0.5) end
+    M.leaf(o.len, o.bend, o.sheath)
   else                                            -- the ghost: a plain rotate flower, pale
     pen.lift = 0.62
     local tq = stone()
