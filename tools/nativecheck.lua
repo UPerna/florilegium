@@ -3,6 +3,7 @@
 -- two content streams compared token by token.
 --   texlua tools/nativecheck.lua [DOCSEEDS [TOL]]     (from the repo root; default 12 0.1)
 --   texlua tools/nativecheck.lua pages [N [TOL]]     (whole grown pages, seeds 1..N; default 20)
+--   texlua tools/nativecheck.lua forms [TOL]         (species until every flower trait's value is seen)
 -- For the first DOCSEEDS documents' pools (8 species each): blooms of three sizes, open and
 -- past their best, a ghost, the inflorescence at two scales. Each organ is one of
 --   same      the same operators, every number within TOL bp
@@ -105,6 +106,36 @@ local cases = {}
 local function case(name, kind, sp, z, o) cases[#cases + 1] = { name = name, kind = kind, sp = sp, z = z, o = o } end
 local z = 12345
 local function nextz() z = (z * 69621) % 2147483647 return z end
+-- forms: species chosen until every value of the flower's traits has been seen, each drawn
+-- as a bud, open at three sizes (a floret, a blossom, a flower), past its best and in fruit,
+-- held to either side, and as a ghost
+if arg[1] == "forms" then
+  ndoc = 0
+  tol = tonumber(arg[2]) or 0.1
+  local seen, TR = {}, { "form", "orient", "fruit", "corona", "guides", "color", "apex", "stamens", "petalshape",
+    "merovar", "clade", "inflo" }
+  local roles = { "any", "hero", "spray", "monocot" }
+  for i = 1, 4000 do
+    local role = roles[i % 4 + 1]
+    local sp = species.sample(i, role)
+    local new = false
+    for _, t in ipairs(TR) do
+      local key = t .. "=" .. tostring(sp[t])
+      if not seen[key] then seen[key] = true new = true end
+    end
+    local key = "fo=" .. sp.form .. "/" .. sp.orient
+    if not seen[key] then seen[key] = true new = true end
+    if new and sp.form ~= "none" then
+      local s = { seed = i, role = role }
+      local name = fmt("seed %d %s %s/%s/%s", i, role, sp.form, sp.orient, sp.fruit)
+      for _, c in ipairs({ { 0.2, 1.2 }, { 0.7, 0.2 }, { 0.7, 0.6 }, { 0.7, 1.5 }, { 1.08, 1.6 }, { 1.3, 1.2 } }) do
+        case(name .. fmt(" bloom %.1f at %.2f", c[2], c[1]), "bloom", s, nextz(), { d = c[2], stage = c[1] })
+      end
+      case(name .. " ghost", "ghost", s, nextz(), { d = 2.2 })
+      case(name .. " unit 1", "unit", s, nextz(), { k = 1, season = 0.55, late = 0 })
+    end
+  end
+end
 for doc = 0, ndoc - 1 do
   for i, sp in ipairs(species.pool(doc)) do
     local s = { seed = sp.seed, role = sp.role }

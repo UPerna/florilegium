@@ -132,8 +132,20 @@ local function out(s) local st = M.stream if st then st(s) else OUT[#OUT + 1] = 
 function M.nvpen()
   local nv = M.nv
   nv.pen.lift = R.lift / U nv.pen.accent = R.rampname == "flo@aramp"
+  -- the species, sampled again (once) from its seed and role; the ghost's changes kept
+  local key = R["v@seed"] .. "/" .. R["v@role"]
+  local s = M.nvcache[key]
+  if not s then s = species.sample(R["v@seed"], R["v@role"]) M.nvcache[key] = s end
+  if R["v@form"] ~= s.form or R["v@merosity"] ~= s.merosity * U then
+    local c = {}
+    for k, v in pairs(s) do c[k] = v end
+    c.form, c.merosity = R["v@form"], R["v@merosity"] // U
+    s = c
+  end
+  nv.species(s)
   return nv
 end
+M.nvcache = {}
 function M.nvval(v, whole) if v == nil or v == "" then return nil end if whole then return v // U end return v / U end
 local function P(x, y) return "\\pgfqpoint{" .. str(x) .. "pt}{" .. str(y) .. "pt}" end
 local function moveto(x, y) out("\\pgfpathmoveto{" .. P(x, y) .. "}") end
@@ -393,7 +405,7 @@ end
 
 -- \flo@vpetal: along +y, length 1, from \flo@vp@pointed, @W, @bend, @tone, @ns, @heart, @u
 local function vpetal()
-  if M.nv then
+  if M.stream then
     local val = M.nvval
     return M.nvpen().petal({ pointed = R["vp@pointed"] == U, W = val(R["vp@W"]), bend = val(R["vp@bend"]),
       tone = R["vp@tone"] / U, ns = val(R["vp@ns"], true), heart = R["vp@heart"] == U, u = R["vp@u"] / U,
@@ -528,7 +540,7 @@ local function vheart(n)
 end
 -- \flo@vflower{u}{n}: n broad petals seen from the front, petal length 1
 local function vflower(u, n)
-  if M.nv then
+  if M.stream then
     local val = M.nvval
     return M.nvpen().flower(u / U, n // U, { pointed = R["vf@pointed"] == U, tone = val(R["vf@tone"]),
       W = val(R["vf@W"]), ns = val(R["vf@ns"], true), notchp = R["vp@notchp"] / U, notchk = R["vp@notchk"] / U })
@@ -934,7 +946,7 @@ local function vlily(u)
 end
 -- \flo@vfloret{r}{n}: a small flower of n petals, radius 1; r its radius in cm
 local function vfloret(r, n)
-  if M.nv then
+  if M.stream then
     local star = R["vf@star"]
     if star == "" then star = nil else star = star == U end
     return M.nvpen().floret(r / U, n // U, { star = star, tone = M.nvval(R["vf@tone"]) })
@@ -1000,6 +1012,7 @@ local function vfloret(r, n)
 end
 -- \flo@vbud{u}: a teardrop and three sepals, base at the origin, +y, length 1
 local function vbud(u)
+  if M.stream then return M.nvpen().bud(u / U, M.nvval(R["vf@tone"])) end
   V.bend = sym(K"0.1")
   loop("#kb", 0, 18, function() V.v = E"#kb/18" V.sx = E"@bend*@v*@v" put(R["#kb"] + 1, R.sx, R.v) end)
   normals(19)
@@ -1068,7 +1081,7 @@ end
 local vblossom, vboss
 -- \flo@sdaisy{d}: a daisy head, diameter 1
 local function sdaisy(d)
-  if M.nv then
+  if M.stream then
     return M.nvpen().daisy(d / U, tr("merosity") // U, { tone = M.nvval(R["vf@tone"]),
       notchp = R["vp@notchp"] / U, notchk = R["vp@notchk"] / U })
   end
@@ -1101,6 +1114,9 @@ local function sdaisy(d)
 end
 -- \flo@sflower{d}: the species' flower face on, diameter 1; d its diameter in pt
 local function sflower(d)
+  if M.stream then
+    return M.nvpen().sflower(d / U, { tone = M.nvval(R["vf@tone"]), notchp = R["vp@notchp"] / U, notchk = R["vp@notchk"] / U })
+  end
   V.sfd = d V.form = tr("form") V.nn = tr("merosity")
   if tr("merovar") == U then
     V.t = int(1, 10)
@@ -1146,7 +1162,7 @@ local function sflower(d)
 end
 -- \flo@vboss: the rose family's ring of stamens, face on
 function vboss()
-  if M.nv then return M.nvpen().boss(tr("stamens") == "exserted") end
+  if M.stream then return M.nvpen().boss(tr("stamens") == "exserted") end
   if tr("stamens") == "exserted" then V.bl = K"0.04" else V.bl = 0 end
   V.bn = int(36, 52) V.bph = range(0, 360 * U)
   local spk, spa = {}, {}
@@ -1758,7 +1774,7 @@ function leaf_(len)
 end
 -- \flo@vblossom{r}{n}: flora.blossom, n round petals, radius 1; r its radius in cm
 function vblossom(r, n)
-  if M.nv then return M.nvpen().blossom(r / U, n // U, { tone = M.nvval(R["vf@tone"]) }) end
+  if M.stream then return M.nvpen().blossom(r / U, n // U, { tone = M.nvval(R["vf@tone"]) }) end
   V.bnp = n V.spin = range(0, 72 * U)
   if R["vf@tone"] == "" then V.tq = range(K"0.30", K"0.45") else V.tq = R["vf@tone"] end
   loop("#ka", 0, function() return I("bnp") - 1 end, function()
@@ -1812,6 +1828,7 @@ local function vclock()
 end
 -- \flo@fruit: the species' fruit along +y, length 1; \flo@fu its cm per unit
 local function fruit()
+  if M.stream then return M.nvpen().fruit(R.fu / U) end
   V.fr = tr("fruit") V["vf@tone"] = ""
   local fr = R.fr
   if fr == "hip" then
@@ -2493,6 +2510,10 @@ end
 -- \flo@bloom{diameter cm}{stage}: a bud below 0.3, the fruit above 1.15, past its best
 -- above 1; seen as \flo@bview says
 local function bloom(d, st)
+  if M.stream then
+    return M.nvpen().bloom(d / U, st / U, { side = M.nvval(R.bside), fan = R.bfan == U,
+      notchp = R["vp@notchp"] / U, notchk = R["vp@notchk"] / U })
+  end
   V.bd = d V.bst = st stone() VW.bview()
   if R.bst < K"0.3" then
     V.oarg = E"0.55*@bd"
