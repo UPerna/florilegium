@@ -40,6 +40,8 @@ jobs:
             python3 tools/planner_oracle.py &&
             texlua tools/botanicalcheck.lua --legacy-layout &&
             python3 tools/botanical_oracle.py &&
+            texlua tools/periodiccheck.lua &&
+            python3 tools/periodic_oracle.py &&
             texlua tools/layoutcheck.lua &&
             texlua tools/spacecheck.lua &&
             texlua tools/initialcheck.lua &&
@@ -61,6 +63,7 @@ jobs:
             build/scenes/
             build/planner/
             build/botanical/
+            build/periodic/
 
   portable:
     runs-on: ubuntu-latest

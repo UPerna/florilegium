@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_stage": "08",
+  "current_stage": "09",
   "prompt_sha256": "8D25740D944FC98943FD005737BD825215CFCF6F894218790E140EDE8EE3F09E",
   "stages": [
     {
@@ -251,7 +251,7 @@
     {
       "id": "08",
       "title": "migrate and extend the botanical generator safely",
-      "status": "in_progress",
+      "status": "passed",
       "prerequisites": "07",
       "acceptance_items": [
         "old examples and QC remain passing through both legacy and new entry points; chosen default path comparisons hold; independent crop checks find no new clipping; new semantic instances serialize/replay; the new nonrectangular example is structurally validated and visually inspected. Explain any unavoidable compatibility differences with measured evidence before marking the stage passed."
@@ -265,7 +265,10 @@
         "Complete-capture/segmented shared PDF smoke passed both Lua runtimes; full-quality bounded block guard replaces the rejected monolithic watercolor graph without loosening limits.",
         "Formal conformance scripts and actual Lua/Xe example parity wired; local final suite running and native acceptance unrun.",
         "Current exact-source Lua5.3/Lua5.4 both passed61contract/145replay/91geometry/56scene/82planner/18botanical, with12 identical actual output files and18 max-size probes.",
-        "Independent 645 exact/Decimal paint-envelope checks and masked/unmasked pixel equality passed. Actual original/shared native authored/grown raster bounds identical; tiny measured mean channel differences. Current PDF/SVG visual pairs reviewed."
+        "Independent 645 exact/Decimal paint-envelope checks and masked/unmasked pixel equality passed. Actual original/shared native authored/grown raster bounds identical; tiny measured mean channel differences. Current PDF/SVG visual pairs reviewed.",
+        "Published guarded fast-forward; normal independent Git fetch verified31 intended file bytes/modes and214 inherited objects/modes; exact parent and tree; complete history bundle and source ZIP saved.",
+        "Exact-head CI41706823596 both required jobs passed; native19 botanical checks and independent645 envelopes;239 verified source-kit hashes and extracted Lua/Xe builds.",
+        "All14 original/observed document-engine pairs preserved pixels and searchable text across42 pages. Actual fresh native images inspected. Ten native/local outputs including all6 PDF/SVG vectors and new panel instance/recipe/scene byte-identical. Two legacy manifests have only624 numeric differences, max3.552713678800501e-15cm; no nonnumeric differences."
       ],
       "evidence_paths": [
         "docs/architecture/BOTANICAL.md",
@@ -274,25 +277,38 @@
         "tools/botanical_enginecheck.py",
         "artifacts/receipts/08/"
       ],
-      "tested_code_revision": "working source 17d56eb5b00671d8b1e34fa44eeeef32e2a80ba095674851dd0c5e4205814f11; parent e5a7b99; exact-head CI pending",
-      "local_commit": null,
-      "verified_remote_revision": null,
-      "next_action": "Guarded atomic publication expected e5a7b99, independent Git bytes/tree verification and exact-head required native checks plus fresh visual review."
+      "tested_code_revision": "9041fafcdc5587126d75aecd8b03d6bcb1898412",
+      "local_commit": "9041fafcdc5587126d75aecd8b03d6bcb1898412",
+      "verified_remote_revision": "9041fafcdc5587126d75aecd8b03d6bcb1898412",
+      "next_action": "Stage09 periodic construction and symmetry"
     },
     {
       "id": "09",
       "title": "periodic tiling and symmetry infrastructure",
-      "status": "pending",
+      "status": "in_progress",
       "prerequisites": "08",
       "acceptance_items": [
         "the supported tiling registry and its limits are inspectable, standard fixtures are correct independently of rendering, and later families can attach motifs using shared boundary ports. Periodicity is a declared mathematical construction property, not an inference from the size of an exported rectangle."
       ],
-      "observed_results": null,
-      "evidence_paths": null,
+      "observed_results": [
+        "Isolated work/stage09 created at verified08 9041fafcdc5587126d75aecd8b03d6bcb1898412; older dirty worktrees untouched.",
+        "Seven exact affine group descriptors and five certified periodic quotients; actual rotated negative/nonzero world patches, directed seams, stable owners and rational ports implemented.",
+        "Initial source ffd3dc459e24ca70ca5be5be1802bcfd8fc79c7befc11fa95422132ecbd1f9cb passed33 Lua checks per runtime. Independent exact area, vertex types, edge classes and potential-overlap SAT proved all five quotients.",
+        "Initial distinct-viewport raster: PDF pixel-exact, SVG seven changed pixels out of17056 (peak4). Keeping world paths and stable paint order confirmed54 exact common paths but retained the same backend raster diagnostic. Added exact same physical window witnesses from independent source patches; latest full suite pending."
+      ],
+      "evidence_paths": [
+        "docs/architecture/PERIODIC.md",
+        "pattern_wallpaper.lua",
+        "pattern_periodic_templates.lua",
+        "pattern_periodic.lua",
+        "tools/periodiccheck.lua",
+        "tools/periodic_oracle.py",
+        "artifacts/receipts/09/"
+      ],
       "tested_code_revision": null,
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+      "next_action": "Poll current full suite33383; require exact identical common-window PDF/SVG/plan and pixels, verify all final local rasters and source bytes, then guarded publication/required exact-head native CI."
     },
     {
       "id": "10",

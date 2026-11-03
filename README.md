@@ -496,3 +496,5 @@ the pinned fork contributions adapted here. [VALIDATION.md](VALIDATION.md) recor
 the checks and practical limits. [QC.md](QC.md) records the full review and repairs.
 
 Botanical compatibility and the named asymmetric-garden recipe are described in [Botanical patterns](docs/architecture/BOTANICAL.md).
+
+The [periodic tiling registry](docs/architecture/PERIODIC.md) describes the available lattices, wallpaper groups and shared boundary ports.
