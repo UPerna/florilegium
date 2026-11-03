@@ -39,6 +39,23 @@ function M.rng(seed)
   function r.pick(t) return t[1 + floor(#t * r.u())] end
   function r.normal() local u1 = math.max(r.u(), 1e-12) return sqrt(-2 * math.log(u1)) * cos(2 * pi * r.u()) end
   function r.fork() return M.rng(floor(r.u() * 4294967295)) end   -- an independent stream
+  -- the i in 1..n with the largest w[i] * range(lo, hi), drawing for each i (only those with
+  -- near[i] <= reach, given near): the growth's search for room, the same draws and the same
+  -- numbers as calling range in a loop, the generator inlined (a fifth of a page's time)
+  function r.best(w, n, lo, hi, near, reach)
+    local best, bi, d, st = -1, nil, hi - lo, s
+    for i = 1, n do
+      if not near or near[i] <= reach then
+        st = (st + 0x6D2B79F5) & 0xffffffff
+        local t = ((st ~ (st >> 15)) * (st | 1)) & 0xffffffff
+        t = (t ~ (t + (((t ~ (t >> 7)) * (t | 61)) & 0xffffffff))) & 0xffffffff
+        local v = w[i] * (lo + d * (((t ~ (t >> 14)) & 0xffffffff) / 4294967296))
+        if v > best then best, bi = v, i end
+      end
+    end
+    s = st
+    return best, bi
+  end
   function r.save() return s end                                  -- replay a draw (animation)
   function r.load(v) s = v end
   return r

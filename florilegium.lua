@@ -13,7 +13,7 @@ local M = { ink = ink, flora = flora }
 -- stops such a mix before anything is drawn. A release changes all of them together.
 M.version = "1.3"
 local PARTS = { "ink", "flora", "grow", "authored", "figures", "theme-geometric", "theme-math", "initial", "svg", "species",
-  "pgfmath", "organs" }
+  "pgfmath", "organs", "native" }
 
 local function where(file, format, module)     -- " (path)" for the message, if it can be found
   local ok, path = pcall(function() return kpse.find_file(file, format) end)
@@ -355,11 +355,11 @@ M.density, M.intensity = 1, 1
 local function pale() return 0.85 * (1 - math.max(0, math.min(1, M.intensity))) end
 
 -- the grown margin's plants are species (florilegium-species.lua), drawn by
--- florilegium-organs.lua: loaded, and its version checked, with the first grown page
+-- florilegium-native.lua: loaded, and its version checked, with the first grown page
 local organs = false
 local function use_organs()
   if organs then return end
-  require("florilegium-organs")
+  require("florilegium-native")
   M.check_versions()
   organs = true
 end

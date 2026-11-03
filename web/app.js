@@ -630,14 +630,18 @@ async function show(m) {
   if (gardenURL) URL.revokeObjectURL(gardenURL)
   gardenURL = URL.createObjectURL(new Blob([m.svg], { type: 'image/svg+xml' }))
   const img = $('#garden')
-  img.onload = () => $('#proof').classList.remove('growing')
+  // the text and the status tell what grew once the garden shows, not while its picture loads
+  const took = m.ms < 950 ? `${Math.max(10, Math.round(m.ms / 10) * 10)} milliseconds` : `${(m.ms / 1000).toFixed(1)} seconds`
+  img.onload = () => {
+    $('#proof').classList.remove('growing')
+    pageText(m)
+    fit()
+    status(`This proof grew in ${took}, here in your browser.`)
+  }
   img.src = gardenURL
   layout()
-  pageText(m)
   refresh()
   $('#download').disabled = false
-  const took = m.ms < 950 ? `${Math.max(10, Math.round(m.ms / 10) * 10)} milliseconds` : `${(m.ms / 1000).toFixed(1)} seconds`
-  status(`This proof grew in ${took}, here in your browser.`)
 }
 
 $('#download').onclick = () => {

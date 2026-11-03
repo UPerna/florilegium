@@ -362,7 +362,7 @@ end
 -- its own primitives): each main stem is one plant of
 -- florilegium-species.lua, 1 the hero, 2 a second showy plant, 3 the monocot, and the
 -- footer a spray, all four from the document's pool. Every stem point knows its plant, so a branch
--- carries its own plant's flowers, buds, leaves and tendrils, which florilegium-organs.lua
+-- carries its own plant's flowers, buds, leaves and tendrils, which florilegium-native.lua
 -- draws. The rows below stand in for the motifs; they are made per page and never
 -- touch the motif table. The modules load with the first species page.
 local SPC, ORG
@@ -450,7 +450,7 @@ local function species_rows(sp, i, sea)
 end
 
 -- the species' visitors (M7f), sampled from genomes of their own (florilegium-species.lua's
--- vsample) and drawn by florilegium-organs.lua. A visitor's size on the page (cm) from
+-- vsample) and drawn by florilegium-native.lua. A visitor's size on the page (cm) from
 -- its real one (mm), small ones enlarged most, as an illustrator draws them: a butterfly
 -- about 1.3 cm across and a bee 0.8 cm long, as v1.3's; a bird half as large again
 local function vsize(v) return 0.29 * v.size ^ 0.38 * (v.group == "bird" and 1.4 or 1) end
@@ -458,7 +458,7 @@ local function vsize(v) return 0.29 * v.size ^ 0.38 * (v.group == "bird" and 1.4
 -- dragonfly's four
 local VROOM = { lepidoptera = 0.5, bee = 0.6, fly = 0.6, beetle = 0.5, odonate = 0.72, bird = 0.6, larva = 0.8,
   snail = 0.6 }
-local VSP = { seed = 0, role = "visitor" }           -- florilegium-organs' draw wants a species; a visitor has none
+local VSP = { seed = 0, role = "visitor" }           -- the organs' draw wants a species; a visitor has none
 local function vdraw(z, role, s) ORG.draw("visitor", VSP, 0, { seed = z, role = role, size = s }) end
 -- a visitor as a motif row that flies in (pollinators, by the plant whose row it is; a
 -- dragonfly by the monocot): one of each a page, of its own size, a butterfly's head up
@@ -538,11 +538,9 @@ function M.page(g)
   local comm, rowsof, osea = nil, nil, nil
   local stemv                               -- species: a ladybird for a stem
   if spc then
-    if not ORG then SPC, ORG = require("florilegium-species"), require("florilegium-organs") end
+    if not ORG then SPC, ORG = require("florilegium-species"), require("florilegium-native") end
     comm = SPC.community(SPC.pool(g.docseed or 0), ink.rng(g.seed * 7919 + 307))
     osea = season(0.3, 0.75, 1.25)
-    ORG.keep = anim and true or false
-    ORG.forget()
     rowsof = {}
     for i, sp in ipairs(comm) do
       local rows = species_rows(sp, i, osea)
@@ -1351,13 +1349,7 @@ function M.page(g)
 
 
   for _ = 1, 400 do
-    local best, bi = -1, nil
-    for i = 1, #gx do
-      if sdist[i] <= REACH then
-        local v = free[i] * layout.range(0.85, 1.15)
-        if v > best then best, bi = v, i end
-      end
-    end
+    local _, bi = layout.best(free, #gx, 0.85, 1.15, sdist, REACH)
     if not bi or free[bi] < SMALLEST / sqrt(D) or nbranch >= NBMAX then break end
     local f, px, py = free[bi], gx[bi], gy[bi]
     local S, sd = nearest_stem(px, py)
@@ -1461,11 +1453,7 @@ function M.page(g)
   local accents, fills = 0, 0
   local maxfill = floor(28 * af * D)
   for _ = 1, 600 do
-    local best, bi = -1, nil
-    for i = 1, #gx do
-      local v = free[i] * layout.range(0.85, 1.15)
-      if v > best then best, bi = v, i end
-    end
+    local _, bi = layout.best(free, #gx, 0.85, 1.15)
     if not bi or free[bi] < FILLMIN / D then break end
     local f, px, py = free[bi], gx[bi], gy[bi]
     local S, sd = nearest_stem(px, py)
