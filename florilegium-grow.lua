@@ -221,7 +221,7 @@ function M.regions(g, layout)
   local fx1 = g.textleft + (g.textright - g.textleft) * layout.range(0.42, 0.52)
   local foot = { g.colright - 0.01, 0.4, fx1, min(1.75, g.footy - 0.45) }
   local rects = { col, foot }
-  local low = g.species and not g.theme
+  local low = not g.theme or g.theme == "flora"        -- the species garden
   local bottom = low and min(g.ybot + 0.6, g.footy + 0.55) or g.ybot + 0.6
   local spill
   if g.spill == 1 and (g.spilly - 0.8) - bottom > 2.5 then
@@ -358,7 +358,8 @@ local function bezier_head(x0, y0, x1, y1, x2, y2, x3, y3, t)
 end
 
 -- ---------------------------------------------------------------- species
--- Option species (g.species, without a theme): each main stem is one plant of
+-- The species garden (every grown page without a theme; a theme grows v1.3's garden in
+-- its own primitives): each main stem is one plant of
 -- florilegium-species.lua, 1 the hero, 2 a second showy plant, 3 the monocot, and the
 -- footer a spray, all four from the document's pool. Every stem point knows its plant, so a branch
 -- carries its own plant's flowers, buds, leaves and tendrils, which florilegium-organs.lua
@@ -509,7 +510,7 @@ function M.page(g)
   -- species' visitors from one of their own, as they are other animals: pollinators
   -- (flower), a snail, a bird on a twig, a caterpillar on its leaf, a dragonfly or
   -- damselfly by the monocot or a ladybird on a stem
-  local spc = g.species and F == flora
+  local spc = F == flora                    -- the species garden; a theme grows v1.3's
   local vis = ink.rng(g.seed * 7919 + (spc and 503 or 101))
   local visiting
   if g.visitors == false then visiting = {}

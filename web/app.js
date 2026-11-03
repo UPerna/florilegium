@@ -18,7 +18,7 @@ const PAPERS = {
 const TOP = 32, BOTTOM = 30, INNER = 22, MINTEXT = 60, MINMARGIN = 30     // mm, as florilegium-grow.tex
 const INKS = [['Delft blue', '2456C4'], ['teal', '1D6E7A'], ['viridian', '2F6B4F'], ['sepia', '5B2A1F'], ['madder', '8E1B3A'], ['indigo', '4B3B8F']]
 const ACCENTS = [['copper', 'B4662F'], ['ochre', 'C9A227'], ['madder', '8E1B3A'], ['cobalt', '2456C4']]
-const STYLES = [['flora', 'a flowering plant'], ['geometric', 'a plant cut from flat shapes'], ['math', 'a cascade of figures and equations']]
+const STYLES = [['flora', 'flowering plants'], ['geometric', 'a plant cut from flat shapes'], ['math', 'a cascade of figures and equations']]
 // each density is a whole phrase, so the sentence reads at every one of them
 const DENSITY = [[1, 'at full density'], [0.75, 'at three-quarter density'], [0.5, 'at half density'], [0.25, 'at quarter density'], [0.05, '']]
 const SPARSEST = { flora: 'pared down to a single vine', geometric: 'pared down to a single stem', math: 'pared down to a few figures' }
@@ -30,15 +30,14 @@ const STRENGTH = [[1, 'full'], [0.7, 'soft'], [0.4, 'faint']]
 const MARGINS = [40, 50, 60, 68, 80, 90]
 const SEEN = [['', 'most readers'], ['protan', 'protanopia'], ['deutan', 'deuteranopia'], ['tritan', 'tritanopia']]
 const TABS = [['latex', 'LaTeX'], ['typst', 'Typst'], ['svg', 'SVG'], ['cli', 'Command line']]
-// option species: each stem a plant of its own species; only the flowering plant has them
-const SPECIES = [[false, 'Its stems are all one plant'], [true, 'Each stem is a species of its own', 'sampled from a genome; a few seconds to grow']]
 const DEFAULTS = {
-  seed: 7, paper: 'a4', margin: 68, side: 'left', season: 'summer', style: 'flora', species: false, density: 1, strength: 1,
+  seed: 7, paper: 'a4', margin: 68, side: 'left', season: 'summer', style: 'flora', density: 1, strength: 1,
   ink: '2456C4', accent: 'B4662F', visitors: true, last: false, end: 45, head: true, seen: '', tab: 'latex',
 }
 const state = { ...DEFAULTS }
-const hasSpecies = () => state.style === 'flora'
-const isSpecies = () => state.species && hasSpecies()
+// the flowering plants are species, each stem a plant of its own sampled from a genome;
+// the geometric theme grows v1.3's garden, the math theme figures
+const isSpecies = () => state.style === 'flora'
 
 const paper = () => PAPERS[state.paper]
 const maxMargin = () => Math.min(100, Math.floor(paper().w - INNER - MINTEXT))
@@ -89,13 +88,12 @@ function options(seed = state.seed) {
   if (state.season !== 'summer' && !isMath()) o.season = state.season
   if (isMath()) o.visitors = true
   if (state.style !== 'flora') o.theme = state.style
-  if (isSpecies()) o.species = true
   if (state.last) o.textend = endMM() + 'mm'
   return o
 }
 // the options that change what grows (not its colors or the head rule): the page text
 // tells only a garden grown with these, so it never describes the last one while the next grows
-const GROWN = ['seed', 'paper', 'left', 'right', 'season', 'theme', 'density', 'visitors', 'textend', 'species']
+const GROWN = ['seed', 'paper', 'left', 'right', 'season', 'theme', 'density', 'visitors', 'textend']
 const grownKey = (o = options()) => GROWN.map((k) => o[k]).join('|')
 
 // ---------------------------------------------------------------- the colophon
@@ -111,7 +109,6 @@ function colophon() {
     ${term('side', s.side)}. It grew from seed <span class="nowrap"><button class="stepper" data-step="-1" aria-label="Previous seed">‹</button>${term('seed', s.seed)}<button class="stepper" data-step="1" aria-label="Next seed">›</button></span>
     ${isMath() ? '' : `in ${term('season', s.season)}, `}as ${term('style', styleName())} ${term('density', densityWord(s.density))}, and it is
     printed at ${term('strength', word(s.strength, STRENGTH))} strength in ${term('ink', named(s.ink, INKS))} with ${term('accent', named(s.accent, ACCENTS))}.
-    ${hasSpecies() ? term('species', word(s.species, SPECIES)) + '.' : ''}
     ${isMath() ? '' : term('visitors', s.visitors ? 'Visitors are welcome' : 'No visitors come') + (s.visitors ? none : '') + '.'}
     The text ${term('last', s.last ? `ends ${s.end}% of the way down` : 'runs the full page')}${s.last ? `, and the ${isMath() ? 'figures fill' : 'garden grows into'} the space below it` : ''}.`
 }
@@ -130,7 +127,6 @@ function choices(k) {
     case 'strength': return STRENGTH
     case 'ink': return INKS.map(([n, h]) => [h, n, weakNote(h, s.accent, named(s.accent, ACCENTS))])
     case 'accent': return ACCENTS.map(([n, h]) => [h, n, weakNote(s.ink, h, named(s.ink, INKS))])
-    case 'species': return SPECIES
     case 'visitors': return [[true, 'Visitors are welcome'], [false, 'No visitors come']]
     case 'last': return [[false, 'runs the full page'], [true, 'ends partway down']]
     case 'head': return [[true, 'keeps'], [false, 'leaves out']]
@@ -536,7 +532,6 @@ function snippet() {
   const file = `florilegium-${s.seed}.svg`
   if (s.tab === 'latex') {
     const opts = ['grown']
-    if (isSpecies()) opts.push('species')
     if (s.style !== 'flora') opts.push('theme=' + s.style)
     if (s.density < 1) opts.push('density=' + fmt(s.density))
     if (s.strength < 1) opts.push('intensity=' + fmt(s.strength))
@@ -560,7 +555,6 @@ function snippet() {
       `For Typst, a web page or your notes. It ${term('head', s.head ? 'keeps' : 'leaves out')} the head rule and ${HEAD[s.style]}.`, true]
   }
   const a = ['texlua florilegium-svg.lua --seed ' + s.seed]
-  if (isSpecies()) a.push('--species')
   if (s.paper !== 'a4') a.push('--paper ' + s.paper)
   if (left !== 68 || right !== INNER) a.push(`--left ${left}mm --right ${right}mm`)
   if (s.season !== 'summer' && !isMath()) a.push('--season ' + s.season)

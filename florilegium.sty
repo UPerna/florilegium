@@ -3,23 +3,23 @@
 %% Copyright (c) 2026 Kevin Raymond. MIT License, in full at the end of these notes.
 %%
 %% LuaLaTeX only. The geometry of every petal, leaf and stem is computed in Lua
-%% (florilegium-ink.lua, florilegium-flora.lua) and written straight into the page as PDF path
-%% operators; TeX does no arithmetic. A page takes a second or two.
+%% (florilegium-ink.lua, florilegium-flora.lua, florilegium-organs.lua) and written straight
+%% into the page as PDF path operators; TeX does no arithmetic. A page takes a few seconds.
 %%
 %% Usage
 %%   \usepackage{florilegium}          authored composition (hand-placed, florilegium-authored.lua)
-%%   \usepackage[grown]{florilegium}   composition grown to fit the page (florilegium-grow.lua)
+%%   \usepackage[grown]{florilegium}   composition grown to fit the page (florilegium-grow.lua),
+%%                                      each main stem a plant of its own species, sampled
+%%                                      from a genome (florilegium-species.lua), four to a
+%%                                      page from a pool of eight per document
 %%   \usepackage[nomargin]{florilegium} no margin, only \florilegiumdraw
-%%   \usepackage[grown,novisitors]{florilegium}  no butterflies, bees, snails or birds
+%%   \usepackage[grown,novisitors]{florilegium}  no visitors (insects, snails, birds)
 %%   \usepackage[grown,sections]{florilegium}    a flower beside every numbered \section
 %%                                      and \subsection (standard classes)
 %%   \usepackage[grown,aging]{florilegium}       the garden ages from spring on the first
 %%                                      page to autumn on the last (two runs: the page
 %%                                      count is read from the .aux of the run before)
-%%   \usepackage[grown,species]{florilegium}     each main stem a plant of its own species,
-%%                                      sampled from a genome (florilegium-species.lua),
-%%                                      four to a page from a pool of eight per document
-%%   \usepackage[grown,theme=geometric]{florilegium} the same plant cut from flat shapes
+%%   \usepackage[grown,theme=geometric]{florilegium} v1.3's garden cut from flat shapes
 %%                                      with straight edges (florilegium-theme-geometric.lua)
 %%   \usepackage[grown,theme=math]{florilegium}  no plant: figures, symbols and equations
 %%                                      cascading down the margin (florilegium-theme-math.lua)
@@ -92,14 +92,12 @@
 \newif\ifflorilegium@visitors \florilegium@visitorstrue
 \newif\ifflorilegium@sections
 \newif\ifflorilegium@aging
-\newif\ifflorilegium@species
 \DeclareOption{authored}{\florilegium@grownfalse}
 \DeclareOption{grown}{\florilegium@growntrue}
 \DeclareOption{nomargin}{\florilegium@marginfalse}
 \DeclareOption{novisitors}{\florilegium@visitorsfalse}
 \DeclareOption{sections}{\florilegium@sectionstrue}
 \DeclareOption{aging}{\florilegium@agingtrue}
-\DeclareOption{species}{\florilegium@speciestrue}
 %% key=value options: theme=<name>, density=<0..1>, intensity=<0..1>
 \def\florilegium@theme{}
 \DeclareOption*{\expandafter\florilegium@option\CurrentOption==\@nil}
@@ -126,7 +124,6 @@
   tex.error("florilegium: florilegium.lua is from an earlier release than florilegium.sty",
     {"Copy florilegium.sty and every florilegium*.lua from one release."}) end}
 \ifflorilegium@visitors\else\directlua{florilegium.visitors = false}\fi
-\ifflorilegium@species\directlua{florilegium.use_species()}\fi
 \ifdefined\florilegium@density\directlua{florilegium.density = tonumber("\florilegium@density") or 1}\fi
 \ifdefined\florilegium@intensity\directlua{florilegium.intensity = tonumber("\florilegium@intensity") or 1}\fi
 %% the theme: in the preamble for the whole document; in the text a mark, so that

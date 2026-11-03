@@ -62,8 +62,10 @@ async function tab(t) { await page.click(`[data-tab=${t}]`); await new Promise((
 await page.goto(BASE + '#seed=7', { waitUntil: 'load' })
 await page.waitForFunction(() => window.current && /grew in/.test(document.querySelector('#grown').textContent), { timeout: 60000 })
 const base = await info()
-check('first garden', base.paths > 1000 && /seed ‹?7/.test(base.colophon), `${base.paths} paths, ${base.status}`)
-check('page text from what grew', /Fifty-six times/.test(base.text) && /529 points of stem/.test(base.text), base.text.slice(150, 260) + '…')
+check('first garden', base.paths > 1000 && /seed ‹?7/.test(base.colophon) && /as flowering plants at full density/.test(base.colophon), `${base.paths} paths, ${base.status}`)
+check('page text from what grew', /Sixty-four times/.test(base.text) && /556 points of stem/.test(base.text), base.text.match(/Then the program[^:]*/)?.[0])
+check('visitors: each in its own words', /On this page a caterpillar fed on a leaf of its own; an orange butterfly with scalloped wings came to the flowers/.test(base.text),
+  base.text.match(/On this page[^.]*\./)?.[0])
 
 // paper
 let s = await choose('paper', 'US Letter')
@@ -104,7 +106,16 @@ check('side: back to left', s.sha === base.sha && !s.mirror)
 // seed
 {
   let before = s.id
-  await page.click('.stepper[data-step="1"]'); s = await grown(before)
+  // while it grows (a few seconds), a flower turns in the margin and the text keeps quiet about what grew
+  await page.click('.stepper[data-step="1"]')
+  await new Promise((r) => setTimeout(r, 900))
+  const mid = await page.evaluate(() => ({ growing: document.querySelector('#proof').classList.contains('growing'),
+    sprout: +getComputedStyle(document.querySelector('#sprout')).opacity, text: document.querySelector('#text').textContent }))
+  check('while it grows, a flower in the margin', mid.growing && mid.sprout > 0.9, `opacity ${mid.sprout}`)
+  check('while it grows, the text tells nothing of the last garden', !/times it found|points of stem/.test(mid.text))
+  s = await grown(before)
+  await new Promise((r) => setTimeout(r, 400))
+  check('grown, the flower goes', +(await page.$eval('#sprout', (e) => getComputedStyle(e).opacity)) === 0)
   check('seed: next', /seed ‹?8/.test(s.colophon) && s.sha !== base.sha && /seed=8/.test(s.hash), s.sha)
   before = s.id
   await page.click('.stepper[data-step="-1"]'); s = await grown(before)
@@ -135,7 +146,6 @@ check('season: summer again', s.sha === base.sha)
 s = await choose('style', 'a plant cut from flat shapes')
 const geo = s
 check('style: geometric', s.sha !== base.sha && /theme=geometric/.test(s.snippet) && /cut from flat shapes/.test(s.text))
-check('seed 7 says no visitors came', /Visitors are welcome, though none came to this seed/.test(base.colophon))
 s = await choose('style', 'a plant cut from flat shapes')
 const sparseGeo = await page.evaluate(() => { document.querySelector('.term[data-k=density]').click(); return document.querySelector('#chooser').textContent })
 await page.keyboard.press('Escape')
@@ -156,33 +166,19 @@ check('style: math, its equations set by MathJax', s.caps > 0 && /theme=math/.te
   check('math: the command line too', !/--season|--novisitors/.test(c2.snippet), c2.snippet)
   await tab('latex')
 }
-s = await choose('style', 'a flowering plant')
+s = await choose('style', 'flowering plants')
 check('flora: the season comes back as it was', /in autumn/.test(s.colophon) && /florilegiumage\{1\}/.test(s.snippet))
 s = await choose('season', 'summer')
 
-// species (the flowering plant only): each stem a plant of its own species, which the page describes
-{
-  // while it grows (a few seconds), a flower turns in the margin and the text keeps quiet about what grew
-  const before = s.id
-  await page.click('.term[data-k=species]'); await page.waitForSelector('#chooser:not([hidden])')
-  await page.evaluate(() => [...document.querySelectorAll('#chooser [role=option]')].find((o) => /species of its own/.test(o.textContent)).click())
-  await new Promise((r) => setTimeout(r, 900))
-  const mid = await page.evaluate(() => ({ growing: document.querySelector('#proof').classList.contains('growing'),
-    sprout: +getComputedStyle(document.querySelector('#sprout')).opacity, text: document.querySelector('#text').textContent }))
-  check('while it grows, a flower in the margin', mid.growing && mid.sprout > 0.9, `opacity ${mid.sprout}`)
-  check('while it grows, the text tells nothing of the last garden', !/times it found|points of stem/.test(mid.text))
-  s = await grown(before)
-  await new Promise((r) => setTimeout(r, 400))
-  check('grown, the flower goes', +(await page.$eval('#sprout', (e) => getComputedStyle(e).opacity)) === 0)
-}
+// the flowering plants: each stem a species of its own, which the page describes
 const sp7 = s
 {
   const plants = await page.evaluate(() => window.current.stats.species.filter((p) => p.grew).map((p) => p.text[0].toLowerCase() + p.text.slice(1)))
-  check('species: on', s.sha !== base.sha && /species=1/.test(s.hash) && /\[grown, species\]/.test(s.snippet) && /Each stem is a species of its own\./.test(s.colophon), `${(s.bytes / 1e6).toFixed(1)} MB, ${s.status}`)
+  check('species: the flowering plants are the species garden', s.sha === base.sha && !/species/.test(s.hash + s.snippet), `${(s.bytes / 1e6).toFixed(1)} MB, ${s.status}`)
   check('species: the text describes each plant', plants.length === 4 && plants.every((d) => s.text.includes(d)) && /The tallest stem bears a blue daisy head of nineteen rays/.test(s.text)
     && /this page grows four of them/.test(s.text), s.text.match(/The tallest stem bears[^.]*\./)?.[0])
   const c = await tab('cli')
-  check('species: the command line', /--seed 7 \\\n\s*--species /.test(c.snippet), c.snippet.replace(/\s*\\\n\s*/g, ' '))
+  check('species: the command line needs no option', /--seed 7 /.test(c.snippet) && !/--species/.test(c.snippet), c.snippet.replace(/\s*\\\n\s*/g, ' '))
   await tab('latex')
   // seed 7's page has the document's fern at the root, which the text names after the plants
   const fern = await page.evaluate(() => window.current.stats.fern)
@@ -194,19 +190,17 @@ check('species: geometric has none (same garden, no term, no option)', s.sha ===
   && !/species/.test(s.snippet + s.colophon + s.text), s.sha + ' vs ' + geo.sha)
 s = await choose('style', 'a cascade of figures')
 check('species: math has none', !(await page.$$eval('#colophon .term', (t) => t.map((x) => x.dataset.k))).includes('species') && !/species/.test(s.snippet + s.colophon))
-s = await choose('style', 'a flowering plant')
-check('species: back with the flowering plant', s.sha === sp7.sha && /Each stem is a species of its own/.test(s.colophon))
+s = await choose('style', 'flowering plants')
+check('species: back with the flowering plants', s.sha === sp7.sha && /as flowering plants/.test(s.colophon))
 s = await choose('density', 'pared down to a single vine')
 check('species: a single vine grows one of them, and no fern', /this page grows one of them/.test(s.text) && /The stem bears /.test(s.text) && !/The second bears|along the foot|a fern as well/.test(s.text), s.text.match(/this page grows[^.]*\./)?.[0])
 s = await choose('density', 'at full density')
-s = await choose('species', 'Its stems are all one plant')
-check('species: off, the same garden as before', s.sha === base.sha && !/species/.test(s.hash + s.snippet + s.text), s.sha)
 
 // density, strength
 s = await choose('density', 'at half density')
 check('density: half', s.paths < base.paths * 0.85 && /density=0.5/.test(s.snippet), `${s.paths} paths (full: ${base.paths})`)
 s = await choose('density', 'pared down to a single vine')
-check('density: a single vine', s.paths < base.paths * 0.3 && /as a flowering plant pared down to a single vine, and/.test(s.colophon) && /It is grown pared down to a single vine/.test(s.text), `${s.paths} paths`)
+check('density: a single vine', s.paths < base.paths * 0.3 && /as flowering plants pared down to a single vine, and/.test(s.colophon) && /It is grown pared down to a single vine/.test(s.text), `${s.paths} paths`)
 s = await choose('density', 'at full density')
 s = await choose('strength', 'faint')
 check('strength: faint', s.sha !== base.sha && s.paths === base.paths && /intensity=0.4/.test(s.snippet), 'same paths, paler colors')
@@ -229,16 +223,22 @@ check('accent: ochre', s.sha !== base.sha && /\\definecolor\{accent\}\{HTML\}\{C
 s = await choose('ink', 'Delft blue'); s = await choose('accent', 'copper')
 check('inks: back to Delft blue and copper', s.sha === base.sha)
 
-// visitors (seed 12 has two bees and a bird)
+// visitors (seed 12 has two bumblebees and a moth; seed 3 none)
 {
   let before = s.id
   await page.click('.term[data-k=seed]'); await page.waitForSelector('#chooser input')
   await page.$eval('#chooser input', (e) => { e.value = '' }); await page.type('#chooser input', '12'); await page.keyboard.press('Enter')
   const v12 = await grown(before)
   s = await choose('visitors', 'No visitors come')
-  check('visitors: none', s.sha !== v12.sha && /novisitors/.test(s.snippet) && /asked to stay away/.test(s.text) && /came to visit/.test(v12.text), v12.text.match(/[^.]*came to visit/)?.[0])
+  check('visitors: none', s.sha !== v12.sha && /novisitors/.test(s.snippet) && /asked to stay away, so no insects, snails or birds came/.test(s.text)
+    && /On this page a golden bumblebee with pollen on its legs came to the flowers/.test(v12.text), v12.text.match(/On this page[^.]*\./)?.[0])
   s = await choose('visitors', 'Visitors are welcome')
   check('visitors: welcome again', s.sha === v12.sha)
+  before = s.id
+  await page.click('.term[data-k=seed]'); await page.waitForSelector('#chooser input')
+  await page.$eval('#chooser input', (e) => { e.value = '' }); await page.type('#chooser input', '3'); await page.keyboard.press('Enter')
+  s = await grown(before)
+  check('seed 3 says no visitors came', /Visitors are welcome, though none came to this seed/.test(s.colophon) && /No visitors came to this page/.test(s.text))
   before = s.id
   await page.click('.term[data-k=seed]'); await page.waitForSelector('#chooser input')
   await page.$eval('#chooser input', (e) => { e.value = '' }); await page.type('#chooser input', '7'); await page.keyboard.press('Enter')
@@ -311,7 +311,7 @@ await page.click('[data-seen=""]')
   check('a shared link restores every setting', /a US Letter page/.test(r.colophon) && /60 mm/.test(r.colophon) && /right/.test(r.colophon) && /autumn/.test(r.colophon) && /teal with ochre/.test(r.colophon), r.colophon.trim())
   await p2.close()
 }
-// and the same with species (the flowering plant; geometric has none): combined-species.*
+// and the same with the flowering plants (an old link's species=1 changes nothing): combined-species.*
 {
   const states = '#seed=12&paper=letter&margin=60&side=right&season=autumn&species=1&density=0.75&strength=0.7&ink=1D6E7A&accent=C9A227&visitors=0&last=1&end=50&head=0&tab=cli'
   const p2 = await browser.newPage(); await p2.setViewport({ width: 1440, height: 900 })
@@ -322,7 +322,7 @@ await page.click('[data-seen=""]')
   fs.writeFileSync(OUT + '/combined-species-cli.txt', r.cli)
   await p2.click('[data-tab=latex]')
   fs.writeFileSync(OUT + '/combined-species-latex.txt', await p2.$eval('#snippet', (e) => e.textContent))
-  check('a shared link restores species too', /Each stem is a species of its own/.test(r.colophon) && /--species/.test(r.cli) && /autumn/.test(r.colophon) && /teal with ochre/.test(r.colophon), r.cli.split('\n')[0])
+  check('a shared link restores the flowering plants too', /as flowering plants at three-quarter density/.test(r.colophon) && !/species/.test(r.cli) && /autumn/.test(r.colophon) && /teal with ochre/.test(r.colophon), r.cli.split('\n')[0])
   await p2.close()
 }
 check('no errors in the console', errors.length === 0, errors.join(' | '))
