@@ -193,16 +193,51 @@ M.theme(nil)
 -- ---------------------------------------------------------------- region
 -- rects = { {x0,y0,x1,y1}, ... }, a union; shared edges count as open
 local function inside(r, x, y) return x > r[1] and x < r[3] and y > r[2] and y < r[4] end
+-- the distance from (x, y) to the parts of r's edge (vertical at u = c when `vert`, from a
+-- to b) that no other rect continues across (they are open there): with rects.corners
+-- (species pages) the corner where an opening ends counts too, as where the text block
+-- juts into the free region at the end of the text or above the footer band; v1.3's pages
+-- (themes) look only straight across, so a disc there can reach past such a corner
+local function closed_part(rects, r, x, y, vert, c, out, a, b)
+  local cuts = {}
+  for _, o in ipairs(rects) do
+    if o ~= r then
+      if vert and out > o[1] and out < o[3] then cuts[#cuts + 1] = { max(a, o[2]), min(b, o[4]) }
+      elseif not vert and out > o[2] and out < o[4] then cuts[#cuts + 1] = { max(a, o[1]), min(b, o[3]) } end
+    end
+  end
+  table.sort(cuts, function(p, q) return p[1] < q[1] end)
+  local d, t = math.huge, a
+  local function seg(s0, s1)
+    if s1 <= s0 then return end
+    local u = vert and y or x
+    local w = min(max(u, s0), s1)
+    local dx, dy = vert and (x - c) or (x - w), vert and (y - w) or (y - c)
+    local e = sqrt(dx * dx + dy * dy)
+    if e < d then d = e end
+  end
+  for _, k in ipairs(cuts) do
+    if k[2] > k[1] then seg(t, k[1]) if k[2] > t then t = k[2] end end
+  end
+  seg(t, b)
+  return d
+end
 local function border(rects, x, y)
   local best = -1
   for _, r in ipairs(rects) do
     if inside(r, x, y) then
       local d, near = math.huge, math.huge
       local edges = { { x - r[1], r[1] - 0.05, y }, { r[3] - x, r[3] + 0.05, y }, { y - r[2], x, r[2] - 0.05 }, { r[4] - y, x, r[4] + 0.05 } }
-      for _, e in ipairs(edges) do
+      for i, e in ipairs(edges) do
         local open = false
         for _, o in ipairs(rects) do if o ~= r and inside(o, e[2], e[3]) then open = true end end
         if not open and e[1] < d then d = e[1] end
+        if open and rects.corners then
+          local v = i <= 2
+          local c = ({ r[1], r[3], r[2], r[4] })[i]
+          local cd = closed_part(rects, r, x, y, v, c, v and e[2] or e[3], v and r[2] or r[1], v and r[4] or r[3])
+          if cd < d then d = cd end
+        end
         if e[1] < near then near = e[1] end
       end
       -- every edge open (the point's rect lies wholly among others): its own nearest
@@ -234,6 +269,7 @@ function M.regions(g, layout)
     rects[#rects + 1] = spill
     if low then rects[#rects + 1] = { fx1 - 0.01, 0.4, g.textright - 0.2, foot[4] } end
   end
+  rects.corners = low or nil
   return rects, col, foot, spill, fx1
 end
 

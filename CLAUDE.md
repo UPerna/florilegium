@@ -335,7 +335,13 @@ is ~70 KB of path operators, a v1.3 page ~3 MB uncompressed, ~0.6 MB in the PDF;
 4. Leaves at nodes of every "leafy" stem (alternating, 35–60°, smaller toward the top; the
    footer gets leaflets that thin out), only where `free` allows.
 5. Grid (2 mm), `free` = largest disc that fits (proxies count at κ=0.85 of their radius;
-   stems are chains of small discs) and `sdist` = distance to the nearest stem point.
+   stems are chains of small discs) and `sdist` = distance to the nearest stem point. A
+   region's edge that another region continues across is open; on species pages
+   (`rects.corners`, set by `M.regions`) `border()` also measures to the parts of such an edge
+   that are not continued (`closed_part`), so the corner where the text block juts in (the
+   end of the text, the top of the footer band) limits a disc. v1.3's pages (themes) look
+   only straight across, and a large motif there could grow past that corner into the
+   safety clip, which cut it square (seen at seed 2's text end, fixed 2026-11-03).
    Updates only visit lattice cells near the new disc.
 6. Branch loop: cell with the largest `free·U(0.85,1.15)` within REACH (3 cm) of a stem;
    pick a motif by weight `w/(1+count/cap)` (hard caps only for flower, lily, umbel,
