@@ -110,6 +110,15 @@ svg: florilegium-svg.lua florilegium-grow.lua florilegium-authored.lua $(LUA)
 	mkdir -p build
 	$(RUN) texlua florilegium-svg.lua --seed $(SEED) -o build/svg-$(SEED).svg
 
+# an earlier release's margin against this tree's, and the TikZ library's engines, timed on
+# this machine; prints a Markdown table (a few minutes; pure TikZ under pdfLaTeX is most of it)
+#   make bench RUN=tools/in-docker [OLD=v1.3]
+OLD ?= v1.3
+bench: tools/bench.sh tools/bench.tex tools/bench-tikz.tex florilegium.sty tikzlibraryflorilegium.code.tex $(LUA)
+	rm -rf build/bench && mkdir -p build/bench/$(OLD)
+	git archive $(OLD) | tar -x -C build/bench/$(OLD)
+	$(RUN) sh tools/bench.sh build/bench/$(OLD)
+
 # the playground in web/, served from the repository: http://localhost:8000/web/
 playground:
 	python3 -m http.server 8000
@@ -117,4 +126,4 @@ playground:
 clean:
 	rm -rf build *.aux *.log *.out *.synctex.gz
 
-.PHONY: all gallery animation preview postscript pscheck svg playground clean
+.PHONY: all gallery animation preview postscript pscheck svg bench playground clean

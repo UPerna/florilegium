@@ -1,0 +1,25 @@
+%% tools/bench.tex -- the document tools/bench.sh times for the margin: ten pages of plain
+%% text in the grown margin, the last one short so that the garden also grows under it.
+%% The same file for every release (it uses nothing a release added), so their times compare.
+%%   lualatex "\def\florilegiumseed{7}\def\benchoptions{}\input{bench.tex}"
+%% \benchoptions: more package options after grown (",nomargin" times the text alone).
+\documentclass[11pt,a4paper]{article}
+\renewcommand\rmdefault{cmr}\renewcommand\sfdefault{cmss}\renewcommand\ttdefault{cmtt}
+\usepackage[T1]{fontenc}
+\usepackage[a4paper,left=68mm,right=22mm,top=32mm,bottom=30mm,headsep=8mm]{geometry}
+\providecommand\benchoptions{}
+\edef\benchload{\noexpand\usepackage[grown\benchoptions]{florilegium}}\benchload
+\pagestyle{plain}
+\newcount\benchpar
+\newcommand\benchtext{A florilegium was a gathering of flowers: passages copied out of
+  longer books and bound together, so that a reader could carry the best of a library in one
+  volume. This page holds no such passages. It is plain text set in a column, a paragraph
+  repeated until the pages are full, so that the time spent on it is the time the margin
+  takes and the time TeX takes to set the words, and nothing else. Each page is grown from
+  the same seed whichever release draws it, and the last page ends early so that the garden
+  also spreads into the space under its final lines.\par}
+\begin{document}
+\benchpar=0
+\loop\benchtext\advance\benchpar 1 \ifnum\benchpar<57 \repeat
+\florilegiumtextend
+\end{document}

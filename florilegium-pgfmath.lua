@@ -72,8 +72,10 @@ function M.sp(text)
 end
 
 -- print_scaled (tex.web 103): the shortest decimal that reads back to the same sp,
--- as \the gives it without "pt"
-function M.str(s)
+-- as \the gives it without "pt". Remembered: a page asks for the same values again and
+-- again (nine calls in ten), so the table is emptied when it grows large
+local STRCACHE, nstr = {}, 0
+local function print_scaled(s)
   local out = {}
   if s < 0 then out[1] = "-" s = -s end
   out[#out + 1] = tostring(s // UNITY)
@@ -87,6 +89,14 @@ function M.str(s)
     delta = delta * 10
   until s <= delta
   return concat(out)
+end
+function M.str(s)
+  local v = STRCACHE[s]
+  if v then return v end
+  if nstr >= 200000 then STRCACHE, nstr = {}, 0 end
+  v = print_scaled(s)
+  STRCACHE[s], nstr = v, nstr + 1
+  return v
 end
 local str, sp = M.str, M.sp
 
@@ -103,7 +113,8 @@ local function mulf(x, y)
   local r = (y // UNITY) * x
   if x >= 0 then r = r + (x * f) // UNITY else r = r - ((-x) * f) // UNITY end
   if neg then r = -r end
-  return check(r)
+  if r > MAXDIMEN or r < -MAXDIMEN then return check(r) end   -- (check's error, from here)
+  return r
 end
 M.mulf = mulf
 
@@ -116,10 +127,10 @@ end
 M.divn = divn
 
 -- ---------------------------------------------------------------- the four operations
-function M.add(a, b) return check(a + b) end
-function M.sub(a, b) return check(a - b) end
+function M.add(a, b) local r = a + b if r > MAXDIMEN or r < -MAXDIMEN then return check(r) end return r end
+function M.sub(a, b) local r = a - b if r > MAXDIMEN or r < -MAXDIMEN then return check(r) end return r end
 function M.neg(a) return -a end
-function M.mul(a, b) return mulf(a, b) end        -- \pgfmath@x=<#2>\pgfmath@x, #1 in \pgfmath@x
+M.mul = mulf                                      -- \pgfmath@x=<#2>\pgfmath@x, #1 in \pgfmath@x
 
 -- \pgfmathreciprocal@: from the digits of the number as written
 function M.recip(x)
@@ -638,7 +649,7 @@ local function parser(s, signs)
   return code
 end
 
-local ENV = setmetatable({}, { __index = function(_, k) return M[k] end })
+local ENV = setmetatable({}, { __index = M })
 local CACHE = {}
 -- A function(R, A) for expression s: it reads the signs of the variables, then runs the
 -- variant compiled for them (each compiled once, when first met)

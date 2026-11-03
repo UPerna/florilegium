@@ -33,18 +33,26 @@ local concat = table.concat
 -- ---------------------------------------------------------------- TeX's state
 local R = {}                      -- the store: macros, count registers, traits
 local NIL, DEAD = {}, {}
-local level, saves = 0, {}
--- an assignment, undone at the end of the current group (TeX's save stack)
+local level, saves, saved = 0, {}, {}
+-- an assignment, undone at the end of the current group (TeX's save stack). As in TeX, a
+-- name is saved once per group, with the value it had before the group's first assignment
+-- (saved[level][t][k] marks it); later assignments in the group need no entry
 local function setv(t, k, v)
   if level > 0 then
-    local s = saves[level]
-    local o = t[k]
-    s[#s + 1] = t s[#s + 1] = k s[#s + 1] = (o == nil) and NIL or o
+    local m = saved[level]
+    local mt = m[t]
+    if not mt then mt = {} m[t] = mt end
+    if not mt[k] then
+      mt[k] = true
+      local s = saves[level]
+      local o = t[k]
+      s[#s + 1] = t s[#s + 1] = k s[#s + 1] = (o == nil) and NIL or o
+    end
   end
   t[k] = v
 end
 local V = setmetatable({}, { __index = R, __newindex = function(_, k, v) setv(R, k, v) end })
-local function begingroup() level = level + 1 saves[level] = {} end
+local function begingroup() level = level + 1 saves[level] = {} saved[level] = {} end
 local function endgroup()
   local s = saves[level]
   for i = #s - 2, 1, -3 do
@@ -52,14 +60,19 @@ local function endgroup()
     if o == NIL then o = nil end
     s[i][s[i + 1]] = o
   end
-  saves[level] = nil
+  saves[level], saved[level] = nil, nil
   level = level - 1
 end
--- \xdef: no group end undoes it
+-- \xdef: no group end undoes it (and a later local assignment in a group saves the new
+-- value again, so its entries go and its marks with them)
 local function gset(k, v)
   for l = 1, level do
-    local s = saves[l]
-    for i = 1, #s, 3 do if s[i] == R and s[i + 1] == k then s[i] = DEAD end end
+    local mt = saved[l][R]
+    if mt and mt[k] then
+      mt[k] = nil
+      local s = saves[l]
+      for i = 1, #s, 3 do if s[i] == R and s[i + 1] == k then s[i] = DEAD end end
+    end
   end
   R[k] = v
 end
@@ -382,7 +395,10 @@ local function vpetal()
   if R["vp@pointed"] == 0 then
     if chance(R["vp@notchp"]) then V.notch = range(K"0.03", K"0.06") V.notch = E"@notch*@vp@notchk" end
   end
-  if R["vp@u"] > K"0.5" then V.bn = 28 * U else V.bn = 18 * U end
+  -- a petal under 1.2 mm (vp@u in cm) is tiny: a coarser outline, no heart, mottle or
+  -- pooled rim (specks no printer resolves at that size), and at most five streaks
+  if R["vp@u"] < K"0.12" then V.tiny = U else V.tiny = 0 end
+  if R["vp@u"] > K"0.5" then V.bn = 28 * U elseif R.tiny == U then V.bn = 8 * U else V.bn = 18 * U end
   loop("#kb", 0, function() return I("bn") end, function()
     V.v = E"#kb/@bn"
     V.va = E"max(0,#kb-1)/@bn" V.vb = E"min(@bn,#kb+1)/@bn"
@@ -408,7 +424,7 @@ local function vpetal()
     vfill("flo@c", U, 0, function()
       out("\\pgfpathrectanglecorners{" .. P(K"-1", K"-0.1") .. "}{" .. P(U, K"1.2") .. "}")
     end)
-    if R["vp@heart"] == U then
+    if R["vp@heart"] == U and R.tiny == 0 then
       loop("#ka", 1, 8, function()
         V.t = E"@pW*(0.25+0.1*#ka)" V.ms = E"0.06+0.065*#ka"
         vblob(0, 0, R.t, R.ms, K"0.28", 9) vfill("white", K"0.1", 0, smoothpath)
@@ -418,7 +434,7 @@ local function vpetal()
     V.ta = E"@tz-0.2" V.tb = E"@tz+0.2"
     if R["vp@pointed"] == U then V.msz = K"0.06" else V.msz = K"0.12" end
     if R.fine == U then vmottle("xa", K"0.12", "xb", K"1.05", 15, R.msz, R.ta, R.tb, 12)
-    else vmottle("xa", K"0.12", "xb", K"1.05", 6, R.msz, R.ta, R.tb, 0) end
+    elseif R.tiny == 0 then vmottle("xa", K"0.12", "xb", K"1.05", 6, R.msz, R.ta, R.tb, 0) end
     -- darker brush strokes running out from the base
     if R.fine == U then
       V.nk = int(5, 8)
@@ -434,11 +450,12 @@ local function vpetal()
       end)
     end
     -- pooling: the outline restroked wide and soft
-    vtone("flo@c", K"0.08") V.t = E"1.6*@vp@u" vstroke("flo@c", R.t, K"0.3", 1, outlinepath)
+    if R.tiny == 0 then vtone("flo@c", K"0.08") V.t = E"1.6*@vp@u" vstroke("flo@c", R.t, K"0.3", 1, outlinepath) end
     -- white streaks lifted out, fanning from the base
     if R["vp@ns"] == "" then
       if R["vp@pointed"] == U then V.ns = int(3, 5) else V.ns = int(9, 13) end
     else V.ns = R["vp@ns"] end
+    if R.tiny == U and R.ns > 5 * U then V.ns = 5 * U end
     loop("#ka", 1, function() return I("ns") end, function()
       V.t = sym(K"0.05") V.f = E"(#ka-0.5)/@ns*2-1+@t"
       if R["vp@pointed"] == U then V.t = range(K"0.4", K"0.85") else V.t = range(K"0.35", K"0.8") end
@@ -5608,7 +5625,7 @@ end
 -- a fresh state, as at the start of a pic (its group undoes what the last one did)
 local function reset()
   for k in pairs(R) do R[k] = nil end
-  level, saves = 0, {}
+  level, saves, saved = 0, {}, {}
   for _, t in ipairs({ X, Y, A, B, C, D, NX, NY, RX, RY, QX, QY, S, T.TX, T.TY, T.MX, T.MY, T.MU, T.MV,
     T.AX, T.AY, T.AN, T.AM, T.O, T.VEIN, T.Z, T.FX, T.FY, KEPT, ROOM, G[1], G[2], G[3] }) do
     for k in pairs(t) do t[k] = nil end

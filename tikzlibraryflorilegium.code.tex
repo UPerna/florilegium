@@ -1999,7 +1999,10 @@
   \ifnum\flo@vp@pointed=0 \flo@chance{\flo@vp@notchp}\ifflo@yes\flo@range\flo@notch{0.03}{0.06}%
     \flo@calc\flo@notch{\flo@notch*\flo@vp@notchk}\fi\fi
   % the outline (ink.blade): spine (bend v^2, v), normals by central differences
-  \ifdim\flo@vp@u pt>0.5pt \def\flo@bn{28}\else\def\flo@bn{18}\fi
+  % a petal under 1.2 mm (vp@u in cm) is tiny: a coarser outline, no heart, mottle or
+  % pooled rim (specks no printer resolves at that size), and at most five streaks
+  \ifdim\flo@vp@u pt<0.12pt \def\flo@tiny{1}\else\def\flo@tiny{0}\fi
+  \ifdim\flo@vp@u pt>0.5pt \def\flo@bn{28}\else\ifnum\flo@tiny=1 \def\flo@bn{8}\else\def\flo@bn{18}\fi\fi
   \flo@loop{bl}\flo@kb{0}{\flo@bn}{%
     \flo@calc\flo@v{\the\flo@kb/\flo@bn}%
     \flo@calc\flo@va{max(0,\the\flo@kb-1)/\flo@bn}\flo@calc\flo@vb{min(\flo@bn,\the\flo@kb+1)/\flo@bn}%
@@ -2020,16 +2023,16 @@
   \begin{pgfscope}%
     \flo@outlinepath\pgfusepath{clip}%
     \flo@vtone{flo@c}{\flo@tz}\flo@vfill{flo@c}{1}{0}{\pgfpathrectanglecorners{\flo@P{-1}{-0.1}}{\flo@P{1}{1.2}}}%
-    \ifnum\flo@vp@heart=1
+    \ifnum\flo@vp@heart=1 \ifnum\flo@tiny=0
       \flo@loop{vheart}\flo@ka{1}{8}{%
         \flo@calc\flo@t{\flo@pW*(0.25+0.1*\the\flo@ka)}\flo@calc\flo@ms{0.06+0.065*\the\flo@ka}%
         \flo@vblob{0}{0}\flo@t\flo@ms{0.28}{9}\flo@vfill{white}{0.1}{0}{\flo@smoothpath}}%
-    \fi
+    \fi\fi
     \flo@calc\flo@xa{-\flo@pW*1.2}\flo@calc\flo@xb{\flo@pW*1.2}%
     \flo@calc\flo@ta{\flo@tz-0.2}\flo@calc\flo@tb{\flo@tz+0.2}%
     \ifnum\flo@vp@pointed=1 \def\flo@msz{0.06}\else\def\flo@msz{0.12}\fi
     \ifnum\flo@fine=1 \flo@vmottle\flo@xa{0.12}\flo@xb{1.05}{15}\flo@msz\flo@ta\flo@tb{12}%
-    \else\flo@vmottle\flo@xa{0.12}\flo@xb{1.05}{6}\flo@msz\flo@ta\flo@tb{0}\fi
+    \else\ifnum\flo@tiny=0 \flo@vmottle\flo@xa{0.12}\flo@xb{1.05}{6}\flo@msz\flo@ta\flo@tb{0}\fi\fi
     % darker brush strokes running out from the base
     \ifnum\flo@fine=1
       \flo@int\flo@nk{5}{8}%
@@ -2044,11 +2047,14 @@
         \flo@vfill{flo@c}{\flo@op}{1}{\flo@vtaper\flo@xa\flo@va\flo@c\flo@d\flo@cc\flo@dd\flo@xb\flo@vb}}%
     \fi
     % pooling: the outline restroked wide and soft, only its inner half shows
-    \flo@vtone{flo@c}{0.08}\flo@calc\flo@t{1.6*\flo@vp@u}\flo@vstroke{flo@c}{\flo@t}{0.3}{1}{\flo@outlinepath}%
+    \ifnum\flo@tiny=0
+      \flo@vtone{flo@c}{0.08}\flo@calc\flo@t{1.6*\flo@vp@u}\flo@vstroke{flo@c}{\flo@t}{0.3}{1}{\flo@outlinepath}%
+    \fi
     % white streaks lifted out, fanning from the base
     \ifx\flo@vp@ns\pgfutil@empty
       \ifnum\flo@vp@pointed=1 \flo@int\flo@ns{3}{5}\else\flo@int\flo@ns{9}{13}\fi
     \else\edef\flo@ns{\flo@vp@ns}\fi
+    \ifnum\flo@tiny=1 \ifnum\flo@ns>5 \def\flo@ns{5}\fi\fi
     \flo@loop{wst}\flo@ka{1}{\flo@ns}{%
       \flo@sym\flo@t{0.05}\flo@calc\flo@f{(\the\flo@ka-0.5)/\flo@ns*2-1+\flo@t}%
       \ifnum\flo@vp@pointed=1 \flo@range\flo@t{0.4}{0.85}\else\flo@range\flo@t{0.35}{0.8}\fi
