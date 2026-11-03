@@ -39,7 +39,7 @@ jobs:
         run: lua5.3 tools/speciescheck.lua 4000 && lua5.4 tools/speciescheck.lua 4000
 
   # The four documents, which a release carries, and pages that are only checked: the
-  # species sheet (the hybrid under LuaLaTeX, by the library's default, and pure TikZ under
+  # species sheet (the Lua engine under LuaLaTeX, by the library's default, and pure TikZ under
   # pdfLaTeX), and the specimen sheets and the ornaments, which draw through \florilegiumdraw and \florilegiumornament,
   # which read pgf's transform from its internal macros (florilegium.lua: sync_transform), so a
   # pgf that renamed them would fail here and not in someone's document.
@@ -63,10 +63,11 @@ jobs:
             ornaments.tex
             specimen-tikz.tex
           latexmk_use_lualatex: true
-          # the hybrid (engine=lua) draws what pure TikZ draws, stream for stream: Lua replays
-          # pgfmath exactly (pgfmathcheck), samples the same species and visitors (tikzcheck) and writes
-          # the same pgf commands for a flower and a leaf of every body plan and a plant in
-          # three seasons (tikzcheck draw)
+          # the Lua engine (engine=lua) draws what pure TikZ draws: Lua does pgfmath's arithmetic
+          # exactly where the species need it (pgfmathcheck), samples the same species and visitors
+          # (tikzcheck), and draws the same pics, render against render (tikzcheck draw quick: a
+          # flower, a leaf and an inflorescence of every body plan, every kind of leaf, fern and
+          # visitor, a plant in three seasons)
           post_compile: >-
             texlua tools/pgfmathcheck.lua 20000 &&
             texlua tools/tikzcheck.lua 1 1000 &&

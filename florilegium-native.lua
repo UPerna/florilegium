@@ -1,14 +1,14 @@
 -- florilegium-native.lua -- the species' organs in plain Lua, drawn straight to ink.
 -- Copyright (c) 2026 Kevin Raymond. MIT License: see LICENSE or florilegium.sty.
 --
--- The TikZ library (tikzlibraryflorilegium.code.tex) draws a species' plant in pgfmath;
--- florilegium-organs.lua replays it in Lua to the scaled point and writes the pgf code it
--- would run. Here the same organs are computed in ordinary floating point and painted with
--- ink as they are computed: the same steps, the same random draws from pgf's generator in
--- the same order, so the same seed gives the same organ, its numbers within a small
--- fraction of a point of the library's. (Where pgfmath's rounding and a double's would
--- fall on different sides of a threshold, a choice can tip; such cases are rare, and the
--- comparison in tools/nativecheck.lua lists them.)
+-- The TikZ library (tikzlibraryflorilegium.code.tex) draws a species' plant in pgfmath.
+-- Here the same organs are computed in ordinary floating point and painted with ink as
+-- they are computed: the same steps, the same random draws from pgf's generator in the
+-- same order, so the same seed gives the same organ, its numbers within a small fraction
+-- of a point of the library's. (Where pgfmath's rounding and a double's would fall on
+-- different sides of a threshold, a choice can tip; such cases are rare, and the
+-- comparison of the two engines' drawings, tools/tikzcheck.lua draw, lists them.) A few
+-- numbers that sit on a threshold are TeX's own, from florilegium-pgfmath.lua.
 --
 -- Some of the library's habits are kept on purpose, because its look was made with them:
 -- they are marked "as the library does" where they would otherwise look like slips.
@@ -18,11 +18,13 @@
 -- M.draw draws the margin's organs (in cm), M.pic the TikZ library's pics (in pt).
 
 local ink = require("florilegium-ink")
+local pm = require("florilegium-pgfmath")
 
 local M = {}
 M.version = "1.3"                 -- the release; florilegium.lua checks that every file has the same
 
 local floor, sqrt, abs, min, max = math.floor, math.sqrt, math.abs, math.min, math.max
+local CM = pm.sp("28.45276")      -- pt in a cm as TeX holds it, in sp (TeX's arithmetic below)
 local RAD = math.pi / 180
 local function sin(a) return math.sin(a * RAD) end          -- degrees, as pgfmath takes them
 local function cos(a) return math.cos(a * RAD) end
@@ -2241,10 +2243,14 @@ local RP = {}
 local function rachis(y0, y1) moveto(0, y0) lineto(0, y1) stroke(RP.c, RP.w, 1, false) end
 -- a leaflet's length on the page in cm, k of a leaf lpt pt long; for a pic's leaf (RP.pt, its
 -- length in sp as TeX holds it) as pgfmath finds it: a 1 cm leaf's leaflets of 0.4 are 4 mm,
--- the threshold of their level of detail, and TeX's product can land either side of it
-RP.LU = require("florilegium-pgfmath").compile("%1*%2/28.45276")
+-- the threshold of their level of detail, and TeX's product can land either side of it.
+-- pgfmath's lpt*k/28.45276 (a negative k, as TeX expands it, takes in the quotient)
 function RP.u(lpt, k)
-  if RP.pt then return RP.LU({}, { floor(lpt * 65536 + 0.5), floor(k * 65536 + 0.5) }) / 65536 end
+  if RP.pt then
+    local a, b = floor(lpt * 65536 + 0.5), floor(k * 65536 + 0.5)
+    if b < 0 then return pm.mulf(a, -pm.div(-b, CM)) / 65536 end
+    return pm.div(pm.mulf(a, b), CM) / 65536
+  end
   return lpt * k / 28.45276
 end
 -- \flo@pinnate: pairs sized to peak mid-rachis, then a terminal leaflet or a tendril;
@@ -2417,8 +2423,7 @@ local FE = {}
 -- pgfmath's own pow; everything else is a double. A pic's frond (FE.tex), 10 cm long where
 -- the margin's is 4, also takes its spine's 32 steps as TeX truncates them (32 sp short at
 -- the tip, 0.2 bp) and its pinnae's lengths from pgfmath's pow (2% off at some numbers)
-local PM = require("florilegium-pgfmath")
-local function ppow(x, y) return PM.pow(floor(x * 65536 + 0.5), floor(y * 65536 + 0.5)) / 65536 end
+local function ppow(x, y) return pm.pow(floor(x * 65536 + 0.5), floor(y * 65536 + 0.5)) / 65536 end
 -- \flo@fesori: sori under a pinna (its outline pts)
 local function fesori(pts)
   local c, sr = accent(-0.35), S.sori
@@ -2673,11 +2678,8 @@ end
 -- times 28.45276 and divided back, both in pgfmath, which can lose a scaled point. Only this
 -- one number is TeX's own: it decides a leaf's teeth and detail, and the layout gives some
 -- leaves round lengths (19/16 cm) that sit exactly on those thresholds
-local pm = require("florilegium-pgfmath")
-local TOPT, FROMPT = pm.compile("%1*28.45276"), pm.compile("(%1)/28.45276")
 local function leafu(len)
-  local x = floor(len * 65536 + 0.5)
-  return FROMPT({}, { TOPT({}, { x }) }) / 65536
+  return pm.div(pm.mulf(floor(len * 65536 + 0.5), CM), CM) / 65536    -- (len*28.45276)/28.45276
 end
 -- \flo@leaf: the species' leaf along +y, length 1; len its length in cm, bend its bend, from a
 -- sheath's top where it has one (sheath: its direction from the leaf's, degrees, and width);
@@ -2693,7 +2695,7 @@ function M.leaf(len, bend, sheath, pt)
     return
   end
   local u, lpt
-  if pt then u, lpt = FROMPT({}, { pt }) / 65536, pt / 65536 else u, lpt = leafu(len), len * 28.45276 end
+  if pt then u, lpt = pm.div(pt, CM) / 65536, pt / 65536 else u, lpt = leafu(len), len * 28.45276 end
   local cp = S.compound
   if cp == "simple" then
     if S.venation == "parallel" then strap(max(0.025, min(0.12, 0.42 / S.leafaspect)), bend, u)
@@ -4255,7 +4257,7 @@ local visitor = (function()
   -- (the pic's \flo@visitor), o.size is in pt already, in sp, the drawing in pt, and
   -- o.draw (if given) is the drawing's seed, as \flo@visitorsetup takes it
   local DRAW = { bee = bee, fly = bee, odonate = odo, beetle = beetle, larva = caterpillar, snail = snail, bird = bird }
-  local HALF = pm.compile("(%1)/56.90552")
+  local HALFCM = pm.sp("56.90552")              -- half a wingspan: pt in two cm, as TeX holds it
   local sampled = {}
   return function(o, pic)
     local role = o.role or "any"
@@ -4270,13 +4272,13 @@ local visitor = (function()
     local d = pic and o.draw or (o.seed == 2147483646 and 1 or o.seed + 1)   -- drawn from seed + 1
     G = ink.pgfrng(1) G.load(d) G.step() G.step()
     local pt, k = o.size, o.size / 65536
-    if not pic then pt, k = TOPT({}, { floor(o.size * 65536 + 0.5) }), o.size end
+    if not pic then pt, k = pm.mulf(floor(o.size * 65536 + 0.5), CM), o.size end    -- size*28.45276
     if X.group == "lepidoptera" then
       ink.scale(k / 2)
-      lepid(HALF({}, { pt }) / 65536)
+      lepid(pm.div(pt, HALFCM) / 65536)                                            -- (pt)/56.90552
     else
       ink.scale(k)
-      DRAW[X.group](FROMPT({}, { pt }) / 65536)
+      DRAW[X.group](pm.div(pt, CM) / 65536)                                        -- (pt)/28.45276
     end
   end
 end)()
@@ -4384,21 +4386,17 @@ function M.draw(kind, s, z, o)
 end
 
 -- ================================================================ M8f7: the pics
--- The TikZ library's pics as florilegium-organs.lua's M.pic writes them, drawn here: v1.3's
--- leaf (\flo@vleaf), a fern's crown (\flo@ferncrown), the garden of v1.3's plants
--- (\flo@garden) and the pics that wrap them and the organs above. In a function of its
--- own, whose locals count afresh (the main chunk's 200).
+-- The TikZ library's pics, drawn here as its TikZ code draws them: v1.3's leaf
+-- (\flo@vleaf), a fern's crown (\flo@ferncrown), the garden of v1.3's plants (\flo@garden)
+-- and the pics that wrap them and the organs above. In a function of its own, whose locals
+-- count afresh (the main chunk's 200).
 local pic = (function()
-  local CM = 1864680                        -- 28.45276 (pt in a cm), as TeX holds it, in sp
   -- \flo@calc{x/28.45276}: a pic's length in pt (sp) in cm, as TeX divides it
   local function sizecm(pt) return pm.div(pt, CM) / 65536 end
-  -- pm.int of a pgfmath expression of x, x held in sp: a count TeX takes from a length the
-  -- user gives (a 6 cm plant's \flo@pH), which sits on the count's thresholds
-  local INT = {}
-  local function texint(e, x)
-    local f = INT[e]
-    if not f then f = pm.compile(e) INT[e] = f end
-    return pm.int(f({}, { floor(x * 65536 + 0.5) })) // 65536
+  -- a count TeX takes from a length the user gives (a 6 cm plant's \flo@pH, held in sp),
+  -- which sits on the count's thresholds: int(x/d + a), d and a in sp, as pgfmath finds it
+  local function texint(x, d, a)
+    return pm.int(pm.add(pm.div(floor(x * 65536 + 0.5), d), a or 0)) // 65536
   end
   local function drawseed(z) G = ink.pgfrng(1) G.load(z) G.step() G.step() end   -- \flo@drawseed
 
@@ -4617,7 +4615,7 @@ local pic = (function()
   end
   -- \flo@drawstem, \flo@markstem
   local function drawstem()
-    local n = texint("(%1)/0.25+1", R.pH)
+    local n = texint(R.pH, pm.sp("0.25"), 65536)
     local pts = {}
     for k = 1, n do
       local y = R.pH * (k - 1) / (n - 1)
@@ -4626,7 +4624,7 @@ local pic = (function()
     stem(pts, R.pw, 0.028, 0.07)
   end
   local function markstem()
-    for k = 1, texint("(%1)/0.6", R.pH) do
+    for k = 1, texint(R.pH, pm.sp("0.6")) do
       local y = 0.6 * k - 0.3
       room(true, stemx(y), y, 0.2)
     end
@@ -4960,7 +4958,7 @@ local pic = (function()
       R.Gb = 1
       while R.Gb <= 3 do
         for ga = 1, np do
-          plantsetup(ga) R.ftries = texint("(%1)/2", R.pH) passfill(ga) R.w[ga] = G.save()
+          plantsetup(ga) R.ftries = texint(R.pH, 131072) passfill(ga) R.w[ga] = G.save()
         end
         R.Gb = R.Gb + 1
       end
@@ -5025,12 +5023,8 @@ end
 -- \flo@luapic: a pic of the TikZ library (engine=lua) drawn here, straight into the picture.
 -- ink follows pgf's current transformation (a pic's units are pt), the colors are the
 -- document's ink and accent, and pgf learns the drawing's extent for the picture's size.
--- A number the library reads with pgfmath (a seed, a season) arrives as text: in sp here
-local function value(text)
-  local ok, v = pcall(pm.sp, text)
-  if ok then return v end
-  return pm.compile(text)({}, {})
-end
+-- TeX has read the keys as the TikZ code reads them (\flo@luapic): the seeds are whole
+-- numbers, the season and the scale pgfmath's results, read here into sp
 -- the library and these files are found one by one (a set in ~/texmf, newer files beside
 -- the document), so the first pic checks that they come from one release
 local checked = false
@@ -5052,20 +5046,16 @@ local function rgb(s)
   return tonumber(r), tonumber(g), tonumber(b)
 end
 -- kind: flower, leaf, v13 flower, v13 leaf, inflorescence, plant, plants, fern, visitor;
--- size and width in sp, the other keys as their text; inkrgb, accrgb "r,g,b"; lib the
--- library's \ProvidesFile line
+-- seed and draw (or "") whole numbers, size and width in sp, season and scale decimals,
+-- plants "seed/role,seed/role,"; inkrgb, accrgb "r,g,b"; lib the library's \ProvidesFile line
 function M.tikz(kind, seed, role, draw, size, width, season, plants, ghost, scale, inkrgb, accrgb, lib)
   if not checked then check(lib) end
-  local o = { role = role, size = size, width = width, season = value(season), ghost = ghost ~= "false",
-    scale = value(scale) }
-  o.seed = pm.int(value(seed)) // 65536
-  if draw ~= "" then o.draw = pm.int(value(draw)) // 65536 end
+  local o = { role = role, size = size, width = width, season = pm.sp(season), ghost = ghost ~= "false",
+    scale = pm.sp(scale), seed = math.tointeger(tonumber(seed)) }
+  if draw ~= "" then o.draw = math.tointeger(tonumber(draw)) end
   if kind == "plants" then
     o.plants = {}
-    for item in plants:gmatch("[^,]+") do
-      local s, r = item:match("^%s*(.-)%s*/%s*(.-)%s*$")
-      o.plants[#o.plants + 1] = { pm.int(value(s)) // 65536, r }
-    end
+    for s, r in plants:gmatch("([^/,]+)/([^,]*),") do o.plants[#o.plants + 1] = { math.tointeger(tonumber(s)), r } end
   end
   ink.set_ink(rgb(inkrgb))
   ink.set_accent(rgb(accrgb))

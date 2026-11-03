@@ -83,10 +83,10 @@ as long:
 | | 1.3 | 2.0 |
 |---|---|---|
 | ten pages of text, no margin (LuaLaTeX) | 0.4 s, 33 KB | 0.4 s, 33 KB |
-| the same ten pages with the grown margin (LuaLaTeX) | 7.1 s, 6.3 MB | 12.7 s, 10.9 MB |
+| the same ten pages with the grown margin (LuaLaTeX) | 7.1 s, 6.3 MB | 12.8 s, 10.9 MB |
 | what the margin adds to a page | 0.67 s, 0.63 MB | 1.24 s, 1.1 MB |
-| one TikZ strip of three plants, pdfLaTeX, pure TikZ | not in 1.3 | 86 s, 1.2 MB (6.2 million words of TeX's memory) |
-| the same strip, LuaLaTeX, pure TikZ (`engine=tikz`) | not in 1.3 | 97 s, 1.2 MB |
+| one TikZ strip of three plants, pdfLaTeX, pure TikZ | not in 1.3 | 86 s, 1.3 MB (6.3 million words of TeX's memory) |
+| the same strip, LuaLaTeX, pure TikZ (`engine=tikz`) | not in 1.3 | 97 s, 1.3 MB |
 | the same strip, LuaLaTeX, Lua engine (the default) | not in 1.3 | 0.8 s, 0.5 MB |
 
 *`tools/bench.tex` (seed 7, the last page short) and `tools/bench-tikz.tex`, timed on
@@ -493,9 +493,10 @@ yet done.
 - The TikZ library draws with [PGF/TikZ](https://github.com/pgf-tikz/pgf) (Till Tantau and
   others; LPPL 1.3c or GPL 2), and its random numbers and arithmetic are pgfmath's, by Mark
   Wibrow, whose ln follows an algorithm due to Rouben Rostamian with coefficients by Alain
-  Matthes. `florilegium-pgfmath.lua` and `florilegium-ink.lua`'s `pgfrng` reimplement them in
-  Lua, pgfmath's cosine and arctangent tables included; they are not part of pgf, and their
-  headers say how they differ and where pgf is, as the LPPL asks of derived work.
+  Matthes. `florilegium-pgfmath.lua` and `florilegium-ink.lua`'s `pgfrng` reimplement the part
+  the species need in Lua (pgf's generator; pgfmath's reading and printing of numbers, its
+  multiply, divide, ln, exp and pow); they are not part of pgf, and their headers say how they
+  differ and where pgf is, as the LPPL asks of derived work.
 - `\florilegiumornament`, its `ink` and `seed=random` keys, and the `density` option answer
   [issue #4](https://github.com/kevinraymond/florilegium/issues/4) from rubyFeedback.
 - The playground runs the Lua in the browser with [wasmoon](https://github.com/ceifa/wasmoon)

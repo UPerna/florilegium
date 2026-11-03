@@ -1745,13 +1745,28 @@
   \pgfutil@ifundefined{\string\color@accent}{\definecolor{flo@accent}{HTML}{B4662F}}{\colorlet{flo@accent}{accent}}%
   \extractcolorspecs{flo@ink}{\flo@cmodel}{\flo@cspec}\convertcolorspec{\flo@cmodel}{\flo@cspec}{rgb}\flo@picink
   \extractcolorspecs{flo@accent}{\flo@cmodel}{\flo@cspec}\convertcolorspec{\flo@cmodel}{\flo@cspec}{rgb}\flo@picacc}
+% a seed as \pgfmathsetseed takes it: the expression's value, the digits before the point
+\def\flo@luaint#1#2{\pgfmathparse{#2}\expandafter\flo@luaint@\pgfmathresult.\relax#1}
+\def\flo@luaint@#1.#2\relax#3{\def#3{#1}}
+% the keys for Lua as the TikZ code reads them: the seeds as \pgfmathsetseed, the season
+% and the scale as pgfmath's numbers, the plants as \flo@parseplants lists them
 \def\flo@luapic#1#2{%
   \pgfkeys{/florilegium,#2}\flo@picrgb
+  \flo@luaint\flo@luaseed\flo@o@seed
+  \ifx\flo@o@draw\pgfutil@empty\let\flo@luadraw\pgfutil@empty\else\flo@luaint\flo@luadraw\flo@o@draw\fi
+  \pgfmathparse{\flo@o@season}\let\flo@luaseason\pgfmathresult
+  \pgfmathparse{\flo@o@scale}\let\flo@luascale\pgfmathresult
+  \let\flo@luaplants\pgfutil@empty
+  \ifx\flo@o@plants\pgfutil@empty\else
+    \expandafter\flo@parseplants\expandafter{\flo@o@plants}%
+    \flo@loop{lua}\flo@i{1}{\flo@Np}{%
+      \edef\flo@luaplants{\flo@luaplants\csname flo@pp@s\the\flo@i\endcsname/\csname flo@pp@r\the\flo@i\endcsname,}}%
+  \fi
   \pgfmathsetlength\pgf@x{\flo@o@size}\pgfmathsetlength\pgf@y{\flo@o@width}%
-  \directlua{require("florilegium-native").tikz("#1", "\luaescapestring{\flo@o@seed}",
-    "\luaescapestring{\flo@o@role}", "\luaescapestring{\flo@o@draw}", \number\pgf@x, \number\pgf@y,
-    "\luaescapestring{\flo@o@season}", "\luaescapestring{\flo@o@plants}", "\luaescapestring{\flo@o@ghost}",
-    "\luaescapestring{\flo@o@scale}", "\flo@picink", "\flo@picacc",
+  \directlua{require("florilegium-native").tikz("#1", "\flo@luaseed",
+    "\luaescapestring{\flo@o@role}", "\flo@luadraw", \number\pgf@x, \number\pgf@y,
+    "\flo@luaseason", "\luaescapestring{\flo@luaplants}", "\luaescapestring{\flo@o@ghost}",
+    "\flo@luascale", "\flo@picink", "\flo@picacc",
     "\ifcsname ver@tikzlibraryflorilegium.code.tex\endcsname\luaescapestring{\csname ver@tikzlibraryflorilegium.code.tex\endcsname}\fi")}}
 % #1 the pic's keys, #2 its kind for Lua, #3 the TikZ code
 \def\flo@engine#1#2#3{\pgfkeys{/florilegium,#1}%
@@ -2271,6 +2286,10 @@
     \flo@calc\flo@t{\flo@yi+(\flo@y\flo@ib-(\flo@y\flo@ia))*\flo@tk/6}\expandafter\let\csname flo@B\the\flo@i\endcsname\flo@t
     \flo@calc\flo@t{\flo@x\flo@ib-(\flo@x\flo@ic-(\flo@xi))*\flo@tk/6}\expandafter\let\csname flo@C\the\flo@i\endcsname\flo@t
     \flo@calc\flo@t{\flo@y\flo@ib-(\flo@y\flo@ic-(\flo@yi))*\flo@tk/6}\expandafter\let\csname flo@D\the\flo@i\endcsname\flo@t}}
+% fill the current path in a scope of its own, #1 the scope's settings (opacity, blend):
+% \pgfscope empties the current path, so it is carried in
+\def\flo@scopefill#1{\pgfsyssoftpath@getcurrentpath\flo@scopepath
+  \begin{pgfscope}#1\pgfsyssoftpath@setcurrentpath\flo@scopepath\pgfusepath{fill}\end{pgfscope}}
 % keep the curve prepared last under the name #1, and emit a kept curve's path
 \def\flo@keep#1{%
   \expandafter\edef\csname flo@#1@N\endcsname{\flo@N}%
@@ -2454,7 +2473,7 @@
       \flo@calc\flo@v{\the\flo@kb/30}\flo@lspine\flo@v
       \ifnum\flo@kb=0 \pgfpathmoveto{\flo@P\flo@sx\flo@sy}\else\pgfpathlineto{\flo@P\flo@sx\flo@sy}\fi}%
     \flo@calc\flo@t{\flo@sd*2}\pgfpathlineto{\flo@P\flo@t{1}}\pgfpathlineto{\flo@P\flo@t{0}}\pgfpathclose
-    \begin{pgfscope}\flo@vtone{flo@c}{0.12}\pgfsetfillcolor{flo@c}\pgfsetfillopacity{0.28}\pgfsetblendmode{multiply}\pgfusepath{fill}\end{pgfscope}%
+    \flo@scopefill{\flo@vtone{flo@c}{0.12}\pgfsetfillcolor{flo@c}\pgfsetfillopacity{0.28}\pgfsetblendmode{multiply}}%
     \flo@calc\flo@xa{-\flo@lW*2.5}\flo@calc\flo@xb{\flo@lW*2.5}\flo@calc\flo@ta{\flo@lt-0.2}\flo@calc\flo@tb{\flo@lt+0.22}%
     \ifnum\flo@fine=1 \flo@vmottle\flo@xa{0}\flo@xb{1}{13}{0.11}\flo@ta\flo@tb{12}%
     \else\flo@vmottle\flo@xa{0}\flo@xb{1}{6}{0.11}\flo@ta\flo@tb{0}\fi
@@ -2760,7 +2779,7 @@
       \ifnum\flo@kb=0 \pgfpathmoveto{\flo@P\flo@sx\flo@sy}\else\pgfpathlineto{\flo@P\flo@sx\flo@sy}\fi}%
     \flo@calc\flo@t{\flo@sd*2}\pgfpathlineto{\flo@P\flo@t{1}}\pgfpathlineto{\flo@P\flo@t{-0.3}}%
     \pgfpathlineto{\flo@P0{-0.3}}\pgfpathclose
-    \begin{pgfscope}\flo@vtone{flo@c}{0.12}\pgfsetfillcolor{flo@c}\pgfsetfillopacity{0.28}\pgfsetblendmode{multiply}\pgfusepath{fill}\end{pgfscope}%
+    \flo@scopefill{\flo@vtone{flo@c}{0.12}\pgfsetfillcolor{flo@c}\pgfsetfillopacity{0.28}\pgfsetblendmode{multiply}}%
     \flo@calc\flo@xa{-\flo@lW*2.5}\flo@calc\flo@xb{\flo@lW*2.5}\flo@calc\flo@ta{\flo@lt-0.2}\flo@calc\flo@tb{\flo@lt+0.22}%
     \ifnum\flo@lod=2
       \ifnum\flo@fine=1 \flo@vmottle\flo@xa{-0.2}\flo@xb{1}{13}{0.11}\flo@ta\flo@tb{12}%
@@ -2861,7 +2880,7 @@
         \flo@calc\flo@xl{\csname flo@MX\flo@q\endcsname+\flo@sd*\csname flo@MU\flo@q\endcsname}%
         \flo@calc\flo@yl{\csname flo@MY\flo@q\endcsname+\flo@sd*\csname flo@MV\flo@q\endcsname}%
         \pgfpathlineto{\flo@P\flo@xl\flo@yl}}\pgfpathclose
-      \begin{pgfscope}\flo@vtone{flo@c}{0.08}\pgfsetfillcolor{flo@c}\pgfsetfillopacity{0.3}\pgfsetblendmode{multiply}\pgfusepath{fill}\end{pgfscope}%
+      \flo@scopefill{\flo@vtone{flo@c}{0.08}\pgfsetfillcolor{flo@c}\pgfsetfillopacity{0.3}\pgfsetblendmode{multiply}}%
       \flo@loop{lfm}\flo@kb{0}{10}{\flo@calc\flo@v{\the\flo@kb/10}\flo@calc\flo@sx{\flo@lbend*\flo@v*\flo@v}\flo@put{\the\numexpr\flo@kb+1\relax}{\flo@sx}{\flo@v}}%
       \flo@vstreak{11}{0.03}{0.003}{white}{0.65}%
       \flo@vtone{flo@c}{0.06}\flo@calc\flo@t{1.3*\flo@vl@u}\flo@vstroke{flo@c}{\flo@t}{0.3}{1}{\flo@kept{lf}}%
@@ -2890,7 +2909,7 @@
       \flo@calc\flo@v{\the\flo@kb/12}\flo@calc\flo@sx{\flo@lbend*\flo@v*\flo@v}%
       \ifnum\flo@kb=0 \pgfpathmoveto{\flo@P\flo@sx\flo@v}\else\pgfpathlineto{\flo@P\flo@sx\flo@v}\fi}%
     \flo@calc\flo@t{\flo@sd*2}\pgfpathlineto{\flo@P\flo@t{1}}\pgfpathlineto{\flo@P\flo@t{0}}\pgfpathclose
-    \begin{pgfscope}\flo@vtone{flo@c}{0.12}\pgfsetfillcolor{flo@c}\pgfsetfillopacity{0.28}\pgfsetblendmode{multiply}\pgfusepath{fill}\end{pgfscope}%
+    \flo@scopefill{\flo@vtone{flo@c}{0.12}\pgfsetfillcolor{flo@c}\pgfsetfillopacity{0.28}\pgfsetblendmode{multiply}}%
     \flo@calc\flo@xa{-\flo@lW*2.5}\flo@calc\flo@xb{\flo@lW*2.5}\flo@calc\flo@ta{\flo@lt-0.2}\flo@calc\flo@tb{\flo@lt+0.22}%
     \flo@vmottle\flo@xa{0}\flo@xb{1}{10}{0.07}\flo@ta\flo@tb{8}%
     \flo@vtone{flo@c}{0.06}\flo@calc\flo@t{1.3*\flo@vl@u}\flo@vstroke{flo@c}{\flo@t}{0.22}{1}{\flo@kept{st}}%

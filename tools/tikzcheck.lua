@@ -13,7 +13,9 @@
 -- every pic pixel by pixel, each from the center of its ink: a pixel differs where nothing within
 -- a pixel of it in the other drawing is within 1/4 of its gray, both ways, and a pic passes
 -- while under 1% of its inked pixels, or under 60, differ (the two draw the same plant within a fraction
--- of a point, so only a choice that went the other way shows).
+-- of a point, so only a choice that went the other way shows), and while its ink is within 3.5%
+-- as dark in both (a fill drawn lighter or not at all: each of its pixels is still near a gray
+-- of the other drawing, but the whole is lighter).
 --   texlua tools/tikzcheck.lua draw [quick|full|fern|visitors] [compare] (compare: the last
 --   builds' PDFs again, without building them; quick: fronds of every division,
 --   outline and edge, fern crowns in three seasons, then one flower, one leaf and one
@@ -318,9 +320,9 @@ if arg[1] == "draw" then
     pic("florilegium plants={plants={3/daisy,17/lily,29/rose}, size=21cm, width=6cm}")
   end
   end
-  local f = assert(io.open("build/tikzcheck-draw.pics", "w"))
-  for _, p in ipairs(pics) do f:write("\\begin{tikzpicture}\\pic {", p, "};\\end{tikzpicture}\\newpage\n") end
-  f:close()
+  local list = assert(io.open("build/tikzcheck-draw.pics", "w"))
+  for _, p in ipairs(pics) do list:write("\\begin{tikzpicture}\\pic {", p, "};\\end{tikzpicture}\\newpage\n") end
+  list:close()
   local res = {}
   for _, engine in ipairs({ "tikz", "lua" }) do
     local job = "tikzcheck-draw-" .. engine
@@ -351,13 +353,17 @@ if arg[1] == "draw" then
     os.execute(fmt("pdftoppm -gray -r 150 build/tikzcheck-draw-%s.pdf build/tikzcheck-draw-%s", engine, engine))
   end
   -- pics where pgfmath's rounding and a double's send a choice different ways, each looked
-  -- at (tools/nativecheck.lua found the step): reported, not counted
+  -- at and the step found: reported, not counted
   local KNOWN = {
     ["florilegium plant={seed=54, role=any, size=8.5cm, width=5.2cm, season=0.75}"] =
       "a leaf's room disc 0.0002 cm either side of a cell's edge (pgfmath's five-digit veclen), so TeX grows one more branch",
   }
   local digits = #tostring(#pics)
-  local bad, worst = 0, 0
+  local bad, worst, wdark = 0, 0, 0
+  -- a pic fails when its ink is this much darker or lighter, by at least 60 pixels' worth of a
+  -- quarter gray: a hairline's pixels darken with where it falls on the grid (poppler draws it
+  -- at least a pixel wide), which moves a pic of veins and stalks up to 3% either way
+  local DARK, DARKMIN = 0.035, 60 * 64
   for i = 1, #pics do
     local n = fmt("%0" .. digits .. "d", i)
     local w, h, x = pgm("build/tikzcheck-draw-tikz-" .. n .. ".pgm")
@@ -372,14 +378,18 @@ if arg[1] == "draw" then
         local v = 255 - d:byte(k)
         if v > 5 then sx, sy, sw = sx + v * ((k - 1) % w), sy + v * ((k - 1) // w), sw + v end
       end
-      if sw == 0 then return 0, 0 end
-      return math.floor(sx / sw + 0.5), math.floor(sy / sw + 0.5)
+      if sw == 0 then return 0, 0, 0 end
+      return math.floor(sx / sw + 0.5), math.floor(sy / sw + 0.5), sw
     end
-    local inked, differ = 0, 0
+    local inked, differ
+    local dark = 0
     if w ~= w2 or h ~= h2 then differ, inked = 1, 1
     else
-      local ax, ay = corner(x)
-      local bx, by = corner(y)
+      local ax, ay, da = corner(x)
+      local bx, by, db = corner(y)
+      -- the ink's total darkness, which a fill drawn lighter, darker or not at all moves while
+      -- every pixel stays near a gray of the other (a leaf's darker half, 28% multiplied in)
+      dark = (da > 0 and math.abs(db - da) >= DARKMIN) and (db - da) / da or 0
       local function at(d, px, py)
         if px < 0 or px >= w or py < 0 or py >= h then return 255 end
         return d:byte(py * w + px + 1)
@@ -393,16 +403,16 @@ if arg[1] == "draw" then
         return false
       end
       local function count(dx, dy, step)             -- inked and differing pixels at an offset
-        local n, m = 0, 0
+        local ink, m = 0, 0
         for k = 1, #x, step do
           local px, py = (k - 1) % w, (k - 1) // w
           local p, q = x:byte(k), at(y, px + dx, py + dy)
           if p < 250 or q < 250 then
-            n = n + 1
+            ink = ink + 1
             if not near(y, px + dx, py + dy, p) or not near(x, px, py, q) then m = m + 1 end
           end
         end
-        return n, m
+        return ink, m
       end
       -- the offset, within two pixels of the centers', at which the drawings agree best
       local best, bdx, bdy = math.huge, bx - ax, by - ay
@@ -415,19 +425,16 @@ if arg[1] == "draw" then
       inked, differ = count(bdx, bdy, 1)
     end
     local share = inked > 0 and differ / inked or 0
-    worst = math.max(worst, share)
-    if share >= 0.01 and differ >= 60 then
-      if KNOWN[pics[i]] then
-        print(fmt("page %d (%s): %d of its inked pixels differ, %.2f%%, as known: %s", i, pics[i], differ, 100 * share,
-          KNOWN[pics[i]]))
-      else
-        bad = bad + 1
-        print(fmt("page %d (%s): %d of its inked pixels differ, %.2f%%", i, pics[i], differ, 100 * share))
-      end
+    if share >= 0.01 and differ >= 60 or math.abs(dark) >= DARK then
+      local what = fmt("page %d (%s): %d of its inked pixels differ, %.2f%%; Lua's ink %+.2f%% as dark", i, pics[i],
+        differ, 100 * share, 100 * dark)
+      if KNOWN[pics[i]] then print(what .. ", as known: " .. KNOWN[pics[i]])
+      else bad = bad + 1 print(what) end
     end
+    if not KNOWN[pics[i]] then worst, wdark = math.max(worst, share), math.max(wdark, math.abs(dark)) end
   end
-  print(fmt("tikzcheck draw: %d pics, %d differ in 1%% or more of their inked pixels and 60 or more (the largest share %.3f%%)",
-    #pics, bad, 100 * worst))
+  print(fmt("tikzcheck draw: %d pics, %d differ in 1%% or more of their inked pixels and 60 or more, or in their ink's darkness by %.1f%% "
+    .. "(the largest share %.3f%%, darkness %.2f%%, but for the known)", #pics, bad, 100 * DARK, 100 * worst, 100 * wdark))
   print(fmt("  pure TikZ %d s, %d bytes; Lua %d s, %d bytes", res.tikz.secs, res.tikz.size, res.lua.secs, res.lua.size))
   os.exit(bad == 0 and 0 or 1)
 end
