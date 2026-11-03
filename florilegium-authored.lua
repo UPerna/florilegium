@@ -15,7 +15,7 @@ local grow = require("florilegium-grow")
 local M = {}
 M.version = "1.3"                 -- the release; florilegium.lua checks that every file has the same
 
-local sqrt, cos, sin, atan, pi, max, min, floor = math.sqrt, math.cos, math.sin, math.atan, math.pi, math.max, math.min, math.floor
+local sqrt, cos, sin, atan, pi, min, floor = math.sqrt, math.cos, math.sin, math.atan, math.pi, math.min, math.floor
 local rad = pi / 180
 local function norm(x, y) local L = sqrt(x * x + y * y) if L < 1e-9 then return 0, 1 end return x / L, y / L end
 local function deg(x, y) return atan(y, x) / rad end
