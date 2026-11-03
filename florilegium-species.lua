@@ -642,10 +642,10 @@ end
 -- The order of the draws; every visitor draws them in this order
 M.VTRAITS = {
   "kind", "group", "size", "tone", "ground", "pose",
-  -- wings of butterflies and moths: tip, edge, tails; the groundplan's pattern systems
-  -- (bands near the body, a central band or spots with a discal spot, a border band,
-  -- spots or eyespots with their rings and the arcs outside them, lunules at the edge),
-  -- veins; the feelers
+  -- wings of butterflies and moths: tip, edge, tails; the pattern systems of the nymphalid
+  -- groundplan (bands near the body, a central band or spots with a discal spot, a border
+  -- band, spots or eyespots with their rings and the arcs outside them, lunules at the edge;
+  -- after Schwanwitsch 1924 and Süffert 1927), veins; the feelers
   "apex", "wingedge", "tails", "basal", "central", "discal", "border", "eyes", "rings", "parafocal",
   "lunules", "veins", "antenna",
   -- bees and hoverflies: abdomen bands, hair, pollen carried, width for length, a pale tail

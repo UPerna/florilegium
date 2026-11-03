@@ -333,7 +333,8 @@ function M.daisy(d, rays, o)
   local was = pen.accent
   pen.accent = true
   circle(0, 0, 0.105) fill(tone(0.3), 1)
-  -- the disc florets on Vogel's spiral
+  -- the disc florets on Vogel's spiral (H. Vogel, Mathematical Biosciences 44, 1979):
+  -- floret k at radius c*sqrt(k/n), turned k times 137.508 degrees
   local nd = floor(min(90, max(24, d * 1.2)))
   local c = tone(0.68)
   for k = 1, nd do

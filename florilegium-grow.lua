@@ -19,6 +19,11 @@
 --   4. small holes get florets, buds and leaflets on short stalks; a few
 --      copper accents go along the outer edge; pale ghost flowers sit behind.
 -- Proxies (discs) may overlap a little, so leaves tuck under flowers.
+-- Without a theme, the page grows species (florilegium-species.lua): four plants of the
+-- document's pool of eight, the hero, a second showy plant and the monocot on the three
+-- main stems and a spray on the footer; every motif belongs to the plant whose stem it
+-- grows from, its visitors come with it, and florilegium-native.lua draws its organs. A
+-- theme grows v1.3's motifs instead (the `else` of every `if comm`).
 -- Everything is deterministic for a given seed.
 
 local ink = require("florilegium-ink")

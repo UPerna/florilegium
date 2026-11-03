@@ -8,6 +8,10 @@ computes every petal, leaf and stem from a seed while it reads the page, and typ
 pages of text that explain how. It ports `florilegium-ink.lua`, `florilegium-flora.lua` and `florilegium-grow.lua` (the drawing
 core, the primitives and the growth loop that LuaLaTeX runs) procedure for procedure.
 
+The port grows v1.3's garden, with v1.3's hand-designed flowers, leaves and visitors. Since
+2.0, LuaLaTeX's grown margin samples its plants and animals from genomes instead; those
+species are not in the port.
+
 ## Running it
 
 Ghostscript turns it into a PDF or into images:
@@ -104,8 +108,9 @@ porting it again:
 The port has the grown margin of `florilegium-grow.lua` with all its primitives, the seasons, the
 visitors, the heading marks, the garden under the last line and the ivy-leaf head rule. It
 has no animation, initials, themes, mirrored pages, density or intensity, ornaments in the
-text, or authored composition. Nothing keeps it in step with the Lua: a change to a primitive
-or to `florilegium-grow.lua` has to be made here as well, by hand.
+text, authored composition, or species. Nothing keeps it in step with the Lua: a change to one
+of v1.3's primitives or to v1.3's growth in `florilegium-grow.lua` (the path a themed page still
+takes) has to be made here as well, by hand.
 
 ## Ghostscript notes
 

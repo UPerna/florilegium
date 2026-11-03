@@ -1,30 +1,35 @@
 %% text-sharing.tex -- shared closing section
 \subsubsection{Building and sharing}
 
-The package is \texttt{florilegium.sty} with nine Lua files beside it. Of these,
-\texttt{florilegium.lua} is the glue to \TeX. The names of the other eight begin with
+The package is \texttt{florilegium.sty} with twelve Lua files beside it. Of these,
+\texttt{florilegium.lua} is the glue to \TeX. The names of the other eleven begin with
 \texttt{florilegium-}, because \TeX\ finds a file by its bare name, the document's folder
 first, and a generic name would lose to a file of the author's own. After the prefix come
-\texttt{ink} (geometry, color and PDF output), \texttt{flora}
-(the primitives), \texttt{authored} and \texttt{grow} (the two compositions),
-\texttt{initial} (the decorated initials), and two themes with the figures one of them
-draws from (\texttt{theme-geometric}, the same plant cut from flat shapes;
+\texttt{ink} (geometry, color and PDF output), \texttt{flora} (the hand-designed primitives),
+\texttt{species} (the genomes), \texttt{native} (the species' organs), \texttt{pgfmath} (the
+few numbers taken from \TeX's arithmetic), \texttt{authored} and \texttt{grow} (the two
+compositions), \texttt{initial} (the decorated initials), and two themes with the figures one
+of them draws from (\texttt{theme-geometric}, the same plant cut from flat shapes;
 \texttt{theme-math}, figures, symbols and equations cascading down the margin;
-\texttt{figures}). It needs Lua\LaTeX\ and one compilation, at
-about a second per page. To share it, the three routes that work are, in increasing order
-of effort: paste the files into a blank Overleaf project with the compiler set to
-Lua\LaTeX\ and share the link; put them in a Git repository with a continuous integration
-job that compiles the PDFs on every push and attaches them to tagged releases; or publish
-the package so that any document can \texttt{\textbackslash usepackage} the garden and
-choose its own seed, column and hue.
+\texttt{figures}). Two more files, \texttt{tikzlibraryflorilegium.code.tex} and its tables,
+are the TikZ library, which draws the species in pure TikZ. The package needs Lua\LaTeX\ and
+one compilation, at about a second per page. To share it, the three routes that work are, in
+increasing order of effort: paste the files into a blank Overleaf project with the compiler set
+to Lua\LaTeX\ and share the link; put them in a Git repository with a continuous integration
+job that compiles the PDFs on every push and attaches them to tagged releases; or publish the
+package so that any document can \texttt{\textbackslash usepackage} the garden and choose its
+own seed, column and hue.
 
 \begin{remark}
-Two mistakes cost time and are worth recording. A literal written into the page bypasses
+Three mistakes cost time and are worth recording. A literal written into the page bypasses
 TikZ, so it also bypasses TikZ's transformations: a primitive called inside
-\verb|\begin{scope}[shift=...,rotate=...]| must read pgf's current matrix itself (it is in
+\verb|\begin{scope}[rotate=30]| must read pgf's current matrix itself (it is in
 \verb|\pgf@pt@aa| to \verb|\pgf@pt@bb| and the dimensions \verb|\pgf@pt@x|,
-\verb|\pgf@pt@y|) and apply it in Lua. And a Lua function that returns two values, placed
+\verb|\pgf@pt@y|) and apply it in Lua. A Lua function that returns two values, placed
 in the middle of a table constructor such as \verb|{x0, y0, f(t), x1, y1}|, contributes only
 its first value; the rest of the table shifts, and the error surfaces three functions
-later as arithmetic on \texttt{nil}.
+later as arithmetic on \texttt{nil}. And opening a scope in pgf empties the current path, so a
+path built just before the scope and filled inside it never reaches the page. The TikZ library
+drew every leaf without its darker half that way, and nobody noticed until its drawings were
+compared, in total darkness, with the Lua's, which keeps the path.
 \end{remark}

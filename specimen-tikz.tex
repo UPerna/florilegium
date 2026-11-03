@@ -52,9 +52,10 @@
 \begin{document}
 {\Large Species in TikZ}\par\smallskip
 {\small Each plant is a species sampled from a genome (body plan, the visitor its flowers are
-for, the flower, its cluster, the leaf, the fruit) and drawn by TikZ in florilegium's v1.3
-hand. Under pdfLaTeX, pgfmath computes every point; under LuaLaTeX, Lua computes the same pgf
-commands, to the byte, and sooner. Three species share a root, as a margin's main stems do: stems and
+for, the flower, its cluster, the leaf, the fruit) and painted in florilegium's v1.3
+hand. Under pdfLaTeX, pgfmath computes every point and TikZ draws it; under LuaLaTeX, Lua takes
+the same steps with the same random draws, within a fraction of a point, a hundred times sooner.
+Three species share a root, as a margin's main stems do: stems and
 the flowers at their tops first, then leaves at the nodes, then branches wherever there is
 room, a pale flower of the first behind them.}\par\medskip
 \begin{tikzpicture}

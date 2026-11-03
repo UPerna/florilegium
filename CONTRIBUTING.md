@@ -16,7 +16,7 @@ Everyone taking part follows the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Building
 
-The README's [Build](README.md#build) section has every target. Without a local TeX, build
+[Building and checking](docs/building.md) lists every target and check. Without a local TeX, build
 the Docker image once (`docker build -t florilegium-tex tools`) and add
 `RUN=tools/in-docker` to any `make` command.
 
@@ -30,13 +30,17 @@ explains each of them in its "Conventions and traps" section.
 - **Pages are deterministic.** The same seed draws the same page byte for byte under
   LuaLaTeX, Lua 5.3, Lua 5.4 and the playground. `tools/svgcheck.sh` checks this, and CI runs
   it on every pull request. A change that should leave the drawing alone must leave it
-  byte-identical; `tools/ident.lua` writes 45 pages to compare before and after.
+  byte-identical; `tools/ident.lua` writes 65 pages to compare before and after.
+- **TikZ and Lua draw the same species.** The TikZ library and `florilegium-native.lua` take
+  the same steps with the same random draws, so a change to one is made in the other too.
+  `tools/tikzcheck.lua` checks that both sample the same species, and `tools/tikzcheck.lua
+  draw quick` that their drawings match.
 - **The playground** has its own check: serve the repository (`make playground`) and run
   `tools/playcheck` (see the comment at the top of `check.mjs`).
 - **US spelling** everywhere, in code, comments and docs.
-- **The PostScript port** is not kept in sync automatically. If you change a primitive or
-  `florilegium-grow.lua`, say in the pull request whether `postscript/florilegium.ps` needs the same
-  change.
+- **The PostScript port** grows v1.3's garden and is not kept in sync automatically. If you
+  change one of v1.3's primitives or v1.3's growth in `florilegium-grow.lua`, say in the pull
+  request whether `postscript/florilegium.ps` needs the same change.
 - **Credit what you borrow.** A published algorithm or constant gets a credit where it is
   used and a line under the README's Credits.
 

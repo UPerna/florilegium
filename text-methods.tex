@@ -3,7 +3,7 @@
 \subsection{The garden in the margin}
 
 Everything in the left margin of this page is drawn while the page is being shipped out,
-from a few hundred lines of Lua run by Lua\TeX. There are no image files, no imported
+by Lua code run inside Lua\TeX. There are no image files, no imported
 paths and no external programs; every petal is a parametric curve evaluated for this page
 and written straight into it as PDF path operators. This section records how it is done,
 so that the margin documents itself.
@@ -126,16 +126,17 @@ makes the document stable enough to typeset.
 Let $P$ be the number of primitive instances on a page and $S$ the mean number of path
 points per instance. The cost of a page is $\Theta(PS)$ floating-point operations in Lua and
 $\Theta(PS)$ bytes of output, and \TeX\ does no arithmetic at all; in practice a page takes
-well under a second, for $P\approx 400$ and $S\approx 100$.
+about a second, for $P$ in the hundreds and $S\approx 100$.
 \end{proposition}
 
 \begin{proof}[Proof sketch]
 Every coordinate is computed once in Lua, transformed to the page, and printed with one
 decimal of a PDF point into a single literal node, which \TeX\ only carries to the page.
-The same curves can be computed in \TeX\ itself with \texttt{pgfmath}, but it does
-arithmetic by macro expansion in \TeX\ dimensions, and a page then takes about a minute. The
-size of the output is the real constraint: about
-three megabytes of path operators per page, which compress to under one.
+The same curves can be computed in \TeX\ itself with \texttt{pgfmath}, as this package's
+TikZ library does for its species, but \texttt{pgfmath} does arithmetic by macro expansion in
+\TeX\ dimensions, and a strip of three plants $21\,$cm tall then takes a minute and a half
+instead of under a second. The size of the output is the real constraint, three to five
+megabytes of path operators per page, which compress to about one.
 \end{proof}
 
 \begin{exercise}
