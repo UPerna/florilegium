@@ -25,7 +25,11 @@
 % catch the base prefixes 0x and 0b; every distinct number thereby leaves a name behind,
 % and under pdfLaTeX (fixed string pool) a few thousand parsed coordinates fill the pool.
 % Here the lookup is made only when the number so far is 0 (the only case a prefix can
-% follow), which changes nothing else. Applied only if that line is found as written.
+% follow), which changes nothing else. Applied only if that line is found as one of the
+% two forms pgf has written it in: 3.1.10 looks up \pgfmath@number\pgfmath@token, 3.1.12
+% \expandafter\pgfmath@number\expandafter\string\pgfmath@token (TeX Live 2026); each is
+% replaced by the same line with the test around it. Under another pgf nothing is changed,
+% and a page of plants may then fill pdfTeX's string pool.
 % The change is florilegium's, made at load time in documents that load this library; pgf's
 % files are not changed, and pgf's authors do not support it: report problems with it to
 % florilegium. pgf itself, unmodified, is at https://ctan.org/pkg/pgf (LPPL 1.3c or GPL 2).
@@ -38,9 +42,29 @@
 \def\flo@pgfpatch@b#1\csname pgfmath@base@\pgfmath@number\pgfmath@token\endcsname\relax\flo@pgfpatch@end{\def\flo@tmpb{#1}}
 \def\flo@pgfpatch@c#1#2{\def\pgfmath@parse@@number{#2%
   \csname pgfmath@base@\ifx\pgfmath@number\pgfmath@char@zero0\pgfmath@token\else-\fi\endcsname\relax#1}}
+% pgf 3.1.12's form of the same line
+\def\flo@pgfpatchs#1\csname pgfmath@base@\expandafter\pgfmath@number\expandafter\string\pgfmath@token\endcsname\relax#2\flo@pgfpatch@end{%
+  \def\flo@tmp{#2}%
+  \ifx\flo@tmp\pgfutil@empty\else
+    \flo@pgfpatchs@b#2\flo@pgfpatch@end
+    \expandafter\flo@pgfpatchs@c\expandafter{\flo@tmpb}{#1}%
+  \fi}
+\def\flo@pgfpatchs@b#1\csname pgfmath@base@\expandafter\pgfmath@number\expandafter\string\pgfmath@token\endcsname\relax\flo@pgfpatch@end{\def\flo@tmpb{#1}}
+\def\flo@pgfpatchs@c#1#2{\def\pgfmath@parse@@number{#2%
+  \csname pgfmath@base@\ifx\pgfmath@number\pgfmath@char@zero0\expandafter\string\pgfmath@token\else-\fi\endcsname\relax#1}}
 \ifdefined\pgfmath@parse@@number
   \expandafter\flo@pgfpatch\pgfmath@parse@@number
     \csname pgfmath@base@\pgfmath@number\pgfmath@token\endcsname\relax\flo@pgfpatch@end
+  \ifx\flo@tmp\pgfutil@empty
+    \expandafter\flo@pgfpatchs\pgfmath@parse@@number
+      \csname pgfmath@base@\expandafter\pgfmath@number\expandafter\string\pgfmath@token\endcsname\relax\flo@pgfpatch@end
+  \fi
+  % neither form: say so under pdfTeX, whose string pool is fixed (LuaTeX's grows)
+  \ifx\flo@tmp\pgfutil@empty\ifdefined\directlua\else
+    \pgfutil@packagewarning{florilegium}{pgf \pgfversion's number scanner is not in a form
+      this library knows, so it is left as it is; a page of plants may then fill pdfTeX's
+      string pool (TeX capacity exceeded, pool size)}%
+  \fi\fi
 \fi
 
 % ---------------------------------------------------------------- traits

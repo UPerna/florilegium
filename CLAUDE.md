@@ -179,6 +179,16 @@ is ~70 KB of path operators, a v1.3 page ~3 MB uncompressed, ~0.6 MB in the PDF;
   pgfmath expression. A change that should move nothing: build the Lua engine's pics (the
   `build/tikzcheck-draw.pics` list, `\pdfvariable compresslevel=0`) before and after and compare
   their streams, and `tools/ident.lua` for the margin.
+- **The library's pgf patch** (`\flo@pgfpatch`, top of `tikzlibraryflorilegium.code.tex`) rewrites
+  the one line of `\pgfmath@parse@@number` that looks up `\csname pgfmath@base@<number><token>`
+  (the string pool fills under pdfLaTeX otherwise: "TeX capacity exceeded [pool size]" on the
+  first strip). It matches pgf 3.1.10's form (TeX Live 2023) and 3.1.12's
+  (`\expandafter\pgfmath@number\expandafter\string\pgfmath@token`, TeX Live 2026, CI's
+  latex-action), and warns under pdfTeX when it finds neither. Local checks run TeX Live 2023
+  and only CI's `tikz` job sees the newest pgf: before a release, run that job in
+  `ghcr.io/xu-cheng/texlive-alpine:latest` (`apk add poppler-utils`, `export
+  extra_mem_top=20000000`, `latexmk -pdf specimen-tikz.tex`, `texlua tools/tikzcheck.lua draw
+  quick`), as M8e did when this broke.
 - **`\pgfscope` empties the current path** (`\pgfsyssoftpath@setcurrentpath\pgfutil@empty`,
   pgfcorescopes.code.tex). A path built before `\begin{pgfscope}` and filled inside it never
   reaches the PDF (`q … gs f Q`, no path); ink keeps it, so the Lua engine drew the four darker

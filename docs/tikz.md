@@ -122,6 +122,9 @@ seasons over a document are the package's, and the package is Lua (LuaLaTeX only
 pgfmath's number scanner leaves a name in TeX's string pool for every distinct number it reads,
 and under pdfLaTeX a few thousand coordinates fill the pool. The library changes one line of
 it when it loads, so that the lookup behind the name is made only after a leading 0, the only
-place a base prefix can follow. Nothing else changes, pgf's own files stay as they are, and
-the change applies only if that line is found as written. Problems with it belong to
-florilegium, not to pgf's authors.
+place a base prefix can follow. Nothing else changes, and pgf's own files stay as they are.
+The change applies only if that line is found in one of the two forms pgf has written it in
+(pgf 3.1.10, and 3.1.12 in TeX Live 2026). Under another pgf the library leaves the scanner
+alone and says so in a warning under pdfLaTeX, where a page of plants may then stop with "TeX
+capacity exceeded, sorry [pool size]". Problems with the change belong to florilegium, not to
+pgf's authors.
