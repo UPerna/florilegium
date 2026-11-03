@@ -33,11 +33,13 @@ function M.new(data)
   local d=P.definition(t.definition);local s=P.specification(t.design,d)
   keys(t.definition.transforms,"metric_constrained reflection uniform_scale","definition.transforms")
   keys(t.design.document,"unit bounds protected_regions","design.document")
-  keys(t.view,"unit transform crop protected_regions derived validity projection","recipe.view")
+  keys(t.view,"unit transform crop protected_regions derived validity projection extensions","recipe.view")
   if t.view.projection then keys(t.view.projection,"matrix depth_policy","projection") end
   if t.design.budget then limits(t.design.budget) end
   assert(t.dimension==2 or t.dimension==3,"explicit construction dimension required")
   t.view=P.plain(P.view_settings(t.view,d,t.dimension));dependencies(t.dependencies)
+  if t.view.extensions then require("pattern_planner").recipe_view_inputs(d,s,t.view,t.dimension)
+  else assert(not(s.extensions and s.extensions.planning_generation),"document generation context requires its paired planning view")end
   t.definition=P.plain(d);t.design=P.plain(s)
   return P.snapshot(t)
 end
@@ -106,8 +108,10 @@ function M.execute(recipe,registry,environment,options)
   end end
   for name in pairs(verified) do assert(declared_inputs[name],"unused supplied input: "..name) end
   local phase="construction"
-  local context=R.context({seed=q.design.seed,source=env.source,versions=env.runtime,limits=limits(options.limits or q.design.budget),cancelled=options.cancelled,
-    frame={id=q.definition.id.."/global",unit=q.definition.units,dimension=q.dimension,handedness="right",origin=q.dimension==3 and {0,0,0} or {0,0}},
+  local planning=q.design.extensions and q.design.extensions.planning_generation
+  local frame=planning and {id=planning.frame.id,unit="cm",dimension=2,handedness="right",origin=P.plain(planning.frame.origin)} or {id=q.definition.id.."/global",unit=q.definition.units,dimension=q.dimension,handedness="right",origin=q.dimension==3 and {0,0,0} or {0,0}}
+  local context=R.context({seed=q.design.seed,source=env.source,versions=env.runtime,limits=limits(options.limits or q.design.budget),cancelled=options.cancelled,planning=planning,
+    frame=frame,
     stream_provider=Random.provider(q.design.seed,q.definition.id.."@"..q.definition.version),input_provider=function(name)
       assert(declared_inputs[name] and (phase~="construction" or q.dependencies.construction[name]),"input is undeclared for current phase: "..name)
       return verified[name]
@@ -124,16 +128,29 @@ function M.execute(recipe,registry,environment,options)
   if result then
     local ok,value=pcall(function()
       assert(result.instance.frame.dimension==q.dimension,"generated dimension differs from recipe")
-      local v=P.plain(q.view);v.id=result.instance.id.."/view";v.instance_ref=result.instance.id
-      v=P.view(v,result.instance,result.definition)
       phase="lowering"
-      local scene=registry:lower(q.definition.id,result.instance,v,q.design.style,context)
+      local v,scene,planned
+      if q.view.extensions then
+        local planner=require("pattern_planner");local input=planner.recipe_view_inputs(q.definition,q.design,q.view,q.dimension)
+        local diagnostic;planned,diagnostic=planner.view(result.instance,result.definition,input.document,input.page_id,input.profile,input.options,context)
+        if not planned then error({code=diagnostic.code,message=table.concat(P.plain(diagnostic.diagnostics),"; ")},0)end
+        local lowered;lowered,diagnostic=planner.lower(registry,q.definition.id,result.instance,result.definition,planned,q.design.style,context)
+        if not lowered then error({code=diagnostic.code,message=table.concat(P.plain(diagnostic.diagnostics),"; ")},0)end
+        v,scene=lowered.view,lowered.scene
+      else
+        v=P.plain(q.view);v.id=result.instance.id.."/view";v.instance_ref=result.instance.id
+        v=P.view(v,result.instance,result.definition);scene=registry:lower(q.definition.id,result.instance,v,q.design.style,context)
+      end
       local ib,sb=P.serialize(result.instance),P.serialize(scene)
       outputs[1]={kind="instance",sha256=H.sha256(ib),semantic_sha256=H.value("instance",result.instance),bytes=#ib}
       outputs[2]={kind="scene",sha256=H.sha256(sb),semantic_sha256=H.value("scene",scene),bytes=#sb}
-      return {instance=result.instance,view=v,scene=scene,bytes={instance=ib,scene=sb}}
+      return {instance=result.instance,view=v,scene=scene,bytes={instance=ib,scene=sb},planning=planned}
     end)
     if ok then accepted=value;record.status="complete";record.validation={status="passed",checks=P.plain(result.validation.checks)}
+      if value.planning then
+        record.validation.checks[#record.validation.checks+1]="document planner: source-preserving selection and requested physical policies"
+        record.validation.planning={document_digest=value.planning.document_digest,source_digest=value.planning.source_digest,page_ref=value.planning.decisions.page_ref}
+      end
     else problem={status=type(value)=="table" and value.code=="cancelled" and "cancelled" or "failed",diagnostics={type(value)=="table" and value.message or tostring(value)}} end
   end
   if not accepted then record.status=problem.status;record.diagnostics=problem.diagnostics;record.outputs=P.array() end

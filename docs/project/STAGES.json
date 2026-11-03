@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_stage": "06",
+  "current_stage": "07",
   "prompt_sha256": "8D25740D944FC98943FD005737BD825215CFCF6F894218790E140EDE8EE3F09E",
   "stages": [
     {
@@ -183,45 +183,67 @@
     {
       "id": "06",
       "title": "lower semantic instances into shared vector scenes",
-      "status": "in_progress",
+      "status": "passed",
       "prerequisites": "05",
       "acceptance_items": [
         "a tiny floral fixture, graph/strand fixture and tiled fixture produce valid PDF/SVG with consistent geometry and correct bounds. Existing floral default regressions still pass. The scene can carry all required text and semantic references without forcing a new generator or a second renderer."
       ],
       "observed_results": [
-        "Shared validated Lua vector plan and actual native PDF/SVG implemented",
-        "Local dual-runtime61 contracts/145 replay/91 geometry/44 scene checks passed; identical PDF/SVG bytes",
-        "Local librsvg/Poppler oracle passed six fixtures, explicit dash/winding and strict overlapping-reservation ROI checks",
-        "Legacy28 fingerprints/backend checks and old/new two-page PDF byte equality passed",
-        "Linux Inkscape and both TeX-host exact-head CI, latest visual review and guarded publication remain pending",
-        "Initial07f3fdb CI41502953750 passed all required jobs/196 kit hashes, then actual CI visual inspection rejected an Inkscape clipped multiply mismatch; stage remains in_progress",
-        "Follow-up isolates each clipped paint inside its outer blend group and adds analytic interior-color checks;44 scenes perLua runtime and local independent oracle pass sourcecad26079"
+        "Shared validated Lua vector plan, actual PDF/SVG, captured real floral primitives, traced graph/strand, single-owner tiling seam strokes and positioned real-font Unicode text implemented",
+        "Initial07f3fdb CI passed but actual image review rejected clipped multiply; repaired in76cc324 and added independent analytic color assertions without loosening image tolerances",
+        "Final76cc324 independently fetched: tree897ffca8,13 changed file bytes/196 inherited objects and modes verified; complete-history bundle verified",
+        "Exact-head CI41505209725 success in both required jobs:61 contracts,145 replay,91 geometry,44 scene checks, independent Fraction/Decimal and Inkscape/Poppler oracles, all old regressions and both TeX hosts",
+        "All12 actual PDF/SVG bytes match native texlua CI and local Lua5.3/5.4; strict overlapping protected ROIs minimum255; multiply RGB PDF90/81/98 vs SVG91/82/99 within3/255 analytic bound",
+        "Corrected CI six-pair images visually inspected;203 source-kit hashes, reproducible archive and extracted Lua/Xe builds passed"
       ],
       "evidence_paths": [
         "docs/architecture/SCENES.md",
         "tools/scenecheck.lua",
         "tools/scene_oracle.py",
-        "artifacts/receipts/06/"
+        "artifacts/receipts/06/",
+        "artifacts/receipts/06/publication-initial.json",
+        "artifacts/receipts/06/publication-followup.json",
+        "artifacts/receipts/06/ci-initial-visual-rejection.json",
+        "artifacts/receipts/06/ci-final.json",
+        "artifacts/receipts/06/scene-oracle-ci-final.json"
       ],
-      "tested_code_revision": "working tree at07f3fdb; source digestcad26079ee23ce1e6c8103dce7940fbd11c7bb42a0aea2e4c620081052e47618",
-      "local_commit": null,
-      "verified_remote_revision": "07f3fdb3f44dc82707d2f0d9320eb652410e1130",
-      "next_action": "Publish corrected blend follow-up guarded by07f3fdb; exact-head required CI and visual QA before07"
+      "tested_code_revision": "76cc324cd68f564f924f1e00729a19579eb4a78d",
+      "local_commit": "76cc324cd68f564f924f1e00729a19579eb4a78d",
+      "verified_remote_revision": "76cc324cd68f564f924f1e00729a19579eb4a78d",
+      "next_action": "Stage07 document-aware planning and views"
     },
     {
       "id": "07",
       "title": "document-aware planning and views",
-      "status": "pending",
+      "status": "in_progress",
       "prerequisites": "06",
       "acceptance_items": [
         "the same world-anchored tiling viewed in two overlapping regions agrees in the overlap; a changed page crop does not regenerate unrelated interior geometry; flowers still adapt to permitted space; protected ink regions are clear; views preserve traceability to source semantic objects. Demonstrate both a standalone panel and a two-page document with independently checked physical coordinates."
       ],
-      "observed_results": null,
-      "evidence_paths": null,
-      "tested_code_revision": null,
+      "observed_results": [
+        "Implemented immutable physical document contexts, actual legacy-host translation, bound family planning profiles and source-preserving document views",
+        "One generated analytic grid reused across standalone, facing-page and overlapping crops; full/clipped tile policies, generation halo, true/cut/masked edge traceability and closed-strand semantics checked",
+        "Independent exact Fraction516 coordinate comparisons,80-digit Decimal3 affine cases, whole-segment routes,8 actual host-offset/parity cases and physical/raster overlap checks passed",
+        "Actual unchanged floral grower adapts occupancy and rejects reserved motifs before clipping; its one legacy route failure remains explicit, not a continuous-route success",
+        "Current scene and planner PDF/SVG pairs visually inspected locally; strict protected ROIs white; real two-page PDF matches individual page geometry",
+        "Required exact-head Linux Inkscape/both-host CI, publication verification and fresh CI visual review remain pending",
+        "Final source 5be36b4338c117ecb388de4c7832d7db7173decd0b3954a150940308007a99c6: both Lua5.3/5.4 passed61 contracts,145 replay,91 geometry,56 scenes and82 planner checks.",
+        "Current-source independent geometry and planner oracles passed, including actual recipe replay, protected ink, physical coordinates and overlap. Current floral images visually inspected."
+      ],
+      "evidence_paths": [
+        "docs/architecture/DOCUMENTS.md",
+        "pattern_document.lua",
+        "pattern_planner.lua",
+        "tools/plannercheck.lua",
+        "tools/planner_oracle.py",
+        "tools/fixtures/planner-grid.lua",
+        "docs/validation/fixtures/scene-v1-digests.json",
+        "artifacts/receipts/07/"
+      ],
+      "tested_code_revision": "source digest 5be36b4338c117ecb388de4c7832d7db7173decd0b3954a150940308007a99c6; parent76cc324; publication/CI pending",
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+      "next_action": "Guarded publication expected76cc324; independently fetch and verify all bytes/tree/history; exact-head both-host CI and fresh CI image review before08."
     },
     {
       "id": "08",
@@ -360,7 +382,7 @@
     },
     {
       "id": "17",
-      "title": "Ammann–Beenker and projection/multigrid generation",
+      "title": "Ammann\u00e2\u20ac\u201cBeenker and projection/multigrid generation",
       "status": "pending",
       "prerequisites": "16",
       "acceptance_items": [

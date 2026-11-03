@@ -4,6 +4,8 @@ See the [verified compatibility baseline](docs/project/BASELINE.md) for current 
 
 The experimental common platform now has [shared vector scene rendering](docs/architecture/SCENES.md). Run `texlua tools/scenecheck.lua` then `python3 tools/scene_oracle.py` to generate and independently check six PDF/SVG fixture pairs. This is a positioned-outline text profile; full family migration and shaping retain their numbered gates.
 
+[Document planning and views](docs/architecture/DOCUMENTS.md) add explicit physical page frames, fixed-world tile crops, continuation halos and checked constraints. Run `texlua tools/plannercheck.lua` then `python3 tools/planner_oracle.py` for the standalone/two-page and adaptive floral acceptance fixtures.
+
 ## Origin
 
 The [Reddit post](https://www.reddit.com/r/LaTeX/comments/1xixznw/how_do_you_make_these_flowers_in_latex/)

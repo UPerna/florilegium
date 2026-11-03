@@ -10,6 +10,7 @@ function M.context(options)
   local spent,cancelled={},false
   local on_cancel,provider,input_provider=options.cancelled,options.stream_provider,options.input_provider
   local metadata={seed=seed,source=P.snapshot(options.source),versions=P.snapshot(options.versions or {}),frame=P.snapshot(options.frame or {id="world",unit="cm",dimension=2,handedness="right",origin={0,0}})}
+  if options.planning~=nil then metadata.planning=P.snapshot(options.planning)end
   local ctx=setmetatable({},{__index=metadata,__newindex=function(t,k,v) assert(metadata[k]==nil,"immutable construction context metadata");rawset(t,k,v) end})
   function ctx:consume(name,n)
     if cancelled or on_cancel and on_cancel() then cancelled=true;error({code="cancelled",message="construction cancelled"},0) end
@@ -47,6 +48,11 @@ function M.new()
     local d,impl=entry.definition,entry.implementation
     local spec=P.specification(P.plain(specification),d)
     assert(spec.seed==context.seed,"context seed differs from specification")
+    local planning=spec.extensions and spec.extensions.planning_generation
+    if planning then
+      assert(context.planning and P.serialize(context.planning)==P.serialize(planning),"prepared document inputs differ from construction context")
+      assert(context.frame.id==planning.frame.id and context.frame.unit=="cm" and context.frame.dimension==2 and P.serialize(context.frame.origin)==P.serialize(planning.frame.origin),"prepared document frame differs from construction context")
+    end
     local function execute()
       context:consume("objects",0)
       if next(P.plain(spec.inputs)) or next(P.plain(spec.constraints)) then

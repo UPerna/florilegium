@@ -91,10 +91,13 @@ function M.svg(plan)
   end
   return '<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="'..n(w)..'cm" height="'..n(h)..'cm" viewBox="0 0 '..n(w)..' '..n(h)..'" role="img"><defs>'..table.concat(defs,"\n")..'</defs><g transform="translate('..n(-b[1])..' '..n(b[4])..') scale(1 -1)">'..table.concat(out,"\n")..'</g></svg>\n'
 end
-function M.pdf(plan)
+function M.pdf_document(plans)
+  assert(type(plans)=="table" and #plans>=1 and #plans<=4096,"PDF document needs1..4096 shared drawing plans")
   local objects={};local function obj(s)objects[#objects+1]=s;return #objects end
   local function stream(s)return obj('<< /Length '..#s..' >>\nstream\n'..s..'\nendstream')end
-  local catalog,pages=obj(false),obj(false);local gs,gstates={},{}
+  local catalog,pages=obj(false),obj(false);local references={}
+  for _,plan in ipairs(plans)do
+  local gs,gstates={},{}
   local function state(p)
     local key=n(p.opacity or 1).."/"..(p.blend or "normal")
     if not gs[key]then local name="GS"..(#gstates+1);gs[key]=name;gstates[#gstates+1]='/'..name..' '..obj('<< /Type /ExtGState /ca '..n(p.opacity or 1)..' /CA '..n(p.opacity or 1)..' /BM /'..(p.blend=="multiply" and "Multiply" or "Normal")..' >>')..' 0 R'end
@@ -142,7 +145,10 @@ function M.pdf(plan)
   end
   content[#content+1]='Q';local contents=stream(table.concat(content,'\n'))
   local page=obj('<< /Type /Page /Parent '..pages..' 0 R /MediaBox [0 0 '..nums({(b[3]-b[1])*k,(b[4]-b[2])*k})..'] /Resources << /ExtGState << '..table.concat(gstates,' ')..' >> /Font << '..table.concat(fontrefs,' ')..' >> >> /Contents '..contents..' 0 R >>')
-  objects[catalog]='<< /Type /Catalog /Pages '..pages..' 0 R >>';objects[pages]='<< /Type /Pages /Kids ['..page..' 0 R] /Count 1 >>'
+  references[#references+1]=page..' 0 R'
+  end
+  objects[catalog]='<< /Type /Catalog /Pages '..pages..' 0 R >>';objects[pages]='<< /Type /Pages /Kids ['..table.concat(references,' ')..'] /Count '..#references..' >>'
   return require("pdfwriter").encode(objects,catalog)
 end
+function M.pdf(plan)return M.pdf_document({plan})end
 return M

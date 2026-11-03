@@ -6,6 +6,8 @@ local function check(ok,why)assert(ok,why);count=count+1 end
 local function reject(fn)check(not pcall(fn),"expected unsupported/invalid scene rejection")end
 local function read(p)local f=assert(io.open(p,"rb"));local s=assert(f:read("*a"));assert(f:close());return s end
 local files={"pattern.lua","pattern_json.lua","pattern_parse.lua","pattern_hash.lua","pattern_registry.lua","pattern_geometry.lua","pattern_predicates.lua","pattern_exact.lua","pattern_curves.lua","pattern_bounds.lua","ink.lua","flora.lua","pdfwriter.lua","pattern_draw.lua","pattern_render.lua","pattern_ink.lua","pattern_bytes.lua","pattern_artifact.lua","pattern_examples.lua","tools/scenecheck.lua","tools/scene_oracle.py","docs/validation/fixtures/scene-font.json"}
+files[#files+1]="docs/validation/fixtures/scene-v1-digests.json"
+local golden=require("pattern_parse").decode(read("docs/validation/fixtures/scene-v1-digests.json"))
 local source={};for _,f in ipairs(files)do source[#source+1]={path=f,sha256=H.sha256(read(f):gsub("\r\n","\n"))}end
 local digest=H.sha256(P.serialize(source));local root="build/scenes/"..digest
 local function dir(p)local ok=lfs.mkdir(p);if not ok then assert(lfs.dir(p),"output directory unavailable")end end
@@ -21,6 +23,8 @@ local registry,defs=E.registry();local fixtures={}
 local function context()return R.context({seed=7,source={revision="scene-fixture"}})end
 local function emit(name,x,v,d,s)
   local before=P.serialize(x);local plan=V.plan(s,x,v,d);local svg,pdf=V.svg(plan),V.pdf(plan)
+  check(H.sha256(pdf)==golden.fixtures[name].pdf_sha256,"single-page PDF differs from independently verified06 output")
+  check(H.sha256(svg)==golden.fixtures[name].svg_sha256,"single-page SVG differs from independently verified06 output")
   check(P.serialize(x)==before,"render mutated semantic instance")
   check(svg==V.svg(plan) and pdf==V.pdf(plan),"render bytes not deterministic")
   check(svg:find('<path ',1,true) and not svg:find('<image',1,true),"SVG paths required, raster prohibited")

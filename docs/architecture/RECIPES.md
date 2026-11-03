@@ -144,3 +144,7 @@ Stage 08 must handle migration with explicit compatibility evidence. The stage03
 PDF-only floral interop resource still uses fixed fixture colors and rejects
 unimplemented palette controls. General floral palettes/semantics, real fonts,
 solvers and browser execution remain their owning implementation gates.
+
+## Document planning extension, stage07
+
+Old schema1 recipes retain their exact encoding and execution path. New document recipes use planner.recipe and view.extensions.document_planning schema1, containing validated document/profile/page/options inputs. They store no stale cell-selection list. DesignSpecification.extensions.planning_generation binds the actual construction frame/profile; adaptive mode also binds actual page geometry, anchors and host snapshot. This data is immutable context metadata and part of the construction key. Fixed crops/reservations remain in view inputs. Recipe validation recomputes normalized physical context; execution plans and lowers the newly validated instance and records that evidence in the BuildRecord. Missing or mismatched context, failed full-tile/halo policy, physical constraints or cancellation cannot produce a complete build. Use planner.recipe with document inputs instead of feeding a computed planner view into the old from_specification helper.

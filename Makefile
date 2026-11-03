@@ -20,6 +20,8 @@ check:
 	$(RUN) python3 tools/geometry_oracle.py
 	$(RUN) texlua tools/scenecheck.lua
 	$(RUN) python3 tools/scene_oracle.py
+	$(RUN) texlua tools/plannercheck.lua
+	$(RUN) python3 tools/planner_oracle.py
 	$(RUN) texlua tools/layoutcheck.lua
 	$(RUN) texlua tools/spacecheck.lua
 	$(RUN) texlua tools/initialcheck.lua

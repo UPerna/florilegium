@@ -1,7 +1,7 @@
 # Florilegium execution status
 
-Stages00–05 passed. Stage06 in_progress. Initial07f3fdb (treed8529318, parent814d772) was independently verified and CI41502953750 passed both jobs, including196 source-kit hashes. Visual inspection then rejected a clipped multiply mismatch in Inkscape1.4.2; this green CI is not a stage pass.
+Stages00–06 passed at76cc324cd68f564f924f1e00729a19579eb4a78d. Stage07 in_progress: document contexts, fixed/adaptive planner, source-preserving views, recipe replay and actual legacy-host adapter implemented.
 
-Isolated work/stage06-followup corrects SVG per-paint blend placement and adds an analytic interior-color check. Both local Lua runtimes pass44 scene checks; independent librsvg/Poppler checks pass source digestcad26079ee23ce1e6c8103dce7940fbd11c7bb42a0aea2e4c620081052e47618. Next: publish follow-up with expected07f3fdb, independently verify exact files/tree, run exact-head required CI and inspect its images. Only then mark06 passed and immediately begin07 through39.
+Final source 5be36b4338c117ecb388de4c7832d7db7173decd0b3954a150940308007a99c6 passed on Lua5.3/5.4:61 contracts,145 replay,91 geometry,56 scenes,82 planner checks. Independent geometry, Fraction/Decimal, physical-coordinate, protected ink, overlap and actual recipe-byte checks passed. Current local view/floral images inspected; legacy fingerprints and PDF/SVG bytes retained.
 
-Preserve all dirty worktrees, initial stage06 bundles and original PR1. Draft PR2 stays open; no merge/release/deploy before39. Lost96545fa was replaced by verifieddd8ee95 only under explicit user amendment. Native Windows TeX remains unavailable; Linux gates are mandatory.
+Next: guarded publication expected76cc324, independent Git byte/tree/history checks, exact-head Linux both-host CI and fresh image review. Only then begin08 and continue automatically through39. All dirty worktrees preserved. No merge/release/deploy before39; Windows TeX unavailable, mandatory Linux gates unchanged.

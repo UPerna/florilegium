@@ -24,3 +24,5 @@ Stage05 interval audit:91 analytical/adversarial tests now include non-dyadic si
 ## Stage06 current evidence (publication gate pending)
 
 Local Lua5.3/5.4 agree on actual six-fixture PDF/SVG bytes. Local Poppler/librsvg checks pass physical bounds, vector-only content, logical Unicode, explicit dash/winding probes and strict protected ink. Default28 fingerprints/backend checks and old/new two-page PDF byte equality pass. These are finite fixture and compatibility results, not complete SVG/PDF viewer equivalence or a shaping/accessibility certification. Linux Inkscape/Poppler, both TeX hosts and exact-head publication CI remain mandatory before06 passes.
+
+Stage06 final gate:76cc324, exact-head CI41505209725 passed both jobs and203 kit hashes. All12 PDF/SVG bytes agree in native texlua and local Lua5.3/5.4. Corrected CI image pairs inspected; analytic multiply and strict protected-area tests pass. This supersedes earlier06 pending status; the initial visually rejected green CI is retained in receipts. Full shaping24 and browser31 remain separate gates.
