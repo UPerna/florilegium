@@ -469,8 +469,10 @@ local function blade(spine, w)
   for i = n, 2, -1 do out[#out + 1] = right[i] end
   return out, nr
 end
--- \flo@vstreak: a ribbon along the points, widths w0 to w1, thin at its start
-local function streak(pts, w0, w1, color, op)
+-- the closed outline of a band along the points, up one side and back down the other:
+-- halfw(s, acc) the half-width at a point s along them, acc their whole length (taken as 1
+-- when every point is the same one, so s / acc is 0, not 0 / 0)
+local function ribbonpts(pts, halfw)
   local nr, n = normals(pts), #pts
   local s, acc = { 0 }, 0
   for i = 2, n do
@@ -478,15 +480,26 @@ local function streak(pts, w0, w1, color, op)
     acc = acc + sqrt(dx * dx + dy * dy)
     s[i] = acc
   end
+  if acc == 0 then acc = 1 end
   local out = {}
   for i = 1, n do
-    local u = acc > 0 and s[i] / acc or 0
-    local w = (w0 + (w1 - w0) * u) * (u < 0.12 and 0.4 + 5 * u or 1) / 2
-    local p, q = pts[i], nr[i]
-    out[i] = { p[1] + q[1] * w, p[2] + q[2] * w }
-    out[2 * n + 1 - i] = { p[1] - q[1] * w, p[2] - q[2] * w }
+    local h, p, q = halfw(s[i], acc), pts[i], nr[i]
+    out[i] = { p[1] + q[1] * h, p[2] + q[2] * h }
+    out[2 * n + 1 - i] = { p[1] - q[1] * h, p[2] - q[2] * h }
   end
-  smooth(out, true) fill(color, op)
+  return out
+end
+-- \flo@feribbon, and \flo@vstem's filled band: a ribbon along the points, widths w0 to w1,
+-- in color c
+local function ribbon(pts, w0, w1, c)
+  smooth(ribbonpts(pts, function(s, acc) return (w0 + (w1 - w0) * s / acc) / 2 end), true) fill(c, 1)
+end
+-- \flo@vstreak: a ribbon along the points, widths w0 to w1, thin at its start
+local function streak(pts, w0, w1, color, op)
+  smooth(ribbonpts(pts, function(s, acc)
+    local u = s / acc
+    return (w0 + (w1 - w0) * u) * (u < 0.12 and 0.4 + 5 * u or 1) / 2
+  end), true) fill(color, op)
 end
 -- the six points of a cubic (\flo@vbezier), for an open smooth curve (\flo@openpath)
 local function bezier6(x0, y0, x1, y1, x2, y2, x3, y3)
@@ -1335,21 +1348,7 @@ local function stem(pts, w0, w1, t)
   local w = (w0 + w1) / 2 * 28.3465
   local c = tone(t)
   if w < 0.7 then smooth(pts, false) stroke(c, w, 1, false) return end
-  local nr, n = normals(pts), #pts
-  local s, acc = { 0 }, 0
-  for i = 2, n do
-    local dx, dy = pts[i][1] - pts[i - 1][1], pts[i][2] - pts[i - 1][2]
-    acc = acc + sqrt(dx * dx + dy * dy)
-    s[i] = acc
-  end
-  local out = {}
-  for i = 1, n do
-    local h = (w0 + (w1 - w0) * s[i] / acc) / 2
-    local p, q = pts[i], nr[i]
-    out[i] = { p[1] + q[1] * h, p[2] + q[2] * h }
-    out[2 * n + 1 - i] = { p[1] - q[1] * h, p[2] - q[2] * h }
-  end
-  smooth(out, true) fill(c, 1)
+  ribbon(pts, w0, w1, c)
 end
 local function line(x1, y1, x2, y2, c, w, op) moveto(x1, y1) lineto(x2, y2) stroke(c, w, op, false) end
 -- \flo@hair: a pedicel
@@ -2556,24 +2555,7 @@ local function compoundleaf(lpt)
 end
 
 -- ================================================================ M8f5: ferns
--- \flo@feribbon: a filled ribbon along the points, widths w0 to w1, in color c
-local function ribbon(pts, w0, w1, c)
-  local nr, n = normals(pts), #pts
-  local s, acc = { 0 }, 0
-  for i = 2, n do
-    local dx, dy = pts[i][1] - pts[i - 1][1], pts[i][2] - pts[i - 1][2]
-    acc = acc + sqrt(dx * dx + dy * dy)
-    s[i] = acc
-  end
-  local out = {}
-  for i = 1, n do
-    local h = (w0 + (w1 - w0) * s[i] / acc) / 2
-    local p, q = pts[i], nr[i]
-    out[i] = { p[1] + q[1] * h, p[2] + q[2] * h }
-    out[2 * n + 1 - i] = { p[1] - q[1] * h, p[2] - q[2] * h }
-  end
-  smooth(out, true) fill(c, 1)
-end
+-- the rachis (\flo@feribbon) is drawn by ribbon, above
 -- the frond's outline (\flo@feol@): bm the widest pinna's place, lo the foot, kx the tip's
 -- exponent, wr the longest pinna; the pinna's tip (\flo@feap@); its teeth (\flo@fem@)
 local FOL = { lanceolate = { 0.3, 0.45, 0.8, 0.26 }, oblong = { 0.12, 0.7, 0.35, 0.2 },
@@ -4640,17 +4622,28 @@ end
 -- Returns false for a kind not drawn here.
 local DRAWN = { unit = true, budding = true, tendril = true, bloom = true, ghost = true, leaf = true, frond = true,
   visitor = true }
--- the organ's numbers as TeX holds them, in whole scaled points: a length the layout caps at
--- 19/16 cm then gives the library's count of teeth, not one less
-local function sp(x) return floor(x * 65536 + 0.5) / 65536 end
+-- the organ's numbers as TeX holds them, in whole scaled points (K): a length the layout
+-- caps at 19/16 cm then gives the library's count of teeth, not one less
 local function held(o)
   local h = {}
   for k, v in pairs(o) do
-    if type(v) == "number" then h[k] = sp(v)
-    elseif type(v) == "table" then h[k] = { sp(v[1]), sp(v[2]) }
+    if type(v) == "number" then h[k] = K(v)
+    elseif type(v) == "table" then h[k] = { K(v[1]), K(v[2]) }
     else h[k] = v end
   end
   return h
+end
+-- a ghost: a plain rotate flower of the species, d cm across (no more than five petals),
+-- in the pale the caller set; the margin's ghost and the plants pic's
+local function ghostflower(d)
+  local tq = stone()
+  local g = {}
+  for k, v in pairs(S) do g[k] = v end
+  g.form = "rotate"
+  if g.merosity > 6 then g.merosity = 5 end
+  S = g
+  ink.scale(d)
+  M.sflower(d * 28.45276, { tone = tq, notchp = 0.4, notchk = 1 })
 end
 function M.draw(kind, s, z, o)
   if not DRAWN[kind] then return false end
@@ -4686,14 +4679,7 @@ function M.draw(kind, s, z, o)
     else M.frond(leafu(o.len), { unroll = o.unroll, arch = o.arch, fertile = o.fertile, under = o.under }) end
   else                                            -- the ghost: a plain rotate flower, pale
     pen.lift = 0.62
-    local tq = stone()
-    local g = {}
-    for k, v in pairs(S) do g[k] = v end
-    g.form = "rotate"
-    if g.merosity > 6 then g.merosity = 5 end
-    S = g
-    ink.scale(o.d)
-    M.sflower(o.d * 28.45276, { tone = tq, notchp = 0.4, notchk = 1 })
+    ghostflower(o.d)
   end
   ink.pop()
   return true
@@ -5252,14 +5238,7 @@ local pic = (function()
           organ(gos, function()
             pen.lift = K(0.62)
             ink.translate(gx, gy)
-            local tq = stone()
-            local g = {}
-            for k, v in pairs(S) do g[k] = v end
-            g.form = "rotate"
-            if g.merosity > 6 then g.merosity = 5 end
-            S = g
-            ink.scale(gdiam)
-            M.sflower(gdiam * 28.45276, { tone = tq, notchp = 0.4, notchk = 1 })
+            ghostflower(gdiam)
           end)
         end
       end
