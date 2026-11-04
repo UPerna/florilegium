@@ -204,11 +204,11 @@
       ],
       "stage_owner": "19",
       "retrieved": "2026-11-02",
-      "access": "Full primary PDF retrieved and section inventory inspected",
+      "access": "Full primary PDF reviewed. Exact bytes, figures and sections pinned in artifacts/receipts/19/source-reference.json.",
       "code_availability": "No reusable code/license established; independent implementation required unless separately verified",
       "data_availability": "Use original fixtures; publication access is not artwork permission",
       "paper_license": "No redistribution permission established; do not bundle paper",
-      "implementation_status": "pending"
+      "implementation_status": "Analytic 2D pointed arches, crown ellipse, rounded foils, recursive circles and concentric profiles implemented. Native and visual gates pending."
     },
     {
       "id": "R07",
@@ -455,7 +455,7 @@
       "code_availability": "Official HatViz BSD-3-Clause source pinned to 4bb9d01999e4e84accc2a78d0fa279ef20b47263. Source rule data adapted with license.",
       "data_availability": "Use original fixtures; publication access is not artwork permission",
       "paper_license": "arXiv record grants distribution to arXiv; no project redistribution permission inferred. Project sample-media licenses are separate.",
-      "implementation_status": "Exact Hat metatile recurrence implemented. Native and artifact gates pending."
+      "implementation_status": "Stage 18 exact four-metatile Hat hierarchy passed pinned-reference, native CI and artifact checks."
     },
     {
       "id": "R15",

@@ -1,5 +1,5 @@
 # Florilegium execution status
 
-Stages 00–17 passed. Stage 18 remains in progress. Stage 18 passed 22 local checks on both Lua versions and all independent Hat and solver checks. The first native source archive included the adapted rule module without the required BSD notice. The corrected packager includes and verifies the exact notice, rejects a missing notice, and produces the same bytes in two local builds.
+Stages 00–18 passed. Stage 19 local acceptance passed. 17 checks on each Lua runtime and 36 matching output hashes. The independent oracle verified 144 analytic arcs, 12 tangent contacts, nested profile bands, seven recursive foil rings, and eleven PDF/SVG pairs including the centered junction close-up. Native CI pending.
 
-Publish the Stage 18 package correction from d3fb593, verify the exact Git revision, and require both native jobs and a fresh PDF/SVG review. The corrected portable archive must contain the exact pinned BSD notice.
+Publish from exact parent ca1fa55, verify normal Git fetch and both native CI jobs, then inspect all fresh PDF/SVG pairs.
