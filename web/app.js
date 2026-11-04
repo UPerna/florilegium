@@ -633,6 +633,7 @@ async function show(m) {
   // the text and the status tell what grew once the garden shows, not while its picture loads
   const took = m.ms < 950 ? `${Math.max(10, Math.round(m.ms / 10) * 10)} milliseconds` : `${(m.ms / 1000).toFixed(1)} seconds`
   img.onload = () => {
+    if (m.id !== seq) return   // another garden is growing: this one's picture tells nothing
     $('#proof').classList.remove('growing')
     pageText(m)
     fit()
