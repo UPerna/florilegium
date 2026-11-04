@@ -21,9 +21,18 @@ texlua florilegium-svg.lua --help                  # paper, margins, two-sided p
 make svg SEED=7                                    # -> build/svg-7.svg
 ```
 
-For an e-book or a screen, where the paper's edge is not a cut, `--bleed 6mm` lets the garden
-run on past the edge of the paper and makes the SVG 6 mm larger on every side; without it the
-SVG is the page LuaLaTeX draws.
+A garden set on a page of its own, such as the part-title page of an e-book, does not end
+where the paper does. The reader's screen, its margins and its theme lie all around it, and the
+clip that keeps a printed margin inside the paper would cut the pale flowers along a straight
+line in the middle of the screen. `--bleed LEN` leaves the clip open along the paper's edges,
+so the garden may run up to LEN past them, and makes the SVG LEN larger on every side. The
+sides that face the text keep their clip, so the space for a title stays empty. It works for
+the grown page and the authored one; without it the SVG is the page LuaLaTeX draws.
+
+```sh
+lua florilegium-svg.lua --seed 3 --paper 120x200 --left 36mm --right 12mm --top 36mm --bottom 12mm \
+  --headsep 0mm --headheight 0pt --textend 50mm --nohead --bleed 14mm > part-title.svg
+```
 
 Any Lua 5.3 or 5.4 runs it. Lengths are read the way TeX reads them and colors are converted
 the way xcolor converts them, so `--seed 7` with the default margins gives, byte for byte, the

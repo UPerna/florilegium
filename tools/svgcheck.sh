@@ -19,6 +19,8 @@ pages='--seed 7
 --seed 9 --theme math --textend 90mm
 --seed 4 --page 2 --twoside --left 25mm --right 65mm --season autumn
 --seed 3 --season spring
+--seed 4 --paper 120x200 --left 36mm --right 12mm --top 36mm --bottom 12mm --textend 50mm --nohead --bleed 14mm
+--authored --bleed 6mm
 --authored'
 
 status=0
