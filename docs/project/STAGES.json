@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_stage": "11",
+  "current_stage": "12",
   "prompt_sha256": "8D25740D944FC98943FD005737BD825215CFCF6F894218790E140EDE8EE3F09E",
   "stages": [
     {
@@ -326,36 +326,43 @@
     {
       "id": "11",
       "title": "classical Islamic geometric construction",
-      "status": "in_progress",
+      "status": "passed",
       "prerequisites": "10",
       "acceptance_items": [
         "the declared classical capabilities run through the shared contracts and renderer, quantitative seam/continuity checks pass, fixtures are visually inspected, and unsupported geometry is reported accurately. No claim of historical authenticity follows merely from algorithmic validity."
       ],
-      "observed_results": "23 checks on each Lua version, 22 identical output hashes, 3880 interior contacts, 4358 source greedy bend pairs, 8 irregular-gap rays, and seven local PDF/SVG pairs inspected. Native CI pending.",
+      "observed_results": "Native CI passed both jobs. 23 checks, 3880 verified contacts, 4358 bend pairs, 22 artifact hashes and 278 source kit hashes. Seven native pairs accepted. Nine native/local byte differences, with topology unchanged and coordinate differences below 3e-15. See native-local-parity.json.",
       "evidence_paths": [
         "artifacts/receipts/11/oracle.json",
         "artifacts/receipts/11/receipt-Lua-5.3.json",
-        "artifacts/receipts/11/receipt-Lua-5.4.json"
+        "artifacts/receipts/11/receipt-Lua-5.4.json",
+        "artifacts/receipts/11/publication.json",
+        "artifacts/receipts/11/ci-final.json",
+        "artifacts/receipts/11/native-local-parity.json"
       ],
-      "tested_code_revision": null,
-      "local_commit": null,
-      "verified_remote_revision": null,
-      "next_action": "Publish with expected parent c45310b, verify branch bytes, require both native CI jobs, and inspect fresh Celtic artifacts."
+      "tested_code_revision": "7751d8207e6f8d2ffe0cccd1481a37afd5b64285",
+      "local_commit": "7751d8207e6f8d2ffe0cccd1481a37afd5b64285",
+      "verified_remote_revision": "7751d8207e6f8d2ffe0cccd1481a37afd5b64285",
+      "next_action": "Passed. Proceed to stage 12."
     },
     {
       "id": "12",
       "title": "freeform Islamic geometry and circle packing",
-      "status": "pending",
+      "status": "in_progress",
       "prerequisites": "11",
       "acceptance_items": [
         "fixtures demonstrate the paper's declared freeform capability, not just a classical pattern with jitter. Quantified packing and seam evidence exists, generation/solver failure is visible, and both source fidelity and any deliberate departures are recorded in COVERAGE.csv."
       ],
-      "observed_results": null,
-      "evidence_paths": null,
+      "observed_results": "20 checks on each Lua version, 13 matching output hashes, 23 independently verified circles and 284 continuous ports. Three local PDF/SVG pairs inspected. Native CI pending.",
+      "evidence_paths": [
+        "artifacts/receipts/12/oracle.json",
+        "artifacts/receipts/12/receipt-Lua-5.3.json",
+        "artifacts/receipts/12/receipt-Lua-5.4.json"
+      ],
       "tested_code_revision": null,
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+      "next_action": "Publish with expected parent 7751d82, verify branch bytes, require both native CI jobs, and inspect fresh Celtic artifacts."
     },
     {
       "id": "13",

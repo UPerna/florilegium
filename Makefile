@@ -30,6 +30,8 @@ check:
 	$(RUN) python3 tools/celtic_oracle.py
 	$(RUN) texlua tools/islamiccheck.lua
 	$(RUN) python3 tools/islamic_oracle.py
+	$(RUN) texlua tools/freeformcheck.lua
+	$(RUN) python3 tools/freeform_oracle.py
 	$(RUN) texlua tools/layoutcheck.lua
 	$(RUN) texlua tools/spacecheck.lua
 	$(RUN) texlua tools/initialcheck.lua

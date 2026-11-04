@@ -38,7 +38,7 @@ end
 
 -- An optional angle callback supplies already established contact geometry
 -- from neighboring motifs, as in Kaplan and Salesin's Euclidean gap inference.
-function M.motif(polygon,angle,displacement,contact_angle)
+function M.motif(polygon,angle,displacement,contact_angle,contact_direction)
   assert_convex(polygon)
   assert(number(displacement) and displacement>=0,"pic-displacement")
   local rays,pairs_,used,segments={},{},{},{}
@@ -54,8 +54,16 @@ function M.motif(polygon,angle,displacement,contact_angle)
     local t=unit(edge)
     local c,s=math.cos(theta*math.pi/180),math.sin(theta*math.pi/180)
     for _,side in ipairs{-1,1} do
+      local direction={side*c*t[1]-s*t[2],side*c*t[2]+s*t[1]}
+      local actual=contact_direction and contact_direction(i,side)
+      local measured=theta
+      if actual then
+        direction=unit(actual)
+        assert(det(t,direction)>0,"pic-contact-direction-outward")
+        measured=math.deg(math.atan(math.abs(det(t,direction)),math.abs(dot(t,direction))))
+      end
       rays[#rays+1]={edge=i,side=side,origin=add(midpoint(a,b),t,-side*displacement/2),
-        direction={side*c*t[1]-s*t[2],side*c*t[2]+s*t[1]},angle=theta}
+        direction=direction,angle=measured}
     end
   end
   local tolerance=scale*1e-10
@@ -353,6 +361,8 @@ local function lower(x,v,style)
   return {id=x.id.."/scene",instance_ref=x.id,view_ref=v.id,unit="cm",validity=v.validity,
     clip={bounds=P.plain(v.crop),protected_regions=P.plain(v.protected_regions)},operations=ops,resources=P.array()}
 end
+
+M.lower_graph=lower
 
 function M.register(registry)
   local R,T=require("pattern_registry"),require("pattern_periodic")
