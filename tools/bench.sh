@@ -43,14 +43,17 @@ LUALATEX="lualatex -interaction=batchmode"
 
 # ---- the margin: each release's grown page, and the text alone
 margin() {   # DIR -> "seconds-garden seconds-text pages bytes-garden bytes-text"
-  tg=$(run "$1" "$runs" $LUALATEX -jobname=bench "\def\florilegiumseed{7}\input{bench.tex}")
-  tt=$(run "$1" "$runs" $LUALATEX -jobname=bench-text "\def\florilegiumseed{7}\def\benchoptions{,nomargin}\input{bench.tex}")
+  tg=$(run "$1" "$runs" $LUALATEX -jobname=bench "\def\florilegiumseed{7}\input{bench.tex}") || exit 1
+  tt=$(run "$1" "$runs" $LUALATEX -jobname=bench-text "\def\florilegiumseed{7}\def\benchoptions{,nomargin}\input{bench.tex}") || exit 1
   set -- "$1" $(written "$1/bench.log") $(written "$1/bench-text.log")
   echo "$tg $tt $2 $3 $5"
 }
-set -- $(margin "$old")
+# (assigned first: `set -- $(...)` would hide a failed build, since set itself succeeds)
+r=$(margin "$old") || exit 1
+set -- $r
 o_tg=$1 o_tt=$2 o_p=$3 o_bg=$4 o_bt=$5
-set -- $(margin "$B/new")
+r=$(margin "$B/new") || exit 1
+set -- $r
 n_tg=$1 n_tt=$2 n_p=$3 n_bg=$4 n_bt=$5
 
 # ---- the TikZ library: one strip, pure TikZ under pdfLaTeX and LuaLaTeX, then the Lua engine
