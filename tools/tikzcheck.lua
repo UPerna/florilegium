@@ -238,7 +238,7 @@ if arg[1] == "draw" then
   -- plain, striped and spotted, of each ground and feeler; ladybirds red and black, with
   -- 0, 7, 14 and 22 spots; caterpillars of each pose, stripe, ground, with tufts or a horn;
   -- snails coiled either way, high- and low-spired, banded and plain, with and without a
-  -- lip; seed-eaters with and without a crest, nectar birds hovering and perched with each
+  -- lip, ribbed, corded, open-coiled and withdrawn into the shell; seed-eaters with and without a crest, nectar birds hovering and perched with each
   -- bill; small ones, drawn simpler
   local vseen = {}
   for _, w in ipairs({
@@ -302,6 +302,10 @@ if arg[1] == "draw" then
       { "snail", function(v) return v.spire < 0.3 and v.shellbands == 0 end },
       { "snail", function(v) return v.ground == "copper" and v.shellbands > 0 end },
       { "snail", function(v) return v.ground == "pale" and v.expansion > 2.8 end },
+      { "snail", function(v) return v.sculpture == "ribs" and v.withdrawn == 0 end },
+      { "snail", function(v) return v.sculpture == "cords" and v.shellbands > 0 end },
+      { "snail", function(v) return v.withdrawn == 1 and v.lip == 1 end },
+      { "snail", function(v) return v.opencoil == 1 end },
       { "perch", function(v) return v.crest == 1 end },
       { "perch", function(v) return v.ground == "dark" end },
       { "perch", function(v) return v.ground == "copper" end },
@@ -323,6 +327,7 @@ if arg[1] == "draw" then
   pic("florilegium visitor={seed=6, role=ladybird, size=0.2cm}")
   pic("florilegium visitor={seed=7, role=caterpillar, size=0.6cm}")
   pic("florilegium visitor={seed=9, role=snail, size=0.2cm}")
+  pic("florilegium visitor={seed=8, role=snail, size=0.7cm}")
   pic("florilegium visitor={seed=11, role=hummingbird, size=0.25cm}")
   end
   if not fernonly and not visonly then

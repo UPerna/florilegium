@@ -5476,32 +5476,26 @@
     \ifnum\flo@xget{tufts}=1 \flo@cttufts\fi
   \end{pgfscope}}
 % ---------------------------------------------------------------- snails
-% A snail: flora's, in units of its shell's width, crawling toward +y, its foot along the
-% y axis and its shell on the +x side; a shell that coils to the left is the whole snail
-% mirrored. The genome shapes the shell: as many whorls as it has, each wider than the one
-% inside it by its expansion, the spire standing out behind as far as its height, dark
-% bands along the whorls, a pale lip at the mouth (which faces the foot); and how far the
-% snail is out of it, in the foot's length and its feelers'.
+% A snail, in units of its shell's width, crawling toward +y, its foot along the y axis and
+% its shell on the +x side; a shell that coils to the left is the whole snail mirrored. The
+% shell is Raup's coiled tube (the shells report, part A): a ring 1 across the coil and S
+% (the genome's aperture) along it, y0 out from the coiling axis and x0 along it, sweeps
+% through the whorls and grows W times (its expansion) a turn. Seen from the spire's side
+% with the axis tilted toward the viewer, a ring shows as an ellipse, and its two extremes
+% across the coil are the whorl's edges there. The whorls are painted from the mouth in, each
+% older one over the one after it, so its outer edge is the suture on the next; each is
+% mottled, shaded under its suture and lit on its shoulder, with bands, ribs or cords and
+% growth lines. The mouth faces the foot and shows the snail's body, or the pale seal of a
+% snail withdrawn into its shell, which shows no foot and no feelers.
 \def\flo@gsbodypt#1#2#3{%
   \flo@sym\flo@t{0.08}\flo@calc\flo@xa{(#2)*(1+\flo@t)}%
   \flo@calc\flo@ya{(#3)*((#3)<0 ? 0.5+0.5*\flo@gsx : 0.75+0.3*\flo@gsx)}\flo@put{#1}\flo@xa\flo@ya}
-% the shell's spiral at t (0 the apex, 1 the mouth), its radius times #2: \flo@xa/ya
-\def\flo@gsspiral#1#2{%
-  \flo@calc\flo@t{pow(\flo@gsE,-(1-(#1))*\flo@gsn)}%
-  \flo@calc\flo@wa{180-(1-(#1))*\flo@gsn*360}\flo@calc\flo@v{\flo@gsH*(1-\flo@t)}%
-  \flo@calc\flo@xa{\flo@gscx+\flo@v*cos(-40)+(#2)*0.95*\flo@gsR*\flo@t*cos(\flo@wa)}%
-  \flo@calc\flo@ya{\flo@gscy+\flo@v*sin(-40)+(#2)*0.95*\flo@gsR*\flo@t*sin(\flo@wa)}}
-% points 1..#3 along the spiral from t = #2 to the mouth, its radius times #1
-\def\flo@gsline#1#2#3{%
-  \flo@loop{gsl}\flo@Wb{0}{#3-1}{%
-    \flo@calc\flo@gst{#2+(1-(#2))*\the\flo@Wb/(#3-1)}\flo@gsspiral\flo@gst{#1}%
-    \flo@put{\the\numexpr\flo@Wb+1\relax}\flo@xa\flo@ya}}
 \def\flo@gsbody{%
   \flo@gsbodypt1{0}{-0.78}\flo@gsbodypt2{-0.01}{-0.3}\flo@gsbodypt3{0}{0.3}\flo@gsbodypt4{0.04}{0.58}%
   \flo@gsbodypt5{0.12}{0.7}\flo@gsbodypt6{0.22}{0.66}\flo@gsbodypt7{0.24}{0.5}\flo@gsbodypt8{0.2}{0.32}%
   \flo@gsbodypt9{0.17}{0}\flo@gsbodypt{10}{0.12}{-0.45}\flo@gsbodypt{11}{0.05}{-0.7}%
   \flo@smoothprep{11}\flo@keep{gsb}%
-  \flo@range\flo@gstb{0.5}{0.6}%
+  \flo@range\flo@gstb{0.5}{0.6}\global\let\flo@gstbg\flo@gstb
   \flo@vtone{flo@c}{\flo@gstb}\flo@vfill{flo@c}{1}{0}{\flo@kept{gsb}}%
   \begin{pgfscope}\flo@kept{gsb}\pgfusepath{clip}%
     \ifnum\flo@fine=1
@@ -5526,45 +5520,206 @@
   \flo@gsfeeler{0.1}{0.7}{0.18}{1.04}\flo@gsw
   \flo@vtone{flo@c}{0.05}\flo@vfill{flo@c}{1}{0}{\pgfpathcircle{\flo@P\flo@xd\flo@yd}{0.028pt}}%
   \flo@gsfeeler{0.05}{0.68}{0}{0.84}\flo@gsv}
-% the shell: a disc drawn out toward its spire, the wash, mottle, bands, the sutures (a dark
-% line and a white one lifted beside it), the lip, the rim
+\newcount\flo@gsj \newcount\flo@gsb \newcount\flo@gsr \newcount\flo@gsq
+% \flo@gsring{th}: the ring at growth angle th (0 the mouth): its center \flo@grcx/cy, the
+% offset to the whorl's outer edge \flo@grex/ey (the inner edge is the other way) with the
+% edge's wobble, the coil's direction \flo@grtx/ty, and the edge's place on the ring's
+% ellipse (\flo@grcp, \flo@grsp, its cosine and sine)
+\def\flo@gsring#1{%
+  \flo@calc\flo@grlam{pow(\flo@gsW,(#1)/360)}\flo@calc\flo@gra{(#1)+(\flo@gsph)}%
+  \flo@calc\flo@grc{cos(\flo@gra)}\flo@calc\flo@grs{sin(\flo@gra)}%
+  \flo@calc\flo@gruo{\flo@gsyo*(\flo@grc)}\flo@calc\flo@grvo{\flo@gsyo*(\flo@grs)*\flo@gsca-\flo@gsxo*\flo@gssa}%
+  \flo@calc\flo@grtx{\flo@gsk*(\flo@gruo)-\flo@gsyo*(\flo@grs)}%
+  \flo@calc\flo@grty{\flo@gsk*(\flo@grvo)+\flo@gsyo*(\flo@grc)*\flo@gsca}%
+  \flo@calc\flo@grl{veclen(\flo@grtx,\flo@grty)}%
+  \flo@calc\flo@grp{((\flo@grty)*(\flo@grc)-(\flo@grtx)*(\flo@grs)*\flo@gsca)/\flo@grl}%
+  \flo@calc\flo@grq{-(\flo@grtx)*\flo@gsS*\flo@gssa/\flo@grl}%
+  \flo@calc\flo@grh{veclen(\flo@grp,\flo@grq)}%
+  \flo@calc\flo@grw{\flo@grlam*(1+0.025*sin(3*(\flo@gra)+\flo@gswa)+0.018*sin(5*(\flo@gra)+\flo@gswb))/\flo@grh}%
+  \flo@calc\flo@grcx{\flo@grlam*(\flo@gruo)}\flo@calc\flo@grcy{\flo@grlam*(\flo@grvo)}%
+  \flo@calc\flo@grex{\flo@grw*(\flo@grc)*(\flo@grp)}%
+  \flo@calc\flo@grey{\flo@grw*((\flo@grs)*\flo@gsca*(\flo@grp)+\flo@gsS*\flo@gssa*(\flo@grq))}%
+  \flo@calc\flo@grcp{(\flo@grp)/\flo@grh}\flo@calc\flo@grsp{(\flo@grq)/\flo@grh}}
+% point #3 of edge #1 (O the outer, I the inner, S the suture on it; M the mouth) of whorl #2
+\def\flo@gsput#1#2#3#4#5{\expandafter\edef\csname flo@g#1x#2:#3\endcsname{#4}\expandafter\edef\csname flo@g#1y#2:#3\endcsname{#5}}
+\def\flo@gsgx#1#2#3{\csname flo@g#1x#2:#3\endcsname}
+\def\flo@gsgy#1#2#3{\csname flo@g#1y#2:#3\endcsname}
+% \flo@gswhorl{j}: whorl j (1 the body whorl, ending at the mouth), 19 rings: its edges, the
+% outer edge of the whorl before it (the suture on this one), and the light on it (the
+% outward normal toward the upper left of the page)
+\def\flo@gswhorl#1{%
+  \flo@calc\flo@gta{max(-360*\flo@gsn,-360*(#1))}\flo@calc\flo@gtb{-360*((#1)-1)}%
+  \expandafter\let\csname flo@gta#1\endcsname\flo@gta\expandafter\let\csname flo@gtb#1\endcsname\flo@gtb
+  \flo@loop{gsw}\flo@gsb{0}{18}{%
+    \flo@calc\flo@gth{\flo@gta+(\flo@gtb-(\flo@gta))*\the\flo@gsb/18}%
+    \flo@gsring\flo@gth
+    \edef\flo@k{\the\numexpr\flo@gsb+1\relax}%
+    \flo@calc\flo@xa{\flo@grcx+(\flo@grex)}\flo@calc\flo@ya{\flo@grcy+(\flo@grey)}\flo@gsput O{#1}\flo@k\flo@xa\flo@ya
+    \flo@calc\flo@xa{\flo@grcx-(\flo@grex)}\flo@calc\flo@ya{\flo@grcy-(\flo@grey)}\flo@gsput I{#1}\flo@k\flo@xa\flo@ya
+    \flo@calc\flo@t{((\flo@grty)*\flo@gslx-(\flo@grtx)*\flo@gsly)/veclen(\flo@grtx,\flo@grty)}%
+    \expandafter\let\csname flo@gL#1:\flo@k\endcsname\flo@t
+    \flo@calc\flo@gth{\flo@gth-360}\flo@gsring\flo@gth
+    \flo@calc\flo@xa{\flo@grcx+(\flo@grex)}\flo@calc\flo@ya{\flo@grcy+(\flo@grey)}\flo@gsput S{#1}\flo@k\flo@xa\flo@ya}}
+% the box around the shell, turned to the page (\flo@gbx..) and in its own frame (\flo@gbu..)
+\def\flo@gsbound#1#2{%
+  \edef\flo@gx{#1}\edef\flo@gy{#2}%
+  \flo@calc\flo@xa{(\flo@gx)*cos(-130)-(\flo@gy)*sin(-130)}\flo@calc\flo@ya{(\flo@gx)*sin(-130)+(\flo@gy)*cos(-130)}%
+  \flo@calc\flo@gbxa{min(\flo@gbxa,\flo@xa)}\flo@calc\flo@gbxb{max(\flo@gbxb,\flo@xa)}%
+  \flo@calc\flo@gbya{min(\flo@gbya,\flo@ya)}\flo@calc\flo@gbyb{max(\flo@gbyb,\flo@ya)}%
+  \flo@calc\flo@gbua{min(\flo@gbua,\flo@gx)}\flo@calc\flo@gbub{max(\flo@gbub,\flo@gx)}%
+  \flo@calc\flo@gbva{min(\flo@gbva,\flo@gy)}\flo@calc\flo@gbvb{max(\flo@gbvb,\flo@gy)}}
+% the point at angle #1 on the mouth's ellipse, #2 times its size: \flo@xa/ya
+\def\flo@gsringpt#1#2{%
+  \flo@calc\flo@xa{\flo@gsmcx+(#2)*cos(#1)*\flo@gsax}%
+  \flo@calc\flo@ya{\flo@gsmcy+(#2)*(cos(#1)*\flo@gsay+sin(#1)*\flo@gsby)}}
+% the points #1 of the way from the suture to the outer edge of the whorl being drawn, rings
+% #2 to #3, as points 1..\flo@gsm
+\def\flo@gsacross#1#2#3{%
+  \flo@m=0
+  \flo@loop{gsac}\flo@gsr{#2}{#3}{\advance\flo@m by1
+    \edef\flo@gsk@{\the\flo@gsr}%
+    \flo@calc\flo@xa{\flo@gsgx S\flo@gj\flo@gsk@+(#1)*(\flo@gsgx O\flo@gj\flo@gsk@-(\flo@gsgx S\flo@gj\flo@gsk@))}%
+    \flo@calc\flo@ya{\flo@gsgy S\flo@gj\flo@gsk@+(#1)*(\flo@gsgy O\flo@gj\flo@gsk@-(\flo@gsgy S\flo@gj\flo@gsk@))}%
+    \flo@put{\the\flo@m}\flo@xa\flo@ya}%
+  \edef\flo@gsm{\the\flo@m}}
+% a whorl's detail, inside its clip: blotches, the shadow under the suture, the light on the
+% shoulder, color bands, ribs or cords, growth lines near the mouth
+\def\flo@gsdecor{%
+  \def\flo@gbxa{9999}\def\flo@gbxb{-9999}\def\flo@gbya{9999}\def\flo@gbyb{-9999}%
+  \flo@loop{gsdb}\flo@gsb{1}{\flo@gsN}{%
+    \flo@calc\flo@gbxa{min(\flo@gbxa,\flo@x{\the\flo@gsb})}\flo@calc\flo@gbxb{max(\flo@gbxb,\flo@x{\the\flo@gsb})}%
+    \flo@calc\flo@gbya{min(\flo@gbya,\flo@y{\the\flo@gsb})}\flo@calc\flo@gbyb{max(\flo@gbyb,\flo@y{\the\flo@gsb})}}%
+  \ifnum\flo@gsj<3
+    \flo@calc\flo@gmsz{0.2*(\flo@gbxb-(\flo@gbxa))}\flo@calc\flo@gmta{\flo@gst-0.16}\flo@calc\flo@gmtb{\flo@gst+0.2}%
+    \ifnum\flo@fine=1 \flo@vmottle\flo@gbxa\flo@gbya\flo@gbxb\flo@gbyb{4}\flo@gmsz\flo@gmta\flo@gmtb{6}%
+    \else\flo@vmottle\flo@gbxa\flo@gbya\flo@gbxb\flo@gbyb{2}\flo@gmsz\flo@gmta\flo@gmtb{0}\fi
+  \fi
+  \def\flo@gsbw{0}%
+  \flo@loop{gssw}\flo@gsb{1}{19}{%
+    \edef\flo@gsk@{\the\flo@gsb}%
+    \flo@calc\flo@gsbw{\flo@gsbw+veclen(\flo@gsgx O\flo@gj\flo@gsk@-(\flo@gsgx S\flo@gj\flo@gsk@),\flo@gsgy O\flo@gj\flo@gsk@-(\flo@gsgy S\flo@gj\flo@gsk@))}}%
+  \flo@calc\flo@gsbw{\flo@gsbw/19}%
+  \flo@loop{gsss}\flo@gsb{1}{19}{\flo@put{\the\flo@gsb}{\flo@gsgx S\flo@gj{\the\flo@gsb}}{\flo@gsgy S\flo@gj{\the\flo@gsb}}}%
+  \flo@calc\flo@gsba{\flo@gsbw*(0.15+0.3*\flo@xget{suture})}\flo@calc\flo@gsbo{0.12+0.2*\flo@xget{suture}}%
+  \flo@vtone{flo@c}{0.08}\flo@vstreak{19}\flo@gsba\flo@gsba{flo@c}\flo@gsbo
+  \def\flo@gsla{0}\def\flo@gslb{0}%
+  \flo@loop{gslt}\flo@gsb{1}{19}{%
+    \ifdim\csname flo@gL\flo@gj:\the\flo@gsb\endcsname pt>0.15pt
+      \ifnum\flo@gsla=0 \edef\flo@gsla{\the\flo@gsb}\fi\edef\flo@gslb{\the\flo@gsb}\fi}%
+  \ifnum\flo@gsj<4 \ifnum\flo@gsla>0 \ifnum\numexpr\flo@gslb-\flo@gsla\relax>2
+    \flo@gsacross{0.62}\flo@gsla\flo@gslb
+    \flo@calc\flo@gsba{\flo@gsbw*0.06}\flo@calc\flo@gsbb{\flo@gsbw*0.24}%
+    \ifnum\flo@gsj=1 \def\flo@gsbo{0.6}\else\def\flo@gsbo{0.42}\fi
+    \flo@vstreak\flo@gsm\flo@gsba\flo@gsbb{white}\flo@gsbo
+  \fi\fi\fi
+  \ifnum\flo@gsj<3 \ifnum\flo@xget{shellbands}>0
+    \flo@loop{gsbn}\flo@gsq{1}{\flo@xget{shellbands}}{%
+      \flo@calc\flo@gsf{0.15+0.7*\the\flo@gsq/(\flo@xget{shellbands}+1)}%
+      \flo@gsacross\flo@gsf{1}{19}%
+      \flo@calc\flo@gsbb{\flo@gsbw*0.7/(\flo@xget{shellbands}+1)}%
+      \flo@vtone{flo@c}{0.06}\flo@vstreak{19}{0.003}\flo@gsbb{flo@c}{0.38}}%
+  \fi\fi
+  \edef\flo@gssc@{\flo@xget{sculpture}}\def\flo@tmp{ribs}%
+  \ifx\flo@gssc@\flo@tmp
+    \flo@calc\flo@t{\flo@gsz*3.14159/\flo@xget{ribs}}%
+    \ifdim\flo@t pt>0.05pt
+      \ifnum\flo@gsj<\flo@gsJ\space\edef\flo@gsnr{\flo@xget{ribs}}%
+      \else\pgfmathtruncatemacro\flo@gsnr{floor(\flo@xget{ribs}*(\csname flo@gtb\flo@gj\endcsname-(\csname flo@gta\flo@gj\endcsname))/360+0.5)}\fi
+      \flo@loop{gsrb}\flo@gsq{1}{\flo@gsnr}{%
+        \edef\flo@gsk@{\the\numexpr1+(18*(2*\flo@gsq-1))/(2*\flo@gsnr)\relax}%
+        \flo@vtone{flo@c}{0.05}\flo@calc\flo@t{0.25*\flo@gslw}%
+        \flo@vstroke{flo@c}{\flo@t}{0.3}{1}{\pgfpathmoveto{\flo@P{\flo@gsgx S\flo@gj\flo@gsk@}{\flo@gsgy S\flo@gj\flo@gsk@}}%
+          \pgfpathlineto{\flo@P{\flo@gsgx O\flo@gj\flo@gsk@}{\flo@gsgy O\flo@gj\flo@gsk@}}}}%
+    \fi
+  \else\def\flo@tmp{cords}\ifx\flo@gssc@\flo@tmp
+    \ifdim\flo@gsz pt>0.25pt
+      \flo@loop{gscd}\flo@gsq{1}{3}{%
+        \flo@calc\flo@gsf{\the\flo@gsq/4}\flo@gsacross\flo@gsf{1}{19}%
+        \flo@vtone{flo@c}{0.05}\flo@calc\flo@t{0.3*\flo@gslw}%
+        \flo@vstroke{flo@c}{\flo@t}{0.35}{1}{\flo@smoothopen{19}}}%
+    \fi
+  \fi\fi
+  \ifnum\flo@gsj=1 \ifnum\flo@fine=1
+    \flo@loop{gsgl}\flo@gsq{1}{3}{%
+      \flo@chance{0.375}%
+      \edef\flo@gsk@{\the\numexpr19-\flo@gsq\ifflo@yes-1\fi\relax}%
+      \flo@vtone{flo@c}{0.1}\flo@calc\flo@t{0.3*\flo@gslw}%
+      \flo@vstroke{flo@c}{\flo@t}{0.18}{1}{\pgfpathmoveto{\flo@P{\flo@gsgx S\flo@gj\flo@gsk@}{\flo@gsgy S\flo@gj\flo@gsk@}}%
+        \pgfpathlineto{\flo@P{\flo@gsgx O\flo@gj\flo@gsk@}{\flo@gsgy O\flo@gj\flo@gsk@}}}}%
+  \fi\fi}
+% the mouth: the snail's body in it, or the pale seal of one withdrawn; the lip
+\def\flo@gsmouth{%
+  \flo@loop{gsmo}\flo@gsb{1}{12}{%
+    \flo@calc\flo@xa{\flo@gsmcx+0.7*(\flo@gsgx M0{\the\flo@gsb}-(\flo@gsmcx))}%
+    \flo@calc\flo@ya{\flo@gsmcy+0.7*(\flo@gsgy M0{\the\flo@gsb}-(\flo@gsmcy))}%
+    \flo@put{\the\flo@gsb}\flo@xa\flo@ya}%
+  \flo@smoothprep{12}%
+  \begingroup\def\flo@rampname{flo@ramp}%
+    \ifnum\flo@xget{withdrawn}=1 \flo@vtone{flo@c}{0.9}\flo@vfill{flo@c}{0.95}{0}{\flo@smoothpath}%
+    \else\flo@calc\flo@t{\flo@gstbg-0.18}\flo@vtone{flo@c}{\flo@t}\flo@vfill{flo@c}{1}{0}{\flo@smoothpath}\fi
+  \endgroup
+  \flo@vtone{flo@c}{0.05}\flo@calc\flo@t{0.7*\flo@gslw}\flo@vstroke{flo@c}{\flo@t}{0.55}{1}{\flo@smoothpath}%
+  \ifnum\flo@xget{lip}=1
+    \flo@loop{gslp}\flo@gsb{0}{6}{%
+      \flo@calc\flo@t{\flo@gsfs+\flo@gsdir*\the\flo@gsb}\flo@gsringpt\flo@t{0.9}%
+      \flo@put{\the\numexpr\flo@gsb+1\relax}\flo@xa\flo@ya}%
+    \flo@vstreak{7}{0.03}{0.06}{white}{0.8}%
+  \fi}
+% the shell. Draws: the tilt, the edge's two wobbles; then for each whorl its tone, and for the
+% two outer whorls their blotches; three growth lines
 \def\flo@gsshell{%
-  \def\flo@gscx{0.36}\def\flo@gscy{0}\def\flo@gsR{0.42}%
-  \edef\flo@gsn{\flo@xget{whorls}}\edef\flo@gsE{\flo@xget{expansion}}%
-  \flo@calc\flo@gsH{0.55*\flo@xget{spire}*\flo@gsR}%
-  \pgfmathtruncatemacro\flo@gsm{round(\flo@gsn*16)+1}%
-  \flo@calc\flo@t{0.96*\flo@gsR}\flo@vblob\flo@gscx\flo@gscy\flo@gsR\flo@t{0.03}{16}%
-  \flo@loop{gsd}\flo@Wa{1}{16}{%
-    \flo@calc\flo@da{\flo@x{\the\flo@Wa}-\flo@gscx}\flo@calc\flo@db{\flo@y{\the\flo@Wa}-\flo@gscy}%
-    \flo@calc\flo@t{1+\flo@gsH/\flo@gsR*pow(max(0,cos(atan2(\flo@db,\flo@da)+40)),3)}%
-    \flo@calc\flo@xa{\flo@gscx+\flo@da*\flo@t}\flo@calc\flo@ya{\flo@gscy+\flo@db*\flo@t}%
-    \flo@put{\the\flo@Wa}\flo@xa\flo@ya}%
-  \flo@smoothprep{16}\flo@keep{gsd}%
-  \flo@vtone{flo@c}{\flo@gstn}\flo@vfill{flo@c}{1}{0}{\flo@kept{gsd}}%
-  \begin{pgfscope}\flo@kept{gsd}\pgfusepath{clip}%
-    \flo@calc\flo@gsxl{\flo@gscx-\flo@gsR}\flo@calc\flo@gsyl{\flo@gscy-1.6*\flo@gsR}%
-    \flo@calc\flo@gsxh{\flo@gscx+1.6*\flo@gsR}\flo@calc\flo@gsyh{\flo@gscy+\flo@gsR}%
-    \flo@calc\flo@ta{\flo@gstn-0.18}\flo@calc\flo@tb{\flo@gstn+0.22}%
-    \ifnum\flo@fine=1 \flo@vmottle\flo@gsxl\flo@gsyl\flo@gsxh\flo@gsyh{7}{0.1}\flo@ta\flo@tb{10}%
-    \else\flo@vmottle\flo@gsxl\flo@gsyl\flo@gsxh\flo@gsyh{3}{0.1}\flo@ta\flo@tb{0}\fi
-    \ifnum\flo@xget{shellbands}>0
-      \flo@vtone{flo@c}{0.06}\flo@calc\flo@gsls{max(0,1-2.5/\flo@gsn)}%
-      \flo@loop{gsbd}\flo@Wa{1}{\flo@xget{shellbands}}{%
-        \flo@calc\flo@gsf{1-\the\flo@Wa/(\flo@xget{shellbands}+1)*(1-1/\flo@gsE)}\flo@gsline\flo@gsf\flo@gsls{41}%
-        \flo@calc\flo@stw{0.32*\flo@gsR/(\flo@xget{shellbands}+1)}%
-        \flo@vstreak{41}{0.003}\flo@stw{flo@c}{0.55}}%
-    \fi
-    \flo@calc\flo@t{0.07*\flo@gsu*28.3465}\flo@vtone{flo@c}{0.05}%
-    \flo@vstroke{flo@c}{\flo@t}{0.6}{1}{\flo@gsline{0.84}{0}\flo@gsm\flo@smoothopen\flo@gsm}%
-    \flo@calc\flo@t{0.05*\flo@gsu*28.3465}%
-    \flo@vstroke{white}{\flo@t}{0.75}{0}{\flo@gsline{1}{0}\flo@gsm\flo@smoothopen\flo@gsm}%
-    \ifnum\flo@xget{lip}=1
-      \flo@loop{gslp}\flo@Wa{0}{4}{%
-        \flo@calc\flo@gst{1-(4-\the\flo@Wa)*0.03/\flo@gsn}\flo@gsspiral\flo@gst{0.97}%
-        \flo@put{\the\numexpr\flo@Wa+1\relax}\flo@xa\flo@ya}%
-      \flo@vstreak{5}{0.03}{0.08}{white}{0.85}%
-    \fi
-    \flo@vtone{flo@c}{0.05}\flo@calc\flo@t{0.12*\flo@gsu*28.3465}\flo@vstroke{flo@c}{\flo@t}{0.5}{1}{\flo@kept{gsd}}%
+  \edef\flo@gsW{\flo@xget{expansion}}\edef\flo@gsn{\flo@xget{whorls}}\edef\flo@gsS{\flo@xget{aperture}}%
+  \ifnum\flo@xget{opencoil}=1 \flo@calc\flo@gsD{1.15/\flo@gsW}\else\def\flo@gsD{0.03}\fi
+  \flo@calc\flo@gsyo{(1+\flo@gsD)/(1-\flo@gsD)}%
+  \flo@calc\flo@gsxo{3*\flo@xget{spire}/\flo@gsW*\flo@gsyo}%
+  \flo@calc\flo@gsk{ln(\flo@gsW)/6.28319}%
+  \flo@range\flo@t{34}{50}\flo@calc\flo@gsca{cos(\flo@t)}\flo@calc\flo@gssa{sin(\flo@t)}%
+  \def\flo@gsph{-35}%
+  \flo@range\flo@gswa{0}{360}\flo@range\flo@gswb{0}{360}%
+  \flo@calc\flo@gslx{cos(265)}\flo@calc\flo@gsly{sin(265)}%
+  \pgfmathtruncatemacro\flo@gsJ{ceil(\flo@gsn)}%
+  \flo@loop{gswh}\flo@gsj{1}{\flo@gsJ}{\expandafter\flo@gswhorl\expandafter{\the\flo@gsj}}%
+  \flo@gsring{0}\let\flo@gsmcx\flo@grcx\let\flo@gsmcy\flo@grcy
+  \flo@calc\flo@gsax{cos(\flo@gsph)}\flo@calc\flo@gsay{sin(\flo@gsph)*\flo@gsca}\flo@calc\flo@gsby{\flo@gsS*\flo@gssa}%
+  \flo@calc\flo@gsfs{atan2(\flo@grsp,\flo@grcp)}%
+  \flo@calc\flo@t{(-(\flo@gsax)*(\flo@grsp))*(\flo@grtx)+(-(\flo@gsay)*(\flo@grsp)+\flo@gsby*(\flo@grcp))*(\flo@grty)}%
+  \ifdim\flo@t pt>0pt \def\flo@gsdir{30}\else\def\flo@gsdir{-30}\fi
+  \flo@loop{gsmp}\flo@gsb{0}{11}{%
+    \flo@calc\flo@t{30*\the\flo@gsb}\flo@gsringpt\flo@t{1}\flo@gsput M0{\the\numexpr\flo@gsb+1\relax}\flo@xa\flo@ya}%
+  % the frame: the spire toward -40 degrees on the page, the coil 0.98 across
+  \def\flo@gbxa{9999}\def\flo@gbxb{-9999}\def\flo@gbya{9999}\def\flo@gbyb{-9999}%
+  \def\flo@gbua{9999}\def\flo@gbub{-9999}\def\flo@gbva{9999}\def\flo@gbvb{-9999}%
+  \flo@loop{gsbj}\flo@gsj{1}{\flo@gsJ}{\flo@loop{gsbb}\flo@gsb{1}{19}{%
+    \flo@gsbound{\flo@gsgx O{\the\flo@gsj}{\the\flo@gsb}}{\flo@gsgy O{\the\flo@gsj}{\the\flo@gsb}}}}%
+  \flo@loop{gsbm}\flo@gsb{1}{12}{\flo@gsbound{\flo@gsgx M0{\the\flo@gsb}}{\flo@gsgy M0{\the\flo@gsb}}}%
+  \flo@calc\flo@gssc{0.98/max(\flo@gbub-(\flo@gbua),0.7*(\flo@gbvb-(\flo@gbva)))}%
+  \flo@calc\flo@xa{0.4-(\flo@gbxa+(\flo@gbxb))/2*\flo@gssc}\flo@calc\flo@ya{-0.03-(\flo@gbya+(\flo@gbyb))/2*\flo@gssc}%
+  \begin{pgfscope}%
+    \pgftransformshift{\flo@P\flo@xa\flo@ya}\pgftransformrotate{-130}\pgftransformscale{\flo@gssc}%
+    \flo@calc\flo@gsuu{\flo@gsu*\flo@gssc}\flo@calc\flo@gslw{0.06*\flo@gsu*28.3465}%
+    \flo@loop{gssh}\flo@gsj{1}{\flo@gsJ}{%
+      \edef\flo@gj{\the\flo@gsj}%
+      \flo@loop{gsp1}\flo@gsb{1}{19}{\flo@put{\the\flo@gsb}{\flo@gsgx O\flo@gj{\the\flo@gsb}}{\flo@gsgy O\flo@gj{\the\flo@gsb}}}%
+      \flo@m=19
+      \ifnum\flo@gsj=1
+        \flo@loop{gsp2}\flo@gsb{1}{5}{\advance\flo@m by1
+          \flo@calc\flo@t{\flo@gsfs+\flo@gsdir*\the\flo@gsb}\flo@gsringpt\flo@t{1}\flo@put{\the\flo@m}\flo@xa\flo@ya}%
+      \fi
+      \flo@loop{gsp3}\flo@gsb{1}{19}{\advance\flo@m by1
+        \edef\flo@gsk@{\the\numexpr20-\flo@gsb\relax}\flo@put{\the\flo@m}{\flo@gsgx I\flo@gj\flo@gsk@}{\flo@gsgy I\flo@gj\flo@gsk@}}%
+      \edef\flo@gsN{\the\flo@m}%
+      \flo@calc\flo@gsz{(\flo@gsyo+1)*pow(\flo@gsW,-(\the\flo@gsj-1))*\flo@gsuu}%
+      \flo@sym\flo@t{0.03}\flo@calc\flo@gst{\flo@gstn+\flo@t}%
+      \ifdim\flo@gsz pt>0.02pt
+        \flo@smoothprep\flo@gsN\flo@keep{gsw}%
+        \flo@vtone{flo@c}{\flo@gst}\flo@vfill{flo@c}{1}{0}{\flo@kept{gsw}}%
+        \begin{pgfscope}\flo@kept{gsw}\pgfusepath{clip}%
+          \ifdim\flo@gsz pt>0.12pt \flo@gsdecor\fi
+          \flo@loop{gsoe}\flo@gsb{1}{19}{\flo@put{\the\flo@gsb}{\flo@gsgx O\flo@gj{\the\flo@gsb}}{\flo@gsgy O\flo@gj{\the\flo@gsb}}}%
+          \flo@vtone{flo@c}{0.05}\flo@vstroke{flo@c}{\flo@gslw}{0.55}{1}{\flo@smoothopen{19}}%
+        \end{pgfscope}%
+      \fi
+      \ifnum\flo@gsj=1 \flo@gsmouth\fi}%
   \end{pgfscope}}
 % a snail; #1 its shell's width on the page in pt
 \def\flo@snail#1{%
@@ -5573,9 +5728,12 @@
   \edef\flo@gsx{\flo@xget{extension}}\edef\flo@gsground{\flo@xget{ground}}%
   \flo@calc\flo@gstn{\flo@xget{tone}-0.06}%
   \def\flo@tmp{pale}\ifx\flo@gsground\flo@tmp\flo@calc\flo@gstn{min(0.72,\flo@gstn+0.25)}\fi
+  \gdef\flo@gstbg{0.55}%
   \begin{pgfscope}%
     \edef\flo@t{\flo@xget{hand}}\def\flo@tmp{sinistral}\ifx\flo@t\flo@tmp\pgftransformxscale{-1}\fi
-    \begin{pgfscope}\def\flo@rampname{flo@ramp}\flo@gsbody\flo@gsfeelers\end{pgfscope}%
+    \ifnum\flo@xget{withdrawn}=0
+      \begin{pgfscope}\def\flo@rampname{flo@ramp}\flo@gsbody\flo@gsfeelers\end{pgfscope}%
+    \fi
     \def\flo@tmp{copper}\ifx\flo@gsground\flo@tmp\def\flo@rampname{flo@aramp}\fi
     \flo@gsshell
   \end{pgfscope}}

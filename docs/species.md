@@ -79,11 +79,20 @@ small flower.
 
 A visitor is sampled from a genome of its own, which has 15 kinds (butterfly, moth, hawkmoth, honeybee,
 bumblebee, solitary bee, hoverfly, dragonfly, damselfly, beetle, ladybird, caterpillar, snail,
-songbird, hummingbird) and 42 traits, such as a wing's tip, edge and tails, its pattern, a
-bumblebee's bands, a beetle's spots, a snail's coil and bands, a bird's bill, and the pose it
+songbird, hummingbird) and 48 traits, such as a wing's tip, edge and tails, its pattern, a
+bumblebee's bands, a beetle's spots, a snail's shell, a bird's bill, and the pose it
 is seen in. A butterfly's pattern follows the systems of the nymphalid groundplan, with bands
 near the body, a central band with its discal spot, a border band, eyespots with their rings and the
 arcs outside them, and crescents at the edge.
+
+A snail's shell is Raup's coiled tube. A ring the shape of its mouth sweeps round the coiling
+axis, growing by the shell's expansion each turn and sliding along the axis as far as its spire
+asks, so a shell can be flat, globular or tall. Seen from the spire's side, each whorl's two
+edges are where the rings reach farthest across the coil, and the whorls are painted from the
+mouth inward, each older one over the next, so its rim is the suture. A shell may be banded,
+ribbed or corded and coils to the left once in twenty; one in a hundred is open-coiled, its last
+whorl clear of the rest, and three in ten are withdrawn into the shell, its mouth sealed and no
+foot showing.
 
 Each plant whose flowers have a visitor brings it to the page, so a bee comes to a bee flower
 and a hummingbird to a red tube, and so on for moths, butterflies, beetles and hoverflies. It
@@ -162,6 +171,12 @@ and the papers below.
   page (its text; the photograph there is someone else's), as weights rather than rules, since
   real flowers draw many visitors (C. B. Fenster and others, *Pollination syndromes and floral
   specialization*, Annual Review of Ecology, Evolution, and Systematics 35, 2004).
+- A snail's shell is the coiled tube of D. M. Raup, *Geometric analysis of shell coiling:
+  general problems* (Journal of Paleontology 40, 1966), its ring placed as S. Okabe and
+  J. Yoshimura reparameterize Raup's model in *Optimal designs of mollusk shells from bivalves
+  to snails* (Scientific Reports 7, 2017), with the spire lower for a fast-widening coil, the
+  negative relation they report. It is drawn from its whorls' edges, the simpler method for
+  line drawings that the research notes describe.
 - Heads and daisy discs are packed on Vogel's spiral (H. Vogel, *A better way to construct the
   sunflower head*, Mathematical Biosciences 44, 1979).
 - A butterfly's pattern systems follow the nymphalid groundplan proposed by B. N. Schwanwitsch

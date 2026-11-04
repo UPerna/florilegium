@@ -1127,11 +1127,13 @@ function M.page(g)
         return lerp(p[1], q[1], u) + c.nx * 0.03, lerp(p[2], q[2], u) + c.ny * 0.03, deg(tx, ty)
       end
       local x, y, a = at(1)
-      event({ kind = "bloom", parent = mainev[c.k], at = sa[c.i] / La, till_end = true })
+      -- a snail withdrawn into its shell does not crawl: it appears where it stays
+      local crawl = not (sv and sv.withdrawn == 1)
+      event({ kind = "bloom", parent = mainev[c.k], at = sa[c.i] / La, till_end = crawl })
       place(L_ACCENT, x, y, a, function()
         ink.scale(c.side, 1)
         if sv then vdraw(sz, "snail", s) else F.snail(rng.fork(), s) end
-      end, at, 40)
+      end, crawl and at or nil, crawl and 40 or nil)
       disc(pts[c.i][1] + c.nx * 0.36 * s, pts[c.i][2] + c.ny * 0.36 * s, 0.5 * s, 1)
       counts.snail = 1
       if sv then vlist[#vlist + 1] = { kind = "snail", group = "snail", text = SPC.vdescribe(sv), at = "stem" } end
@@ -1581,6 +1583,7 @@ function M.page(g)
   -- paper's edge reach that far past it, so nothing is cut there
   ink.tag(nil)
   ink.layer(0)
+  local bleed = g.bleed or 0
   for _, r in ipairs(rects) do
     local x1, y1, x2, y2 = r[1] - 0.25, r[2] - 0.3, r[3] + (r == col and 0.25 or 0.3), r[4] + 0.3
     if bleed > 0 then
@@ -1590,7 +1593,6 @@ function M.page(g)
       if r[4] > g.ph - 0.6 then y2 = y2 + bleed end
     end
     ink.poly({ { x1, y1 }, { x2, y1 }, { x2, y2 }, { x1, y2 } }, true)
-  local bleed = g.bleed or 0
   end
   ink.clip()
   ink.layer(99)

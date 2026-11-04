@@ -4198,18 +4198,6 @@ local visitor = (function()
 
   -- ---------------------------------------------------------------- snails
   local GS = {}                             -- the one being drawn (\flo@gs...)
-  -- \flo@gsspiral: the point at t (0 the apex, 1 the mouth) on the shell's spiral, f of the way out
-  local function gsspiral(t, f)
-    local s = GS.E ^ (-(1 - t) * GS.n)
-    local a, v = 180 - (1 - t) * GS.n * 360, GS.H * (1 - s)
-    return GS.cx + v * cos(-40) + f * 0.95 * GS.R * s * cos(a), GS.cy + v * sin(-40) + f * 0.95 * GS.R * s * sin(a)
-  end
-  -- \flo@gsline: n points along the spiral from t0 to the mouth
-  local function gsline(f, t0, n)
-    local pts = {}
-    for b = 0, n - 1 do pts[b + 1] = { gsspiral(t0 + (1 - t0) * b / (n - 1), f) } end
-    return pts
-  end
   local GSBODY = { { 0, -0.78 }, { -0.01, -0.3 }, { 0, 0.3 }, { 0.04, 0.58 }, { 0.12, 0.7 }, { 0.22, 0.66 }, { 0.24, 0.5 },
     { 0.2, 0.32 }, { 0.17, 0 }, { 0.12, -0.45 }, { 0.05, -0.7 } }
   -- \flo@gsbody: the foot, longer the farther it is out
@@ -4220,6 +4208,7 @@ local visitor = (function()
       pts[i] = { x, p[2] * (p[2] < 0 and 0.5 + 0.5 * GS.x or 0.75 + 0.3 * GS.x) }
     end
     local tb = range(0.5, 0.6)
+    GS.tb = tb
     smooth(pts, true) fill(tone(tb), 1)
     smooth(pts, true) ink.clip()
     if fine then mottle(-0.1, -0.8, 0.3, 0.8, 5, 0.1, tb - 0.25, tb + 0.15, 10) end
@@ -4243,43 +4232,178 @@ local visitor = (function()
     circle(x, y, 0.028) fill(tone(0.05), 1)
     gsfeeler(0.05, 0.68, 0, 0.84, v)
   end
-  -- \flo@gsshell: the shell, its spire leaning up, mottle, bands along the whorls, the
-  -- suture and its highlight, a flared lip, the rim
-  local function gsshell()
-    local cx, cy, R = 0.36, 0, 0.42
-    local n, E = X.whorls, X.expansion
-    GS.cx, GS.cy, GS.R, GS.n, GS.E, GS.H = cx, cy, R, n, E, 0.55 * X.spire * R
-    local m = floor(n * 16 + 0.5) + 1
-    local pts = blob(cx, cy, R, 0.96 * R, 0.03, 16)
-    for i = 1, 16 do
-      local da, db = pts[i][1] - cx, pts[i][2] - cy
-      local t = 1 + GS.H / R * max(0, cos(atan2(db, da) + 40)) ^ 3
-      pts[i] = { cx + da * t, cy + db * t }
+  -- \flo@gsshell: the shell as Raup's coiled tube (the shells report, part A, steps 1-8). A
+  -- ring 1 across the coil and S along it, y0 out from the coiling axis and x0 along it,
+  -- sweeps through the whorls, W times larger a turn; seen from the spire's side, the axis
+  -- tilted al toward the viewer, a ring shows as an ellipse whose two extremes across the
+  -- coil are the whorl's edges there. The whorls are painted from the mouth in, each older one
+  -- over the one after it, so its outer edge is the suture on the next. The spire leans back
+  -- and the mouth faces the foot.
+  local GSTEP = 18                          -- rings a whorl
+  -- \flo@gsring: at growth angle th (0 the mouth) the ring's center and the offset from it to
+  -- the whorl's outer edge (the inner edge is the other way), with the edge's wobble
+  local function gsring(th)
+    local lam = GS.W ^ (th / 360)
+    local a = th + GS.ph
+    local c, s = cos(a), sin(a)
+    local u0, v0 = GS.y0 * c, GS.y0 * s * GS.ca - GS.x0 * GS.sa
+    local tx, ty = GS.k * u0 - GS.y0 * s, GS.k * v0 + GS.y0 * c * GS.ca
+    local l = sqrt(tx * tx + ty * ty)
+    local p, q = (ty * c - tx * s * GS.ca) / l, -tx * GS.S * GS.sa / l
+    local h = sqrt(p * p + q * q)
+    local w = lam * (1 + 0.025 * sin(3 * a + GS.w1) + 0.018 * sin(5 * a + GS.w2)) / h
+    return lam * u0, lam * v0, w * c * p, w * (s * GS.ca * p + GS.S * GS.sa * q), tx, ty, p / h, q / h
+  end
+  -- \flo@gswhorl: whorl j (1 the body whorl, ending at the mouth): its outer edge O, inner edge
+  -- I, the outer edge of the whorl before it, which shows on this one as the suture (S), and
+  -- the light on it (L, the outward normal toward the upper left of the page)
+  local function gswhorl(j)
+    local t0, t1 = max(-360 * GS.n, -360 * j), -360 * (j - 1)
+    local O, I, U, L = {}, {}, {}, {}
+    for b = 0, GSTEP do
+      local th = t0 + (t1 - t0) * b / GSTEP
+      local cx, cy, ex, ey, tx, ty = gsring(th)
+      O[b + 1], I[b + 1] = { cx + ex, cy + ey }, { cx - ex, cy - ey }
+      local sx, sy, fx, fy = gsring(th - 360)
+      U[b + 1] = { sx + fx, sy + fy }
+      local l = sqrt(tx * tx + ty * ty)
+      L[b + 1] = (ty * GS.lx - tx * GS.ly) / l
     end
+    return { O = O, I = I, S = U, L = L, t0 = t0, t1 = t1 }
+  end
+  -- the points f of the way from the suture to the outer edge, from b0 to b1
+  local function gsacross(w, f, b0, b1)
+    local pts = {}
+    for b = b0, b1 do
+      local o, q = w.O[b], w.S[b]
+      pts[#pts + 1] = { q[1] + f * (o[1] - q[1]), q[2] + f * (o[2] - q[2]) }
+    end
+    return pts
+  end
+  local function gsshell()
+    local W, n = X.expansion, X.whorls
+    local D = X.opencoil == 1 and 1.15 / W or 0.03
+    GS.W, GS.n, GS.S = W, n, X.aperture
+    GS.y0 = (1 + D) / (1 - D)
+    GS.x0 = 3 * X.spire / W * GS.y0           -- Raup's T: a fast-widening coil stands lower
+    GS.k = math.log(W) / 6.28319
+    local al = range(34, 50)
+    GS.ca, GS.sa = cos(al), sin(al)
+    GS.ph = -35
+    GS.w1, GS.w2 = range(0, 360), range(0, 360)
+    -- the light from the upper left of the page, in the shell's frame (turned by 130 degrees)
+    GS.lx, GS.ly = cos(265), sin(265)
+    local J = math.ceil(n)
+    local whorls = {}
+    for j = 1, J do whorls[j] = gswhorl(j) end
+    -- the mouth: the ring at th = 0, an ellipse c + a1 cos f + a2 sin f (\flo@gsmouth); the
+    -- body whorl's outer edge ends at f = fs, and its far side runs on in the direction of growth
+    local mcx, mcy, _, _, mtx, mty, cp, sp = gsring(0)
+    local a1x, a1y, a2y = cos(GS.ph), sin(GS.ph) * GS.ca, GS.S * GS.sa
+    local function ring(f, k) return { mcx + k * cos(f) * a1x, mcy + k * (cos(f) * a1y + sin(f) * a2y) } end
+    local fs = atan2(sp, cp)
+    local dir = ((-a1x * sp) * mtx + (-a1y * sp + a2y * cp) * mty > 0) and 30 or -30
+    local mouth = {}
+    for b = 0, 11 do mouth[b + 1] = ring(30 * b, 1) end
+    -- the frame: the spire toward -40 degrees on the page; the coil 0.98 across (a tall spire
+    -- reaches farther, up to 1.4), centered where the shell has always been
+    local x0, x1, y0, y1, u0, u1, v0, v1 = 1e9, -1e9, 1e9, -1e9, 1e9, -1e9, 1e9, -1e9
+    local function bound(p)
+      local x, y = p[1] * cos(-130) - p[2] * sin(-130), p[1] * sin(-130) + p[2] * cos(-130)
+      x0, x1, y0, y1 = min(x0, x), max(x1, x), min(y0, y), max(y1, y)
+      u0, u1, v0, v1 = min(u0, p[1]), max(u1, p[1]), min(v0, p[2]), max(v1, p[2])
+    end
+    for j = 1, J do for _, p in ipairs(whorls[j].O) do bound(p) end end
+    for _, p in ipairs(mouth) do bound(p) end
+    local sc = 0.98 / max(u1 - u0, 0.7 * (v1 - v0))
+    ink.push()
+    ink.translate(0.4 - (x0 + x1) / 2 * sc, -0.03 - (y0 + y1) / 2 * sc)
+    ink.rotate(-130) ink.scale(sc)
+    local u = GS.u * sc                        -- cm on the page per unit of the shell's frame
+    local lw = 0.06 * GS.u * 28.3465
     local tn = GS.tn
-    smooth(pts, true) fill(tone(tn), 1)
-    smooth(pts, true) ink.clip()
-    if fine then mottle(cx - R, cy - 1.6 * R, cx + 1.6 * R, cy + R, 7, 0.1, tn - 0.18, tn + 0.22, 10)
-    else mottle(cx - R, cy - 1.6 * R, cx + 1.6 * R, cy + R, 3, 0.1, tn - 0.18, tn + 0.22, 0) end
-    local nb = X.shellbands
-    if nb > 0 then
-      local c, ls = tone(0.06), max(0, 1 - 2.5 / n)
-      for a = 1, nb do
-        local f = 1 - a / (nb + 1) * (1 - 1 / E)
-        streak(gsline(f, ls, 41), 0.003, 0.32 * R / (nb + 1), c, 0.55)
+    for j = 1, J do
+      local w = whorls[j]
+      local poly = {}
+      for b = 1, GSTEP + 1 do poly[b] = w.O[b] end
+      if j == 1 then
+        for b = 1, 5 do poly[#poly + 1] = ring(fs + dir * b, 1) end      -- the mouth's far side
+      end
+      for b = GSTEP + 1, 1, -1 do poly[#poly + 1] = w.I[b] end
+      local size = (GS.y0 + 1) * GS.W ^ (-(j - 1)) * u          -- the whorl across, in cm
+      local t = tn + sym(0.03)
+      if size > K(0.02) then
+        smooth(poly, true) fill(tone(t), 1)
+        smooth(poly, true) ink.clip()
+        local big = size > K(0.12)
+        if big then
+          -- a few blotches; the shadow under the suture; the light on the shoulder
+          local bx0, bx1, by0, by1 = 1e9, -1e9, 1e9, -1e9
+          for _, p in ipairs(poly) do bx0, bx1, by0, by1 = min(bx0, p[1]), max(bx1, p[1]), min(by0, p[2]), max(by1, p[2]) end
+          if j <= 2 then mottle(bx0, by0, bx1, by1, fine and 4 or 2, 0.2 * (bx1 - bx0), t - 0.16, t + 0.2, fine and 6 or 0) end
+          local sw = 0.0
+          for b = 1, GSTEP + 1 do
+            local o, q = w.O[b], w.S[b]
+            sw = sw + sqrt((o[1] - q[1]) ^ 2 + (o[2] - q[2]) ^ 2)
+          end
+          sw = sw / (GSTEP + 1)                                     -- the band's visible width
+          streak(w.S, sw * (0.15 + 0.3 * X.suture), sw * (0.15 + 0.3 * X.suture), tone(0.08), 0.12 + 0.2 * X.suture)
+          local b0, b1 = nil, nil
+          for b = 1, GSTEP + 1 do
+            if w.L[b] > K(0.15) then b0 = b0 or b b1 = b end
+          end
+          if j <= 3 and b0 and b1 - b0 >= 3 then
+            streak(gsacross(w, 0.62, b0, b1), sw * 0.06, sw * 0.24, WHITE, j == 1 and 0.6 or 0.42)
+          end
+          -- color bands along the body whorl and the one before it
+          if j <= 2 and X.shellbands > 0 then
+            for a = 1, X.shellbands do
+              streak(gsacross(w, 0.15 + 0.7 * a / (X.shellbands + 1), 1, GSTEP + 1), 0.003, sw * 0.7 / (X.shellbands + 1), tone(0.06), 0.38)
+            end
+          end
+          -- sculpture: ribs across the whorl where they stand 0.5 mm apart, or cords along it
+          if X.sculpture == "ribs" and size * 3.14159 / X.ribs > K(0.05) then
+            local nr = j < J and X.ribs or floor(X.ribs * (w.t1 - w.t0) / 360 + 0.5)
+            for r = 1, nr do
+              local bb = 1 + nediv(GSTEP * (2 * r - 1), 2 * nr)
+              local o, q = w.O[bb], w.S[bb]
+              moveto(q[1], q[2]) lineto(o[1], o[2]) stroke(tone(0.05), 0.25 * lw, 0.3, true)
+            end
+          elseif X.sculpture == "cords" and size > K(0.25) then
+            for a = 1, 3 do
+              smooth(gsacross(w, a / 4, 1, GSTEP + 1), false) stroke(tone(0.05), 0.3 * lw, 0.35, true)
+            end
+          end
+          -- growth lines near the mouth, parallel to its lip
+          if j == 1 and fine then
+            for g = 1, 3 do
+              local bb = GSTEP + 1 - g - (chance(0.375) and 1 or 0)
+              local o, q = w.O[bb], w.S[bb]
+              moveto(q[1], q[2]) lineto(o[1], o[2]) stroke(tone(0.1), 0.3 * lw, 0.18, true)
+            end
+          end
+        end
+        smooth(w.O, false) stroke(tone(0.05), lw, 0.55, true)
+        ink.unclip()
+      end
+      if j == 1 then
+        -- the mouth: the snail's body in it, or the pale seal of one withdrawn; the lip
+        local inner = {}
+        for b = 1, 12 do inner[b] = { mcx + 0.7 * (mouth[b][1] - mcx), mcy + 0.7 * (mouth[b][2] - mcy) } end
+        smooth(inner, true)
+        if X.withdrawn == 1 then fill(plain(0.9), 0.95) else fill(plain(GS.tb - 0.18), 1) end
+        smooth(inner, true) stroke(tone(0.05), 0.7 * lw, 0.55, true)
+        if X.lip == 1 then
+          local lip = {}
+          for b = 0, 6 do lip[b + 1] = ring(fs + dir * b, 0.9) end
+          streak(lip, 0.03, 0.06, WHITE, 0.8)
+        end
       end
     end
-    smooth(gsline(0.84, 0, m), false) stroke(tone(0.05), 0.07 * GS.u * 28.3465, 0.6, true)
-    smooth(gsline(1, 0, m), false) stroke(WHITE, 0.05 * GS.u * 28.3465, 0.75, false)
-    if X.lip == 1 then
-      local lip = {}
-      for a = 0, 4 do lip[a + 1] = { gsspiral(1 - (4 - a) * 0.03 / n, 0.97) } end
-      streak(lip, 0.03, 0.08, WHITE, 0.85)
-    end
-    smooth(pts, true) stroke(tone(0.05), 0.12 * GS.u * 28.3465, 0.5, true)
-    ink.unclip()
+    ink.pop()
   end
-  -- \flo@snail: a snail, its shell 1 wide; u the shell's width on the page in cm
+  -- \flo@snail: a snail, its shell 1 wide; u the shell's width on the page in cm. A snail
+  -- withdrawn into its shell shows no foot and no feelers
   local function snail(u)
     GS.u = u
     fine = u > K(0.25)
@@ -4287,11 +4411,12 @@ local visitor = (function()
     local tn = X.tone - 0.06
     if X.ground == "pale" then tn = min(0.72, tn + 0.25) end
     GS.tn = tn
+    GS.tb = 0.55
     ink.push()
     if X.hand == "sinistral" then xscale(-1) end
     local was = pen.accent
     pen.accent = false
-    gsbody() gsfeelers()
+    if X.withdrawn == 0 then gsbody() gsfeelers() end
     pen.accent = was
     if X.ground == "copper" then pen.accent = true end
     gsshell()

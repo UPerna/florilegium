@@ -303,7 +303,8 @@ make playground             # the browser playground at http://localhost:8000/we
   [*Pollinator Syndromes*](https://www.fs.usda.gov/wildflowers/pollinators/What_is_Pollination/syndromes.shtml)
   page. Heads and daisy discs are packed on Helmut Vogel's model of the sunflower (Mathematical
   Biosciences, 1979), and a butterfly's pattern follows the nymphalid groundplan of Schwanwitsch
-  (1924) and Süffert (1927).
+  (1924) and Süffert (1927). A snail's shell is Raup's coiled tube (Journal of Paleontology,
+  1966), its ring placed as Okabe and Yoshimura reparameterize it (Scientific Reports, 2017).
 - The TikZ library draws with [PGF/TikZ](https://github.com/pgf-tikz/pgf) (Till Tantau and
   others; LPPL 1.3c or GPL 2), and its random numbers and arithmetic are pgfmath's, by Mark
   Wibrow, whose ln follows an algorithm due to Rouben Rostamian with coefficients by Alain

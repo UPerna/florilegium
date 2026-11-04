@@ -662,6 +662,10 @@ M.VTRAITS = {
   "whorls", "expansion", "spire", "hand", "shellbands", "lip", "extension",
   -- birds: the bill, a crest, the tail for the body's length
   "bill", "crest", "tail",
+  -- snails' shells (the shells report, part A): the mouth's height for its width (Raup's S),
+  -- how deep the suture runs, the sculpture and its ribs a whorl, a coil whose whorls part,
+  -- and a snail withdrawn into its shell. Last, so no other visitor draws differently
+  "aperture", "suture", "sculpture", "ribs", "opencoil", "withdrawn",
 }
 -- what a kind does not have: every trait a constant (no draw)
 local VNONE = {
@@ -671,6 +675,7 @@ local VNONE = {
   stigma = C(0), pattern = C("none"), spots = C(0), spotsize = C(0), stripes = C("none"), tufts = C(0), horn = C(0),
   whorls = C(0), expansion = C(0), spire = C(0), hand = C("none"), shellbands = C(0), lip = C(0), extension = C(0),
   bill = C("none"), crest = C(0), tail = C(0),
+  aperture = C(0), suture = C(0), sculpture = C("none"), ribs = C(0), opencoil = C(0), withdrawn = C(0),
 }
 -- the wings of butterflies and moths: the groundplan's border system decides the spots
 local BORDER_EYES = BY("border", { eyes = I(1, 6), spots = I(3, 7), _ = C(0) })
@@ -750,6 +755,9 @@ M.VKINDS = {
     size = R(12, 30), tone = R(0.28, 0.42), ground = W("ink", 3, "pale", 1, "copper", 1), pose = C("glide"),
     whorls = R(3.5, 6), expansion = R(1.6, 3.2), spire = R(0.1, 1.2), hand = W("dextral", 19, "sinistral", 1),
     shellbands = W(0, 3, 5, 2, 1, 1, 2, 1, 3, 1), lip = W(0, 1, 1, 1), extension = R(0.4, 1),
+    -- about half of land snails are smooth; ribs 12-24 a whorl; an open coil is rare (report A2)
+    aperture = R(0.85, 1.3), suture = R(0.15, 0.8), sculpture = W("smooth", 5, "ribs", 3, "cords", 2),
+    ribs = BY("sculpture", { ribs = I(12, 24), _ = C(0) }), opencoil = W(0, 99, 1, 1), withdrawn = W(0, 7, 1, 3),
   } },
   -- a perching bird with a seed-eater's short conical bill, or a nectar bird (a
   -- hummingbird or a sunbird) with a long thin one, hovering or perched at the flower
@@ -812,6 +820,9 @@ function M.vviolations(v)
   check(v.kind ~= "ladybird" or v.pattern == "spots", "a ladybird without its spots")
   check(v.group == "beetle" or v.pattern == "none", "wing cases on a visitor that is no beetle")
   check((v.group == "snail") == (v.whorls > 0), "a shell on something not a snail, or a snail without one")
+  check(v.group == "snail" or (v.aperture == 0 and v.sculpture == "none" and v.withdrawn == 0 and v.opencoil == 0),
+    "a shell's mouth, sculpture or coil on something not a snail")
+  check((v.sculpture == "ribs") == (v.ribs > 0), "ribs counted on a shell that is not ribbed, or a ribbed one without")
   check((v.group == "bird") == (v.bill ~= "none"), "a bill on something not a bird, or a bird without one")
   check(v.kind ~= "bird" or v.bill == "conical", "a perching seed-eater with a nectar bill")
   check(v.kind ~= "hummingbird" or v.bill ~= "conical", "a nectar bird with a seed-eater's bill")
@@ -867,8 +878,15 @@ function M.vdescribe(v)
     if v.tufts == 1 then with[#with + 1] = "tufts of hair" end
     if v.horn == 1 then with[#with + 1] = "a horn at its tail" end
   elseif k == "snail" then
-    if v.shellbands > 0 then with[#with + 1] = "a banded shell" end
-    if v.hand == "sinistral" then with[#with + 1] = "a shell that coils to the left" end
+    local adj = {}
+    if v.spire >= 1 then adj[#adj + 1] = "high-spired" elseif v.spire <= 0.25 then adj[#adj + 1] = "flat" end
+    if v.shellbands > 0 then adj[#adj + 1] = "banded" end
+    if v.sculpture == "ribs" then adj[#adj + 1] = "ribbed" elseif v.sculpture == "cords" then adj[#adj + 1] = "corded" end
+    local shell = v.opencoil == 1 and "open-coiled shell" or "shell"
+    if #adj > 0 then shell = concat(adj, ", ") .. " " .. shell end
+    with[#with + 1] = (shell:match("^[aeiou]") and "an " or "a ") .. shell
+    if v.hand == "sinistral" then with[#with + 1] = "a coil to the left" end
+    if v.withdrawn == 1 then after = ", withdrawn into it" end
   elseif v.group == "bird" then
     with[#with + 1] = v.bill == "conical" and "a short seed-eater's bill" or "a long thin bill"
     if v.crest == 1 then with[#with + 1] = "a crest" end
