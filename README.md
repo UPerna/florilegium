@@ -245,10 +245,10 @@ long:
 | | 1.3 | 2.0 |
 |---|---|---|
 | ten pages of text, no margin (LuaLaTeX) | 0.4 s, 33 KB | 0.4 s, 33 KB |
-| the same ten pages with the grown margin (LuaLaTeX) | 7.1 s, 6.3 MB | 12.6 s, 10.7 MB |
-| what the margin adds to a page | 0.67 s, 0.63 MB | 1.23 s, 1.1 MB |
-| one TikZ strip of three plants, pdfLaTeX, pure TikZ | not in 1.3 | 86 s, 1.3 MB (6.3 million words of TeX's memory) |
-| the same strip, LuaLaTeX, pure TikZ (`engine=tikz`) | not in 1.3 | 98 s, 1.3 MB |
+| the same ten pages with the grown margin (LuaLaTeX) | 7.1 s, 6.3 MB | 12.3 s, 10.5 MB |
+| what the margin adds to a page | 0.68 s, 0.63 MB | 1.19 s, 1.0 MB |
+| one TikZ strip of three plants, pdfLaTeX, pure TikZ | not in 1.3 | 91 s, 1.3 MB (6.3 million words of TeX's memory) |
+| the same strip, LuaLaTeX, pure TikZ (`engine=tikz`) | not in 1.3 | 96 s, 1.3 MB |
 | the same strip, LuaLaTeX, Lua engine (the default) | not in 1.3 | 0.8 s, 0.5 MB |
 
 *`tools/bench.tex` (seed 7, the last page short) and `tools/bench-tikz.tex`, timed on
