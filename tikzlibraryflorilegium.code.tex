@@ -532,6 +532,10 @@
       \ifdim\flo@bst pt>1pt \flo@calc\flo@lift{1-(1-\flo@lift)*(1-3*(\flo@bst-1))}\fi
       \ifx\flo@vw\flo@Vtube
         \flo@calc\flo@oarg{0.8*\flo@bd}\pgftransformscale{\flo@oarg}\flo@vtube\flo@oarg{}%
+      \else\ifx\flo@vw\flo@Vtrumpet
+        \flo@calc\flo@oarg{0.62*\flo@bd}\pgftransformscale{\flo@oarg}\flo@vtube\flo@oarg{lilytube}%
+      \else\ifx\flo@vw\flo@Vturk
+        \flo@calc\flo@oarg{0.42*\flo@bd}\pgftransformscale{\flo@oarg}\flo@vturkscap\flo@oarg
       \else\ifx\flo@vw\flo@Vsalver
         \pgftransformscale{\flo@bd}\flo@vsalver\flo@bd
       \else\ifx\flo@vw\flo@Vpea
@@ -558,7 +562,7 @@
         \pgftransformscale{\flo@bd}%
         \flo@calc\flo@t{\flo@bd*28.45276}\flo@sflower\flo@t
         \ifx\flo@vw\flo@Vback\flo@vcalyx\fi
-      \fi\fi\fi\fi\fi\fi
+      \fi\fi\fi\fi\fi\fi\fi\fi
     \end{pgfscope}%
   \fi\fi}
 % how a flower of the species is seen, \flo@vw: face (held erect), tilt (sideways), back
@@ -583,12 +587,13 @@
   \ifdim\flo@urt pt<0pt \flo@calc\flo@ura{-\flo@urs}\else\let\flo@ura\flo@urs\fi
   \pgfsettransformentries\flo@ura{0}{0}\flo@urs\flo@urx\flo@ury}
 \def\flo@Vface{face}\def\flo@Vtilt{tilt}\def\flo@Vback{back}\def\flo@Vlily{lily}\def\flo@Vtube{tube}
-\def\flo@Vsalver{salver}\def\flo@Vpea{pea}\def\flo@Vlips{lips}\def\flo@Vorchid{orchid}\def\flo@Vspur{spur}\def\flo@Oerect{erect}\def\flo@Onod{nodding}\def\flo@bside{}
+\def\flo@Vturk{turk}\def\flo@Vtrumpet{trumpet}\def\flo@Vsalver{salver}\def\flo@Vpea{pea}\def\flo@Vlips{lips}\def\flo@Vorchid{orchid}\def\flo@Vspur{spur}\def\flo@Oerect{erect}\def\flo@Onod{nodding}\def\flo@bside{}
 \def\flo@bfan{0}
 \def\flo@bview{%
   \edef\flo@or{\flo@get{orient}}\edef\flo@fm{\flo@get{form}}\def\flo@bturn{0}%
   \ifx\flo@or\flo@Oerect\def\flo@vw{face}\else\ifx\flo@or\flo@Onod\def\flo@vw{back}\else\def\flo@vw{tilt}\fi
-    \def\flo@tmp{lily}\ifx\flo@fm\flo@tmp\def\flo@vw{lily}\fi
+    \def\flo@tmp{lily}\ifx\flo@fm\flo@tmp\def\flo@vw{lily}%
+      \ifdim\flo@get{reflex}pt<-40pt \def\flo@vw{turk}\else\ifdim\flo@get{cup}pt>0.6pt \def\flo@vw{trumpet}\fi\fi\fi
     \def\flo@tmp{salverform}\ifx\flo@fm\flo@tmp\def\flo@vw{salver}\fi\fi
   \def\flo@tmp{campanulate}\ifx\flo@fm\flo@tmp\def\flo@vw{tube}\fi
   \def\flo@tmp{urceolate}\ifx\flo@fm\flo@tmp\def\flo@vw{tube}\fi
@@ -625,17 +630,24 @@
 % flower's tube), drawn as flora's bell is (body and lobed rim one shape, mottle, streaks
 % along it, a shaded side, a pooled edge), bent a little, stamens that stand out, its sepals at the base; #1 cm per unit,
 % tone \flo@vf@tone (empty: drawn). Its half-width at v (0 base, 1 the rim's sinuses) is
-% \flo@tua+\flo@tub*v^\flo@tuc+\flo@tuw*sin(180*min(1,v/0.92)^0.85)
+% \flo@tua+\flo@tub*v^\flo@tuc+\flo@tuw*sin(180*min(1,v/0.92)^0.85)+\flo@tuh*(1-(1-v)^2.5)+\flo@tue*v^6:
+% a bell has a shoulder (\flo@tuh) and a flaring rim (\flo@tue), its lobes barely past it
 \def\flo@vtube#1#2{%
   \edef\flo@tufm{#2}\ifx\flo@tufm\pgfutil@empty\edef\flo@tufm{\flo@get{form}}\fi
-  \def\flo@tua{0.1}\def\flo@tub{0.24}\def\flo@tuc{1.3}\def\flo@tuw{0}\def\flo@tuL{0.85}\def\flo@tut{0.14}\def\flo@tusep{1}%
+  \def\flo@tua{0.1}\def\flo@tub{0.24}\def\flo@tuc{1.3}\def\flo@tuw{0}\def\flo@tue{0}\def\flo@tuh{0}%
+  \def\flo@tuL{0.85}\def\flo@tut{0.14}\def\flo@tusep{1}%
   \flo@range\flo@tuf{0.06}{0.12}\flo@calc\flo@tun{int(\flo@get{merosity}/2+1.5)}\flo@sym\flo@tubd{0.08}%
+  \def\flo@tmp{campanulate}\ifx\flo@tufm\flo@tmp
+    \def\flo@tua{0.06}\def\flo@tub{0}\def\flo@tuh{0.26}\def\flo@tue{0.07}\flo@calc\flo@tuf{0.35*\flo@tuf}\fi
   \def\flo@tmp{urceolate}\ifx\flo@tufm\flo@tmp
     \def\flo@tua{0.09}\def\flo@tub{0}\def\flo@tuw{0.25}\def\flo@tuL{0.8}\def\flo@tut{0.08}\def\flo@tuf{0.07}\fi
   \def\flo@tmp{tubular}\ifx\flo@tufm\flo@tmp
-    \def\flo@tua{0.07}\def\flo@tub{0.07}\def\flo@tuc{1.5}\def\flo@tuL{0.95}\def\flo@tut{0.08}\def\flo@tuf{0.05}\fi
+    \def\flo@tua{0.07}\def\flo@tub{0.07}\def\flo@tuc{1.5}\def\flo@tuw{0.025}\def\flo@tue{0.035}%
+    \def\flo@tuL{0.95}\def\flo@tut{0.08}\def\flo@tuf{0.05}\flo@calc\flo@tubd{1.8*\flo@tubd}\fi
   \def\flo@tmp{funnelform}\ifx\flo@tufm\flo@tmp
     \def\flo@tua{0.05}\def\flo@tub{0.4}\def\flo@tuc{2.4}\def\flo@tuL{0.85}\def\flo@tut{0.1}\def\flo@tuf{0.1}\fi
+  \def\flo@tmp{lilytube}\ifx\flo@tufm\flo@tmp
+    \def\flo@tua{0.045}\def\flo@tub{0.32}\def\flo@tuc{2.8}\def\flo@tuL{0.95}\def\flo@tut{0.16}\def\flo@tuf{0.08}\def\flo@tun{4}\fi
   \def\flo@tmp{salvertube}\ifx\flo@tufm\flo@tmp
     \def\flo@tua{0.035}\def\flo@tub{0.02}\def\flo@tuc{1}\def\flo@tuL{0.55}\def\flo@tun{0}\fi
   \def\flo@tmp{liptube}\ifx\flo@tufm\flo@tmp
@@ -679,12 +691,11 @@
       \flo@calc\flo@tuqa{\flo@tuq-0.2}\flo@calc\flo@tuqb{\flo@tuq+0.2}\flo@calc\flo@tuy{\flo@tuL+0.2}%
       \ifdim#1pt>0.45pt \flo@vmottle{-0.5}{0}{0.5}\flo@tuy{10}{0.12}\flo@tuqa\flo@tuqb{10}%
       \else\flo@vmottle{-0.5}{0}{0.5}\flo@tuy{5}{0.12}\flo@tuqa\flo@tuqb{0}\fi
-      % the far side in shadow, as a leaf's folded half
+      % the far side in shadow, deepening toward its edge, the shade's edge following the
+      % body's curve (at 0.12 and 0.6 of its half-width)
       \flo@chance{0.5}\ifflo@yes\def\flo@sd{1}\else\def\flo@sd{-1}\fi
-      \flo@calc\flo@xa{0.25*\flo@tubd}\flo@calc\flo@ya{0.5*\flo@tuL}\flo@calc\flo@xb{1.21*\flo@tubd}\flo@calc\flo@yb{1.1*\flo@tuL}%
-      \flo@calc\flo@xc{2*\flo@sd}\flo@vtone{flo@c}{0.12}%
-      \flo@vfill{flo@c}{0.28}{1}{\pgfpathmoveto{\flo@P0{-0.1}}\pgfpathlineto{\flo@P\flo@xa\flo@ya}\pgfpathlineto{\flo@P\flo@xb\flo@yb}%
-        \pgfpathlineto{\flo@P\flo@xc\flo@yb}\pgfpathlineto{\flo@P\flo@xc{-0.1}}\pgfpathclose}%
+      \flo@calc\flo@xc{2*\flo@sd}\flo@vtone{flo@c}{0.12}\flo@calc\flo@yc{\flo@tuL+\flo@tut+0.1}%
+      \flo@tushade{0.12}{0.2}\flo@tushade{0.6}{0.16}%
       % streaks along the body, white and dark by turns
       \def\flo@twa{0.02}\def\flo@twb{0.012}%
       \flo@loop{tus}\flo@ka{-2}{2}{%
@@ -726,7 +737,20 @@
   \ifdim#1pt>0pt
     \ifdim\flo@tub pt>0pt \flo@calc\flo@tur{\flo@tur+\flo@tub*pow(#1,\flo@tuc)}\fi
     \ifdim\flo@tuw pt>0pt \flo@calc\flo@tur{\flo@tur+\flo@tuw*sin(180*pow(min(1,(#1)/0.92),0.85))}\fi
+    \ifdim\flo@tuh pt>0pt \flo@calc\flo@tur{\flo@tur+\flo@tuh*(1-pow(1-(#1),2.5))}\fi
+    \ifdim\flo@tue pt>0pt \flo@calc\flo@tur{\flo@tur+\flo@tue*pow(#1,6)}\fi
   \fi}
+% \flo@vtube's shade from #1 of the half-width on the side \flo@sd out to \flo@xc, opacity #2
+% (multiplied), in \flo@c
+\def\flo@tushade#1#2{%
+  \flo@calc\flo@xa{\flo@sd*(#1)*\flo@tua}%
+  \flo@vfill{flo@c}{#2}{1}{\pgfpathmoveto{\flo@P\flo@xa{-0.1}}%
+    \flo@loop{tsh}\flo@kb{0}{10}{%
+      \flo@calc\flo@v{\the\flo@kb/10}\flo@turad\flo@v
+      \flo@calc\flo@xa{\flo@sd*(#1)*\flo@tur+\flo@tubd*\flo@v*\flo@v}\flo@calc\flo@ya{\flo@tuL*\flo@v}%
+      \pgfpathlineto{\flo@P\flo@xa\flo@ya}}%
+    \flo@calc\flo@xa{\flo@sd*(#1)*\flo@tuR+\flo@tubd}%
+    \pgfpathlineto{\flo@P\flo@xa\flo@yc}\pgfpathlineto{\flo@P\flo@xc\flo@yc}\pgfpathlineto{\flo@P\flo@xc{-0.1}}\pgfpathclose}}
 % a flat-faced tube (salverform) held sideways: a slender tube, its face at a tilt on top,
 % in diameter-1 units; #1 the diameter in cm
 \def\flo@vsalver#1{%
@@ -1311,8 +1335,8 @@
   \flo@fdraw\def\flo@bfan{0}}
 
 % catkins: two to four hanging from a short twig of #1 cm, each a stalk that bends over
-% and a tapering tassel of scales with anthers at their edges, short and tight while
-% young; in fruit, the fruit instead
+% and a tapering tassel of overlapping scales with anthers at their tips, short and tight
+% while young; in fruit, the fruit instead
 \def\flo@catkinunit#1{%
   \edef\flo@bst{\flo@ust}\edef\flo@clL{#1}\flo@stone
   \flo@sym\flo@t{10}\flo@calc\flo@clh{90+\flo@t}\flo@sym\flo@clb{15}%
@@ -1356,19 +1380,26 @@
       \flo@loop{cke}\flo@Gc{1}{16}{%
         \flo@zset{cn}{\the\flo@Gc}{\csname flo@NX\the\flo@Gc\endcsname}%
         \flo@zset{cm}{\the\flo@Gc}{\csname flo@NY\the\flo@Gc\endcsname}}%
-      \flo@vstem{16}\flo@clw\flo@clwe\flo@clt
+      \flo@calc\flo@clsa{0.3*\flo@clwe}\flo@calc\flo@clsb{0.1*\flo@clwe}\flo@vstem{16}\flo@clsa\flo@clsb{0.12}%
+      % scales on either side by turns, each leaning down and out over the next, lit on one
+      % side and shaded on the other, an anther at its tip; the paper shows between them
+      \flo@calc\flo@t{\flo@clt+0.06}\flo@vtone{flo@cka}\flo@t\flo@calc\flo@t{\flo@clt-0.06}\flo@vtone{flo@ckb}\flo@t
       \flo@vtone{flo@c}{0.16}%
-      \flo@loop{cks}\flo@Gc{2}{15}{%
+      \flo@loop{cks}\flo@Gc{2}{16}{%
         \ifodd\flo@Gc\def\flo@sg{1}\else\def\flo@sg{-1}\fi
-        \flo@calc\flo@v{(\the\flo@Gc-1)/15}\flo@calc\flo@s{\flo@clw*0.5*(1-0.6*\flo@v)}%
+        \flo@calc\flo@v{(\the\flo@Gc-1)/15}\flo@calc\flo@s{\flo@clw*0.5*(1-0.55*\flo@v)}%
         \edef\flo@xa{\flo@z{cx}{\the\flo@Gc}}\edef\flo@ya{\flo@z{cy}{\the\flo@Gc}}%
         \edef\flo@clnx{\flo@z{cn}{\the\flo@Gc}}\edef\flo@clny{\flo@z{cm}{\the\flo@Gc}}%
-        \flo@calc\flo@xb{\flo@xa+\flo@clnx*\flo@sg*\flo@s}\flo@calc\flo@yb{\flo@ya+\flo@clny*\flo@sg*\flo@s}%
-        \flo@calc\flo@xc{\flo@xa+\flo@clny*0.6*\flo@s}\flo@calc\flo@yc{\flo@ya-\flo@clnx*0.6*\flo@s}%
-        \flo@vstroke{flo@c}{0.3}{0.7}{1}{\pgfpathmoveto{\flo@P\flo@xb\flo@yb}%
-          \pgfpathcurveto{\flo@P\flo@xc\flo@yc}{\flo@P\flo@xc\flo@yc}{\flo@P\flo@xa\flo@ya}}%
+        \flo@calc\flo@cldx{0.91*\flo@clny+0.42*\flo@sg*\flo@clnx}\flo@calc\flo@cldy{0.42*\flo@sg*\flo@clny-0.91*\flo@clnx}%
+        \flo@calc\flo@xb{\flo@xa+\flo@sg*0.35*\flo@s*\flo@clnx}\flo@calc\flo@yb{\flo@ya+\flo@sg*0.35*\flo@s*\flo@clny}%
+        \flo@calc\flo@clsl{min(1.04*\flo@s,max(0.75*\flo@s,1.1*\flo@ds))}%
+        \flo@calc\flo@xc{\flo@clsl*\flo@cldx}\flo@calc\flo@yc{\flo@clsl*\flo@cldy}%
+        \flo@calc\flo@xd{-0.65*\flo@s*\flo@cldy}\flo@calc\flo@yd{0.65*\flo@s*\flo@cldx}%
+        \ifnum\flo@sg=1 \def\flo@tmp{flo@cka}\else\def\flo@tmp{flo@ckb}\fi
+        \flo@vfill\flo@tmp{0.95}{0}{\pgfpathellipse{\flo@P\flo@xb\flo@yb}{\flo@P\flo@xc\flo@yc}{\flo@P\flo@xd\flo@yd}}%
         \flo@range\flo@t{0.008}{0.014}%
-        \flo@vfill{flo@c}{0.9}{0}{\pgfpathcircle{\flo@P\flo@xb\flo@yb}{\flo@t pt}}}%
+        \flo@calc\flo@xc{\flo@xb+\flo@xc}\flo@calc\flo@yc{\flo@yb+\flo@yc}%
+        \flo@vfill{flo@c}{0.9}{0}{\pgfpathcircle{\flo@P\flo@xc\flo@yc}{\flo@t pt}}}%
     \fi}}
 % a tendril as a climber grows one, each its own: from the origin along +y it runs out a
 % little bent, then coils to one side, tighter toward its tip, by its own amount, from a
@@ -2911,43 +2942,133 @@
     \end{pgfscope}%
   \fi}
 % a monocot's strap leaf in flora's manner: the leaflet's blade, narrow, with parallel
-% white veins instead of a midrib; +y, length 1
+% white veins instead of a midrib; +y, length 1. A leaf a centimeter long or more may arch
+% over, its spine turning by \flo@zsT degrees toward its bend, more toward the tip (the
+% species' curl makes it likelier); some of those twist past spine point \flo@zska, turning
+% edge on, and show their paler underside beyond it (its twist makes it likelier)
 \def\flo@vstrap{%
   \flo@sym\flo@lbend{0.25}\ifdefined\flo@sbend\let\flo@lbend\flo@sbend\fi\flo@range\flo@lt{0.24}{0.34}%
-  \flo@loop{sts}\flo@kb{0}{24}{%
-    \flo@calc\flo@v{\the\flo@kb/24}\flo@calc\flo@sx{\flo@lbend*\flo@v*\flo@v}\flo@put{\the\numexpr\flo@kb+1\relax}{\flo@sx}{\flo@v}}%
+  \def\flo@zsT{0}\def\flo@zska{25}%
+  \ifdim\flo@vl@u pt>1pt
+    \flo@calc\flo@t{max(0.1,min(0.65,0.3+\flo@get{curl}))}\flo@chance\flo@t
+    \ifflo@yes
+      \flo@range\flo@zsT{30}{85}\flo@calc\flo@zsT{\flo@zsT*min(1,0.07/\flo@lW)}%
+      \ifdim\flo@lbend pt<0pt \flo@calc\flo@zsT{-\flo@zsT}\fi
+      \flo@calc\flo@t{(0.3+0.01*\flo@get{twist})*max(0,min(1,(0.1-\flo@lW)/0.05))}\flo@chance\flo@t
+      \ifflo@yes\flo@int\flo@zska{13}{17}\fi
+    \fi
+  \fi
+  \ifnum\flo@zska<25 \flo@calc\flo@zsvt{(\flo@zska-1.5)/24}\else\def\flo@zsvt{2}\fi
+  \ifdim\flo@zsT pt=0pt
+    \flo@loop{sts}\flo@kb{0}{24}{%
+      \flo@calc\flo@v{\the\flo@kb/24}\flo@calc\flo@sx{\flo@lbend*\flo@v*\flo@v}\flo@put{\the\numexpr\flo@kb+1\relax}{\flo@sx}{\flo@v}}%
+  \else
+    \def\flo@xx{0}\def\flo@yy{0}\flo@put1{0}{0}%
+    \flo@loop{sta}\flo@kb{1}{24}{%
+      \flo@calc\flo@a{\flo@zsT*pow((\the\flo@kb-0.5)/24,2)}%
+      \flo@calc\flo@xx{\flo@xx+sin(\flo@a)}\flo@calc\flo@yy{\flo@yy+cos(\flo@a)}%
+      \flo@calc\flo@sx{\flo@xx/24}\flo@calc\flo@sy{\flo@yy/24}\flo@put{\the\numexpr\flo@kb+1\relax}\flo@sx\flo@sy}%
+  \fi
   \flo@normals{25}%
-  \flo@loop{stw}\flo@kb{0}{24}{%
-    \flo@calc\flo@v{\the\flo@kb/24}\edef\flo@q{\the\numexpr\flo@kb+1\relax}%
-    \ifdim\flo@v pt>0pt \ifdim\flo@v pt<1pt \flo@calc\flo@w{\flo@lW*2.2*pow(\flo@v,0.25)*pow(1-\flo@v,0.6)}\else\def\flo@w{0}\fi\else\def\flo@w{0}\fi
-    \flo@calc\flo@xl{\flo@x\flo@q+\csname flo@NX\flo@q\endcsname*\flo@w}\flo@calc\flo@yl{\flo@y\flo@q+\csname flo@NY\flo@q\endcsname*\flo@w}%
-    \flo@calc\flo@xr{\flo@x\flo@q-\csname flo@NX\flo@q\endcsname*\flo@w}\flo@calc\flo@yr{\flo@y\flo@q-\csname flo@NY\flo@q\endcsname*\flo@w}%
-    \expandafter\let\csname flo@RX\flo@q\endcsname\flo@xl\expandafter\let\csname flo@RY\flo@q\endcsname\flo@yl
-    \expandafter\let\csname flo@QX\flo@q\endcsname\flo@xr\expandafter\let\csname flo@QY\flo@q\endcsname\flo@yr}%
-  \flo@bladeassemble{24}\flo@smoothprep{48}\flo@keep{st}%
+  \flo@loop{stc}\flo@kb{1}{25}{%
+    \edef\flo@q{\the\flo@kb}%
+    \expandafter\edef\csname flo@zsX\flo@q\endcsname{\flo@x\flo@q}\expandafter\edef\csname flo@zsY\flo@q\endcsname{\flo@y\flo@q}%
+    \expandafter\edef\csname flo@zsN\flo@q\endcsname{\csname flo@NX\flo@q\endcsname}%
+    \expandafter\edef\csname flo@zsM\flo@q\endcsname{\csname flo@NY\flo@q\endcsname}%
+    \flo@calc\flo@v{(\the\flo@kb-1)/24}\flo@zshw\flo@v\expandafter\let\csname flo@zsW\flo@q\endcsname\flo@w}%
+  \flo@zspiece1\flo@zska\flo@smoothprep\flo@zsn\flo@keep{st}%
   \flo@vtone{flo@c}{\flo@lt}\flo@vfill{flo@c}{1}{0}{\flo@kept{st}}%
   \begin{pgfscope}\flo@kept{st}\pgfusepath{clip}%
-    % the darker half, as the leaf folds along its rib (flora.leaf)
+    % the darker half, as the leaf folds along its rib (flora.leaf), following the spine's turn
     \flo@chance{0.5}\ifflo@yes\def\flo@sd{1}\else\def\flo@sd{-1}\fi
-    \flo@loop{sth}\flo@kb{0}{12}{%
-      \flo@calc\flo@v{\the\flo@kb/12}\flo@calc\flo@sx{\flo@lbend*\flo@v*\flo@v}%
-      \ifnum\flo@kb=0 \pgfpathmoveto{\flo@P\flo@sx\flo@v}\else\pgfpathlineto{\flo@P\flo@sx\flo@v}\fi}%
-    \flo@calc\flo@t{\flo@sd*2}\pgfpathlineto{\flo@P\flo@t{1}}\pgfpathlineto{\flo@P\flo@t{0}}\pgfpathclose
+    \ifdim\flo@zsT pt=0pt
+      \flo@loop{sth}\flo@kb{0}{12}{%
+        \flo@calc\flo@v{\the\flo@kb/12}\flo@calc\flo@sx{\flo@lbend*\flo@v*\flo@v}%
+        \ifnum\flo@kb=0 \pgfpathmoveto{\flo@P\flo@sx\flo@v}\else\pgfpathlineto{\flo@P\flo@sx\flo@v}\fi}%
+      \flo@calc\flo@t{\flo@sd*2}\pgfpathlineto{\flo@P\flo@t{1}}\pgfpathlineto{\flo@P\flo@t{0}}\pgfpathclose
+      \flo@calc\flo@xa{-\flo@lW*2.5}\flo@calc\flo@xb{\flo@lW*2.5}\def\flo@yb{1}%
+    \else
+      \pgfpathmoveto{\flo@P00}%
+      \flo@loop{sth}\flo@kb{2}{\flo@zska}{\pgfpathlineto{\flo@P{\csname flo@zsX\the\flo@kb\endcsname}{\csname flo@zsY\the\flo@kb\endcsname}}}%
+      \flo@loop{sti}\flo@kb{1}{\flo@zska}{\edef\flo@q{\the\numexpr\flo@zska+1-\flo@kb\relax}%
+        \flo@calc\flo@w{\flo@sd*(1.3*\csname flo@zsW\flo@q\endcsname+0.01)}%
+        \flo@calc\flo@xl{\csname flo@zsX\flo@q\endcsname+\csname flo@zsN\flo@q\endcsname*\flo@w}%
+        \flo@calc\flo@yl{\csname flo@zsY\flo@q\endcsname+\csname flo@zsM\flo@q\endcsname*\flo@w}%
+        \pgfpathlineto{\flo@P\flo@xl\flo@yl}}%
+      \pgfpathclose
+      \def\flo@xa{0}\def\flo@xb{0}\def\flo@yb{0}%
+      \flo@loop{stb}\flo@kb{1}{25}{%
+        \flo@calc\flo@xa{min(\flo@xa,\csname flo@zsX\the\flo@kb\endcsname)}\flo@calc\flo@xb{max(\flo@xb,\csname flo@zsX\the\flo@kb\endcsname)}%
+        \flo@calc\flo@yb{max(\flo@yb,\csname flo@zsY\the\flo@kb\endcsname)}}%
+      \flo@calc\flo@xa{\flo@xa-\flo@lW*2.5}\flo@calc\flo@xb{\flo@xb+\flo@lW*2.5}\flo@calc\flo@yb{\flo@yb+\flo@lW}%
+    \fi
     \flo@scopefill{\flo@vtone{flo@c}{0.12}\pgfsetfillcolor{flo@c}\pgfsetfillopacity{0.28}\pgfsetblendmode{multiply}}%
-    \flo@calc\flo@xa{-\flo@lW*2.5}\flo@calc\flo@xb{\flo@lW*2.5}\flo@calc\flo@ta{\flo@lt-0.2}\flo@calc\flo@tb{\flo@lt+0.22}%
-    \flo@vmottle\flo@xa{0}\flo@xb{1}{10}{0.07}\flo@ta\flo@tb{8}%
+    \flo@calc\flo@ta{\flo@lt-0.2}\flo@calc\flo@tb{\flo@lt+0.22}%
+    \flo@vmottle\flo@xa{0}\flo@xb\flo@yb{10}{0.07}\flo@ta\flo@tb{8}%
     \flo@vtone{flo@c}{0.06}\flo@calc\flo@t{1.3*\flo@vl@u}\flo@vstroke{flo@c}{\flo@t}{0.22}{1}{\flo@kept{st}}%
     % the midrib in white, and faint parallel veins either side
-    \flo@loop{stm}\flo@kb{0}{10}{\flo@calc\flo@v{0.02+0.93*\the\flo@kb/10}%
-      \flo@calc\flo@sx{\flo@lbend*\flo@v*\flo@v}\flo@put{\the\numexpr\flo@kb+1\relax}{\flo@sx}{\flo@v}}%
-    \flo@vstreak{11}{0.016}{0.002}{white}{0.7}%
+    \ifdim\flo@zsT pt=0pt
+      \flo@loop{stm}\flo@kb{0}{10}{\flo@calc\flo@v{0.02+0.93*\the\flo@kb/10}%
+        \flo@calc\flo@sx{\flo@lbend*\flo@v*\flo@v}\flo@put{\the\numexpr\flo@kb+1\relax}{\flo@sx}{\flo@v}}%
+      \def\flo@zsm{11}%
+    \else
+      \flo@loop{stm}\flo@kb{1}{24}{\flo@put{\the\flo@kb}{\csname flo@zsX\the\flo@kb\endcsname}{\csname flo@zsY\the\flo@kb\endcsname}}%
+      \def\flo@zsm{24}%
+    \fi
+    \flo@vstreak\flo@zsm{0.016}{0.002}{white}{0.7}%
     \flo@loop{stv}\flo@ka{1}{4}{%
       \flo@calc\flo@f{(\the\flo@ka<3 ? \the\flo@ka-3 : \the\flo@ka-2)*0.38}%
-      \flo@loop{stvp}\flo@kb{0}{10}{\flo@calc\flo@v{0.05+0.85*\the\flo@kb/10}%
-        \flo@calc\flo@w{\flo@f*\flo@lW*2.2*pow(\flo@v,0.25)*pow(1-\flo@v,0.6)}%
-        \flo@calc\flo@sx{\flo@lbend*\flo@v*\flo@v+\flo@w}\flo@put{\the\numexpr\flo@kb+1\relax}{\flo@sx}{\flo@v}}%
+      \ifdim\flo@zsT pt=0pt
+        \flo@loop{stvp}\flo@kb{0}{10}{\flo@calc\flo@v{0.05+0.85*\the\flo@kb/10}%
+          \flo@calc\flo@w{\flo@f*\flo@lW*2.2*pow(\flo@v,0.25)*pow(1-\flo@v,0.6)}%
+          \flo@calc\flo@sx{\flo@lbend*\flo@v*\flo@v+\flo@w}\flo@put{\the\numexpr\flo@kb+1\relax}{\flo@sx}{\flo@v}}%
+      \else
+        \flo@loop{stvq}\flo@kb{1}{11}{\edef\flo@q{\the\numexpr2*\flo@kb\relax}%
+          \flo@calc\flo@w{\flo@f*\csname flo@zsW\flo@q\endcsname}%
+          \flo@calc\flo@xl{\csname flo@zsX\flo@q\endcsname+\csname flo@zsN\flo@q\endcsname*\flo@w}%
+          \flo@calc\flo@yl{\csname flo@zsY\flo@q\endcsname+\csname flo@zsM\flo@q\endcsname*\flo@w}%
+          \flo@put{\the\flo@kb}\flo@xl\flo@yl}%
+      \fi
       \flo@range\flo@op{0.18}{0.32}\flo@vstreak{11}{0.007}{0.001}{white}{\flo@op}}%
-  \end{pgfscope}}
+  \end{pgfscope}%
+  % past the twist, the underside
+  \ifnum\flo@zska<25
+    \flo@zspiece\flo@zska{25}\flo@smoothprep\flo@zsn\flo@keep{su}%
+    \flo@calc\flo@t{min(0.64,\flo@lt+0.26)}\flo@vtone{flo@c}\flo@t\flo@vfill{flo@c}{1}{0}{\flo@kept{su}}%
+    \begin{pgfscope}\flo@kept{su}\pgfusepath{clip}%
+      \flo@loop{stu}\flo@kb{\flo@zska}{24}{%
+        \flo@put{\the\numexpr\flo@kb+1-\flo@zska\relax}{\csname flo@zsX\the\flo@kb\endcsname}{\csname flo@zsY\the\flo@kb\endcsname}}%
+      \edef\flo@zsm{\the\numexpr25-\flo@zska\relax}\flo@vstreak\flo@zsm{0.014}{0.002}{white}{0.6}%
+      \flo@vtone{flo@c}{0.06}\flo@calc\flo@t{1.3*\flo@vl@u}\flo@vstroke{flo@c}{\flo@t}{0.3}{1}{\flo@kept{su}}%
+    \end{pgfscope}%
+  \fi}
+% the strap's half-width at #1 (0..1), narrowing as it turns edge on at the twist and
+% narrower past it: \flo@w
+\def\flo@zshw#1{%
+  \def\flo@w{0}%
+  \ifdim#1pt>0pt \ifdim#1pt<1pt
+    \flo@calc\flo@w{\flo@lW*2.2*pow(#1,0.25)*pow(1-(#1),0.6)}%
+    \flo@calc\flo@zst{((#1)-\flo@zsvt+0.15)/0.3}%
+    \ifdim\flo@zst pt<1pt
+      \ifdim\flo@zst pt>0pt
+        \flo@calc\flo@w{\flo@w*max(0.12,(\flo@zst>0.5 ? 0.8 : 1)*abs(cos(180*\flo@zst*\flo@zst*(3-2*\flo@zst))))}%
+      \fi
+    \else\flo@calc\flo@w{0.8*\flo@w}\fi
+  \fi\fi}
+% the strap's outline over spine points #1..#2 into flo@X/Y, \flo@zsn points: up the left
+% side, down the right, an end once where it is a point
+\def\flo@zspiece#1#2{%
+  \def\flo@zsn{0}%
+  \flo@loop{stp}\flo@kb{#1}{#2}{\flo@zsside{\the\flo@kb}{}}%
+  \ifdim\csname flo@zsW#2\endcsname pt>0pt \flo@zsside{#2}{-}\fi
+  \flo@loop{stq}\flo@kb{#1+1}{#2-1}{\flo@zsside{\the\numexpr#2+#1-\flo@kb\relax}{-}}%
+  \ifdim\csname flo@zsW#1\endcsname pt>0pt \flo@zsside{#1}{-}\fi}
+% spine point #1 moved out by its half-width along its normal (#2 empty) or against it (-)
+\def\flo@zsside#1#2{%
+  \edef\flo@q{#1}\edef\flo@w{#2\csname flo@zsW\flo@q\endcsname}%
+  \flo@calc\flo@xl{\csname flo@zsX\flo@q\endcsname+\csname flo@zsN\flo@q\endcsname*(\flo@w)}%
+  \flo@calc\flo@yl{\csname flo@zsY\flo@q\endcsname+\csname flo@zsM\flo@q\endcsname*(\flo@w)}%
+  \edef\flo@zsn{\the\numexpr\flo@zsn+1\relax}\flo@put\flo@zsn\flo@xl\flo@yl}
 
 % flora.lily: a star lily at a tilt, six pointed petals, back ones first, a pale throat,
 % stamens; center at the origin, facing +y, petal length 1. #1 cm per unit (no random
@@ -2990,6 +3111,100 @@
     \flo@chance{0.5}\ifflo@yes\flo@sym\flo@t{0.03}\flo@calc\flo@xa{\flo@ex+\flo@t}\flo@range\flo@t{0.02}{0.05}\flo@calc\flo@ya{\flo@ey+\flo@t}%
       \flo@vaccent{flo@c}{0}\flo@vfill{flo@c}{1}{0}{\pgfpathcircle{\flo@P\flo@xa\flo@ya}{0.008pt}}\fi}%
   \flo@vaccent{flo@c}{-0.2}\flo@vfill{flo@c}{1}{0}{\pgfpathcircle{\flo@P00}{0.035pt}}}
+
+% a lily whose tepals sweep back (reflex under -40), held sideways or nodding, seen from the
+% side and a little from below: from the center at the origin six tepals leave a little
+% forward (+y, the way the flower faces), then curl back toward the stalk, the more the
+% further the species' reflex; the far ones first, darker, then the stamens hanging out of
+% the flower, then the near ones; the species' dots on them. Tepal length about 1; #1 cm
+% per unit; tone \flo@vf@tone (empty: drawn)
+\def\flo@vturkscap#1{%
+  \edef\flo@vu{#1}%
+  \ifx\flo@vf@tone\pgfutil@empty\flo@range\flo@tq{0.30}{0.38}\else\edef\flo@tq{\flo@vf@tone}\fi
+  \flo@range\flo@spin{0}{60}\flo@range\flo@tkbe{18}{32}%
+  \flo@calc\flo@tkcb{cos(\flo@tkbe)}\flo@calc\flo@tksb{sin(\flo@tkbe)}\flo@calc\flo@tkcurl{60-1.6*\flo@get{reflex}}%
+  \flo@loop{tka}\flo@ka{1}{6}{%
+    \flo@sym\flo@t{8}\flo@calc\flo@a{\flo@spin+(\the\flo@ka-1)*60+\flo@t}\expandafter\let\csname flo@tkA\the\flo@ka\endcsname\flo@a
+    \flo@range\flo@t{0.88}{1.05}\expandafter\let\csname flo@tkJ\the\flo@ka\endcsname\flo@t
+    \flo@range\flo@t{0.13}{0.17}\expandafter\let\csname flo@tkW\the\flo@ka\endcsname\flo@t
+    \flo@range\flo@t{0.85}{1.1}\flo@calc\flo@t{\flo@tkcurl*\flo@t}\expandafter\let\csname flo@tkC\the\flo@ka\endcsname\flo@t
+    \flo@sym\flo@t{0.03}\flo@calc\flo@t{\flo@tq+0.08*sin(\flo@a)+\flo@t}\expandafter\let\csname flo@tkQ\the\flo@ka\endcsname\flo@t
+    \expandafter\edef\csname flo@tkO\the\flo@ka\endcsname{\the\flo@ka}}%
+  % the far tepals first (a bubble sort of their order on sin)
+  \flo@loop{tkso}\flo@ka{1}{5}{\flo@loop{tkso2}\flo@kb{1}{6-\flo@ka}{%
+    \edef\flo@ia{\csname flo@tkO\the\flo@kb\endcsname}\edef\flo@ib{\csname flo@tkO\the\numexpr\flo@kb+1\relax\endcsname}%
+    \flo@calc\flo@t{sin(\csname flo@tkA\flo@ib\endcsname)<sin(\csname flo@tkA\flo@ia\endcsname) ? 1 : 0}%
+    \ifnum\flo@t=1 \expandafter\let\csname flo@tkO\the\flo@kb\endcsname\flo@ib
+      \expandafter\let\csname flo@tkO\the\numexpr\flo@kb+1\relax\endcsname\flo@ia\fi}}%
+  \def\flo@tkfar{1}%
+  \flo@loop{tkt}\flo@kc{1}{6}{%
+    \edef\flo@tkk{\csname flo@tkO\the\flo@kc\endcsname}%
+    \ifnum\flo@tkfar=1
+      \flo@calc\flo@t{sin(\csname flo@tkA\flo@tkk\endcsname)<0 ? 1 : 0}%
+      \ifnum\flo@t=0 \def\flo@tkfar{0}\flo@tkstamens\fi
+    \fi
+    \flo@tktepal}%
+  \ifnum\flo@tkfar=1 \flo@tkstamens\fi}
+% the stamens and their anthers, and the center
+\def\flo@tkstamens{%
+  \flo@loop{tkst}\flo@ka{1}{6}{%
+    \flo@sym\flo@t{5}\flo@calc\flo@a{(\the\flo@ka-3.5)*12+\flo@t}\flo@range\flo@len{0.5}{0.75}%
+    \flo@calc\flo@ex{\flo@len*sin(\flo@a)}\flo@calc\flo@ey{\flo@len*cos(\flo@a)}%
+    \flo@calc\flo@c{\flo@ex*0.2}\flo@calc\flo@d{\flo@ey*0.5}\flo@calc\flo@cc{\flo@ex*0.8}\flo@calc\flo@dd{\flo@ey*0.85}%
+    \flo@vbezier{0}{0}\flo@c\flo@d\flo@cc\flo@dd\flo@ex\flo@ey
+    \flo@vtone{flo@c}{0.12}\flo@vstroke{flo@c}{0.25}{0.85}{0}{\flo@openpath}%
+    \flo@sym\flo@t{30}\flo@calc\flo@t{-\flo@a+\flo@t}%
+    \begin{pgfscope}\pgftransformshift{\flo@P\flo@ex\flo@ey}\pgftransformrotate{\flo@t}%
+      \flo@vblob{0}{0}{0.022}{0.045}{0.1}{6}\flo@vaccent{flo@c}{-0.1}\flo@vfill{flo@c}{1}{0}{\flo@smoothpath}\end{pgfscope}}%
+  \flo@vtone{flo@c}{0.1}\flo@vfill{flo@c}{1}{0}{\pgfpathcircle{\flo@P00}{0.05pt}}}
+% tepal \flo@tkk: its spine in 3D (flo@tkX/Y/Z), half-widths (flo@tkH), then its outline seen
+\def\flo@tktepal{%
+  \edef\flo@a{\csname flo@tkA\flo@tkk\endcsname}\flo@calc\flo@tkca{cos(\flo@a)}\flo@calc\flo@tksa{sin(\flo@a)}%
+  \edef\flo@tkj{\csname flo@tkJ\flo@tkk\endcsname}\edef\flo@tkw{\csname flo@tkW\flo@tkk\endcsname}%
+  \edef\flo@tkc{\csname flo@tkC\flo@tkk\endcsname}%
+  \def\flo@xx{0}\def\flo@yy{0}\def\flo@zz{0}%
+  \expandafter\def\csname flo@tkX1\endcsname{0}\expandafter\def\csname flo@tkY1\endcsname{0}%
+  \expandafter\def\csname flo@tkZ1\endcsname{0}\expandafter\def\csname flo@tkH1\endcsname{0}%
+  \flo@loop{tks}\flo@kb{1}{10}{%
+    \flo@calc\flo@f{-15+\flo@tkc*pow((\the\flo@kb-0.5)/10,1.3)}%
+    \flo@calc\flo@tkr{cos(\flo@f)*\flo@tkj/10}\flo@calc\flo@tkb{-sin(\flo@f)*\flo@tkj/10}%
+    \flo@calc\flo@xx{\flo@xx+\flo@tkr*\flo@tkca}\flo@calc\flo@yy{\flo@yy+\flo@tkb}\flo@calc\flo@zz{\flo@zz+\flo@tkr*\flo@tksa}%
+    \edef\flo@q{\the\numexpr\flo@kb+1\relax}%
+    \expandafter\let\csname flo@tkX\flo@q\endcsname\flo@xx\expandafter\let\csname flo@tkY\flo@q\endcsname\flo@yy
+    \expandafter\let\csname flo@tkZ\flo@q\endcsname\flo@zz
+    \ifnum\flo@kb<10 \flo@calc\flo@t{\flo@tkw*\flo@tkj*pow(sin(180*pow(\the\flo@kb/10,0.55)),0.9)}\else\def\flo@t{0}\fi
+    \expandafter\let\csname flo@tkH\flo@q\endcsname\flo@t}%
+  \def\flo@tkn{0}%
+  \flo@loop{tko}\flo@kb{1}{11}{\flo@tkat{\the\flo@kb}{1}}%
+  \flo@loop{tkp}\flo@kb{2}{10}{\flo@tkat{\the\numexpr12-\flo@kb\relax}{-1}}%
+  \flo@smoothprep{20}\flo@keep{tk}%
+  \flo@vtone{flo@c}{\csname flo@tkQ\flo@tkk\endcsname}\flo@vfill{flo@c}{1}{0}{\flo@kept{tk}}%
+  \ifdim\flo@vu pt>0.15pt
+    \begin{pgfscope}\flo@kept{tk}\pgfusepath{clip}%
+      \def\flo@tkn{0}\flo@loop{tkm}\flo@kb{2}{10}{\flo@tkat{\the\flo@kb}{0}}%
+      \flo@vstreak{9}{0.03}{0.004}{white}{0.5}%
+      \edef\flo@t{\flo@get{guides}}\def\flo@tmp{none}%
+      \ifx\flo@t\flo@tmp\else
+        \flo@vtone{flo@c}{0.06}%
+        \flo@vfill{flo@c}{0.8}{1}{\flo@loop{tkd}\flo@ka{1}{5}{%
+          \flo@int\flo@tki{2}{5}\flo@sym\flo@tko{0.6}%
+          \flo@tkpt\flo@tki{\flo@tko*\csname flo@tkH\flo@tki\endcsname}%
+          \flo@range\flo@t{0.012}{0.022}\pgfpathcircle{\flo@P\flo@xl\flo@yl}{\flo@t pt}}}%
+      \fi
+      \flo@vtone{flo@c}{0.06}\flo@calc\flo@t{1.3*\flo@vu}\flo@vstroke{flo@c}{\flo@t}{0.3}{1}{\flo@kept{tk}}%
+    \end{pgfscope}%
+  \fi
+  \flo@vtone{flo@c}{0.08}\flo@vstroke{flo@c}{0.18}{0.35}{0}{\flo@kept{tk}}}
+% tepal point #1 moved #2 across (along the tepal's width), as seen: \flo@xl, \flo@yl
+\def\flo@tkpt#1#2{%
+  \edef\flo@q{#1}\flo@calc\flo@w{#2}%
+  \flo@calc\flo@xl{\csname flo@tkX\flo@q\endcsname-\flo@w*\flo@tksa}%
+  \flo@calc\flo@t{\csname flo@tkZ\flo@q\endcsname+\flo@w*\flo@tkca}%
+  \flo@calc\flo@yl{\csname flo@tkY\flo@q\endcsname*\flo@tkcb-\flo@t*\flo@tksb}}
+% the same, #2 times its half-width, put as the next point of flo@X/Y (\flo@tkn)
+\def\flo@tkat#1#2{%
+  \flo@tkpt{#1}{(#2)*\csname flo@tkH#1\endcsname}%
+  \edef\flo@tkn{\the\numexpr\flo@tkn+1\relax}\flo@put\flo@tkn\flo@xl\flo@yl}
 
 % flora.floret: a small flower of #2 petals (flora: 5), radius 1; #1 its radius on the page
 % in cm (no random part). Star or round: \flo@vf@star (empty: drawn); tone \flo@vf@tone

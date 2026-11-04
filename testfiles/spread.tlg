@@ -1,18 +1,18 @@
 This is a generated file for the l3build validation system.
 Don't change this file in any respect.
-florilegium: grew 4609 cells, 73 motifs, 567 stem points, 4922 KB; visitors: none
+florilegium: grew 4609 cells, 81 motifs, 594 stem points, 4747 KB; visitors: none
 florilegium: species eudicot 325044308, columbine 1511394489, lily 1583415831, daisy 2000561335
 florilegium test: page 1, 2 drawings
-  1. md5 379d5405e8af5e2742e0f5fc64e68644, 5040202 bytes
+  1. md5 d0a9bc92b1c2c0f2789405dd3313809f, 4861090 bytes
   2. md5 8adb7afad9cf806bc75f6c9dfe89e91e, 3273 bytes
-  grew: bee 0, bells 0, bloom:1 3, blossoms 0, bud 0, budding 0, budding:1 9, budding:2 5, budding:3 4, budding:4 0, butterfly 0, cyme 0, fern 4, flower 0, g:bloom 3, g:budding 18, g:leaf 13, g:spray 20, g:tendril 6, g:unit 9, g:visitor 0, leaf 0, leaf:1 8, leaf:2 5, leaf:4 0, lily 0, seedhead 0, spray:1 13, spray:2 2, spray:3 4, spray:4 1, sprig 0, tendril 0, tendril:2 6, umbel 0, unit:1 4, unit:2 3, unit:3 2, unit:4 0, visitor:1 0, visitor:2 0, visitor:3 0, visitor:4 0, visitor:stem 0 [1
+  grew: bee 0, bells 0, bloom:1 1, blossoms 0, bud 0, budding 0, budding:1 14, budding:2 8, budding:3 6, budding:4 1, butterfly 0, cyme 0, fern 4, flower 0, g:bloom 1, g:budding 29, g:leaf 12, g:spray 19, g:tendril 7, g:unit 9, g:visitor 0, leaf 0, leaf:1 8, leaf:2 4, leaf:4 0, lily 0, seedhead 0, spray:1 15, spray:2 2, spray:3 2, spray:4 0, sprig 0, tendril 0, tendril:2 7, umbel 0, unit:1 4, unit:2 3, unit:3 2, unit:4 0, visitor:1 0, visitor:2 0, visitor:3 0, visitor:4 0, visitor:stem 0 [1
 ]
-florilegium: grew 4604 cells, 69 motifs, 564 stem points, 4746 KB; visitors: snail, caterpillar
+florilegium: grew 4604 cells, 78 motifs, 604 stem points, 4779 KB; visitors: snail, caterpillar
 florilegium: species eudicot 325044308, columbine 1511394489, lily 1583415831, daisy 2000561335
 florilegium test: page 2, 2 drawings
-  1. md5 0ed4ceeac8c27114865588f8394ea90c, 4859876 bytes
+  1. md5 d9d53c4ae1c0fb669a90655b268e80f7, 4893641 bytes
   2. md5 393acbd48fa10bbaf0764eb7777df4c7, 3287 bytes
-  grew: bee 0, bells 0, bloom:1 2, blossoms 0, bud 0, budding 0, budding:1 10, budding:2 6, budding:3 3, budding:4 1, butterfly 0, cyme 0, flower 0, g:bloom 2, g:budding 20, g:leaf 8, g:spray 25, g:tendril 4, g:unit 9, g:visitor 0, leaf 0, leaf:1 5, leaf:2 1, leaf:4 2, lily 0, seedhead 0, snail 1, spray:1 16, spray:2 3, spray:3 4, spray:4 2, sprig 0, tendril 0, tendril:2 4, umbel 0, unit:1 5, unit:2 2, unit:3 2, unit:4 0, visitor:1 0, visitor:2 0, visitor:3 0, visitor:4 0, visitor:stem 0 [2]
+  grew: bee 0, bells 0, bloom:1 3, blossoms 0, bud 0, budding 0, budding:1 13, budding:2 3, budding:3 3, budding:4 1, butterfly 0, cyme 0, flower 0, g:bloom 3, g:budding 20, g:leaf 11, g:spray 30, g:tendril 4, g:unit 9, g:visitor 0, leaf 0, leaf:1 9, leaf:2 2, leaf:4 0, lily 0, seedhead 0, snail 1, spray:1 20, spray:2 1, spray:3 6, spray:4 3, sprig 0, tendril 0, tendril:2 4, umbel 0, unit:1 4, unit:2 3, unit:3 2, unit:4 0, visitor:1 0, visitor:2 0, visitor:3 0, visitor:4 0, visitor:stem 0 [2]
 florilegium: grew 10231 cells, 159 motifs, 1107 stem points, 540 KB; visitors: 2 butterfly, 2 bee
 florilegium test: page 3, 2 drawings
   1. md5 32fa5037f0d624dc0a6cfd7594329385, 553103 bytes

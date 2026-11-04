@@ -117,6 +117,19 @@ stems keep v1.3's sizes and weights, so a species page reads like a v1.3 page wi
 of plant in it. The smallest petals, of which a daisy's flat cluster or a clover head holds
 hundreds, are drawn more plainly below 1.2 mm, where the detail could not be seen.
 
+A flower is seen as its form and its stalk hold it. It faces the reader when it is held up,
+turns to a tilt when it is held sideways and shows its back and calyx when it nods; bells,
+urns, tubes, trumpets, pea and two-lipped flowers are always seen in profile. A bell has a
+shoulder under its flaring rim, and the shade on its far side follows its curve. A lily whose
+tepals sweep back is seen from the side and a little from below, the tepals curling back
+past its stalk and the stamens hanging out under them; a trumpet lily is a long tube that
+flares at its mouth. Seen in profile, a flower reaches out from its stalk as a solid shape
+nearly as long as it is wide, so at the top of a stem or alone on a branch it is drawn 0.72
+times as large as a flower seen face on. A catkin is a tassel of overlapping scales, lit on
+one side and shaded on the other, with the paper showing between them. A long strap leaf may
+arch over toward the side it bends to (a broad one less), and a narrow one may twist edge on
+and show its paler underside beyond the twist.
+
 The organs are written twice, step for step, in plain Lua (`florilegium-native.lua`), which
 draws the margin, and in TikZ (`tikzlibraryflorilegium.code.tex`), which draws them on their
 own under pdfLaTeX (see [the TikZ library](tikz.md)).

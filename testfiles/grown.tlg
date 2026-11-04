@@ -1,9 +1,9 @@
 This is a generated file for the l3build validation system.
 Don't change this file in any respect.
-florilegium: grew 4624 cells, 70 motifs, 589 stem points, 5165 KB; visitors: caterpillar, butterfly, bumblebee, hoverfly, honeybee
+florilegium: grew 4624 cells, 70 motifs, 589 stem points, 5071 KB; visitors: caterpillar, butterfly, bumblebee, hoverfly, honeybee
 florilegium: species daisy 1342714509, rose 1129368626, lily 2139106263, borage 837473715
 florilegium test: page 1, 3 drawings
-  1. md5 3d507b48b515fbd5e9abff7a69af1dd5, 5289132 bytes
+  1. md5 82d58f4bab9a0ff306cfd371e804c940, 5192951 bytes
   2. md5 393acbd48fa10bbaf0764eb7777df4c7, 3287 bytes
   3. md5 a1b7a9328603a37e1d9026aa1d584a1e, 90490 bytes
   grew: bee 0, bells 0, blossoms 0, bud 0, budding 0, budding:1 8, budding:2 4, budding:3 3, budding:4 0, butterfly 0, cyme 0, fern 2, flower 0, g:bloom 0, g:budding 15, g:leaf 11, g:spray 26, g:tendril 4, g:unit 8, g:visitor 4, leaf 0, leaf:1 8, leaf:2 2, leaf:4 1, lily 0, seedhead 0, spray:1 16, spray:2 3, spray:3 6, spray:4 1, sprig 0, tendril 0, tendril:2 4, umbel 0, unit:1 3, unit:2 2, unit:3 1, unit:4 2, visitor:1 1, visitor:2 1, visitor:3 1, visitor:4 1, visitor:stem 0 [1
@@ -11,6 +11,6 @@ florilegium test: page 1, 3 drawings
 florilegium: grew 9893 cells, 206 motifs, 1324 stem points, 7795 KB; visitors: snail
 florilegium: species eudicot 1145564469, rose 1129368626, lily 2139106263, borage 837473715
 florilegium test: page 2, 2 drawings
-  1. md5 86fdd51f01421f55cd5de36011c01073, 7981988 bytes
+  1. md5 971b8d5ada9290ec8f11dfc0e3ddaadf, 7981997 bytes
   2. md5 393acbd48fa10bbaf0764eb7777df4c7, 3287 bytes
   grew: bee 0, bells 0, bloom:1 7, blossoms 0, bud 0, budding 0, budding:1 58, budding:2 34, budding:3 0, budding:4 1, butterfly 0, cyme 0, fern 4, flower 0, g:bloom 7, g:budding 93, g:leaf 28, g:spray 38, g:tendril 15, g:unit 20, g:visitor 0, leaf 0, leaf:1 18, leaf:2 10, leaf:4 0, lily 0, seedhead 0, snail 1, spray:1 27, spray:2 8, spray:3 2, spray:4 1, sprig 0, tendril 0, tendril:2 15, umbel 0, unit:1 13, unit:2 6, unit:3 1, unit:4 0, visitor:1 0, visitor:2 0, visitor:3 0, visitor:4 0 [2]

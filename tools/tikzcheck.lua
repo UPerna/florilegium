@@ -19,7 +19,8 @@
 --   texlua tools/tikzcheck.lua draw [quick|full|fern|visitors] [compare] (compare: the last
 --   builds' PDFs again, without building them; quick: fronds of every division,
 --   outline and edge, fern crowns in three seasons, then one flower, one leaf and one
---   inflorescence of every body plan, one inflorescence of every kind and of every view,
+--   inflorescence of every body plan, one inflorescence of every kind and of every view
+--   (a lily's swept-back tepals and its trumpet too), strap leaves that arch and twist,
 --   a pea's leaves and plant with tendrils, compound leaves of every kind, curled tips,
 --   plants whose leaves come in crossed pairs or sheathe the stem, the v1.3 pics, a plant in three
 --   seasons, butterflies and moths of every wing, pattern, ground, pose and feeler, bees
@@ -116,6 +117,19 @@ if arg[1] == "draw" then
     end
     pic(fmt("florilegium inflorescence={seed=%d, role=any, scale=1, season=0.75}", seed))
   end
+  -- a lily held sideways or nodding with its tepals swept back (a Turk's cap), and one in a
+  -- trumpet; strap leaves that arch over (lily 6 and 10) and twist to show their underside (8)
+  for _, want in ipairs({ function(sp) return sp.reflex < -40 end,
+      function(sp) return sp.reflex >= -40 and sp.cup > 0.6 end }) do
+    local seed = 1
+    while true do
+      local sp = species.sample(seed, "any")
+      if sp.form == "lily" and sp.orient ~= "erect" and want(sp) then break end
+      seed = seed + 1
+    end
+    pic(fmt("florilegium inflorescence={seed=%d, role=any, scale=1, season=0.75}", seed))
+  end
+  for _, seed in ipairs({ 6, 8, 10 }) do pic(fmt("florilegium leaf={seed=%d, role=lily, size=4cm}", seed)) end
   -- a simple leaf of every shape, apex, base and attachment, one with stipules, a lobed
   -- spear-shaped one, every margin and venation and a hairy toothed one (the first seed that
   -- has each; one pic per seed)

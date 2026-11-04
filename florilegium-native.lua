@@ -654,6 +654,83 @@ local function lily(u, tq)
   circle(0, 0, 0.035) fill(accent(-0.2), 1)
   return tilt
 end
+-- \flo@vturkscap: a lily whose tepals sweep back (reflex under -40), held sideways or nodding,
+-- seen from the side and a little from below: from the center at the origin six tepals
+-- leave a little forward (+y, the way the flower faces), then curl back toward the stalk,
+-- the more the further the species' reflex; the far ones first, darker, then the stamens
+-- hanging out of the flower, then the near ones; the species' dots on them. Tepal length
+-- about 1; u its cm per unit, tq its tone (nil draws one)
+local function turkscap(u, tq)
+  local q = tq or range(0.30, 0.38)
+  local spin, beta = range(0, 60), range(18, 32)
+  local cb, sb = cos(beta), sin(beta)
+  local curl = 60 - 1.6 * S.reflex                -- 124 to 188 degrees
+  local A, J, W, C, Q, O = {}, {}, {}, {}, {}, {}
+  for k = 1, 6 do
+    A[k] = spin + (k - 1) * 60 + sym(8)
+    J[k] = range(0.88, 1.05)
+    W[k] = range(0.13, 0.17)
+    C[k] = curl * range(0.85, 1.1)
+    Q[k] = q + 0.08 * sin(A[k]) + sym(0.03)
+    O[k] = k
+  end
+  for k = 1, 5 do                               -- the far tepals first
+    for j = 1, 6 - k do
+      if sin(A[O[j + 1]]) < sin(A[O[j]]) then O[j], O[j + 1] = O[j + 1], O[j] end
+    end
+  end
+  local function tepal(t)
+    local ca, sa = cos(A[t]), sin(A[t])
+    local x, y, z = 0, 0, 0
+    local P, H = { { 0, 0, 0 } }, { 0 }
+    for i = 1, 10 do
+      local f = -15 + C[t] * ((i - 0.5) / 10) ^ 1.3
+      local r, b = cos(f) * J[t] / 10, -sin(f) * J[t] / 10
+      x, y, z = x + r * ca, y + b, z + r * sa
+      P[i + 1] = { x, y, z }
+      H[i + 1] = i < 10 and W[t] * J[t] * sin(180 * (i / 10) ^ 0.55) ^ 0.9 or 0
+    end
+    local function at(i, h)                     -- spine point i moved h across, on the page
+      local p = P[i]
+      local px, py, pz = p[1] - h * sa, p[2], p[3] + h * ca
+      return { px, py * cb - pz * sb }
+    end
+    local out, mid = {}, {}
+    for i = 1, 11 do out[i] = at(i, H[i]) end
+    for i = 10, 2, -1 do out[#out + 1] = at(i, -H[i]) end
+    for i = 2, 10 do mid[i - 1] = at(i, 0) end
+    smooth(out, true) fill(tone(Q[t]), 1)
+    if u > 0.15 then
+      smooth(out, true) ink.clip()
+      streak(mid, 0.03, 0.004, WHITE, 0.5)
+      if S.guides ~= "none" then
+        for _ = 1, 5 do
+          local i, o = int(2, 5), sym(0.6)
+          local c = at(i, o * H[i])
+          circle(c[1], c[2], range(0.012, 0.022))
+        end
+        fill(tone(0.06), 0.8, true)
+      end
+      smooth(out, true) stroke(tone(0.06), 1.3 * u, 0.3, true)
+      ink.unclip()
+    end
+    smooth(out, true) stroke(tone(0.08), 0.18, 0.35, false)
+  end
+  local k = 1
+  while k <= 6 and sin(A[O[k]]) < 0 do tepal(O[k]) k = k + 1 end
+  for j = 1, 6 do                               -- the stamens and their anthers
+    local a = (j - 3.5) * 12 + sym(5)
+    local len = range(0.5, 0.75)
+    local ex, ey = len * sin(a), len * cos(a)
+    smooth(bezier6(0, 0, ex * 0.2, ey * 0.5, ex * 0.8, ey * 0.85, ex, ey), false) stroke(tone(0.12), 0.25, 0.85, false)
+    local t = -a + sym(30)
+    ink.push() ink.translate(ex, ey) ink.rotate(t)
+    smooth(blob(0, 0, 0.022, 0.045, 0.1, 6), true) fill(accent(-0.1), 1)
+    ink.pop()
+  end
+  circle(0, 0, 0.05) fill(tone(0.1), 1)
+  while k <= 6 do tepal(O[k]) k = k + 1 end
+end
 -- \flo@vcorona: a lily's cup or trumpet, in the lily's frame (its tilt) after its star;
 -- tq the flower's tone (nil: the corona draws one)
 local function corona(u, tilt, tq)
@@ -845,13 +922,15 @@ end
 -- (nil draws one); lp: a two-lipped flower's length and bend
 local function tube(u, form, tq, lp)
   form = form or S.form
-  local a, b, c, w, L, tt, sep = 0.1, 0.24, 1.3, 0, 0.85, 0.14, true
+  local a, b, c, w, e, h, L, tt, sep = 0.1, 0.24, 1.3, 0, 0, 0, 0.85, 0.14, true
   local f = range(0.06, 0.12)
   local n = floor(S.merosity / 2 + 1.5)
   local bd = sym(0.08)
+  if form == "campanulate" then a, b, h, e, f = 0.06, 0, 0.26, 0.07, 0.35 * f end   -- a shoulder, then the rim flares
   if form == "urceolate" then a, b, w, L, tt, f = 0.09, 0, 0.25, 0.8, 0.08, 0.07 end
-  if form == "tubular" then a, b, c, L, tt, f = 0.07, 0.07, 1.5, 0.95, 0.08, 0.05 end
+  if form == "tubular" then a, b, c, w, e, L, tt, f, bd = 0.07, 0.07, 1.5, 0.025, 0.035, 0.95, 0.08, 0.05, 1.8 * bd end
   if form == "funnelform" then a, b, c, L, tt, f = 0.05, 0.4, 2.4, 0.85, 0.1, 0.1 end
+  if form == "lilytube" then a, b, c, L, tt, f, n = 0.045, 0.32, 2.8, 0.95, 0.16, 0.08, 4 end   -- a trumpet lily's
   if form == "salvertube" then a, b, c, L, n = 0.035, 0.02, 1, 0.55, 0 end
   if form == "liptube" then a, b, c, L, n, bd, sep = 0.04, 0.06, 1.6, lp.L, 0, lp.b, false end
   if form == "aqcup" then a, b, c, L, tt, sep = 0.12, 0.04, 1, 0.32, 0.08, false end
@@ -864,6 +943,8 @@ local function tube(u, form, tq, lp)
     if v > 0 then
       if b > 0 then r = r + b * v ^ c end
       if w > 0 then r = r + w * sin(180 * min(1, v / 0.92) ^ 0.85) end
+      if h > 0 then r = r + h * (1 - (1 - v) ^ 2.5) end
+      if e > 0 then r = r + e * v ^ 6 end
     end
     return r
   end
@@ -902,8 +983,17 @@ local function tube(u, form, tq, lp)
     local sd = chance(0.5) and 1 or -1           -- the shaded side
     local xc = 2 * sd
     local col = tone(0.12)
-    ink.poly({ { 0, -0.1 }, { 0.25 * bd, 0.5 * L }, { 1.21 * bd, 1.1 * L }, { xc, 1.1 * L }, { xc, -0.1 } }, true)
-    fill(col, 0.28, true)
+    for _, s in ipairs({ { 0.12, 0.2 }, { 0.6, 0.16 } }) do   -- the shade's edge follows the body's curve
+      local sp = { { sd * s[1] * a, -0.1 } }
+      for k = 0, 10 do
+        local v = k / 10
+        sp[#sp + 1] = { sd * s[1] * rad(v) + bd * v * v, L * v }
+      end
+      sp[#sp + 1] = { sd * s[1] * Rr + bd, L + tt + 0.1 }
+      sp[#sp + 1] = { xc, L + tt + 0.1 }
+      sp[#sp + 1] = { xc, -0.1 }
+      ink.poly(sp, true) fill(col, s[2], true)
+    end
     for k = -2, 2 do                            -- streaks down the tube, dark and light
       local fk = k / 2.5
       local xa, ya = fk * rad(0.05) * 0.9 + bd * 0.0025, 0.05 * L
@@ -1150,7 +1240,10 @@ local function bview(o)
   if orient == "erect" then vw = "face"
   else
     vw = orient == "nodding" and "back" or "tilt"
-    if fm == "lily" then vw = "lily" end
+    if fm == "lily" then
+      vw = "lily"
+      if S.reflex < -40 then vw = "turk" elseif S.cup > 0.6 then vw = "trumpet" end
+    end
     if fm == "salverform" then vw = "salver" end
   end
   if TUBES[fm] then vw = "tube" end
@@ -1197,6 +1290,10 @@ function M.bloom(d, st, o)
     if st > 1 then pen.lift = 1 - (1 - pen.lift) * (1 - 3 * (st - 1)) end
     if vw == "tube" then
       ink.scale(0.8 * bd) tube(0.8 * bd, nil, tq)
+    elseif vw == "trumpet" then
+      ink.scale(0.62 * bd) tube(0.62 * bd, "lilytube", tq)
+    elseif vw == "turk" then
+      ink.scale(0.42 * bd) turkscap(0.42 * bd, tq)
     elseif vw == "salver" then
       ink.scale(bd) salver(bd, F)
     elseif vw == "pea" then
@@ -1720,16 +1817,20 @@ local function catkin(len, st)
       local tassel = {}
       for k = 4, 19 do tassel[k - 3] = pts[k] end
       local nr = normals(tassel)
-      stem(tassel, w, we, t0)
-      local c = tone(0.16)
-      for k = 2, 15 do
+      stem(tassel, 0.3 * we, 0.1 * we, 0.12)         -- the axis, under its scales
+      -- scales on either side by turns, each leaning down and out over the next, lit on one
+      -- side and shaded on the other, an anther at its tip; the paper shows between them
+      local ca, cb, c = tone(t0 + 0.06), tone(t0 - 0.06), tone(0.16)
+      for k = 2, 16 do
         local s2 = k % 2 == 1 and 1 or -1
-        local s = w * 0.5 * (1 - 0.6 * (k - 1) / 15)
+        local s = w * 0.5 * (1 - 0.55 * (k - 1) / 15)
         local px, py, nx, ny = tassel[k][1], tassel[k][2], nr[k][1], nr[k][2]
-        local xb, yb = px + nx * s2 * s, py + ny * s2 * s
-        local xc, yc = px + ny * 0.6 * s, py - nx * 0.6 * s
-        moveto(xb, yb) curveto(xc, yc, xc, yc, px, py) stroke(c, 0.3, 0.7, true)
-        circle(xb, yb, range(0.008, 0.014)) fill(c, 0.9)
+        local dx, dy = 0.91 * ny + 0.42 * s2 * nx, 0.42 * s2 * ny - 0.91 * nx
+        local cx, cy = px + s2 * 0.35 * s * nx, py + s2 * 0.35 * s * ny
+        local l = min(1.04 * s, max(0.75 * s, 1.1 * ds))   -- over the next on its side, if it can
+        ellipse(cx, cy, l * dx, l * dy, -0.65 * s * dy, 0.65 * s * dx)
+        fill(s2 == 1 and ca or cb, 0.95)
+        circle(cx + l * dx, cy + l * dy, range(0.008, 0.014)) fill(c, 0.9)
       end
     end
   end
@@ -1795,42 +1896,120 @@ end
 -- ================================================================ M8f4: leaves
 -- ---------------------------------------------------------------- the monocot's strap
 -- \flo@vstrap: a parallel-veined leaf in flora's manner, along +y, length 1; lW its half
--- width's scale, bend (nil draws one), u its cm per unit
+-- width's scale, bend (nil draws one), u its cm per unit. A leaf a centimeter long or more
+-- may arch over (#5077), its spine turning by T degrees toward its bend, more toward the
+-- tip (the species' curl makes it likelier); some of those twist past spine point ka,
+-- turning edge on, and show their paler underside beyond it (its twist makes it likelier)
 local function strap(lW, bend, u)
   local b = sym(0.25)
   if bend then b = bend end
   local lt = range(0.24, 0.34)
+  local T, ka = 0, 25
+  if u > K(1) and chance(max(0.1, min(0.65, 0.3 + S.curl))) then
+    T = range(30, 85) * min(1, 0.07 / lW)       -- a broad blade arches less, and twists seldom
+    if b < 0 then T = -T end
+    if chance((0.3 + 0.01 * S.twist) * max(0, min(1, (0.1 - lW) / 0.05))) then ka = int(13, 17) end
+  end
+  local vt = ka < 25 and (ka - 1.5) / 24 or 2   -- the twist's middle, edge on over 0.3 of the length
   local spine = {}
-  for i = 0, 24 do local v = i / 24 spine[i + 1] = { b * v * v, v } end
-  local outline = blade(spine, function(_, v)
-    if v > 0 and v < 1 then return lW * 2.2 * v ^ 0.25 * (1 - v) ^ 0.6 end
-    return 0
-  end)
+  if T == 0 then
+    for i = 0, 24 do local v = i / 24 spine[i + 1] = { b * v * v, v } end
+  else
+    local x, y = 0, 0
+    spine[1] = { 0, 0 }
+    for i = 1, 24 do
+      local a = T * ((i - 0.5) / 24) ^ 2
+      x, y = x + sin(a), y + cos(a)
+      spine[i + 1] = { x / 24, y / 24 }
+    end
+  end
+  local function hw(v)
+    if v <= 0 or v >= 1 then return 0 end
+    local h = lW * 2.2 * v ^ 0.25 * (1 - v) ^ 0.6
+    local t = (v - vt + 0.15) / 0.3              -- beyond it, the underside turned a little away
+    if t >= 1 then return 0.8 * h end
+    if t > 0 then h = h * max(0.12, (t > 0.5 and 0.8 or 1) * abs(cos(180 * t * t * (3 - 2 * t)))) end
+    return h
+  end
+  local nr = normals(spine)
+  local function piece(i0, i1)                  -- the outline over spine points i0..i1
+    local left, right = {}, {}
+    for i = i0, i1 do
+      local h, p, q = hw((i - 1) / 24), spine[i], nr[i]
+      left[#left + 1] = { p[1] + q[1] * h, p[2] + q[2] * h }
+      right[#right + 1] = { p[1] - q[1] * h, p[2] - q[2] * h }
+    end
+    local out, n = left, #right
+    if hw((i1 - 1) / 24) > 0 then out[#out + 1] = right[n] end
+    for k = n - 1, 2, -1 do out[#out + 1] = right[k] end
+    if hw((i0 - 1) / 24) > 0 then out[#out + 1] = right[1] end
+    return out
+  end
+  local outline = piece(1, ka)
   smooth(outline, true) fill(tone(lt), 1)
   smooth(outline, true) ink.clip()
   local sd = chance(0.5) and 1 or -1
-  for i = 0, 12 do
-    local v = i / 12
-    if i == 0 then moveto(b * v * v, v) else lineto(b * v * v, v) end
+  local x0, x1, y1 = -lW * 2.5, lW * 2.5, 1
+  if T == 0 then
+    for i = 0, 12 do
+      local v = i / 12
+      if i == 0 then moveto(b * v * v, v) else lineto(b * v * v, v) end
+    end
+    lineto(sd * 2, 1) lineto(sd * 2, 0) close()
+  else                                          -- the darker half follows the spine's turn
+    for i = 1, ka do
+      if i == 1 then moveto(0, 0) else lineto(spine[i][1], spine[i][2]) end
+    end
+    for i = ka, 1, -1 do
+      local h, p, q = sd * (1.3 * hw((i - 1) / 24) + 0.01), spine[i], nr[i]
+      lineto(p[1] + q[1] * h, p[2] + q[2] * h)
+    end
+    close()
+    local xa, xb, yb = 0, 0, 0
+    for i = 1, 25 do
+      local p = spine[i]
+      xa, xb, yb = min(xa, p[1]), max(xb, p[1]), max(yb, p[2])
+    end
+    x0, x1, y1 = xa - lW * 2.5, xb + lW * 2.5, yb + lW
   end
-  lineto(sd * 2, 1) lineto(sd * 2, 0) close()
   fill(tone(0.12), 0.28, true)
-  mottle(-lW * 2.5, 0, lW * 2.5, 1, 10, 0.07, lt - 0.2, lt + 0.22, 8, true)
+  mottle(x0, 0, x1, y1, 10, 0.07, lt - 0.2, lt + 0.22, 8, true)
   smooth(outline, true) stroke(tone(0.06), 1.3 * u, 0.22, true)
   -- the midrib in white, and faint parallel veins either side
   local mid = {}
-  for i = 0, 10 do local v = 0.02 + 0.93 * i / 10 mid[i + 1] = { b * v * v, v } end
+  if T == 0 then
+    for i = 0, 10 do local v = 0.02 + 0.93 * i / 10 mid[i + 1] = { b * v * v, v } end
+  else
+    for i = 1, 24 do mid[i] = spine[i] end
+  end
   streak(mid, 0.016, 0.002, WHITE, 0.7)
   for k = 1, 4 do
     local f = (k < 3 and k - 3 or k - 2) * 0.38
     local pts = {}
-    for i = 0, 10 do
-      local v = 0.05 + 0.85 * i / 10
-      pts[i + 1] = { b * v * v + f * lW * 2.2 * v ^ 0.25 * (1 - v) ^ 0.6, v }
+    if T == 0 then
+      for i = 0, 10 do
+        local v = 0.05 + 0.85 * i / 10
+        pts[i + 1] = { b * v * v + f * hw(v), v }
+      end
+    else
+      for i = 1, 11 do
+        local p, q, h = spine[2 * i], nr[2 * i], f * hw((2 * i - 1) / 24)
+        pts[i] = { p[1] + q[1] * h, p[2] + q[2] * h }
+      end
     end
     streak(pts, 0.007, 0.001, WHITE, range(0.18, 0.32))
   end
   ink.unclip()
+  if ka < 25 then                               -- past the twist, the underside
+    local under = piece(ka, 25)
+    smooth(under, true) fill(tone(min(0.64, lt + 0.26)), 1)
+    smooth(under, true) ink.clip()
+    local sp = {}
+    for i = ka, 24 do sp[#sp + 1] = spine[i] end
+    streak(sp, 0.014, 0.002, WHITE, 0.6)
+    smooth(under, true) stroke(tone(0.06), 1.3 * u, 0.3, true)
+    ink.unclip()
+  end
 end
 
 -- ---------------------------------------------------------------- the species' blade
@@ -4300,6 +4479,12 @@ function M.unitdisc(s, k)
   if kind == "head" then return 0.8 * k, 0.5 * k, kind end
   if kind == "catkin" then return 0.2 * k, 0.9 * k, kind end
   return 0, 0.5 * fd, kind
+end
+-- whether its flowers are seen in profile (bells, urns, tubes, trumpets, pea and two-lipped
+-- flowers, a columbine held sideways): they reach out from the stalk, not round it
+function M.profile(s)
+  local fm = s.form
+  return TUBES[fm] or fm == "papilionaceous" or fm == "bilabiate" or fm == "spurred" and s.orient ~= "erect" or false
 end
 local BELOW = { raceme = true, spike = true, catkin = true }
 function M.lateness(s, h) return BELOW[s.inflo] and 0.4 * h or 0.4 * (1 - h) end

@@ -50,6 +50,7 @@ local GRID     = 0.2    -- candidate spacing (cm)
 local REACH    = 3.0    -- a motif must be within this distance of a stem
 local SMALLEST = 0.36   -- the branch loop stops below this free radius
 local FILLMIN  = 0.17   -- the filler stops below this
+local PROFILE  = 0.72   -- a top flower seen in profile (a bell, a tube) is drawn this much smaller
 
 -- the growth animation: a stem is recorded as prefixes GROWSTEP cm apart, a
 -- motif at the scales in BLOOM before its full size (eased: quick, then settling)
@@ -452,6 +453,9 @@ local function species_rows(sp, i, sea)
   -- dominates where it stands; it is as large as v1.3's flowers (a radius of 0.75 to
   -- 1.3 cm) whatever the plant's real size, as an illustrator enlarges a small flower
   local kmin, kmax = max(0.8, 0.7 / r1), min(2.2, max(1.3, 1.25 / r1))
+  -- flowers seen in profile (bells, tubes) are drawn smaller, as the tops are (PROFILE)
+  local kp = O.profile(sp) and PROFILE or 1
+  if kind == "solitary" then kmin, kmax = kp * kmin, kp * kmax end
   local rows = {
     unit("unit", 5, min(kmin, kmax), kmax, 0, true),
     row("budding", { w = 3, smin = 0.5, smax = 1.1, limit = cu, claim = 0.65, layer = L_BLOOM, upright = 0.6, spring = 3, autumn = 0.3,
@@ -461,7 +465,7 @@ local function species_rows(sp, i, sea)
   -- the hero's side branches end in big flowers too, as v1.3's capped `flower` row
   -- (when its cluster is not one flower already); open in summer, bud or fruit else
   if i == 1 and kind ~= "solitary" then
-    rows[#rows + 1] = row("bloom", { w = 3, smin = 1.5, smax = 2.6, hard = true, limit = cu,
+    rows[#rows + 1] = row("bloom", { w = 3, smin = 1.5 * kp, smax = 2.6 * kp, hard = true, limit = cu,
       layer = L_BLOOM, spring = 0.3, autumn = 0.6, bloom = true,
       r = function(d) return 0.5 * d end, off = function() return 0 end,
       draw = function(rng, d, _, h)
@@ -872,6 +876,9 @@ function M.page(g)
       -- hero role is a big flower at the top, whatever the rest of the plant carries)
       local stage = 1.2 * osea - ORG.lateness(sp, 1) + sp.phenology
       if single == "hero" then stage = max(0.8, stage) end     -- open and full size, until it fruits
+      -- a bell, tube, pea or two-lipped flower reaches out from its stalk, a solid shape
+      -- most of its diameter long: smaller, it carries a face-on flower's weight
+      if ORG.profile(sp) then target = PROFILE * target end
       event({ kind = "bloom", parent = ev, at = 1, size = target })
       place(L_BLOOM, x, y, a, function()
         ORG.draw("bloom", sp, pgfseed(rng.fork()), { d = 2 * target, stage = stage })
