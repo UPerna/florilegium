@@ -121,12 +121,12 @@
         "Original isohedral parameterization and optimization; compare R20 Chapter 4.3–4.5"
       ],
       "stage_owner": "20",
-      "retrieved": "2026-11-02",
-      "access": "Publisher metadata verified; publisher full text blocked; author thesis R20 available. Recover original before claiming exact paper reproduction.",
+      "retrieved": "2026-11-04",
+      "access": "Full original SIGGRAPH 2000 paper recovered from the University of Washington author archive. Sections 3–5 reviewed.",
       "code_availability": "No reusable code/license established; independent implementation required unless separately verified",
       "data_availability": "Use original fixtures; publication access is not artwork permission",
       "paper_license": "No redistribution permission established; do not bundle paper",
-      "implementation_status": "pending"
+      "implementation_status": "Source-led bounded IH41, split and P3 profiles implemented. Native CI and visual gates pending."
     },
     {
       "id": "R04d",
@@ -151,7 +151,7 @@
       "code_availability": "No reusable code/license established; independent implementation required unless separately verified",
       "data_availability": "Use original fixtures; publication access is not artwork permission",
       "paper_license": "No redistribution permission established; do not bundle paper",
-      "implementation_status": "pending"
+      "implementation_status": "Source-led bounded IH41, split and P3 profiles implemented. Native CI and visual gates pending."
     },
     {
       "id": "R05",
@@ -208,7 +208,7 @@
       "code_availability": "No reusable code/license established; independent implementation required unless separately verified",
       "data_availability": "Use original fixtures; publication access is not artwork permission",
       "paper_license": "No redistribution permission established; do not bundle paper",
-      "implementation_status": "Analytic 2D pointed arches, crown ellipse, rounded foils, recursive circles and concentric profiles implemented. Native and visual gates pending."
+      "implementation_status": "Stage 19 analytic 2D tracery passed native CI, geometry and visual acceptance. The source manifold mesh remains optional and separate."
     },
     {
       "id": "R07",
@@ -622,7 +622,7 @@
       "code_availability": "No reusable code/license established; independent implementation required unless separately verified",
       "data_availability": "Use original fixtures; publication access is not artwork permission",
       "paper_license": "No redistribution permission established; do not bundle paper",
-      "implementation_status": "pending"
+      "implementation_status": "Source-led bounded IH41, split and P3 profiles implemented. Native CI and visual gates pending."
     },
     {
       "id": "R01",

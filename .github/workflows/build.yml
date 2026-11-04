@@ -62,6 +62,8 @@ jobs:
             python3 tools/hat_oracle.py &&
             texlua tools/tracerycheck.lua &&
             python3 tools/tracery_oracle.py &&
+            texlua tools/eschercheck.lua &&
+            python3 tools/escher_oracle.py &&
             texlua tools/layoutcheck.lua &&
             texlua tools/spacecheck.lua &&
             texlua tools/initialcheck.lua &&
@@ -94,6 +96,7 @@ jobs:
             build/beenker/
             build/hat/
             build/tracery/
+            build/escher/
 
   portable:
     runs-on: ubuntu-latest

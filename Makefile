@@ -46,6 +46,8 @@ check:
 	$(RUN) python3 tools/hat_oracle.py
 	$(RUN) texlua tools/tracerycheck.lua
 	$(RUN) python3 tools/tracery_oracle.py
+	$(RUN) texlua tools/eschercheck.lua
+	$(RUN) python3 tools/escher_oracle.py
 	$(RUN) texlua tools/layoutcheck.lua
 	$(RUN) texlua tools/spacecheck.lua
 	$(RUN) texlua tools/initialcheck.lua

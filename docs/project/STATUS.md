@@ -1,5 +1,5 @@
 # Florilegium execution status
 
-Stages 00–18 passed. Stage 19 local acceptance passed. 17 checks on each Lua runtime and 36 matching output hashes. The independent oracle verified 144 analytic arcs, 12 tangent contacts, nested profile bands, seven recursive foil rings, and eleven PDF/SVG pairs including the centered junction close-up. Native CI pending.
+Stages 00–19 passed. Stage 20 local acceptance passed. 20 checks on each Lua runtime and 34 matching output hashes. The independent oracle reproduced improved IH41, split-IH41 and P3 objectives, finite coverage, 947 common exact P3 edges, and nine PDF/SVG comparisons. Native CI pending.
 
-Publish from exact parent ca1fa55, verify normal Git fetch and both native CI jobs, then inspect all fresh PDF/SVG pairs.
+Publish from exact parent 890657c, verify normal Git fetch and both native CI jobs, then inspect all fresh PDF/SVG pairs.

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_stage": "19",
+  "current_stage": "20",
   "prompt_sha256": "8D25740D944FC98943FD005737BD825215CFCF6F894218790E140EDE8EE3F09E",
   "stages": [
     {
@@ -529,37 +529,51 @@
     {
       "id": "19",
       "title": "Gothic window tracery and geometric grammars",
-      "status": "in_progress",
+      "status": "passed",
       "prerequisites": "18",
       "acceptance_items": [
         "the declared grammar creates several structurally different valid examples through shared contracts, parameter changes preserve dependencies, and invalid requests produce useful diagnostics. Source fidelity, dimensional scope and deviations are visible in the coverage and claims ledgers."
       ],
-      "observed_results": "17 checks on each Lua runtime and 36 matching output hashes. The independent oracle verified 144 analytic arcs, 12 tangent contacts, nested profile bands, seven recursive foil rings, and eleven PDF/SVG pairs including the centered junction close-up. Native CI pending.",
+      "observed_results": "Both native jobs passed. 17 checks, 36 output hashes, 365 source kit hashes, and eleven PDF/SVG pairs accepted. Verified 144 analytic arcs, 12 tangent contacts, seven recursive foil rings, and the physical line-weight probe. Native/local byte differences: ['edited.instance', 'edited.pdf', 'edited.svg', 'join-detail-diagnostic.pdf', 'join-detail-diagnostic.svg', 'narrow-diagnostic.pdf', 'narrow-diagnostic.scene', 'narrow-diagnostic.svg', 'narrow.instance', 'narrow.pdf', 'narrow.scene', 'narrow.svg', 'rose-diagnostic.pdf', 'rose-diagnostic.scene', 'rose-diagnostic.svg', 'rose.instance', 'rose.pdf', 'rose.scene', 'rose.svg', 'rosette-diagnostic.pdf', 'rosette-diagnostic.scene', 'rosette-diagnostic.svg', 'rosette.instance'].",
       "evidence_paths": [
         "artifacts/receipts/19/receipt-Lua-5.3.json",
         "artifacts/receipts/19/receipt-Lua-5.4.json",
         "artifacts/receipts/19/oracle.json",
-        "artifacts/receipts/19/source-reference.json"
+        "artifacts/receipts/19/source-reference.json",
+        "artifacts/receipts/19/publication.json",
+        "artifacts/receipts/19/ci-final.json"
       ],
-      "tested_code_revision": null,
-      "local_commit": null,
-      "verified_remote_revision": null,
-      "next_action": "Publish from exact parent ca1fa55, verify normal Git fetch and both native CI jobs, then inspect all fresh PDF/SVG pairs."
+      "tested_code_revision": "890657c64fd2a458dbae463b8a1c1b3c4ed256ec",
+      "local_commit": "890657c64fd2a458dbae463b8a1c1b3c4ed256ec",
+      "verified_remote_revision": "890657c64fd2a458dbae463b8a1c1b3c4ed256ec",
+      "next_action": "Passed. Proceed to Stage 20.",
+      "workflow_runs": [
+        {
+          "id": 41871687021,
+          "status": "success",
+          "head_sha": "890657c64fd2a458dbae463b8a1c1b3c4ed256ec"
+        }
+      ]
     },
     {
       "id": "20",
       "title": "Escherization and boundary-coupled deformation",
-      "status": "pending",
+      "status": "in_progress",
       "prerequisites": "19",
       "acceptance_items": [
         "users can provide a real target shape and obtain a valid improved approximation in the supported cases; matching and coverage survive the edits; rejected deformations fail clearly; aperiodic decoration preserves its declared source construction. Keep solver artifacts and source-specific fidelity claims inspectable."
       ],
-      "observed_results": null,
-      "evidence_paths": null,
+      "observed_results": "20 checks on each Lua runtime and 34 matching output hashes. The independent oracle reproduced improved IH41, split-IH41 and P3 objectives, finite coverage, 947 common exact P3 edges, and nine PDF/SVG comparisons. Native CI pending.",
+      "evidence_paths": [
+        "artifacts/receipts/20/receipt-Lua-5.3.json",
+        "artifacts/receipts/20/receipt-Lua-5.4.json",
+        "artifacts/receipts/20/oracle.json",
+        "artifacts/receipts/20/source-reference.json"
+      ],
       "tested_code_revision": null,
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+      "next_action": "Publish from exact parent 890657c, verify normal Git fetch and both native CI jobs, then inspect all fresh PDF/SVG pairs."
     },
     {
       "id": "21",

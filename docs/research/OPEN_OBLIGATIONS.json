@@ -37,8 +37,10 @@
       "id": "O05",
       "source": "R04c",
       "owner": "20",
-      "reason": "Original publisher PDF unavailable; author thesis full text available",
-      "next_action": "Compare original paper with thesis Chapter 4.3–4.5 before claiming exact reproduction. Record any thesis-based variant explicitly."
+      "reason": "Original SIGGRAPH 2000 primary recovered and read alongside the later thesis and dihedral paper.",
+      "next_action": "Retain source-specific finite scope and original code.",
+      "status": "resolved",
+      "evidence": "artifacts/receipts/20/source-reference.json"
     },
     {
       "id": "O06",

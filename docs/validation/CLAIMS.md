@@ -34,3 +34,9 @@ Stage08 final gate: 9041fafcdc5587126d75aecd8b03d6bcb1898412, CI41706823596 succ
 ## Stage 19 tracery
 
 The admitted pointed-arch, paired-bay, tangent crown and rounded recursive foil constructions retain their analytic 2D graphs. Arch and circle bands use concentric offsets and recomputed joins. The finite fixtures test the analytic dependencies and vector approximation separately. The scope excludes the published manifold mesh and pointed foil variant. The native artifact gate is pending. See [the 2D grammar](../architecture/GOTHIC_TRACERY.md).
+
+Stage 19 final gate passed on 890657c. Both native jobs succeeded. The independent checks covered 144 analytic arcs and 12 tangent contacts. Eleven fresh PDF/SVG pairs passed inspection. The source 3D mesh remains outside this 2D profile.
+
+## Stage 20 Escherization
+
+The bounded IH41 and split IH41 profiles use a shared translation chart. The derived Penrose patches retain the original P3 scaffold and match four exact source fundamental edge classes. Local fixtures improve the turning objective and retain positive mismatch residuals. The verified coverage applies to the declared finite patches and admitted deformations. Native CI and artifact review are pending. See [the boundary-coupled construction](../architecture/ESCHERIZATION.md).
