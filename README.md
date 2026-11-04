@@ -315,6 +315,10 @@ make playground             # the browser playground at http://localhost:8000/we
   generator; pgfmath's reading and printing of numbers, its multiply, divide, ln, exp and
   pow). It is not part of pgf; its header says how it differs and where pgf is, as the LPPL
   asks of a derived work, and like pgf it is under the LPPL 1.3c.
+- The repository's social image writes "florilegium" along the strokes of the Hershey Script
+  Simplex font, which Dr. A. V. Hershey made at the U.S. National Bureau of Standards; its data
+  format is James Hurt's (Cognition, Inc.). `tools/hershey/README.md` gives the font data's
+  source and terms.
 - `\florilegiumornament`, its `ink` and `seed=random` keys, and the `density` option answer
   [issue #4](https://github.com/kevinraymond/florilegium/issues/4) from rubyFeedback.
 - The playground runs the Lua in the browser with [wasmoon](https://github.com/ceifa/wasmoon)

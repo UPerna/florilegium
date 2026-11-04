@@ -145,6 +145,18 @@ bench: tools/bench.sh tools/bench.tex tools/bench-tikz.tex florilegium.sty tikzl
 	git archive $(OLD) | tar -x -C build/bench/$(OLD)
 	$(RUN) sh tools/bench.sh build/bench/$(OLD)
 
+# the GitHub social image (tools/social.tex), 1280 x 640 px, printed as a cyanotype. It is
+# drawn at twice the size and scaled down, and its darkness (Rec. 709 luma) is mapped from
+# Delft blue (the paper) to paper white (the darkest ink) -> gallery/social.png (pdftoppm, Pillow)
+social: tools/social.tex tools/social.lua tools/hershey/scripts.jhf florilegium.sty tikzlibraryflorilegium.code.tex tikzlibraryflorilegium.tables.code.tex $(LUA)
+	mkdir -p build gallery
+	$(LUALATEX) -output-directory=build tools/social.tex
+	pdftoppm -png -r 144 -singlefile build/social.pdf build/social-2x
+	python3 -c "from PIL import Image, ImageOps; \
+	  im = Image.open('build/social-2x.png').convert('RGB').resize((1280, 640), Image.LANCZOS); \
+	  dark = ImageOps.invert(im.convert('L', (0.2126, 0.7152, 0.0722, 0))); \
+	  ImageOps.colorize(dark, '#132a63', '#fffdf8').save('gallery/social.png', optimize=True)"
+
 # the playground in web/, served from the repository: http://localhost:8000/web/
 playground:
 	python3 -m http.server 8000
@@ -152,4 +164,4 @@ playground:
 clean:
 	rm -rf build *.aux *.log *.out *.toc *.synctex.gz
 
-.PHONY: all zip gallery animation preview postscript pscheck luacheck check svg bench playground clean
+.PHONY: all zip gallery animation preview postscript pscheck luacheck check svg bench social playground clean

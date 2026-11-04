@@ -1,0 +1,31 @@
+% tools/social.tex -- the GitHub social image, a page of 1280 x 640 bp with "florilegium" grown as
+% one vine (tools/social.lua), species flowers and a butterfly from the TikZ library, and a
+% subtitle. make social builds it from the repository's root and prints it as a cyanotype,
+% the ink white and the paper Delft blue, to gallery/social.png, which is uploaded by hand
+% under the repository's Settings, Social preview.
+%   make social RUN=tools/in-docker
+% Copyright (c) 2026 Kevin Raymond. MIT License: see LICENSE or florilegium.sty.
+\documentclass{article}
+\usepackage[paperwidth=1280bp,paperheight=640bp,margin=0pt]{geometry}
+\usepackage{fontspec}
+\setmainfont{Latin Modern Roman}
+\newfontfamily\lmcaps[LetterSpace=10]{lmromancaps10-regular.otf}
+\usepackage[nomargin]{florilegium}
+\usetikzlibrary{florilegium}
+\pagestyle{empty}
+\parindent=0pt
+\topskip=0pt
+\makeatletter
+\begin{document}
+\noindent\raisebox{-640bp}[0pt][0pt]{\begin{tikzpicture}[x=1cm, y=1cm]
+  \useasboundingbox (0,0) rectangle (1280bp,640bp);
+  \florilegium@colors
+  \directlua{
+    social = dofile("tools/social.lua")
+    social.draw(1280 * 2.54 / 72, 640 * 2.54 / 72, { jhf = "tools/hershey/scripts.jhf" })
+  }
+  \directlua{social.pics({})}
+  \node[text=ink!75!black, font=\lmcaps\fontsize{24}{30}\selectfont]
+    at (640bp, 84bp) {procedurally generated page margins for \LaTeX};
+\end{tikzpicture}}%
+\end{document}

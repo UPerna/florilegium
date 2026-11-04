@@ -12,6 +12,7 @@ make gallery                # gallery/seeds.png + seeds.gif, inks.png, seasons.p
 make grow-6                 # growth animation of seed 6 -> build/grow-6.gif + .mp4 (ffmpeg)
 make grow-6 EXPLAIN=1       # the same with the free discs marked -> build/grow-6-explain.*
 make svg SEED=7             # the same page as SVG, without TeX -> build/svg-7.svg
+make social                 # the GitHub social image -> gallery/social.png (pdftoppm, Pillow)
 make playground             # the browser playground at http://localhost:8000/web/
 make postscript             # the PostScript port through Ghostscript -> build/postscript-7.pdf
 make bench                  # v1.3 against this tree, and the TikZ library's engines (about 5 minutes)
