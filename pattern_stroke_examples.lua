@@ -2,6 +2,11 @@ local F=require("pattern_stroke_field")
 local M={VERSION="perceptual-stroke-groups-v1"}
 local abs,sqrt,min,max,pi=math.abs,math.sqrt,math.min,math.max,math.pi
 
+-- Rank near-equal measurements in fixed bins before breaking ties by declaration order.
+local function rank(x)
+  return math.floor(x*1e9+.5)
+end
+
 local function gap(a,b)
   return sqrt((a[1]-b[1])^2+(a[2]-b[2])^2)
 end
@@ -61,7 +66,7 @@ local function nearest(elements,i,group)
   for j,v in ipairs(elements) do
     if j~=i and (not group or v.group==elements[i].group) then
       local d=gap(v.center,elements[i].center)
-      if d<best then best,other=d,j end
+      if rank(d)<rank(best) then best,other=d,j end
     end
   end
   return other,best
@@ -158,8 +163,8 @@ local function neighborhood(elements,i,scale,radius)
     end
   end
   table.sort(out,function(a,b)
-    if a.distance==b.distance then return a.index<b.index end
-    return a.distance<b.distance
+    if rank(a.distance)==rank(b.distance) then return a.index<b.index end
+    return rank(a.distance)<rank(b.distance)
   end)
   while #out>6 do out[#out]=nil end
   return out
@@ -169,7 +174,7 @@ local function offset_nearest(a,list)
   local best,result=math.huge
   for _,b in ipairs(list) do
     local d=(a.x-b.x)^2+(a.y-b.y)^2
-    if d<best then best,result=d,b end
+    if rank(d)<rank(best) then best,result=d,b end
   end
   return result,sqrt(best)
 end
@@ -250,8 +255,8 @@ function M.synthesize(data,sites,controls,rng,allowed)
         candidates[#candidates+1]={index=j,score=score,count=count}
       end
       table.sort(candidates,function(a,b)
-        if a.score==b.score then return a.index<b.index end
-        return a.score<b.score
+        if rank(a.score)==rank(b.score) then return a.index<b.index end
+        return rank(a.score)<rank(b.score)
       end)
       quality,nmatch=candidates[1].score,candidates[1].count
       if quality<=controls.threshold then selected=candidates[1].index end
@@ -269,7 +274,7 @@ function M.synthesize(data,sites,controls,rng,allowed)
       local best=math.huge
       for _,i in ipairs(group.pairs) do
         local delta=abs(data.relations[i].proximity*scale-current.proximity)
-        if delta<best then best,pair_id=delta,i end
+        if rank(delta)<rank(best) then best,pair_id=delta,i end
       end
       local pair=data.relations[pair_id]
       local amount=controls.correction

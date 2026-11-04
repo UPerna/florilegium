@@ -57,9 +57,9 @@
     ]
   },
   "causal": {
-    "strokes": 124,
-    "segments": 124,
-    "minimum_clearance_cm": 0.12518200721637124,
+    "strokes": 122,
+    "segments": 122,
+    "minimum_clearance_cm": 0.07283363604955327,
     "reference": {
       "points": {
         "count": 3,
@@ -88,38 +88,38 @@
     },
     "synthesized": {
       "points": {
-        "count": 13,
-        "mean_length": 0.08827188724235699,
+        "count": 11,
+        "mean_length": 0.08827188724235696,
         "mean_width": 0.044,
-        "mean_angle": 0.3217505543966427,
-        "mean_proximity": 0.5399489482734826,
+        "mean_angle": 0.3217505543966425,
+        "mean_proximity": 0.48999343779540494,
         "mean_parallelism": null
       },
       "slanted": {
-        "count": 37,
-        "mean_length": 0.3812933110617888,
-        "mean_width": 0.03459459459459479,
+        "count": 42,
+        "mean_length": 0.3815558593243371,
+        "mean_width": 0.034857142857143045,
         "mean_angle": 0.5800027742076809,
-        "mean_proximity": 0.5144946472751071,
-        "mean_parallelism": 1.0888385396001229e-16
+        "mean_proximity": 0.48274560075183315,
+        "mean_parallelism": 1.2452965419486786e-16
       },
       "upright": {
-        "count": 12,
-        "mean_length": 0.38284047383774034,
-        "mean_width": 0.03466666666666685,
+        "count": 8,
+        "mean_length": 0.38217380717107374,
+        "mean_width": 0.034000000000000224,
         "mean_angle": 1.353685012059991,
-        "mean_proximity": 0.6485238946106411,
-        "mean_parallelism": 1.1779832153568581e-17
+        "mean_proximity": 0.6382860147784196,
+        "mean_parallelism": 0.0
       }
     },
     "matched": 51,
     "corrected": 0,
-    "fallbacks": 7,
+    "fallbacks": 6,
     "relaxation": [],
-    "backend_mean_error": 0.001845708443967865,
+    "backend_mean_error": 0.0018716650071486929,
     "pixels_darker_than_210": [
-      3126,
-      3273
+      3175,
+      3312
     ]
   },
   "independent": {
@@ -191,7 +191,7 @@
   "cloning": {
     "strokes": 128,
     "segments": 128,
-    "minimum_clearance_cm": 0.10989539460520513,
+    "minimum_clearance_cm": 0.10989539460520527,
     "reference": {
       "points": {
         "count": 3,
@@ -224,7 +224,7 @@
         "mean_length": 0.0882718872423569,
         "mean_width": 0.044,
         "mean_angle": 0.3217505543966426,
-        "mean_proximity": 0.6385251705028367,
+        "mean_proximity": 0.6385338951940801,
         "mean_parallelism": null
       },
       "slanted": {
@@ -232,7 +232,7 @@
         "mean_length": 0.38216538313386106,
         "mean_width": 0.035466666666666855,
         "mean_angle": 0.6484097929795917,
-        "mean_proximity": 0.5760837557793528,
+        "mean_proximity": 0.5760598329100262,
         "mean_parallelism": 0.028228407943236847
       },
       "upright": {
@@ -240,8 +240,8 @@
         "mean_length": 0.383602378599645,
         "mean_width": 0.03542857142857161,
         "mean_angle": 1.2611714412069621,
-        "mean_proximity": 0.8217719095891811,
-        "mean_parallelism": 0.05872974835679357
+        "mean_proximity": 0.8222250834734487,
+        "mean_parallelism": 0.05872974835679359
       }
     },
     "matched": 0,
@@ -251,33 +251,33 @@
       {
         "iteration": 0,
         "relative_deviation": 0.14234168825236487,
-        "target": 0.06666666666666066
+        "target": 0.06666666666666297
       },
       {
         "iteration": 1,
         "relative_deviation": 0.10699378550120639,
-        "target": 0.06666666666666066
+        "target": 0.06666666666666297
       },
       {
         "iteration": 2,
         "relative_deviation": 0.08586041604305449,
-        "target": 0.06666666666666066
+        "target": 0.06666666666666297
       },
       {
         "iteration": 3,
         "relative_deviation": 0.08081518322908728,
-        "target": 0.06666666666666066
+        "target": 0.06666666666666297
       },
       {
         "iteration": 4,
         "relative_deviation": 0.0809663802516185,
-        "target": 0.06666666666666066
+        "target": 0.06666666666666297
       }
     ],
-    "backend_mean_error": 0.0019020363136574073,
+    "backend_mean_error": 0.0019052675866353486,
     "pixels_darker_than_210": [
-      2918,
-      3112
+      2922,
+      3113
     ]
   },
   "copying": {
@@ -316,7 +316,7 @@
         "mean_length": 0.08827188724235693,
         "mean_width": 0.044,
         "mean_angle": 0.32175055439664213,
-        "mean_proximity": 0.8632049051672127,
+        "mean_proximity": 0.8632146557015644,
         "mean_parallelism": null
       },
       "slanted": {
@@ -324,7 +324,7 @@
         "mean_length": 0.38284686461534256,
         "mean_width": 0.036592592592592794,
         "mean_angle": 0.6786135561475041,
-        "mean_proximity": 0.6488399460046026,
+        "mean_proximity": 0.648909269071959,
         "mean_parallelism": 0.04997955973951929
       },
       "upright": {
@@ -332,8 +332,8 @@
         "mean_length": 0.3851261881234544,
         "mean_width": 0.03447619047619067,
         "mean_angle": 1.2529824081919763,
-        "mean_proximity": 0.6711062192046494,
-        "mean_parallelism": 0.061238455960710834
+        "mean_proximity": 0.6714094841285979,
+        "mean_parallelism": 0.06123845596071083
       }
     },
     "matched": 0,
@@ -343,39 +343,39 @@
       {
         "iteration": 0,
         "relative_deviation": 0.14234168825236487,
-        "target": 0.06666666666666066
+        "target": 0.06666666666666297
       },
       {
         "iteration": 1,
         "relative_deviation": 0.10699378550120639,
-        "target": 0.06666666666666066
+        "target": 0.06666666666666297
       },
       {
         "iteration": 2,
         "relative_deviation": 0.08586041604305449,
-        "target": 0.06666666666666066
+        "target": 0.06666666666666297
       },
       {
         "iteration": 3,
         "relative_deviation": 0.08081518322908728,
-        "target": 0.06666666666666066
+        "target": 0.06666666666666297
       },
       {
         "iteration": 4,
         "relative_deviation": 0.0809663802516185,
-        "target": 0.06666666666666066
+        "target": 0.06666666666666297
       }
     ],
-    "backend_mean_error": 0.0019107594209558823,
+    "backend_mean_error": 0.0019039777369281045,
     "pixels_darker_than_210": [
-      3021,
-      3223
+      3017,
+      3224
     ]
   },
   "sampling": {
     "strokes": 128,
     "segments": 128,
-    "minimum_clearance_cm": 0.10311096223687091,
+    "minimum_clearance_cm": 0.10220197691686234,
     "reference": {
       "points": {
         "count": 3,
@@ -416,15 +416,15 @@
         "mean_length": 0.38225722926792666,
         "mean_width": 0.03664485826271571,
         "mean_angle": 0.6697646619005375,
-        "mean_proximity": 0.5873671610947327,
-        "mean_parallelism": 0.03169937848897711
+        "mean_proximity": 0.5873777350986983,
+        "mean_parallelism": 0.031699378488977116
       },
       "upright": {
         "count": 18,
         "mean_length": 0.38376373639296374,
         "mean_width": 0.03484227543755237,
         "mean_angle": 1.2776943210925966,
-        "mean_proximity": 0.6527132914660442,
+        "mean_proximity": 0.6528025143753499,
         "mean_parallelism": 0.03876790652659863
       }
     },
@@ -435,33 +435,33 @@
       {
         "iteration": 0,
         "relative_deviation": 0.14234168825236487,
-        "target": 0.06666666666666066
+        "target": 0.06666666666666297
       },
       {
         "iteration": 1,
         "relative_deviation": 0.10699378550120639,
-        "target": 0.06666666666666066
+        "target": 0.06666666666666297
       },
       {
         "iteration": 2,
         "relative_deviation": 0.08586041604305449,
-        "target": 0.06666666666666066
+        "target": 0.06666666666666297
       },
       {
         "iteration": 3,
         "relative_deviation": 0.08081518322908728,
-        "target": 0.06666666666666066
+        "target": 0.06666666666666297
       },
       {
         "iteration": 4,
         "relative_deviation": 0.0809663802516185,
-        "target": 0.06666666666666066
+        "target": 0.06666666666666297
       }
     ],
-    "backend_mean_error": 0.001932833137595316,
+    "backend_mean_error": 0.0019350538066789215,
     "pixels_darker_than_210": [
-      3002,
-      3196
+      3003,
+      3199
     ]
   },
   "scaled": {
@@ -527,27 +527,27 @@
       {
         "iteration": 0,
         "relative_deviation": 0.14234168825236487,
-        "target": 0.06666666666666066
+        "target": 0.06666666666666297
       },
       {
         "iteration": 1,
         "relative_deviation": 0.10699378550120639,
-        "target": 0.06666666666666066
+        "target": 0.06666666666666297
       },
       {
         "iteration": 2,
         "relative_deviation": 0.08586041604305449,
-        "target": 0.06666666666666066
+        "target": 0.06666666666666297
       },
       {
         "iteration": 3,
         "relative_deviation": 0.08081518322908728,
-        "target": 0.06666666666666066
+        "target": 0.06666666666666297
       },
       {
         "iteration": 4,
         "relative_deviation": 0.0809663802516185,
-        "target": 0.06666666666666066
+        "target": 0.06666666666666297
       }
     ],
     "backend_mean_error": 0.0026343917015590954,

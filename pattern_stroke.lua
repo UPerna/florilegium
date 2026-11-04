@@ -259,7 +259,7 @@ function M.register(reg)
     if a.mode=="hatching" then strokes,trace=hatching(f,a,c)
     elseif a.mode=="stippling" then strokes,trace=stippling(f,a,c)
     else strokes,trace=synthesis(f,a,s.inputs.example,c) end
-    return {id="stroke/"..H.value("stroke/instance",{field=f,controls=a,strokes=strokes}),
+    return {id="stroke/"..H.value("stroke/instance",{field=f,controls=a,seed=s.seed,example=P.plain(s.inputs.example),method=M.VERSION}),
       definition_ref={id=d.id,version=d.version},frame=P.plain(c.frame),structures={field=samples(strokes,f)},
       provenance={generator=d.id,generator_version=d.version,seed=s.seed,construction=M.VERSION},
       extensions={stroke={field=f,controls=a,strokes=strokes,trace=trace}}}
@@ -268,4 +268,5 @@ function M.register(reg)
 end
 
 return M
+
 

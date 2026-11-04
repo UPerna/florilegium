@@ -630,12 +630,24 @@
         "artifacts/receipts/22/receipt-Lua-5.3.json",
         "artifacts/receipts/22/receipt-Lua-5.4.json",
         "artifacts/receipts/22/oracle.json",
-        "artifacts/receipts/22/source-reference.json"
+        "artifacts/receipts/22/source-reference.json",
+        "artifacts/receipts/22/publication-initial.json",
+        "artifacts/receipts/22/replay-repair.json"
       ],
       "tested_code_revision": null,
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Publish from exact parent c4bea46, verify normal Git fetch and both native CI jobs, then inspect all fresh PDF/SVG pairs."
+      "next_action": "Publish the replay repair from exact parent 48cdae7, verify normal Git fetch and both native CI jobs, then inspect all fresh PDF/SVG pairs.",
+      "workflow_runs": [
+        {
+          "id": 41891140280,
+          "status": "success",
+          "head_sha": "48cdae7ce31478c30d77b356127c687068c5f541",
+          "acceptance": "rejected: cross-platform replay differs"
+        }
+      ],
+      "tested_revision": "48cdae7ce31478c30d77b356127c687068c5f541",
+      "verified_revision": "48cdae7ce31478c30d77b356127c687068c5f541"
     },
     {
       "id": "23",
