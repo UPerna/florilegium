@@ -158,7 +158,10 @@ function M.execute(recipe,registry,environment,options)
       end
     else problem={status=type(value)=="table" and value.code=="cancelled" and "cancelled" or "failed",diagnostics={type(value)=="table" and value.message or tostring(value)}} end
   end
-  if not accepted then record.status=problem.status;record.diagnostics=problem.diagnostics;record.outputs=P.array() end
+  if not accepted then
+    record.status=problem.status;record.diagnostics=problem.diagnostics;record.outputs=P.array()
+    if problem.solver then record.extensions={solver=P.plain(problem.solver)} end
+  end
   record.budgets=context:receipt();record.id="build/"..H.value("build/record-body",record);record=P.build_record(record)
   if not accepted then return {record=record,keys=cache} end
   accepted.record=record;accepted.keys=cache;return accepted

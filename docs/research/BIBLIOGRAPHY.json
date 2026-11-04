@@ -452,10 +452,10 @@
       "stage_owner": "18",
       "retrieved": "2026-11-02",
       "access": "Full primary PDF retrieved and section inventory inspected",
-      "code_availability": "isohedral/hatviz @ 4bb9d01999e4e84accc2a78d0fa279ef20b47263; BSD-3-Clause; preserve notice if reused. Ancillary independent validation code also linked from primary paper.",
+      "code_availability": "Official HatViz BSD-3-Clause source pinned to 4bb9d01999e4e84accc2a78d0fa279ef20b47263. Source rule data adapted with license.",
       "data_availability": "Use original fixtures; publication access is not artwork permission",
       "paper_license": "arXiv record grants distribution to arXiv; no project redistribution permission inferred. Project sample-media licenses are separate.",
-      "implementation_status": "pending"
+      "implementation_status": "Exact Hat metatile recurrence implemented. Native and artifact gates pending."
     },
     {
       "id": "R15",
@@ -482,7 +482,7 @@
       "code_availability": "Reference app reuse license unverified. Independent mathematical implementation, no app code redistributed.",
       "data_availability": "Use original fixtures; publication access is not artwork permission",
       "paper_license": "arXiv record grants distribution to arXiv; no project redistribution permission inferred. Project sample-media licenses are separate.",
-      "implementation_status": "Marked hierarchy and Lemma 2.1 S-curve construction implemented. Stage 15 native gate pending."
+      "implementation_status": "Stage 15 marked hierarchy and Lemma 2.1 S-curve construction passed native CI and artifact review."
     },
     {
       "id": "R16a",
@@ -503,7 +503,7 @@
       "code_availability": "No reusable code/license established; independent implementation required unless separately verified",
       "data_availability": "Use original fixtures; publication access is not artwork permission",
       "paper_license": "No redistribution permission established; do not bundle paper",
-      "implementation_status": "in_progress"
+      "implementation_status": "Stage 17 source tetragrid passed native CI and independent finite geometry, tie, symmetry and render checks."
     },
     {
       "id": "R16b",
@@ -527,7 +527,7 @@
       "code_availability": "No reusable code/license established; independent implementation required unless separately verified",
       "data_availability": "Use original fixtures; publication access is not artwork permission",
       "paper_license": "No redistribution permission established; do not bundle paper",
-      "implementation_status": "in_progress"
+      "implementation_status": "Stage 17 source tetragrid passed native CI and independent finite geometry, tie, symmetry and render checks."
     },
     {
       "id": "R17",

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_stage": "17",
+  "current_stage": "18",
   "prompt_sha256": "8D25740D944FC98943FD005737BD825215CFCF6F894218790E140EDE8EE3F09E",
   "stages": [
     {
@@ -463,37 +463,51 @@
     {
       "id": "17",
       "title": "Ammannâ€“Beenker and projection/multigrid generation",
-      "status": "in_progress",
+      "status": "passed",
       "prerequisites": "16",
       "acceptance_items": [
         "this family works through shared contracts, a genuine projection/multigrid generator is exercised, tie rules are deterministic, and finite validation is distinct from the source's mathematical nonperiodicity. Record exact parameter choices and supported query horizons for reproducible continuation."
       ],
-      "observed_results": "16 checks on each Lua runtime and 28 matching output hashes. The independent oracle checked 2244 tiles, 253 shared tiles, all singular tie cases, 64 eightfold disk tiles, and ten PDF/SVG pairs. Native CI pending.",
+      "observed_results": "Both native jobs passed. 16 checks, 28 output hashes, 338 source kit hashes, and ten PDF/SVG pairs accepted. Verified 2244 reconstructed tiles, 253 common tile identities, and 64 tiles in the eightfold disk. Native/local byte differences: [].",
       "evidence_paths": [
         "artifacts/receipts/17/receipt-Lua-5.3.json",
         "artifacts/receipts/17/receipt-Lua-5.4.json",
         "artifacts/receipts/17/oracle.json",
-        "artifacts/receipts/17/primary-recovery.json"
+        "artifacts/receipts/17/primary-recovery.json",
+        "artifacts/receipts/17/publication.json",
+        "artifacts/receipts/17/ci-final.json"
       ],
-      "tested_code_revision": null,
-      "local_commit": null,
-      "verified_remote_revision": null,
-      "next_action": "Publish from exact parent ef4c249, verify normal Git fetch and both native CI jobs, then inspect all fresh PDF/SVG pairs."
+      "tested_code_revision": "ab597994e2e0aeae9b6398e149bec480110a802d",
+      "local_commit": "ab597994e2e0aeae9b6398e149bec480110a802d",
+      "verified_remote_revision": "ab597994e2e0aeae9b6398e149bec480110a802d",
+      "next_action": "Passed. Proceed to Stage 18.",
+      "workflow_runs": [
+        {
+          "id": 41853811845,
+          "status": "success",
+          "head_sha": "ab597994e2e0aeae9b6398e149bec480110a802d"
+        }
+      ]
     },
     {
       "id": "18",
       "title": "Hat and bounded constraint construction",
-      "status": "pending",
+      "status": "in_progress",
       "prerequisites": "17",
       "acceptance_items": [
         "Hat is correctly differentiated from Spectre and Tile(1,1); all four named aperiodic families are implemented; the three construction routes have real exercised examples; bounded construction has honest finite guarantees and reproducible failure handling."
       ],
-      "observed_results": null,
-      "evidence_paths": null,
+      "observed_results": "22 checks on each Lua runtime and 30 matching output hashes. The independent oracle verified twelve pinned Hat clusters, 1352 distinct kites, 35 common leaves, five solver receipts, and seven PDF/SVG pairs. Native CI pending.",
+      "evidence_paths": [
+        "artifacts/receipts/18/receipt-Lua-5.3.json",
+        "artifacts/receipts/18/receipt-Lua-5.4.json",
+        "artifacts/receipts/18/oracle.json",
+        "artifacts/receipts/18/source-reference.json"
+      ],
       "tested_code_revision": null,
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+      "next_action": "Publish from exact parent ab59799, verify normal Git fetch and both native CI jobs, then inspect all fresh PDF/SVG pairs."
     },
     {
       "id": "19",

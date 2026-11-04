@@ -68,7 +68,8 @@ function M.new()
     if ok then return value end
     local code=type(value)=="table" and value.code or "failed"
     local message=type(value)=="table" and value.message or tostring(value)
-    return nil,{status=code=="cancelled" and "cancelled" or "failed",code=code,diagnostics={message},budgets=context:receipt()}
+    return nil,{status=code=="cancelled" and "cancelled" or "failed",code=code,diagnostics={message},
+      budgets=context:receipt(),solver=type(value)=="table" and value.solver or nil}
   end
   function registry:lower(id,instance,view,style,context)
     local entry=assert(entries[id],"unknown generator "..tostring(id))
