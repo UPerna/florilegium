@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_stage": "14",
+  "current_stage": "15",
   "prompt_sha256": "8D25740D944FC98943FD005737BD825215CFCF6F894218790E140EDE8EE3F09E",
   "stages": [
     {
@@ -391,37 +391,44 @@
     {
       "id": "14",
       "title": "Penrose tilings",
-      "status": "in_progress",
+      "status": "passed",
       "prerequisites": "13",
       "acceptance_items": [
         "a reproducible Penrose instance passes structural and source-rule checks, renders through shared PDF/SVG output, and supports view changes without interior regeneration. Published aperiodicity is cited with its applicable assumptions; finite test results remain separately labelled."
       ],
-      "observed_results": "18 checks on each Lua version, 23 matching output hashes, 1682 independently audited query rhombi, 187 stable shared rhombi and 12 gutter-crossing rhombi. Eight local PDF/SVG pairs inspected. Both required primary papers recovered. Native CI pending.",
+      "observed_results": "Native CI passed both jobs. 18 checks, 1682 independently audited query rhombi, 187 stable overlap rhombi, 12 gutter-crossing rhombi, 23 artifact hashes and 309 source kit hashes. Eight native pairs accepted. Native/local byte differences: [].",
       "evidence_paths": [
         "artifacts/receipts/14/oracle.json",
         "artifacts/receipts/14/receipt-Lua-5.3.json",
         "artifacts/receipts/14/receipt-Lua-5.4.json",
-        "artifacts/receipts/14/primary-recovery.json"
+        "artifacts/receipts/14/primary-recovery.json",
+        "artifacts/receipts/14/publication.json",
+        "artifacts/receipts/14/ci-final.json"
       ],
-      "tested_code_revision": null,
-      "local_commit": null,
-      "verified_remote_revision": null,
-      "next_action": "Publish with expected parent 5fc7a9e, verify branch bytes, require both native CI jobs, and inspect fresh Celtic artifacts."
+      "tested_code_revision": "580053a163b33ab2bf7dd4284fcb66f13021fcbb",
+      "local_commit": "580053a163b33ab2bf7dd4284fcb66f13021fcbb",
+      "verified_remote_revision": "580053a163b33ab2bf7dd4284fcb66f13021fcbb",
+      "next_action": "Passed. Proceed to stage 15."
     },
     {
       "id": "15",
       "title": "Spectre, with correct chirality and boundaries",
-      "status": "pending",
+      "status": "in_progress",
       "prerequisites": "14",
       "acceptance_items": [
         "actual Spectre boundaries and one-chirality construction are implemented and accurately labelled; Tile(1,1) diagnostics are distinct; valid patches preserve IDs across views. All mathematical claims match the source case actually generated. Retain required code/data attribution and licenses."
       ],
-      "observed_results": null,
-      "evidence_paths": null,
+      "observed_results": "18 checks on each Lua version, 25 matching output hashes, five exact author-reference coordinate hashes and 34 stable shared leaves. Nine local PDF/SVG pairs inspected including curved and straight close-ups. Native CI pending.",
+      "evidence_paths": [
+        "artifacts/receipts/15/oracle.json",
+        "artifacts/receipts/15/receipt-Lua-5.3.json",
+        "artifacts/receipts/15/receipt-Lua-5.4.json",
+        "artifacts/receipts/15/source-reference.json"
+      ],
       "tested_code_revision": null,
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+      "next_action": "Publish with expected parent 580053a, verify branch bytes, require both native CI jobs, and inspect fresh Celtic artifacts."
     },
     {
       "id": "16",

@@ -467,7 +467,7 @@
         "Chaim Goodman-Strauss"
       ],
       "year": 2024,
-      "version": "arXiv:2305.17743v2, 28 September 2024; Combinatorial Theory 4(2), 2024",
+      "version": "Combinatorial Theory 4(2), article 13, 2024, final CC BY 4.0 paper",
       "primary_url": "https://arxiv.org/abs/2305.17743v2",
       "doi": "10.5070/C64264241",
       "sections": [
@@ -477,12 +477,12 @@
         "5 A substitution system for marked hexagons"
       ],
       "stage_owner": "15",
-      "retrieved": "2026-11-02",
-      "access": "Full primary PDF retrieved and section inventory inspected",
-      "code_availability": "Primary project browser app available; app code license not yet established. Use paper construction and independently authored Lua unless reuse license is verified.",
+      "retrieved": "2026-11-04",
+      "access": "Final paper read. Official reference app pinned and exercised privately.",
+      "code_availability": "Reference app reuse license unverified. Independent mathematical implementation, no app code redistributed.",
       "data_availability": "Use original fixtures; publication access is not artwork permission",
       "paper_license": "arXiv record grants distribution to arXiv; no project redistribution permission inferred. Project sample-media licenses are separate.",
-      "implementation_status": "pending"
+      "implementation_status": "Marked hierarchy and Lemma 2.1 S-curve construction implemented. Stage 15 native gate pending."
     },
     {
       "id": "R16a",
@@ -572,7 +572,7 @@
       "code_availability": "No reusable code/license established; independent implementation required unless separately verified",
       "data_availability": "Use original fixtures; publication access is not artwork permission",
       "paper_license": "No redistribution permission established; do not bundle paper",
-      "implementation_status": "Primary recovery resolved; regular-pentagrid P3 stage 14 in progress"
+      "implementation_status": "Stage 14 regular-pentagrid P3 passed native CI and artifact review. P2 optional."
     },
     {
       "id": "R19b",
@@ -594,7 +594,7 @@
       "code_availability": "No reusable code/license established; independent implementation required unless separately verified",
       "data_availability": "Use original fixtures; publication access is not artwork permission",
       "paper_license": "No redistribution permission established; do not bundle paper",
-      "implementation_status": "Primary recovery resolved; regular-pentagrid P3 stage 14 in progress"
+      "implementation_status": "Stage 14 regular-pentagrid P3 passed native CI and artifact review. P2 optional."
     },
     {
       "id": "R20",

@@ -52,6 +52,8 @@ jobs:
             python3 tools/substitution_oracle.py &&
             texlua tools/penrosecheck.lua &&
             python3 tools/penrose_oracle.py &&
+            texlua tools/spectrecheck.lua &&
+            python3 tools/spectre_oracle.py &&
             texlua tools/layoutcheck.lua &&
             texlua tools/spacecheck.lua &&
             texlua tools/initialcheck.lua &&
@@ -79,6 +81,7 @@ jobs:
             build/freeform/
             build/substitution/
             build/penrose/
+            build/spectre/
 
   portable:
     runs-on: ubuntu-latest

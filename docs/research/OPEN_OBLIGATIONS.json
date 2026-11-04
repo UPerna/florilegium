@@ -42,8 +42,10 @@
       "id": "O06",
       "source": "R15",
       "owner": "15",
-      "reason": "Browser reference app available; reusable code license unverified",
-      "next_action": "Verify reference source/license if reusing code; otherwise implement published rules independently and validate against licensed/reference fixtures."
+      "reason": "Published mathematical rules implemented independently. Reference app used privately for comparison hashes.",
+      "next_action": "Keep official app code and artwork outside the source tree unless redistribution is separately authorized.",
+      "status": "resolved",
+      "evidence": "artifacts/receipts/15/source-reference.json"
     },
     {
       "id": "O07",
