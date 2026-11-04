@@ -17,7 +17,7 @@ garden of its own, and every document its own plants, each sampled from a genome
 the text leaves free.*
 
 **[Try it in your browser](https://kevinraymond.github.io/florilegium/)** ·
-[download the PDFs](https://github.com/kevinraymond/florilegium/releases/latest) ·
+[download the package and the PDFs](https://github.com/kevinraymond/florilegium/releases/latest) ·
 [documentation](#documentation)
 
 ## Origin
@@ -37,7 +37,9 @@ This project was made with the assistance of AI (Claude), and I'm sharing the
 ## Quick start
 
 With LuaLaTeX, put `florilegium.sty` and the `florilegium*.lua` files beside your document (or
-upload them to an [Overleaf](https://www.overleaf.com) project set to LuaLaTeX):
+upload them to an [Overleaf](https://www.overleaf.com) project set to LuaLaTeX). They are all in
+[`florilegium.zip`](https://github.com/kevinraymond/florilegium/releases/latest/download/florilegium.zip),
+with the TikZ library and the manual:
 
 ```latex
 \usepackage[a4paper,left=68mm,right=22mm]{geometry}   % a wide margin for the garden
@@ -182,6 +184,29 @@ to write one.
 [SVG, Typst and the browser](docs/svg-and-web.md) and [the PostScript port](postscript/README.md)
 have the details.
 
+## Ports and adaptations
+
+Other people have taken the garden further. Each of these is its author's own project, kept in
+its own repository, and follows the release named beside it; questions about one belong there.
+
+| project | what it does | follows |
+|---|---|---|
+| [groeneveld/florilegiumTypst](https://github.com/groeneveld/florilegiumTypst) | a Typst package, the drawing code translated to Rust and run as a WebAssembly plugin, with a sumi-e plum style of its own | 1.1 |
+| [Baldomo/florilegium-typst](https://github.com/Baldomo/florilegium-typst) | a second Typst package, also a Rust port run as a WebAssembly plugin | 1.2 |
+| [wilsybubs/florilegium](https://github.com/wilsybubs/florilegium) | a fork that compiles with XeLaTeX as well | 1.1 |
+| [jfoboss/florilegium](https://github.com/jfoboss/florilegium) | a JavaScript port that regrows the garden on an e-book's part-title pages, and a Claude skill (in Russian) that builds ePub, FB2 and MOBI books with it | 1.3 |
+| [amberwhitehead/florilegium](https://github.com/amberwhitehead/florilegium) | a single web page, in plain JavaScript and SVG, that grows a garden around a poem you write | 1.1 |
+
+[tikz-flora](https://github.com/wn-mitch/tikz-flora) by wn-mitch is a LuaLaTeX package of its
+own that grows watercolor flora in the margin, drawn through PGF, and names florilegium among
+the projects it started from.
+
+To build on florilegium from another tool, call `florilegium-svg.lua`. Its command line and the
+options of its `page` function are what stays put from one release to the next, and they draw
+the garden LuaLaTeX draws ([SVG, Typst and the browser](docs/svg-and-web.md)). The other files,
+and the functions inside them, may be renamed or rewritten in any release, as 1.3 renamed every
+module; each release's notes list the files it renamed or removed. Pin a port to a release tag.
+
 ## 1.3 and 2.0
 
 Nothing in either release is an image: every shape is computed from a seed. What the code
@@ -245,10 +270,15 @@ text without one (option `nomargin`), per page. `make bench` measures every row 
 - [CLAUDE.md](CLAUDE.md) is a handoff-style map of the code, its conventions and traps, and ideas
   not yet done.
 
+These pages, with this README's origin, quick start and credits, are also typeset as one PDF,
+the manual [`florilegium-doc.pdf`](https://github.com/kevinraymond/florilegium/releases/latest/download/florilegium-doc.pdf),
+which is in `florilegium.zip` too.
+
 ## Build
 
 ```sh
-make                        # the four PDFs (LuaLaTeX)
+make                        # the four PDFs and the manual (LuaLaTeX)
+make zip                    # build/florilegium.zip, the package as one folder, for CTAN and the release
 make RUN=tools/in-docker    # the same in a TeX Live image, after: docker build -t florilegium-tex tools
 make playground             # the browser playground at http://localhost:8000/web/
 ```

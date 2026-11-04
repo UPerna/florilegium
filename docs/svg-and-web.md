@@ -21,10 +21,18 @@ texlua florilegium-svg.lua --help                  # paper, margins, two-sided p
 make svg SEED=7                                    # -> build/svg-7.svg
 ```
 
+For an e-book or a screen, where the paper's edge is not a cut, `--bleed 6mm` lets the garden
+run on past the edge of the paper and makes the SVG 6 mm larger on every side; without it the
+SVG is the page LuaLaTeX draws.
+
 Any Lua 5.3 or 5.4 runs it. Lengths are read the way TeX reads them and colors are converted
 the way xcolor converts them, so `--seed 7` with the default margins gives, byte for byte, the
 drawing on page 1 of `florilegium-grow.tex` built with seed 7. The SVG is a whole page with a
 transparent background, which makes it a page background anywhere.
+
+This command line, and the same options given to the `page` function of
+`require("florilegium-svg")` as a table, are what other tools should build on. They stay put
+from one release to the next, while the other files may be renamed or rewritten.
 
 ## In Typst
 

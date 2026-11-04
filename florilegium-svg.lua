@@ -176,7 +176,8 @@ end
 -- of the text block: the last page, with the garden in the space below), season
 -- ("spring", "summer", "autumn" or 0..1), theme, density, intensity, visitors,
 -- ink, accent (RRGGBB), head (false: no head rule), authored, background (RRGGBB),
--- id (prefix for the clip ids). Returns the SVG, the page layout g (cm), and a table:
+-- bleed (a length, for e-books and screens: the garden's safety clip reaches past the
+-- paper's edge and the SVG that far around the paper), id (prefix for the clip ids). Returns the SVG, the page layout g (cm), and a table:
 -- streams, the PDF literals the SVG was made from; captions, the text a theme sets in
 -- the margin (the math theme's symbols and equations), which needs a TeX typesetter
 -- and is not in the SVG: { x, y (page cm), tex, anchor (TikZ's), size (pt), rotate
@@ -232,6 +233,7 @@ function M.page(o)
     fl.density = tonumber(o.density) or 1
     fl.intensity = tonumber(o.intensity) or 1
     fl.visitors = o.visitors ~= false
+    fl.bleed = o.bleed and M.sp(o.bleed) * 2.54 / (72.27 * 65536) or 0
     local g = fl.geometry()
     fl.last_captions, fl.last_stats = nil, nil
     if o.authored then fl.authored(seed, nil)
@@ -270,13 +272,22 @@ function M.page(o)
   local CM = 72 / 2.54
   local W, H = g.pw * CM, g.ph * CM
   local id = o.id or fmt("flo%d-", floor(tonumber(o.seed) or 0))
-  local out = {
-    fmt('<svg xmlns="http://www.w3.org/2000/svg" width="%.2fmm" height="%.2fmm" viewBox="0 0 %.2f %.2f">', g.pw * 10, g.ph * 10, W, H),
-  }
+  local out = {}
+  local b = package.loaded["florilegium"].bleed * CM   -- the bleed around the paper, if any
+  if b > 0 then
+    out[1] = fmt('<svg xmlns="http://www.w3.org/2000/svg" width="%.2fmm" height="%.2fmm" viewBox="%.2f %.2f %.2f %.2f">',
+      (W + 2 * b) / CM * 10, (H + 2 * b) / CM * 10, -b, -b, W + 2 * b, H + 2 * b)
+  else
+    out[1] = fmt('<svg xmlns="http://www.w3.org/2000/svg" width="%.2fmm" height="%.2fmm" viewBox="0 0 %.2f %.2f">', g.pw * 10, g.ph * 10, W, H)
+  end
   if o.background then
     local h = tostring(o.background):gsub("^#", "")
     if not h:match("^%x%x%x%x%x%x$") then error("florilegium: not a color (RRGGBB): '" .. h .. "'", 0) end
-    out[#out + 1] = fmt('<rect width="%.2f" height="%.2f" fill="#%s"/>', W, H, h:lower())
+    if b > 0 then
+      out[#out + 1] = fmt('<rect x="%.2f" y="%.2f" width="%.2f" height="%.2f" fill="#%s"/>', -b, -b, W + 2 * b, H + 2 * b, h:lower())
+    else
+      out[#out + 1] = fmt('<rect width="%.2f" height="%.2f" fill="#%s"/>', W, H, h:lower())
+    end
   end
   out[#out + 1] = fmt('<g transform="matrix(1 0 0 -1 0 %.2f)" stroke-linecap="round" stroke-linejoin="round">', H)
   for i, s in ipairs(streams) do M.translate(s, out, id .. i) end
@@ -303,6 +314,8 @@ usage: texlua florilegium-svg.lua [options] > page.svg      (lua 5.3 or 5.4 work
   --nohead          leave out the head rule and its ivy leaf
   --authored        the hand-placed composition (A4, 68 mm left margin)
   --background RRGGBB   paint the paper (default: transparent)
+  --bleed LEN       for e-books and screens: the garden is not cut at the paper's edge, and the
+                    SVG reaches LEN past it on every side (default 0, the page LuaLaTeX draws)
   -o FILE           write to FILE instead of standard output
 A length is a number and a unit (mm, cm, in, pt, bp); a bare number is mm.
 ]]
@@ -311,7 +324,8 @@ function M.main(argv)
   local o, file = {}, nil
   local flags = { twoside = true, novisitors = "visitors", nohead = "head", authored = true }
   local values = { seed = 1, page = 1, paper = 1, left = 1, right = 1, top = 1, bottom = 1, headsep = 1, headheight = 1,
-    footskip = 1, textend = 1, season = 1, theme = 1, density = 1, intensity = 1, ink = 1, accent = 1, background = 1 }
+    footskip = 1, textend = 1, season = 1, theme = 1, density = 1, intensity = 1, ink = 1, accent = 1, background = 1,
+    bleed = 1 }
   local i = 1
   while i <= #argv do
     local a = argv[i]

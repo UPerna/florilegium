@@ -66,6 +66,7 @@ jobs:
             specimen-geometric.tex
             ornaments.tex
             specimen-tikz.tex
+            florilegium-doc.tex
           latexmk_use_lualatex: true
           # Lua does pgfmath's arithmetic exactly where the species need it (pgfmathcheck), and
           # the TikZ library and the Lua sample the same species and visitors (tikzcheck); the
@@ -131,14 +132,74 @@ jobs:
         if: failure()
         run: cat build/l3build/test/*.diff
 
+  # The PostScript port (postscript/florilegium.ps) through Ghostscript, about 40 runs in a few
+  # seconds: the pages postscript/expected.txt records, every spelling of an option, the clock
+  # seed, the 32-bit limit on seeds, and the PDF and raster devices (postscript/check.sh says
+  # what each check means). expected.txt was recorded with Ghostscript 10.05.1; Ubuntu 24.04's
+  # 10.02.1 draws the same pages, and a version that paints a point differently only warns, as
+  # long as every page grows the same garden.
+  postscript:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: install Ghostscript
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends ghostscript > /dev/null
+      - name: the port draws what expected.txt records
+        run: postscript/check.sh
+
+  # The package as one folder, for CTAN and the release (tools/zip.py lists what goes in): the
+  # manual typeset with Ubuntu 24.04's TeX Live 2023, as tools/Dockerfile installs it, and both
+  # dated by the commit, so make zip RUN=tools/in-docker gives the same bytes from the same
+  # commit. Then the zip is unpacked into an empty folder and the grown document, the manual and
+  # a pure-TikZ flower under pdfLaTeX are built there, so a file it lacks fails here.
+  zip:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: install TeX Live 2023 as tools/Dockerfile does
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends texlive-luatex texlive-latex-recommended \
+            texlive-latex-extra texlive-pictures texlive-fonts-recommended lmodern cm-super > /dev/null
+      - name: the manual and the zip
+        run: make zip && cp build/florilegium.zip .
+      - name: unpacked into an empty folder, it builds
+        run: |
+          mkdir "$RUNNER_TEMP/unzipped"
+          cd "$RUNNER_TEMP/unzipped"
+          unzip -q "$GITHUB_WORKSPACE/florilegium.zip"
+          cd florilegium
+          lualatex -interaction=nonstopmode -halt-on-error florilegium-grow.tex > /dev/null
+          lualatex -interaction=nonstopmode -halt-on-error florilegium-doc.tex > /dev/null
+          printf '%s\n' '\documentclass{article}' '\usepackage{tikz}' '\usetikzlibrary{florilegium}' \
+            '\begin{document}' '\tikz\pic{florilegium flower={seed=7, role=hero, size=3cm}};' '\end{document}' > flower.tex
+          pdflatex -interaction=nonstopmode -halt-on-error flower.tex > /dev/null
+          ls -l ./*.pdf
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: florilegium-zip
+          if-no-files-found: error
+          path: |
+            florilegium.zip
+            florilegium-doc.pdf
+
   # A release starts with a tag: git tag -a v1.3 -m v1.3 && git push origin v1.3, after a
   # commit that sets the version everywhere (CLAUDE.md, Releases); the lua job stops a tag
   # that florilegium.sty and the Lua files don't agree with, the l3build job one whose
-  # drawings moved without their logs being recorded again, and the tikz job one whose two
-  # engines no longer draw the same species. This job
-  # signs a build provenance attestation for the PDFs built from that tag and opens a draft
-  # release with them attached, along with the attestation itself as
-  # florilegium-pdfs.sigstore.json. The notes are written by hand, and publishing the draft
+  # drawings moved without their logs being recorded again, the tikz job one whose two
+  # engines no longer draw the same species, the postscript job one whose PostScript port grows
+  # another garden, and the zip job one whose zip lacks a file. This
+  # job signs a build provenance attestation for the PDFs, the manual and florilegium.zip built
+  # from that tag and opens a draft release with them attached, along with the attestation
+  # itself as florilegium-pdfs.sigstore.json. The notes are written by hand, and publishing the draft
   # makes the release immutable. Check a PDF with
   #   gh attestation verify florilegium.pdf --repo kevinraymond/florilegium
   # and add --bundle florilegium-pdfs.sigstore.json to check it against the attached file
@@ -147,7 +208,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [lua, pdfs, l3build, tikz]
+    needs: [lua, pdfs, l3build, tikz, postscript, zip]
     if: startsWith(github.ref, 'refs/tags/v')
     permissions:
       contents: write           # create the draft release
@@ -158,10 +219,15 @@ jobs:
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: florilegium-pdfs
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: florilegium-zip
       - id: attest
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
         with:
-          subject-path: '*.pdf'
+          subject-path: |
+            *.pdf
+            florilegium.zip
       - name: a draft release with the PDFs and their attestation
         env:
           GH_TOKEN: ${{ github.token }}
@@ -170,10 +236,10 @@ jobs:
         run: |
           cp "$BUNDLE" florilegium-pdfs.sigstore.json
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
-            gh release upload "$TAG" ./*.pdf florilegium-pdfs.sigstore.json --clobber \
+            gh release upload "$TAG" ./*.pdf florilegium.zip florilegium-pdfs.sigstore.json --clobber \
               --repo "$GITHUB_REPOSITORY"
           else
-            gh release create "$TAG" ./*.pdf florilegium-pdfs.sigstore.json --draft --verify-tag \
+            gh release create "$TAG" ./*.pdf florilegium.zip florilegium-pdfs.sigstore.json --draft --verify-tag \
               --title "$TAG" --generate-notes --repo "$GITHUB_REPOSITORY"
           fi
 

@@ -4,7 +4,7 @@
 
 -- LuaTeX runs Lua 5.3 and the playground 5.4: keep to what both have
 std = "lua53"
-include_files = { "florilegium*.lua", "build.lua", "tools/*.lua", "testfiles/support/*.lua" }
+include_files = { "florilegium*.lua", "build.lua", "docs/*.lua", "tools/*.lua", "testfiles/support/*.lua" }
 
 -- what LuaTeX provides
 read_globals = { "tex", "texio", "node", "token", "kpse", "luatexbase", "fonts", "md5" }

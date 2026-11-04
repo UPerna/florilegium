@@ -5,8 +5,10 @@ RUN     ?=
 LUA      = florilegium-ink.lua florilegium-flora.lua florilegium-species.lua florilegium-pgfmath.lua florilegium-native.lua florilegium.lua florilegium-initial.lua florilegium-figures.lua florilegium-theme-geometric.lua florilegium-theme-math.lua
 GS      ?= gs
 SEED    ?= 7
+# the manual and the zip are dated by the last commit, so the same commit gives the same bytes
+EPOCH   ?= $(shell git log -1 --format=%ct 2>/dev/null || date +%s)
 
-all: florilegium.pdf florilegium-grow.pdf showcase.pdf spread.pdf
+all: florilegium.pdf florilegium-grow.pdf showcase.pdf spread.pdf florilegium-doc.pdf
 
 # authored composition (florilegium-authored.lua), one pass, about a second a page
 florilegium.pdf: florilegium.tex florilegium.sty florilegium-authored.lua florilegium-grow.lua $(LUA) text-methods.tex text-sharing.tex
@@ -26,6 +28,20 @@ showcase.pdf: showcase.tex florilegium.sty florilegium-grow.lua $(LUA)
 # right-hand pages; its last page is grown from the math theme
 spread.pdf: spread.tex florilegium.sty florilegium-grow.lua $(LUA)
 	$(LUALATEX) spread.tex
+
+# the manual (texdoc florilegium), typeset from docs/*.md and README.md by docs/manual.lua;
+# three passes from nothing (the contents fill two pages, which moves every page after them),
+# so the same commit gives the same bytes whatever an earlier build left behind
+florilegium-doc.pdf: florilegium-doc.tex docs/manual.lua $(wildcard docs/*.md) README.md florilegium.sty tikzlibraryflorilegium.code.tex tikzlibraryflorilegium.tables.code.tex $(LUA)
+	rm -f florilegium-doc.aux florilegium-doc.toc florilegium-doc.out
+	for pass in 1 2 3; do SOURCE_DATE_EPOCH=$(EPOCH) FORCE_SOURCE_DATE=1 $(LUALATEX) florilegium-doc.tex > /dev/null || exit 1; done
+	@grep -q "Rerun to get" florilegium-doc.log && { echo "florilegium-doc.pdf still asks for another pass"; exit 1; } || true
+
+# the package as one folder, for CTAN and the release (tools/zip.py lists what goes in):
+#   make zip RUN=tools/in-docker  ->  build/florilegium.zip
+zip: florilegium-doc.pdf tools/zip.py
+	mkdir -p build
+	SOURCE_DATE_EPOCH=$(EPOCH) $(RUN) python3 tools/zip.py build/florilegium.zip
 
 # one of every primitive, drawn with \florilegiumdraw; the same for the math theme
 specimen.pdf: specimen.tex florilegium.sty $(LUA)
@@ -134,6 +150,6 @@ playground:
 	python3 -m http.server 8000
 
 clean:
-	rm -rf build *.aux *.log *.out *.synctex.gz
+	rm -rf build *.aux *.log *.out *.toc *.synctex.gz
 
-.PHONY: all gallery animation preview postscript pscheck luacheck check svg bench playground clean
+.PHONY: all zip gallery animation preview postscript pscheck luacheck check svg bench playground clean

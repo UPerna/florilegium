@@ -161,7 +161,9 @@ It takes about 10 seconds on a 32-core machine, and longer with fewer cores. Aft
 intended change to the drawing, record the new pages and look at a few before committing
 them. The checksums can change between Ghostscript versions even when the garden doesn't, so
 when `expected.txt` was recorded with a different version, a page that grows the same
-garden but paints a different checksum gives a warning, not a failure.
+garden but paints a different checksum gives a warning, not a failure. CI runs it on every
+pull request and push, with Ubuntu 24.04's Ghostscript 10.02.1, which paints the same
+checksums as the 10.05.1 that recorded them, and a release waits for it.
 
 On 1 November 2026, with Ghostscript 10.05.1 on Linux, all twelve checks passed. Each check
 was also seen to fail when it should. A head-rule dot made 0.1 mm wider changed every

@@ -1576,11 +1576,21 @@ function M.page(g)
     ink.circle(x2 + 0.45, e[2], 0.025) ink.fill(ink.accent(0))
   end
 
-  -- assemble: a safety clip a little outside the regions, then the layers
+  -- assemble: a safety clip a little outside the regions, then the layers. With g.bleed
+  -- (florilegium-svg.lua's --bleed, for e-books and screens) the sides that run along the
+  -- paper's edge reach that far past it, so nothing is cut there
   ink.tag(nil)
   ink.layer(0)
   for _, r in ipairs(rects) do
-    ink.poly({ { r[1] - 0.25, r[2] - 0.3 }, { r[3] + (r == col and 0.25 or 0.3), r[2] - 0.3 }, { r[3] + (r == col and 0.25 or 0.3), r[4] + 0.3 }, { r[1] - 0.25, r[4] + 0.3 } }, true)
+    local x1, y1, x2, y2 = r[1] - 0.25, r[2] - 0.3, r[3] + (r == col and 0.25 or 0.3), r[4] + 0.3
+    if bleed > 0 then
+      if r[1] < 0.6 then x1 = x1 - bleed end
+      if r[2] < 0.6 then y1 = y1 - bleed end
+      if r[3] > g.pw - 0.6 then x2 = x2 + bleed end
+      if r[4] > g.ph - 0.6 then y2 = y2 + bleed end
+    end
+    ink.poly({ { x1, y1 }, { x2, y1 }, { x2, y2 }, { x1, y2 } }, true)
+  local bleed = g.bleed or 0
   end
   ink.clip()
   ink.layer(99)

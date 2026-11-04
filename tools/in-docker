@@ -2,4 +2,5 @@
 # Run a command inside the florilegium-tex image, in the current directory.
 #   docker build -t florilegium-tex tools
 #   make RUN=tools/in-docker
-exec docker run --rm -u "$(id -u):$(id -g)" -e HOME=/tmp -v "$PWD":/work -w /work florilegium-tex "$@"
+# SOURCE_DATE_EPOCH and FORCE_SOURCE_DATE pass through when set (make dates the manual and the zip)
+exec docker run --rm -u "$(id -u):$(id -g)" -e HOME=/tmp -e SOURCE_DATE_EPOCH -e FORCE_SOURCE_DATE -v "$PWD":/work -w /work florilegium-tex "$@"

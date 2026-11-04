@@ -4,7 +4,8 @@ The documents need LuaLaTeX, one run each, about a second a page (two runs for `
 whose seasons need the page count). The TikZ specimen sheet builds under pdfLaTeX too.
 
 ```sh
-make                        # the four PDFs
+make                        # the four PDFs and the manual, florilegium-doc.pdf
+make zip                    # build/florilegium.zip, the package as one folder (tools/zip.py says what goes in)
 make seed-7                 # one page from seed 7 -> build/seed-7.pdf
 make preview                # the gallery's preview images
 make gallery                # gallery/seeds.png + seeds.gif, inks.png, seasons.png, themes.png, dials.png (python3, Pillow, pdftoppm)

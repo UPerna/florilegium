@@ -34,15 +34,16 @@ can already do with `\directlua` are outside the package's control.
 ## Checking a release
 
 From v1.3 on, the PDFs attached to a release are built by GitHub Actions from the release's
-tag, and each carries a signed build provenance attestation. To check that a PDF you
-downloaded is the one CI built, run
+tag, and from v2.0.0 on so are the manual (`florilegium-doc.pdf`) and `florilegium.zip`, the
+package as one folder. Each carries a signed build provenance attestation. To check that a
+file you downloaded is the one CI built, run
 
 ```sh
-gh attestation verify florilegium.pdf --repo kevinraymond/florilegium
+gh attestation verify florilegium.zip --repo kevinraymond/florilegium
 ```
 
 The attestation is also attached to the release, as `florilegium-pdfs.sigstore.json`. Keep it
-with the PDF, and the check doesn't need to look the attestation up on GitHub.
+with the file, and the check doesn't need to look the attestation up on GitHub.
 
 ```sh
 gh attestation verify florilegium.pdf --repo kevinraymond/florilegium --bundle florilegium-pdfs.sigstore.json

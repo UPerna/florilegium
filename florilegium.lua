@@ -365,13 +365,16 @@ local function use_organs()
 end
 
 -- the grown composition for this page; M.visitors = false (option novisitors)
--- leaves out the visitors
+-- leaves out the visitors. M.bleed (cm, florilegium-svg.lua's --bleed) lets the safety
+-- clip reach past the paper's edge; LuaLaTeX never sets it
 M.visitors = true
+M.bleed = 0
 function M.grown(seed, spill, spilly, box)
   local g = M.geometry()
   g.marks = themes(page_marks(box))
   g.seed, g.spill, g.spilly, g.visitors, g.age, g.theme = seed, spill, spilly, M.visitors, M.age, M.theme
   g.docseed = M.docseed
+  if M.bleed > 0 then g.bleed = M.bleed end
   if not M.theme or M.theme == "flora" then use_organs() end
   if M.density < 1 then g.density = math.max(0.03, M.density) end
   local old = ink.set_pale(pale())
@@ -391,6 +394,7 @@ function M.authored(seed, box)
   themes(page_marks(box))
   local g = M.geometry()
   g.seed, g.visitors, g.theme = seed, M.visitors, M.theme
+  if M.bleed > 0 then g.bleed = M.bleed end
   local old = ink.set_pale(pale())
   local r = require("florilegium-authored").page(g)
   M.last_captions, M.last_stats = r and r.captions, r and r.stats
