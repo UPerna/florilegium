@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_stage": "21",
+  "current_stage": "22",
   "prompt_sha256": "8D25740D944FC98943FD005737BD825215CFCF6F894218790E140EDE8EE3F09E",
   "stages": [
     {
@@ -589,37 +589,53 @@
     {
       "id": "21",
       "title": "decorative mosaics with field-aligned packing",
-      "status": "in_progress",
+      "status": "passed",
       "prerequisites": "20",
       "acceptance_items": [
         "source-required behavior is present, quantitative packing/feature evidence exists, vector exports contain the actual tiles and color samples, and difficult boundary/convergence cases are diagnosed. A visually attractive mosaic does not by itself establish nonoverlap or faithful implementation of the chosen metric."
       ],
-      "observed_results": "20 checks on each Lua runtime and 19 matching output hashes. The independent oracle reproduced the CPU Manhattan assignments and centroid updates, found no interior overlap, and measured 11 curved-feature crossings against 17 in the baseline. Five PDF/SVG pairs passed review. Native CI pending.",
+      "observed_results": "Both native jobs passed. 20 checks, 19 output hashes, no measured interior overlap, five visual pairs and 390 source kit hashes verified. The independent checker reproduced the centroid updates and measured 11 feature crossings in the guided mosaic against 17 in the baseline. Native/local byte differences: [].",
       "evidence_paths": [
         "artifacts/receipts/21/receipt-Lua-5.3.json",
         "artifacts/receipts/21/receipt-Lua-5.4.json",
         "artifacts/receipts/21/oracle.json",
-        "artifacts/receipts/21/source-reference.json"
+        "artifacts/receipts/21/source-reference.json",
+        "artifacts/receipts/21/publication.json",
+        "artifacts/receipts/21/ci-final.json"
       ],
       "tested_code_revision": null,
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Publish from exact parent 340bf32, verify normal Git fetch and both native CI jobs, then inspect all fresh PDF/SVG pairs."
+      "next_action": "Passed. Proceed to Stage 22.",
+      "workflow_runs": [
+        {
+          "id": 41885433200,
+          "status": "success",
+          "head_sha": "c4bea46d1d63b472bf9e0de3b35d09f4fae8ebfa"
+        }
+      ],
+      "tested_revision": "c4bea46d1d63b472bf9e0de3b35d09f4fae8ebfa",
+      "verified_revision": "c4bea46d1d63b472bf9e0de3b35d09f4fae8ebfa"
     },
     {
       "id": "22",
       "title": "stroke fields, hatching and stippling",
-      "status": "pending",
+      "status": "in_progress",
       "prerequisites": "21",
       "acceptance_items": [
         "all declared modes work, example structure measurably influences synthesis, field metadata is reusable by micrography, and SVG/PDF contain real vectors. Tone fidelity, local structure and aesthetic inspection are separately reported with known limitations."
       ],
-      "observed_results": null,
-      "evidence_paths": null,
+      "observed_results": "20 checks on each Lua runtime and 36 matching output hashes. The independent oracle verified tangent integration, ink containment and minimum clearance. Tone bands held 29, 65 and 91 points versus 55, 62 and 68 in the uniform baseline. The example fixtures retained 51 causal matches and 62 nearest-pair corrections. Nine PDF/SVG pairs passed review. Native CI pending.",
+      "evidence_paths": [
+        "artifacts/receipts/22/receipt-Lua-5.3.json",
+        "artifacts/receipts/22/receipt-Lua-5.4.json",
+        "artifacts/receipts/22/oracle.json",
+        "artifacts/receipts/22/source-reference.json"
+      ],
       "tested_code_revision": null,
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+      "next_action": "Publish from exact parent c4bea46, verify normal Git fetch and both native CI jobs, then inspect all fresh PDF/SVG pairs."
     },
     {
       "id": "23",

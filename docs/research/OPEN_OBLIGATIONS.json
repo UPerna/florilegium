@@ -13,7 +13,9 @@
       "source": "R10a",
       "owner": "22",
       "reason": "HAL anti-bot denial; primary ARTIS PDF timeout",
-      "next_action": "Retrieve authorized primary publisher/author copy; read clustering, topology/neighborhood and synthesis formulation. R10b is separate and cannot satisfy R10a fidelity."
+      "next_action": "Retain provenance and private paper boundary.",
+      "status": "resolved",
+      "resolution": "Full R10a primary text recovered and inspected. See artifacts/receipts/22/source-reference.json."
     },
     {
       "id": "O03",

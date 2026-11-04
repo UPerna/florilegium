@@ -232,7 +232,7 @@
       "code_availability": "No reusable code/license established; independent implementation required unless separately verified",
       "data_availability": "Use original fixtures; publication access is not artwork permission",
       "paper_license": "No redistribution permission established; do not bundle paper",
-      "implementation_status": "Stage 21 independently implements sections 3–6 using CPU sample assignment and a bounded convex-panel vector packing projection. Native acceptance pending.",
+      "implementation_status": "The bounded Stage 21 CPU Hausner variant passed native CI, independent placement and packing checks, and visual acceptance.",
       "sha256": "cc0778b1457d7f0db4cf2ea31e1caf0095743762883de2e1a7b3e9770eb8465a"
     },
     {
@@ -303,15 +303,23 @@
       "primary_url": "https://doi.org/10.1111/j.1467-8659.2006.00986.x",
       "doi": "10.1111/j.1467-8659.2006.00986.x",
       "sections": [
-        "Element clustering and neighbor-based synthesis; exact sections require recovered full text"
+        "2.1 Stroke fitting",
+        "2.2 Element clustering",
+        "2.3 Distribution analysis",
+        "3 Synthesis",
+        "3.1 Synthesizing one element",
+        "3.2 Propagating synthesis",
+        "3.3 Adding variation"
       ],
       "stage_owner": "22",
-      "retrieved": "2026-11-02",
-      "access": "Author and publisher metadata verified; HAL bot denial and primary ARTIS PDF timeout. Related R10b is separately retrieved, not a substitute.",
+      "retrieved": "2026-11-04",
+      "access": "Full primary nine-page author/publisher PDF retrieved and sections 2–3 inspected.",
       "code_availability": "No reusable code/license established; independent implementation required unless separately verified",
       "data_availability": "Use original fixtures; publication access is not artwork permission",
       "paper_license": "No redistribution permission established; do not bundle paper",
-      "implementation_status": "pending"
+      "implementation_status": "Stage 22 bounded causal 2D profile implemented. Final acceptance pending.",
+      "download_url": "https://damassets.autodesk.net/content/dam/autodesk/research/publications-assets/pdf/stroke-pattern-analysis-and.pdf",
+      "sha256": "42411b631777411e4520246ad73ea76dcf646f29b764805c3e772c33161ce309"
     },
     {
       "id": "R10b",
@@ -340,7 +348,8 @@
       "code_availability": "No reusable code/license established; independent implementation required unless separately verified",
       "data_availability": "Use original fixtures; publication access is not artwork permission",
       "paper_license": "No redistribution permission established; do not bundle paper",
-      "implementation_status": "pending"
+      "implementation_status": "Stage 22 2D nearest-neighbor group profile and three behaviors implemented. Final acceptance pending.",
+      "sha256": "45a5aed3cb76492b1255b65bae31a6a1df91256eb99952a47ce9b1dc3a615fef"
     },
     {
       "id": "R11",

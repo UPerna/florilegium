@@ -66,6 +66,8 @@ jobs:
             python3 tools/escher_oracle.py &&
             texlua tools/mosaiccheck.lua &&
             python3 tools/mosaic_oracle.py &&
+            texlua tools/strokecheck.lua &&
+            python3 tools/stroke_oracle.py &&
             texlua tools/layoutcheck.lua &&
             texlua tools/spacecheck.lua &&
             texlua tools/initialcheck.lua &&
@@ -100,6 +102,7 @@ jobs:
             build/tracery/
             build/escher/
             build/mosaic/
+            build/strokes/
 
   portable:
     runs-on: ubuntu-latest
