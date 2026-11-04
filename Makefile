@@ -40,6 +40,8 @@ check:
 	$(RUN) python3 tools/spectre_oracle.py
 	$(RUN) texlua tools/integrationcheck.lua
 	$(RUN) python3 tools/integration_oracle.py
+	$(RUN) texlua tools/beenkercheck.lua
+	$(RUN) python3 tools/beenker_oracle.py
 	$(RUN) texlua tools/layoutcheck.lua
 	$(RUN) texlua tools/spacecheck.lua
 	$(RUN) texlua tools/initialcheck.lua

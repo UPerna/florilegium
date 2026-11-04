@@ -56,6 +56,8 @@ jobs:
             python3 tools/spectre_oracle.py &&
             texlua tools/integrationcheck.lua &&
             python3 tools/integration_oracle.py &&
+            texlua tools/beenkercheck.lua &&
+            python3 tools/beenker_oracle.py &&
             texlua tools/layoutcheck.lua &&
             texlua tools/spacecheck.lua &&
             texlua tools/initialcheck.lua &&
@@ -85,6 +87,7 @@ jobs:
             build/penrose/
             build/spectre/
             build/integration/
+            build/beenker/
 
   portable:
     runs-on: ubuntu-latest

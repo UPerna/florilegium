@@ -19,8 +19,10 @@
       "id": "O03",
       "source": "R16b",
       "owner": "17",
-      "reason": "Institutional linked PDF returns 403 on both hosts",
-      "next_action": "Recover institutional report via repository document service or verified author-hosted source; pin projection formula, window and boundary tie assumptions before stage 17 pass."
+      "reason": "Full primary report recovered from the TU/e institutional archive and exact tetragrid sections reviewed.",
+      "next_action": "Implement the source tetragrid with explicit phase and coherent tie decisions. Keep the PDF private.",
+      "status": "resolved",
+      "evidence": "artifacts/receipts/17/primary-recovery.json"
     },
     {
       "id": "O04",

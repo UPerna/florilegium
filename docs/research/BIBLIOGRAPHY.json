@@ -503,7 +503,7 @@
       "code_availability": "No reusable code/license established; independent implementation required unless separately verified",
       "data_availability": "Use original fixtures; publication access is not artwork permission",
       "paper_license": "No redistribution permission established; do not bundle paper",
-      "implementation_status": "pending"
+      "implementation_status": "in_progress"
     },
     {
       "id": "R16b",
@@ -516,15 +516,18 @@
       "primary_url": "https://research.tue.nl/en/publications/algebraic-theory-of-non-periodic-tilings-of-the-plane-by-two-simp/",
       "doi": null,
       "sections": [
-        "Algebraic square/rhombus projection construction; full-text sections pending recovery"
+        "§2.2, equations (2.1)–(2.5) and Fig. 2.2",
+        "§2.3, equations (2.6)–(2.9) and Theorem 2.1",
+        "§4.3, Theorem 4.3",
+        "§§5.1–5.3, Theorems 5.1–5.2 and Figs. 5.2–5.5"
       ],
       "stage_owner": "17",
-      "retrieved": "2026-11-02",
-      "access": "Institutional bibliographic record verified; both linked primary PDF hosts returned 403. Recover institutional text before implementation.",
+      "retrieved": "2026-11-04",
+      "access": "Full publisher report retrieved and reviewed. SHA-256 in artifacts/receipts/17/primary-recovery.json.",
       "code_availability": "No reusable code/license established; independent implementation required unless separately verified",
       "data_availability": "Use original fixtures; publication access is not artwork permission",
       "paper_license": "No redistribution permission established; do not bundle paper",
-      "implementation_status": "pending"
+      "implementation_status": "in_progress"
     },
     {
       "id": "R17",

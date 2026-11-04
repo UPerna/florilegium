@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_stage": "16",
+  "current_stage": "17",
   "prompt_sha256": "8D25740D944FC98943FD005737BD825215CFCF6F894218790E140EDE8EE3F09E",
   "stages": [
     {
@@ -435,36 +435,50 @@
     {
       "id": "16",
       "title": "pass the five-family architecture gate",
-      "status": "in_progress",
+      "status": "passed",
       "prerequisites": "15",
       "acceptance_items": [
         "all five real implementations work without changing core contracts per example. Every required capability to this point has evidence, no placeholder output is counted, and the updated architecture explains any necessary decisions. If a family fails, fix the failure or remain on stage 16. Do not describe this milestone as completion of the remaining family scope."
       ],
-      "observed_results": "62 integration checks on each Lua runtime and 35 matching output hashes. Independent semantics, protected paint probes, and thirteen PDF/SVG comparisons passed. Native CI pending.",
+      "observed_results": "Both native jobs passed. 62 integration checks, 35 output hashes, 328 source kit hashes, and thirteen PDF/SVG pairs accepted. Verified the independent family semantics and protected paint probes. Native/local byte differences: [].",
       "evidence_paths": [
         "artifacts/receipts/16/receipt-Lua-5.3.json",
         "artifacts/receipts/16/receipt-Lua-5.4.json",
-        "artifacts/receipts/16/oracle.json"
+        "artifacts/receipts/16/oracle.json",
+        "artifacts/receipts/16/publication.json",
+        "artifacts/receipts/16/ci-final.json"
       ],
-      "tested_code_revision": null,
-      "local_commit": null,
-      "verified_remote_revision": null,
-      "next_action": "Publish from exact parent 34dc761, verify normal Git fetch and both native CI jobs, then inspect all fresh PDF/SVG pairs."
+      "tested_code_revision": "ef4c249a6804f091ff3d11b5e2d458cb3abbbe0a",
+      "local_commit": "ef4c249a6804f091ff3d11b5e2d458cb3abbbe0a",
+      "verified_remote_revision": "ef4c249a6804f091ff3d11b5e2d458cb3abbbe0a",
+      "next_action": "Passed. Proceed to Stage 17.",
+      "workflow_runs": [
+        {
+          "id": 41847845060,
+          "status": "success",
+          "head_sha": "ef4c249a6804f091ff3d11b5e2d458cb3abbbe0a"
+        }
+      ]
     },
     {
       "id": "17",
       "title": "Ammannâ€“Beenker and projection/multigrid generation",
-      "status": "pending",
+      "status": "in_progress",
       "prerequisites": "16",
       "acceptance_items": [
         "this family works through shared contracts, a genuine projection/multigrid generator is exercised, tie rules are deterministic, and finite validation is distinct from the source's mathematical nonperiodicity. Record exact parameter choices and supported query horizons for reproducible continuation."
       ],
-      "observed_results": null,
-      "evidence_paths": null,
+      "observed_results": "16 checks on each Lua runtime and 28 matching output hashes. The independent oracle checked 2244 tiles, 253 shared tiles, all singular tie cases, 64 eightfold disk tiles, and ten PDF/SVG pairs. Native CI pending.",
+      "evidence_paths": [
+        "artifacts/receipts/17/receipt-Lua-5.3.json",
+        "artifacts/receipts/17/receipt-Lua-5.4.json",
+        "artifacts/receipts/17/oracle.json",
+        "artifacts/receipts/17/primary-recovery.json"
+      ],
       "tested_code_revision": null,
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+      "next_action": "Publish from exact parent ef4c249, verify normal Git fetch and both native CI jobs, then inspect all fresh PDF/SVG pairs."
     },
     {
       "id": "18",

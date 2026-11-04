@@ -57,7 +57,7 @@ R14 v3 (July 2024) and R15 v2 (September 2024) are the journal-era revisions sel
 
 ## Open obligations and recovery
 
-OPEN_OBLIGATIONS.json records source recovery and license checks with exact owning gates. Full-text recovery is still needed for R08, R10a, R16b and original R04c. The author thesis R20 is available but is not misrepresented as the original R04c publication. Related papers, abstracts and plausible images cannot close those fidelity gates. Recover the named primary texts before the corresponding implementation stage; record exact source sections/equations and versions at that point. Publication/implementation status must remain separate from source access status.
+OPEN_OBLIGATIONS.json records source recovery and license checks with exact owning gates. The R16b publisher report is recovered and reviewed. The exact version and sections are recorded in the [Stage 17 source receipt](../../artifacts/receipts/17/primary-recovery.json). The remaining owning stages must record the corresponding R08, R10a and original R04c reviews. The author thesis R20 is available but is not misrepresented as the original R04c publication. Related papers, abstracts and plausible images cannot close those fidelity gates. Recover the named primary texts before the corresponding implementation stage; record exact source sections/equations and versions at that point. Publication/implementation status must remain separate from source access status.
 
 Canonical fixture IDs in COVERAGE.csv are planned acceptance targets. Their status is pending until the owning stage creates and verifies the artifacts; they are not existing generated gallery items.
 
