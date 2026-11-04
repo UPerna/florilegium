@@ -211,7 +211,9 @@ jobs:
   release:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [lua, pdfs, l3build, tikz, postscript, zip]
+    # tikz runs on the tag too but is not waited for: the pull request and main ran it on the
+    # same tree, and on the runner it takes about 25 minutes
+    needs: [lua, pdfs, l3build, postscript, zip]
     if: startsWith(github.ref, 'refs/tags/v')
     permissions:
       contents: write           # create the draft release
