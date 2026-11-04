@@ -1,8 +1,8 @@
 % The TikZ side of tools/tikzcheck.lua: draws species \tikzcheckfrom..\tikzcheckto (role
 % \tikzcheckrole, or any), or the "seed role" lines of the file \tikzchecklist, with the pure-TikZ library
 % and writes each one's choices, one line per species, to <jobname>.choices in the output
-% directory; visitors instead of plants when \tikzcheckvisitor is defined. Runs under pdflatex
-% and lualatex.
+% directory; visitors instead of plants when \tikzcheckvisitor is defined, and with the traits
+% \tikzcheckfix fixed when that is defined. Runs under pdflatex and lualatex.
 \documentclass{article}
 \usepackage{tikz}
 \usetikzlibrary{florilegium}
@@ -12,6 +12,8 @@
 \immediate\openout\tikzcheckout=\jobname.choices
 \florilegiumspecieslogtrue
 \ifdefined\tikzcheckvisitor\let\tikzchecksample\florilegiumvisitor\else\let\tikzchecksample\florilegiumspecies\fi
+% traits fixed for every species (\tikzcheckfix, "compound=palmate, leaflets=7"), if given
+\ifdefined\tikzcheckfix\edef\tikzcheckopt{[\tikzcheckfix]}\else\def\tikzcheckopt{}\fi
 \ifdefined\tikzchecklist
   \newread\tikzcheckin
   \openin\tikzcheckin=\tikzchecklist\relax
@@ -28,7 +30,7 @@
   \newcount\tikzcheckseed
   \tikzcheckseed=\tikzcheckfrom\relax
   \loop
-    \tikzchecksample{\the\tikzcheckseed}{\ifdefined\tikzcheckrole\tikzcheckrole\else any\fi}%
+    \expandafter\tikzchecksample\tikzcheckopt{\the\tikzcheckseed}{\ifdefined\tikzcheckrole\tikzcheckrole\else any\fi}%
     \immediate\write\tikzcheckout{\florilegiumspecieslog}%
     \advance\tikzcheckseed by 1
   \ifnum\tikzcheckseed>\tikzcheckto\relax\else\repeat

@@ -4566,12 +4566,14 @@ local visitor = (function()
   local sampled = {}
   return function(o, pic)
     local role = o.role or "any"
-    local key = string.format("%d/%s", o.seed, role)
+    local key = string.format("%d/%s/%s", o.seed, role, o.traits or "")
     X = sampled[key]
     if not X then
-      -- \florilegiumvisitor: its traits, the reals held to the scaled point
+      -- \florilegiumvisitor: its traits (some fixed), the reals held to the scaled point
       X = {}
-      for k, v in pairs(species.vsample(o.seed, role)) do X[k] = math.type(v) == "float" and K(v) or v end
+      for k, v in pairs(species.vsample(o.seed, role, nil, o.traits and species.fixes(o.traits, true))) do
+        X[k] = math.type(v) == "float" and K(v) or v
+      end
       sampled[key] = X
     end
     local d = pic and o.draw or (o.seed == 2147483646 and 1 or o.seed + 1)   -- drawn from seed + 1
@@ -4614,13 +4616,14 @@ end
 local BELOW = { raceme = true, spike = true, catkin = true }
 function M.lateness(s, h) return BELOW[s.inflo] and 0.4 * h or 0.4 * (1 - h) end
 
--- a species given by seed and role only is sampled (once)
+-- a species given by seed and role only (and traits fixed, "compound=palmate, ...") is
+-- sampled (once)
 local species = require("florilegium-species")
 local sampled = {}
 local function full(s)
   if s.plan then return s end
-  local key = s.seed .. "/" .. s.role
-  if not sampled[key] then sampled[key] = species.sample(s.seed, s.role) end
+  local key = s.seed .. "/" .. s.role .. "/" .. (s.traits or "")
+  if not sampled[key] then sampled[key] = species.sample(s.seed, s.role, nil, s.traits and species.fixes(s.traits)) end
   return sampled[key]
 end
 -- One organ of species s (a table from florilegium-species, or just its seed and role),
@@ -4957,7 +4960,7 @@ local pic = (function()
     if R.Np == 1 then R.root, R.pc = 0, 0 end
     R.pw = ga == 1 and 0.085 or 0.065
     R.pH = R.H[ga]
-    S = full({ seed = R.s[ga], role = R.r[ga] })
+    S = full({ seed = R.s[ga], role = R.r[ga], traits = R.traits })
     G.load(R.w[ga])
   end
   local function stemload(ga) local f = R.f[ga] R.pph, R.pps, R.plam = f[1], f[2], f[3] end
@@ -5222,11 +5225,11 @@ local pic = (function()
   end
   -- \flo@garden: plants (seed, role) from one root, gH cm high, reaching about gW, walked
   -- once per layer; a pale ghost flower behind them
-  local function garden(plants, gH, gW, ghost, season)
+  local function garden(plants, gH, gW, ghost, season, traits)
     ink.scale(28.45276)
     local np = #plants
     R = { season = season, Np = np, H = {}, z = {}, w = {}, f = {}, nd = {}, ndn = {}, s = {}, r = {}, fore = 1,
-      filling = false }
+      filling = false, traits = traits }
     for k, p in ipairs(plants) do R.s[k], R.r[k] = p[1], p[2] end
     drawseed(R.s[1])
     for ga = 1, np do
@@ -5248,7 +5251,7 @@ local pic = (function()
         room(true, gx, gy, 0.25 * gdiam)
         if l == 1 then
           -- a plain flower of the first plant's species, as v1.3's ghosts are
-          S = full({ seed = R.s[1], role = R.r[1] })
+          S = full({ seed = R.s[1], role = R.r[1], traits = R.traits })
           organ(gos, function()
             pen.lift = K(0.62)
             ink.translate(gx, gy)
@@ -5279,7 +5282,7 @@ local pic = (function()
   -- ---------------------------------------------------------------- the pics
   -- \flo@picsetup: the species, then the drawing's own stream (o.draw, or the seed + 1)
   local function setup(o, role)
-    S = full({ seed = o.seed, role = role or o.role or "any" })
+    S = full({ seed = o.seed, role = role or o.role or "any", traits = o.traits })
     drawseed(o.draw or (o.seed == 2147483646 and 1 or o.seed + 1))
   end
   return function(kind, o)
@@ -5301,13 +5304,13 @@ local pic = (function()
     elseif kind == "plant" then
       setup(o)
       if S.clade == "fern" then ferncrown(sizecm(o.size), season)
-      else garden({ { o.seed, o.role or "any" } }, sizecm(o.size), sizecm(o.width), false, season) end
+      else garden({ { o.seed, o.role or "any" } }, sizecm(o.size), sizecm(o.width), false, season, o.traits) end
     elseif kind == "fern" then
       setup(o, "fern") ferncrown(sizecm(o.size), season)
     elseif kind == "visitor" then
       visitor(o, true)
     elseif kind == "plants" then
-      garden(o.plants, sizecm(o.size), sizecm(o.width), o.ghost ~= false, season)
+      garden(o.plants, sizecm(o.size), sizecm(o.width), o.ghost ~= false, season, o.traits)
     else
       error("florilegium-native: no pic " .. tostring(kind))
     end
@@ -5359,10 +5362,15 @@ end
 -- kind: flower, leaf, v13 flower, v13 leaf, inflorescence, plant, plants, fern, visitor;
 -- seed and draw (or "") whole numbers, size and width in sp, season and scale decimals,
 -- plants "seed/role,seed/role,"; inkrgb, accrgb "r,g,b"; lib the library's \ProvidesFile line
-function M.tikz(kind, seed, role, draw, size, width, season, plants, ghost, scale, inkrgb, accrgb, lib)
+function M.tikz(kind, seed, role, draw, size, width, season, plants, ghost, scale, inkrgb, accrgb, lib, traits)
   if not checked then check(lib) end
   local o = { role = role, size = size, width = width, season = pm.sp(season), ghost = ghost ~= "false",
     scale = pm.sp(scale), seed = math.tointeger(tonumber(seed)) }
+  if traits and traits:match("%S") then
+    -- a trait the genome lacks, or a value it cannot draw: TeX's error, and the pic as sampled
+    local ok, err = pcall(species.fixes, traits, kind == "visitor")
+    if ok then o.traits = traits else tex.error(err) end
+  end
   if draw ~= "" then o.draw = math.tointeger(tonumber(draw)) end
   if kind == "plants" then
     o.plants = {}

@@ -434,15 +434,23 @@ end
 -- Lehmer's generator answers seeds 1, 2, 3 ... with nearly proportional first values,
 -- so the first two are thrown away (TikZ: \pgfmathgeneratepseudorandomnumber twice).
 M.WARM = 2
-function M.sample(seed, role, log)
+-- fix, if given, is a table of traits fixed (M.fixes): each still takes its draw, then its
+-- value is the fixed one, and a trait that depends on it (BY) follows it; a fixed plan
+-- picks its own distributions. The traits drawn before a fixed one are as they would have
+-- been; those after it too, unless a trait that depends on it draws differently (a
+-- constant takes no draw, a range one), which moves every later draw along
+function M.sample(seed, role, log, fix)
+  fix = fix or {}
   local rng = ink.pgfrng(seed)
   for _ = 1, M.WARM do rng.step() end
   local sp = { seed = seed, role = role or "any" }
   sp.plan = draw(M.roleplans(sp.role), rng, sp)
+  if fix.plan ~= nil then sp.plan = fix.plan end
   if log then log("plan", sp.plan) end
   for i = 2, #M.TRAITS do
     local t = M.TRAITS[i]
     sp[t] = draw(M.dist(sp.plan, t), rng, sp)
+    if fix[t] ~= nil then sp[t] = fix[t] end
     if log then log(t, sp[t]) end
   end
   return sp, rng
@@ -793,18 +801,96 @@ function M.vrolekinds(role)
   return W(table.unpack(t))
 end
 -- a visitor from a pgf seed for a role, as M.sample draws a plant
-function M.vsample(seed, role, log)
+function M.vsample(seed, role, log, fix)
+  fix = fix or {}
   local rng = ink.pgfrng(seed)
   for _ = 1, M.WARM do rng.step() end
   local v = { seed = seed, role = role or "any" }
   v.kind = draw(M.vrolekinds(v.role), rng, v)
+  if fix.kind ~= nil then v.kind = fix.kind end
   if log then log("kind", v.kind) end
   for i = 2, #M.VTRAITS do
     local t = M.VTRAITS[i]
     v[t] = draw(M.vdist(v.kind, t), rng, v)
+    if fix[t] ~= nil then v[t] = fix[t] end
     if log then log(t, v[t]) end
   end
   return v, rng
+end
+
+-- ---------------------------------------------------------------- a genome of your own
+-- Some traits fixed, the rest sampled (board #5109): "compound=palmate, leaflets=7". The
+-- values a trait may take are those some plan (or kind) can draw: one of its names, or a
+-- whole number or a real number within the range the genome draws from. clade and group
+-- follow from the plan and the kind and are not fixed themselves.
+local function collect(d, acc)
+  local k = d[1]
+  local function num(lo, hi, real)
+    acc.lo = acc.lo and math.min(acc.lo, lo) or lo
+    acc.hi = acc.hi and math.max(acc.hi, hi) or hi
+    acc.real = acc.real or real
+  end
+  local function one(v)
+    if type(v) == "number" then num(v, v, math.type(v) == "float") else acc.names[v] = true end
+  end
+  if k == "c" then one(d[2])
+  elseif k == "i" then num(d[2], d[3], false)
+  elseif k == "r" then num(d[2], d[3], true)
+  elseif k == "w" then for i = 2, #d, 2 do one(d[i]) end
+  elseif k == "by" then for _, sub in pairs(d[3]) do collect(sub, acc) end
+  end
+end
+local VALUES = {}
+-- trait -> { names = {name = true}, lo, hi, real }: what fixing it may give, for plants
+-- (visitor false) or visitors
+function M.values(visitor)
+  local key = visitor and "v" or "p"
+  if VALUES[key] then return VALUES[key] end
+  local out = {}
+  local traits, first = visitor and M.VTRAITS or M.TRAITS, visitor and "kind" or "plan"
+  for i, t in ipairs(traits) do
+    local acc = { names = {} }
+    if i == 1 then
+      for _, x in ipairs(visitor and M.VKINDS or M.PLANS) do acc.names[x.name] = true end
+    else
+      for _, x in ipairs(visitor and M.VKINDS or M.PLANS) do
+        collect(visitor and M.vdist(x.name, t) or M.dist(x.name, t), acc)
+      end
+    end
+    out[t] = acc
+  end
+  out[visitor and "group" or "clade"] = nil
+  assert(out[first])
+  VALUES[key] = out
+  return out
+end
+-- "trait=value, ..." as a table of fixed traits, each value as the sampler holds it (a name,
+-- a whole number, or a real number to the scaled point, as TeX reads it); an unknown trait
+-- or a value the genome cannot draw is an error
+function M.fixes(text, visitor)
+  local fix, vals = {}, M.values(visitor)
+  for item in tostring(text or ""):gmatch("[^,]+") do
+    local t, v = item:match("^%s*([%w_]+)%s*=%s*(.-)%s*$")
+    if not t then
+      if item:match("%S") then error("florilegium: not trait=value: '" .. item .. "'", 0) end
+    else
+      local ok = vals[t]
+      if not ok then error("florilegium: " .. (visitor and "a visitor" or "a species") .. " has no trait '" .. t .. "'", 0) end
+      local n = tonumber(v)
+      if ok.names[v] then fix[t] = v
+      elseif n and ok.lo and n >= ok.lo and n <= ok.hi and (ok.real or math.tointeger(n)) then
+        fix[t] = ok.real and pm.sp(v) / 65536 or math.tointeger(n)
+      else
+        local names = {}
+        for name in pairs(ok.names) do names[#names + 1] = name end
+        table.sort(names)
+        local range = ok.lo and fmt("%s from %s to %s", ok.real and "a number" or "a whole number", ok.lo, ok.hi) or nil
+        error(fmt("florilegium: %s=%s cannot be drawn; %s is %s", t, v, t,
+          concat(names, ", ") .. (#names > 0 and range and ", or " or "") .. (range or "")), 0)
+      end
+    end
+  end
+  return fix
 end
 -- the visitor rules; a visitor that breaks one is a bug in the tables
 local WINGED = { lepidoptera = 1 }
@@ -971,6 +1057,58 @@ function M.tex()
       .. concat(body, "%\n  ") .. "}"
   end
   vtex = false
+  -- what a fixed trait may be (\florilegiumspecies[...], \florilegiumvisitor[...]): its
+  -- names, the range of a number (empty if none), 1 if that number is real
+  for _, vis in ipairs({ false, true }) do
+    local vals = M.values(vis)
+    for _, t in ipairs(vis and M.VTRAITS or M.TRAITS) do
+      local ok = vals[t]
+      if ok then
+        local names = {}
+        for name in pairs(ok.names) do names[#names + 1] = name end
+        table.sort(names)
+        out[#out + 1] = fmt("\\expandafter\\def\\csname flo@%sok@%s\\endcsname{{%s}{%s}{%s}{%d}}", vis and "v" or "", t,
+          concat(names, ","), ok.lo and key(ok.lo) or "", ok.hi and key(ok.hi) or "", ok.real and 1 or 0)
+      end
+    end
+  end
+  return concat(out, "\n") .. "\n"
+end
+
+-- ---------------------------------------------------------------- the traits, as Markdown
+-- docs/traits.md: every trait in the order it is drawn and what it may be fixed to
+function M.traitsdoc()
+  local out = {
+    "# Traits",
+    "",
+    "The traits a species and a visitor are sampled with, in the order they are drawn, and what",
+    "each may be fixed to: one of the names listed, or a number in the range given (a whole",
+    "number where it says so). Fix them with `\\florilegiumspecies[...]`, `\\florilegiumvisitor[...]`",
+    "or a pic's `traits` key; [the TikZ library](tikz.md#a-genome-of-your-own) shows how. `clade` and",
+    "`group` follow from the plan and the kind and are not fixed themselves.",
+    "",
+    "This page is written by `tools/tikztables.lua` from `florilegium-species.lua`.",
+  }
+  for _, vis in ipairs({ false, true }) do
+    local vals = M.values(vis)
+    out[#out + 1] = ""
+    out[#out + 1] = vis and "## A visitor" or "## A species"
+    out[#out + 1] = ""
+    out[#out + 1] = "| trait | what it may be |"
+    out[#out + 1] = "|---|---|"
+    for _, t in ipairs(vis and M.VTRAITS or M.TRAITS) do
+      local ok = vals[t]
+      if ok then
+        local names = {}
+        for name in pairs(ok.names) do names[#names + 1] = "`" .. name .. "`" end
+        table.sort(names)
+        local range = ok.lo and fmt("%s from %g to %g", ok.real and "a number" or "a whole number", ok.lo, ok.hi)
+        local what = concat(names, ", ")
+        if range then what = what ~= "" and what .. ", or " .. range or range end
+        out[#out + 1] = fmt("| `%s` | %s |", t, what)
+      end
+    end
+  end
   return concat(out, "\n") .. "\n"
 end
 

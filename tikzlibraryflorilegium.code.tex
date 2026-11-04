@@ -10,6 +10,7 @@
 % draws, under pdfLaTeX or LuaLaTeX; nothing here needs Lua.
 %
 %   \florilegiumspecies{<seed>}{<role>}   seed 1..2147483646; role hero, spray, monocot or any
+%   \florilegiumspecies[compound=palmate, leaflets=7]{<seed>}{<role>}   those traits fixed
 %   \florilegiumtrait{<trait>}            a trait of the species last drawn, e.g. {plan}, {merosity}
 %   \florilegiumvisitor{<seed>}{<role>}   a visitor: a butterfly, a bee, a snail ... (see below)
 
@@ -91,8 +92,59 @@
   \edef\flo@key{flo@d@#2@\flo@get{#1}}%
   \ifcsname\flo@key\endcsname\else\edef\flo@key{flo@d@#2@_}\fi
   \csname\flo@key\endcsname}
-% draw trait #1 with distribution #2, keep it, and log it if asked
-\def\flo@T#1#2{#2\flo@set{#1}{\flo@val}\flo@logT{#1}}
+% draw trait #1 with distribution #2, keep it (or the value it is fixed to), and log it if asked
+\def\flo@T#1#2{#2\ifcsname flo@fix@#1\endcsname\edef\flo@val{\csname flo@fix@#1\endcsname}\fi
+  \flo@set{#1}{\flo@val}\flo@logT{#1}}
+
+% ---------------------------------------------------------------- a genome of your own
+% Traits fixed by name ([compound=palmate, leaflets=7]), the rest sampled. A fixed trait
+% still takes its draw, then its value is the fixed one, and a trait that depends on it
+% follows it, as florilegium-species.lua's M.fixes and M.sample do. A trait the genome
+% lacks, or a value no plan (or kind) can draw, is an error: \flo@<ns>ok@<trait> holds its
+% names, the range of a number, and whether that number is real (the tables). \flo@fixns is
+% empty for a species, v for a visitor; clade and group follow from the plan and the kind.
+\def\flo@fixset#1#2{\def\flo@fixns{#1}\def\flo@fixlist{}\edef\flo@tmp{\noexpand\pgfkeys{/florilegium/fix,#2}}\flo@tmp}
+\def\flo@fixclear{\pgfutil@for\flo@t:=\flo@fixlist\do{\ifx\flo@t\pgfutil@empty\else
+  \expandafter\let\csname flo@\flo@fixns fix@\flo@t\endcsname\flo@undefined\fi}\def\flo@fixlist{}}
+\pgfkeys{/florilegium/fix/.is family, /florilegium/fix/.unknown/.code={%
+  \flo@fixcheck{\pgfkeyscurrentname}{#1}%
+  \expandafter\edef\csname flo@\flo@fixns fix@\pgfkeyscurrentname\endcsname{#1}%
+  \edef\flo@fixlist{\flo@fixlist,\pgfkeyscurrentname}}}
+\def\flo@fixwhat{\ifx\flo@fixns\pgfutil@empty a species\else a visitor\fi}
+\def\flo@fixcheck#1#2{%
+  \ifcsname flo@\flo@fixns ok@#1\endcsname
+    \expandafter\expandafter\expandafter\flo@fixcheck@\csname flo@\flo@fixns ok@#1\endcsname{#1}{#2}%
+  \else
+    \pgfutil@packageerror{florilegium}{\flo@fixwhat\space has no trait `#1'}{docs/traits.md (and the
+      manual, florilegium-doc.pdf) lists every trait and what it may be.}%
+  \fi}
+% #1 the names, #2 #3 the range of a number (empty if none), #4 1 for a real number, #5 the
+% trait, #6 its value
+\def\flo@fixcheck@#1#2#3#4#5#6{%
+  \pgfutil@in@{,#6,}{,#1,}%
+  \ifpgfutil@in@\else
+    \flo@yesfalse
+    \def\flo@t{#2}\def\flo@tmp{#6}%
+    \ifx\flo@t\pgfutil@empty\else\ifx\flo@tmp\pgfutil@empty\else
+      \flo@yestrue\flo@isnum@#6\flo@stop
+      \ifflo@yes
+        \pgfmathparse{and(and((#6)>=(#2),(#6)<=(#3)),or(#4==1,(#6)==int(#6)))}%
+        \ifdim\pgfmathresult pt>0pt \else\flo@yesfalse\fi
+      \fi
+    \fi\fi
+    \ifflo@yes\else
+      \def\flo@tmp{#1}%
+      \ifx\flo@t\pgfutil@empty\def\flo@fixmsg{one of #1}%
+      \else
+        \ifnum#4=1 \def\flo@fixmsg{a number from #2 to #3}\else\def\flo@fixmsg{a whole number from #2 to #3}\fi
+        \ifx\flo@tmp\pgfutil@empty\else\edef\flo@fixmsg{one of #1, or \flo@fixmsg}\fi
+      \fi
+      \pgfutil@packageerror{florilegium}{#5=#6 cannot be drawn: #5 is \flo@fixmsg}{}%
+    \fi
+  \fi}
+% digits, a point or a minus sign, and nothing else
+\def\flo@isnum@#1{\ifx#1\flo@stop\expandafter\pgfutil@gobble\else
+  \pgfutil@in@{#1}{0123456789.-}\ifpgfutil@in@\else\flo@yesfalse\fi\fi\flo@isnum@}
 
 % ---------------------------------------------------------------- a log of the choices
 % \florilegiumspecieslogtrue collects "trait=value" for the species last drawn in
@@ -103,39 +155,48 @@
 % ---------------------------------------------------------------- a species
 % Lehmer's generator answers seeds 1, 2, 3 ... with nearly proportional first values,
 % so the first two are thrown away, as in florilegium-species.lua (M.WARM)
-\def\florilegiumspecies#1#2{%
-  \pgfmathsetseed{#1}%
+\def\florilegiumspecies{\pgfutil@ifnextchar[\flo@sample@species{\flo@sample@species[]}}
+\def\flo@sample@species[#1]#2#3{%
+  \flo@fixset{}{#1}%
+  \pgfmathsetseed{#2}%
   \pgfmathgeneratepseudorandomnumber\pgfmathgeneratepseudorandomnumber
-  \flo@set{seed}{#1}\flo@set{role}{#2}%
-  \edef\florilegiumspecieslog{seed=#1}%
-  \csname flo@role@#2\endcsname
+  \flo@set{seed}{#2}\flo@set{role}{#3}%
+  \edef\florilegiumspecieslog{seed=#2}%
+  \csname flo@role@#3\endcsname
+  \ifcsname flo@fix@plan\endcsname\edef\flo@val{\flo@fix@plan}\fi
   \flo@set{plan}{\flo@val}\flo@logT{plan}%
-  \csname flo@plan@\flo@val\endcsname}
+  \csname flo@plan@\flo@val\endcsname
+  \flo@fixclear}
 
 % ---------------------------------------------------------------- a visitor
 % A visitor (a butterfly, a bee, a snail ...) is sampled as a plant is, its kind first,
 % then its traits, into a namespace of its own: plants and visitors share trait names.
 %
-%   \florilegiumvisitor{<seed>}{<role>}   role: a flower's visitor (bee, butterfly, moth, bird,
+%   \florilegiumvisitor[<traits>]{<seed>}{<role>}   role: a flower's visitor (bee, butterfly, moth, bird,
 %                                         beetle, fly), one off the flowers (leaf, stem, perch),
 %                                         any, or a kind (ladybird)
 %   \florilegiumvisitortrait{<trait>}     a trait of the visitor last drawn, e.g. {kind}, {spots}
 \def\flo@xset#1#2{\expandafter\edef\csname flo@x@#1\endcsname{#2}}
 \def\flo@xget#1{\csname flo@x@#1\endcsname}
 \let\florilegiumvisitortrait\flo@xget
-\def\flo@VT#1#2{#2\flo@xset{#1}{\flo@val}\flo@logT{#1}}
+\def\flo@VT#1#2{#2\ifcsname flo@vfix@#1\endcsname\edef\flo@val{\csname flo@vfix@#1\endcsname}\fi
+  \flo@xset{#1}{\flo@val}\flo@logT{#1}}
 \def\flo@VBY#1#2{%
   \edef\flo@key{flo@d@#2@\flo@xget{#1}}%
   \ifcsname\flo@key\endcsname\else\edef\flo@key{flo@d@#2@_}\fi
   \csname\flo@key\endcsname}
-\def\florilegiumvisitor#1#2{%
-  \pgfmathsetseed{#1}%
+\def\florilegiumvisitor{\pgfutil@ifnextchar[\flo@sample@visitor{\flo@sample@visitor[]}}
+\def\flo@sample@visitor[#1]#2#3{%
+  \flo@fixset{v}{#1}%
+  \pgfmathsetseed{#2}%
   \pgfmathgeneratepseudorandomnumber\pgfmathgeneratepseudorandomnumber
-  \flo@xset{seed}{#1}\flo@xset{role}{#2}%
-  \edef\florilegiumspecieslog{seed=#1}%
-  \csname flo@vrole@#2\endcsname
+  \flo@xset{seed}{#2}\flo@xset{role}{#3}%
+  \edef\florilegiumspecieslog{seed=#2}%
+  \csname flo@vrole@#3\endcsname
+  \ifcsname flo@vfix@kind\endcsname\edef\flo@val{\flo@vfix@kind}\fi
   \flo@xset{kind}{\flo@val}\flo@logT{kind}%
-  \csname flo@vkind@\flo@val\endcsname}
+  \csname flo@vkind@\flo@val\endcsname
+  \flo@fixclear}
 
 % ================================================================ drawing
 % Everything below draws through pgf's basic layer (\pgfpathmoveto, \pgfpathcurveto,
@@ -1559,7 +1620,7 @@
   \ifnum\flo@Np=1 \def\flo@root{0}\def\flo@pc{0}\fi
   \ifnum\flo@Ga=1 \def\flo@pw{0.085}\else\def\flo@pw{0.065}\fi
   \edef\flo@pH{\csname flo@pp@H\the\flo@Ga\endcsname}%
-  \florilegiumspecies{\csname flo@pp@s\the\flo@Ga\endcsname}{\csname flo@pp@r\the\flo@Ga\endcsname}%
+  \edef\flo@tmp{\noexpand\florilegiumspecies[\flo@o@traits]{\csname flo@pp@s\the\flo@Ga\endcsname}{\csname flo@pp@r\the\flo@Ga\endcsname}}\flo@tmp
   \xdef\pgfmath@rnd@z{\csname flo@pp@w\the\flo@Ga\endcsname}}
 \def\flo@plantsave{\expandafter\xdef\csname flo@pp@w\the\flo@Ga\endcsname{\pgfmath@rnd@z}}
 % 1. the stem and the inflorescence at its top
@@ -1775,8 +1836,9 @@
   seed/.store in=\flo@o@seed, role/.store in=\flo@o@role, size/.store in=\flo@o@size,
   draw/.store in=\flo@o@draw, season/.store in=\flo@o@season,
   plants/.store in=\flo@o@plants, width/.store in=\flo@o@width, ghost/.store in=\flo@o@ghost,
-  engine/.store in=\flo@o@engine, scale/.store in=\flo@o@scale,
-  seed=1, role=any, size=2cm, draw=, season=0.75, plants=, width=6cm, ghost=true, engine=auto, scale=1}
+  engine/.store in=\flo@o@engine, scale/.store in=\flo@o@scale, traits/.store in=\flo@o@traits,
+  seed=1, role=any, size=2cm, draw=, season=0.75, plants=, width=6cm, ghost=true, engine=auto, scale=1,
+  traits=}
 % engine=lua: florilegium-native.lua draws the pic straight into the picture with the same
 % steps and random draws as this file's TikZ code, computed in doubles (the same plant,
 % its numbers within a fraction of a point), and tells pgf how large it is: some fifty
@@ -1822,7 +1884,8 @@
     "\luaescapestring{\flo@o@role}", "\flo@luadraw", \number\pgf@x, \number\pgf@y,
     "\flo@luaseason", "\luaescapestring{\flo@luaplants}", "\luaescapestring{\flo@o@ghost}",
     "\flo@luascale", "\flo@picink", "\flo@picacc",
-    "\ifcsname ver@tikzlibraryflorilegium.code.tex\endcsname\luaescapestring{\csname ver@tikzlibraryflorilegium.code.tex\endcsname}\fi")}}
+    "\ifcsname ver@tikzlibraryflorilegium.code.tex\endcsname\luaescapestring{\csname ver@tikzlibraryflorilegium.code.tex\endcsname}\fi",
+    "\luaescapestring{\flo@o@traits}")}}
 % #1 the pic's keys, #2 its kind for Lua, #3 the TikZ code
 \def\flo@engine#1#2#3{\pgfkeys{/florilegium,#1}%
   \ifx\flo@o@engine\flo@auto\let\flo@o@engine\flo@autoengine\fi
@@ -1830,7 +1893,7 @@
 % sample the species, then reseed for the drawing (draw=, or the species seed + 1)
 \def\flo@picsetup#1{%
   \pgfkeys{/florilegium,#1}\flo@colors
-  \florilegiumspecies{\flo@o@seed}{\flo@o@role}%
+  \edef\flo@tmp{\noexpand\florilegiumspecies[\flo@o@traits]{\flo@o@seed}{\flo@o@role}}\flo@tmp
   \ifx\flo@o@draw\pgfutil@empty
     \edef\flo@o@draw{\the\numexpr\ifnum\flo@o@seed=2147483646 1\else\flo@o@seed+1\fi\relax}\fi
   \flo@drawseed\flo@o@draw
@@ -1890,7 +1953,8 @@
     \ifx\flo@gghost\flo@true
       \flo@calc\flo@t{0.25*\flo@gdiam}\flo@room1\flo@gx\flo@gy\flo@t
       \ifnum\flo@Gc=1
-        \florilegiumspecies{\csname flo@pp@s1\endcsname}{\csname flo@pp@r1\endcsname}\let\flo@os\flo@gos
+        \edef\flo@tmp{\noexpand\florilegiumspecies[\flo@o@traits]{\csname flo@pp@s1\endcsname}{\csname flo@pp@r1\endcsname}}\flo@tmp
+        \let\flo@os\flo@gos
         % a plain flower of the species, as v1.3's ghosts are: no daisy disk, no lily
         \flo@organ{\def\flo@lift{0.62}\pgftransformshift{\flo@P\flo@gx\flo@gy}\flo@stone
           \flo@set{form}{rotate}\ifnum\flo@get{merosity}>6 \flo@set{merosity}{5}\fi
@@ -5887,7 +5951,7 @@
 % sample the visitor, then reseed for the drawing
 \def\flo@vispicsetup#1{%
   \pgfkeys{/florilegium,#1}\flo@colors
-  \florilegiumvisitor{\flo@o@seed}{\flo@o@role}%
+  \edef\flo@tmp{\noexpand\florilegiumvisitor[\flo@o@traits]{\flo@o@seed}{\flo@o@role}}\flo@tmp
   \ifx\flo@o@draw\pgfutil@empty
     \edef\flo@o@draw{\the\numexpr\ifnum\flo@o@seed=2147483646 1\else\flo@o@seed+1\fi\relax}\fi
   \flo@drawseed\flo@o@draw

@@ -20,6 +20,7 @@ M.CHAPTERS = {
   { file = "docs/usage.md" },
   { file = "docs/tikz.md" },
   { file = "docs/species.md" },
+  { file = "docs/traits.md" },
   { file = "docs/themes.md" },
   { file = "docs/how-it-works.md" },
   { file = "docs/svg-and-web.md" },
@@ -83,15 +84,15 @@ local function label(file, anchor)
   return "md:" .. file .. (anchor and anchor ~= "" and ":" .. anchor or "")
 end
 
--- `code`: break opportunities after commas, equals signs, slashes, hyphens and closing braces,
--- and after a dot before a letter (not inside a number), so that a long file name or key list
--- wraps in a line or a table cell
+-- `code`: break opportunities after commas, equals signs, slashes, hyphens, opening parentheses
+-- and closing braces, and after a dot before a letter (not inside a number), so that a long
+-- file name or key list wraps in a line or a table cell
 local function code(s)
   local t = {}
   for k = 1, #s do                -- bytes; UTF-8 passes through unchanged
     local c = s:sub(k, k)
     t[#t + 1] = ESC[c] or c
-    if c:match("[,=/%-}]") or (c == "." and s:sub(k + 1, k + 1):match("%a")) then
+    if c:match("[,=/%-}(]") or (c == "." and s:sub(k + 1, k + 1):match("%a")) then
       t[#t + 1] = "\\allowbreak{}"
     end
   end

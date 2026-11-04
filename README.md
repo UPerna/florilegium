@@ -112,6 +112,9 @@ describe itself:
 > climbing by tendrils; then pods.
 
 [The species garden](docs/species.md) describes the genome and how a page chooses its plants.
+Any of its traits can be fixed and the rest sampled, so a TikZ pic can grow a seven-leaflet
+palmate leaf or a white rose ([your own genome](docs/tikz.md#a-genome-of-your-own),
+[the traits](docs/traits.md)).
 
 ## Visitors
 
@@ -260,7 +263,7 @@ text without one (option `nomargin`), per page. `make bench` measures every row 
 - [The species garden](docs/species.md) describes the genomes, the body plans, how a document
   chooses its plants, and the visitors.
 - [The TikZ library](docs/tikz.md) lists the pics and their keys, and explains the two engines
-  and pdfLaTeX's memory.
+  and pdfLaTeX's memory; [the traits](docs/traits.md) lists every trait a pic can fix.
 - [Themes](docs/themes.md) shows geometric and math, and how to write a theme.
 - [How it works](docs/how-it-works.md) follows the painting, the growth loop, the reading of the
   page, the initials and the animation.

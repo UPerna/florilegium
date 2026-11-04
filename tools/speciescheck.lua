@@ -109,6 +109,11 @@ local f = io.open("tikzlibraryflorilegium.tables.code.tex")
 local stale = not f or f:read("a") ~= species.tex()
 if f then f:close() end
 if stale then print("tikzlibraryflorilegium.tables.code.tex is stale: texlua tools/tikztables.lua") end
+f = io.open("docs/traits.md")
+local dstale = not f or f:read("a") ~= species.traitsdoc()
+if f then f:close() end
+if dstale then print("docs/traits.md is stale: texlua tools/tikztables.lua") end
+stale = stale or dstale
 
 print(fmt("%d species, %d ferns and %d visitors, %d broke a rule", N, NF, N, bad))
 os.exit((bad == 0 and not stale) and 0 or 1)

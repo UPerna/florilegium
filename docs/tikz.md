@@ -58,6 +58,8 @@ can't be found, the library draws in pure TikZ.
   (`ladybird`, `dragonfly`, `snail`, `hummingbird`, ...).
 - `engine` is `auto` (the default), `lua` or `tikz`, for one pic or for all of them with
   `\pgfkeys{/florilegium/engine=tikz}`.
+- `traits` fixes some of the species' or the visitor's traits and leaves the rest to the seed
+  (see [your own genome](#a-genome-of-your-own)); in `plants`, every plant takes them.
 - The colors are the document's `ink` and `accent`, as for the package; without them, Delft
   blue and copper.
 
@@ -69,6 +71,27 @@ The traits themselves can be read too:
 \florilegiumvisitor{3}{any}       % and a visitor
 \florilegiumvisitortrait{kind}
 ```
+
+## A genome of your own
+
+A pic's `traits` fixes traits by name, and the seed samples the rest. A palmate leaf of seven
+toothed leaflets, or a simple leaf lobed like a maple's:
+
+```latex
+\pic {florilegium leaf={seed=7, size=4cm, traits={compound=palmate, leaflets=7, leafmargin=serrate}}};
+\pic {florilegium plant={seed=12, role=eudicot, size=9cm, traits={compound=simple, leafmargin=palmatelobed}}};
+\pic {florilegium visitor={seed=3, role=any, size=2cm, traits={kind=ladybird, spots=14}}};
+\florilegiumspecies[plan=rose, color=white]{7}{any}   % the same, without drawing
+```
+
+[The traits](traits.md) lists every one and what it may be; a name the genome lacks, or a value
+no plan can draw, is an error that says what the trait may be. A fixed trait still takes its
+random draw, so the traits drawn before it are as the seed gave them, and those after it too,
+unless one that depends on it draws differently (a palmate leaf draws how many leaflets it has,
+a simple one does not), which moves every later draw along. A trait that depends on a fixed one
+follows it, and a fixed `plan` (or a visitor's `kind`) brings its own distributions. Botany's
+rules hold for what the genome samples; a fixed trait is taken as it is, so a lily with toothed
+leaves is yours to ask for. Both engines fix traits the same way.
 
 `specimen-tikz.tex` draws one of nearly everything, from the strips above to each body plan's flower
 and leaf, every flower form and kind of cluster, every leaf, ferns, and the visitors.

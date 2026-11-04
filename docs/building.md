@@ -36,7 +36,7 @@ top of its file. After a change that is meant to move a drawing, `tools/in-docke
 make luacheck RUN=tools/in-docker                     # luacheck over every Lua file (.luacheckrc)
 make check RUN=tools/in-docker                        # l3build's regression tests, every drawing on their pages by its md5 (~10 s)
 tools/svgcheck.sh lua5.3 lua5.4                       # varied pages through florilegium-svg.lua, byte-identical across interpreters
-tools/in-docker texlua tools/speciescheck.lua 2000    # sampled species and visitors keep every rule; the TikZ tables are current
+tools/in-docker texlua tools/speciescheck.lua 2000    # sampled species and visitors keep every rule; the TikZ tables and docs/traits.md are current
 tools/in-docker texlua tools/tikzcheck.lua 1 1000     # TikZ and Lua sample the same species
 tools/in-docker texlua tools/tikzcheck.lua draw quick # the Lua engine's pics render as pure TikZ's (about 15 minutes)
 tools/in-docker texlua tools/pgfmathcheck.lua 30000   # the pgfmath arithmetic Lua takes from TeX, exactly

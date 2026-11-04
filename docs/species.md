@@ -48,6 +48,12 @@ The eight of the document seed 7:
 - A blue pea flower along a raceme, for bees; leaves of five pairs of smooth-edged leaflets, climbing by tendrils; then pods.
 - A white two-lipped flower in a dense spike, for bees; toothed, narrow leaves, in pairs; then nutlets.
 
+## A genome of your own
+
+Any trait can be fixed and the rest sampled, in the TikZ library's pics (`traits={compound=palmate,
+leaflets=7}`) and with `\florilegiumspecies[...]`; see [the TikZ library](tikz.md#a-genome-of-your-own)
+and [the traits](traits.md), which lists every trait and what it may be.
+
 ## A document's plants
 
 The document's seed (`\def\florilegiumseed{7}`) picks its *pool* of eight species, two heroes,
