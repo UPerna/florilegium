@@ -4883,9 +4883,8 @@ local pic = (function()
   end
 
   -- ---------------------------------------------------------------- the garden
-  -- its macros (R.pH is \flo@pH ...), shared as TeX shares them: a count two loops share is
-  -- a field too (R.Gb, which \flo@branchto's leaflets move under the fill rounds' feet);
-  -- the 5 mm cells taken on this layer's walk, and the layer
+  -- its macros (R.pH is \flo@pH ...), shared as TeX shares them; the 5 mm cells taken on
+  -- this layer's walk, and the layer
   local R, ROOM, layer
   local LSTEM, LLEAF, LAIRY, LBLOOM = 2, 3, 4, 5
   local function at(l) return layer == l end
@@ -5128,17 +5127,15 @@ local pic = (function()
     if at(LSTEM) then cubicstem(B, w, wb) end
     if d > K(1.2) then
       local nl = d > K(2.2) and 2 or 1
-      R.Gb = 1
-      while R.Gb <= nl do
-        local cx, cy, ca = cubicat(0.25 + 0.3 * R.Gb / nl)
-        local la = ca + (R.Gb == 1 and -1 or 1) * R.side * range(40, 60) - 90
+      for gb = 1, nl do
+        local cx, cy, ca = cubicat(0.25 + 0.3 * gb / nl)
+        local la = ca + (gb == 1 and -1 or 1) * R.side * range(40, 60) - 90
         R.lf = range(0.45, 0.75)
         local z = seedorgan()
         if at(LLEAF) then
           local lf = R.lf
           organ(z, function() ink.translate(cx, cy) ink.rotate(la) ink.scale(lf) M.leaflet({ u = lf }) end)
         end
-        R.Gb = R.Gb + 1
       end
     end
     local what, bx, by, a = R.what, R.bx, R.by, R.a
@@ -5269,12 +5266,10 @@ local pic = (function()
       for ga = 1, np do plantsetup(ga) passstem(ga) R.w[ga] = G.save() end
       for ga = 1, np do plantsetup(ga) passleaves(ga) R.w[ga] = G.save() end
       for ga = 1, np do plantsetup(ga) passbranches(ga) R.w[ga] = G.save() end
-      R.Gb = 1
-      while R.Gb <= 3 do
+      for _ = 1, 3 do
         for ga = 1, np do
           plantsetup(ga) R.ftries = texint(R.pH, 131072) passfill(ga) R.w[ga] = G.save()
         end
-        R.Gb = R.Gb + 1
       end
     end
   end

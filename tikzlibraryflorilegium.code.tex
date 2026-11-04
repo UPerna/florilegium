@@ -486,7 +486,7 @@
 % clusters, buds and curls, and its own inflorescence at the top. Several plants from one
 % root are drawn a layer at a time (a pale ghost, stems, leaves, sprays, flowers), so that a
 % flower lies over the next plant's leaves, as in the margin.
-\newcount\flo@Ga \newcount\flo@Gb \newcount\flo@Gc \newcount\flo@Gd \newcount\flo@Np \newcount\flo@Ge
+\newcount\flo@Ga \newcount\flo@Gb \newcount\flo@Gc \newcount\flo@Gd \newcount\flo@Np \newcount\flo@Ge \newcount\flo@Gf
 \newif\ifflo@draw
 % the layers, numbered as in florilegium-grow.lua; \flo@at{layer}: draw on that layer's walk
 \def\flo@Lghost{1}\def\flo@Lstem{2}\def\flo@Lleaf{3}\def\flo@Lairy{4}\def\flo@Lbloom{5}
@@ -1835,7 +1835,8 @@
       \flo@calc\flo@oarg{\flo@lf*28.45276}\flo@leaf\flo@oarg}\fi
   \fi}
 % 4. more branches, from anywhere up the stem, while there is room: three rounds of a few
-% tries for each plant in turn, as florilegium-grow.lua's branch loop fills the holes
+% tries for each plant in turn, as florilegium-grow.lua's branch loop fills the holes (the
+% rounds count with \flo@Gf, which nothing inside them uses)
 \def\flo@filling{0}
 \def\flo@passfill{%
   \flo@stemload\def\flo@filling{1}%
@@ -1980,7 +1981,7 @@
     \flo@loop{gps}\flo@Ga{1}{\flo@Np}{\flo@plantsetup\flo@passstem\flo@plantsave}%
     \flo@loop{gpl}\flo@Ga{1}{\flo@Np}{\flo@plantsetup\flo@passleaves\flo@plantsave}%
     \flo@loop{gpb}\flo@Ga{1}{\flo@Np}{\flo@plantsetup\flo@passbranches\flo@plantsave}%
-    \flo@loop{gfr}\flo@Gb{1}{3}{%
+    \flo@loop{gfr}\flo@Gf{1}{3}{%
       \flo@loop{gpf}\flo@Ga{1}{\flo@Np}{%
         \flo@plantsetup\pgfmathtruncatemacro\flo@ftries{\flo@pH/2}\flo@passfill\flo@plantsave}}}}
 \def\flo@true{true}
