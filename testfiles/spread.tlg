@@ -1,0 +1,20 @@
+This is a generated file for the l3build validation system.
+Don't change this file in any respect.
+florilegium: grew 4609 cells, 81 motifs, 594 stem points, 4747 KB; visitors: none
+florilegium: species eudicot 325044308, columbine 1511394489, lily 1583415831, daisy 2000561335
+florilegium test: page 1, 2 drawings
+  1. md5 ba89f116254d19283342fb02edbb8afd, 4861090 bytes
+  2. md5 8adb7afad9cf806bc75f6c9dfe89e91e, 3273 bytes
+  grew: bee 0, bells 0, bloom:1 1, blossoms 0, bud 0, budding 0, budding:1 14, budding:2 8, budding:3 6, budding:4 1, butterfly 0, cyme 0, fern 4, flower 0, g:bloom 1, g:budding 29, g:leaf 12, g:spray 19, g:tendril 7, g:unit 9, g:visitor 0, leaf 0, leaf:1 8, leaf:2 4, leaf:4 0, lily 0, seedhead 0, spray:1 15, spray:2 2, spray:3 2, spray:4 0, sprig 0, tendril 0, tendril:2 7, umbel 0, unit:1 4, unit:2 3, unit:3 2, unit:4 0, visitor:1 0, visitor:2 0, visitor:3 0, visitor:4 0, visitor:stem 0 [1
+]
+florilegium: grew 4604 cells, 78 motifs, 604 stem points, 4791 KB; visitors: snail, caterpillar
+florilegium: species eudicot 325044308, columbine 1511394489, lily 1583415831, daisy 2000561335
+florilegium test: page 2, 2 drawings
+  1. md5 c23426ab54cb23d02ed11aca9470c357, 4906134 bytes
+  2. md5 393acbd48fa10bbaf0764eb7777df4c7, 3287 bytes
+  grew: bee 0, bells 0, bloom:1 3, blossoms 0, bud 0, budding 0, budding:1 13, budding:2 3, budding:3 3, budding:4 1, butterfly 0, cyme 0, flower 0, g:bloom 3, g:budding 20, g:leaf 11, g:spray 30, g:tendril 4, g:unit 9, g:visitor 0, leaf 0, leaf:1 9, leaf:2 2, leaf:4 0, lily 0, seedhead 0, snail 1, spray:1 20, spray:2 1, spray:3 6, spray:4 3, sprig 0, tendril 0, tendril:2 4, umbel 0, unit:1 4, unit:2 3, unit:3 2, unit:4 0, visitor:1 0, visitor:2 0, visitor:3 0, visitor:4 0, visitor:stem 0 [2]
+florilegium: grew 10231 cells, 159 motifs, 1107 stem points, 540 KB; visitors: 2 butterfly, 2 bee
+florilegium test: page 3, 2 drawings
+  1. md5 32fa5037f0d624dc0a6cfd7594329385, 553103 bytes
+  2. md5 ddeefc59be3c2ce6cf1d7715554df4a0, 521 bytes
+  grew: bee 2, bells 2, blossoms 16, bud 17, budding 0, butterfly 2, crystal 5, cyme 33, flower 7, leaf 36, lily 5, seedhead 0, sprig 15, tendril 12, umbel 7 [3]

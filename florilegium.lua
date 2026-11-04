@@ -11,8 +11,9 @@ local M = { ink = ink, flora = flora }
 -- file up on its own, so files from two releases can meet (a set installed in ~/texmf,
 -- a newer florilegium.sty and florilegium.lua beside the document); check_versions
 -- stops such a mix before anything is drawn. A release changes all of them together.
-M.version = "1.3"
-local PARTS = { "ink", "flora", "grow", "authored", "figures", "theme-geometric", "theme-math", "initial", "svg" }
+M.version = "2.0.0"
+local PARTS = { "ink", "flora", "grow", "authored", "figures", "theme-geometric", "theme-math", "initial", "svg", "species",
+  "pgfmath", "native" }
 
 local function where(file, format, module)     -- " (path)" for the message, if it can be found
   local ok, path = pcall(function() return kpse.find_file(file, format) end)
@@ -29,6 +30,11 @@ function M.check_versions()
     local name = "florilegium-" .. part
     local m = package.loaded[name]
     if type(m) == "table" and m.version ~= M.version then mixed(name .. ".lua" .. where(name .. ".lua", "lua", name), m.version) end
+  end
+  -- the pure-TikZ library, if the document loaded it (\usetikzlibrary{florilegium})
+  local lib = token and token.get_macro and token.get_macro("ver@tikzlibraryflorilegium.code.tex")
+  if lib and lib:match("v(%d[%d.]*)") ~= M.version then
+    mixed("tikzlibraryflorilegium.code.tex" .. where("tikzlibraryflorilegium.code.tex", "tex"), lib:match("v(%d[%d.]*)"))
   end
   local sty = token and token.get_macro and token.get_macro("ver@florilegium.sty")
   if sty then
@@ -75,7 +81,9 @@ end
 
 -- one rng per page; primitives drawn from TeX fork it in call order
 local page_rng = ink.rng(1)
+M.docseed = 0                                 -- \florilegiumseed, or 0: the species pool
 function M.seed(page, fixed)
+  M.docseed = fixed or 0
   local s = fixed and (fixed * 7919 + page * 131) or (page * 97 + 1030)
   page_rng = ink.rng(s)
   return s
@@ -96,13 +104,13 @@ end
 local scaled = { leaf = true, leaflet = true, petal = true }
 local function primitives() return require("florilegium-grow").theme(M.theme) end
 function M.draw(name, s, o)
-  local flora = primitives()
-  local fn = flora[name]
+  local F = primitives()
+  local fn = F[name]
   if type(fn) ~= "function" then tex.error("florilegium: unknown primitive '" .. tostring(name) .. "'") return end
   sync_transform()
   local rng = page_rng.fork()
   if name == "ghost" then
-    flora.ghost(o and o.lift, function() M.draw_inner(s, o, rng) end)
+    F.ghost(o and o.lift, function() M.draw_inner(s, o, rng) end)
   elseif scaled[name] then
     ink.scale(s or 1) fn(rng, o)
   else
@@ -113,8 +121,8 @@ end
 -- \florilegiumdraw{ghost}{"flower", {s=1.4}} draws any primitive pale
 function M.draw_inner(name, o, rng)
   o = o or {}
-  local flora = primitives()
-  local fn = flora[name]
+  local F = primitives()
+  local fn = F[name]
   if scaled[name] then ink.scale(o.s or 1) fn(rng, o) else fn(rng, o.s or 1, o) end
 end
 
@@ -136,8 +144,8 @@ local ORNAMENT = {
 local function hex(h) return tonumber(h:sub(1, 2), 16) / 255, tonumber(h:sub(3, 4), 16) / 255, tonumber(h:sub(5, 6), 16) / 255 end
 local nornament = 0
 function M.ornament(name, size, inkhex, acchex, angle, seed)
-  local flora = primitives()
-  local fn = flora[name]
+  local F = primitives()
+  local fn = F[name]
   if type(fn) ~= "function" then tex.error("florilegium: unknown primitive '" .. tostring(name) .. "'") return end
   nornament = nornament + 1
   -- the k-th ornament of the document always gets the same shape, unless a seed
@@ -310,7 +318,8 @@ end
 M.last_captions, M.last_stats = nil, nil
 
 local function grown_frame(g)
-  local key = string.format("%d %d %.3f %s %d %s %s %s", g.seed, g.spill, g.spilly, tostring(g.age), #g.marks, tostring(g.theme), tostring(g.mirror), tostring(g.density))
+  local key = string.format("%d %d %.3f %s %d %s %s %s %s", g.seed, g.spill, g.spilly, tostring(g.age), #g.marks, tostring(g.theme),
+    tostring(g.mirror), tostring(g.density), tostring(g.docseed))
   if not recorded[key] then
     g.anim = true
     recorded = { [key] = require("florilegium-grow").page(g) }      -- keep only the latest garden
@@ -331,9 +340,10 @@ end
 -- some of the primitives (florilegium-grow.lua). In the document, \florilegiumtheme leaves a
 -- mark, so the theme changes from the page that the mark is on.
 M.theme = nil
-local function themes(marks)
+local function themes(list)
+  if M.theme == "" then M.theme = nil end   -- \florilegiumtheme{} in the preamble, as in the text
   local rest = {}
-  for _, m in ipairs(marks) do
+  for _, m in ipairs(list) do
     if m.kind == "theme" then M.theme = m.arg ~= "" and m.arg or nil else rest[#rest + 1] = m end
   end
   return rest
@@ -345,18 +355,29 @@ end
 M.density, M.intensity = 1, 1
 local function pale() return 0.85 * (1 - math.max(0, math.min(1, M.intensity))) end
 
+-- the grown margin's plants are species (florilegium-species.lua), drawn by
+-- florilegium-native.lua: loaded, and its version checked, with the first grown page
+local organs = false
+local function use_organs()
+  if organs then return end
+  require("florilegium-native")
+  M.check_versions()
+  organs = true
+end
+
 -- the grown composition for this page; M.visitors = false (option novisitors)
--- leaves out the butterflies, bees, snails and birds
+-- leaves out the visitors. M.bleed (cm, florilegium-svg.lua's --bleed) lets the safety
+-- clip reach past the paper's edge; LuaLaTeX never sets it
 M.visitors = true
--- how far the garden may run past the paper's edges, in cm (florilegium-svg.lua's bleed;
--- nil in a document: a PDF page ends at the paper)
-M.bleed = nil
+M.bleed = 0
 function M.grown(seed, spill, spilly, box)
   local g = M.geometry()
   g.marks = themes(page_marks(box))
   g.seed, g.spill, g.spilly, g.visitors, g.age, g.theme = seed, spill, spilly, M.visitors, M.age, M.theme
+  g.docseed = M.docseed
+  if M.bleed > 0 then g.bleed = M.bleed end
+  if not M.theme or M.theme == "flora" then use_organs() end
   if M.density < 1 then g.density = math.max(0.03, M.density) end
-  g.bleed = M.bleed
   local old = ink.set_pale(pale())
   if frame then grown_frame(g)
   else
@@ -374,6 +395,7 @@ function M.authored(seed, box)
   themes(page_marks(box))
   local g = M.geometry()
   g.seed, g.visitors, g.theme = seed, M.visitors, M.theme
+  if M.bleed > 0 then g.bleed = M.bleed end
   local old = ink.set_pale(pale())
   local r = require("florilegium-authored").page(g)
   M.last_captions, M.last_stats = r and r.captions, r and r.stats

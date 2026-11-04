@@ -55,8 +55,27 @@
   .sheet { position: relative; height: max(420px, calc(100dvh - 214px)); aspect-ratio: var(--ar, 0.70707); }
   .proof { position: absolute; inset: 0; margin: 0; background: var(--paper); container-type: inline-size;
     box-shadow: 0 1px 1px rgba(40, 30, 10, .12), 0 10px 30px rgba(40, 30, 10, .16); }
-  .proof .garden { position: absolute; inset: 0; width: 100%; height: 100%; transition: opacity .3s; }
+  /* the garden on a layer of its own, so that moving the text over it (the knob, the foot)
+     never redraws its thousands of paths: that redraw is what made dragging lag */
+  .proof .garden { position: absolute; inset: 0; width: 100%; height: 100%; transition: opacity .3s; will-change: transform; }
   .proof.growing .garden { opacity: .45; }
+  /* while a garden grows: a flower in the margin, in the page's ink and accent, opening
+     petal by petal and slowly turning (still, under reduced motion); it waits a moment
+     before it shows, so a quick garden doesn't flicker */
+  .sprout { position: absolute; left: var(--sx, 16.19%); top: 44%; width: 128px; transform: translate(-50%, -50%);
+    display: grid; justify-items: center; gap: 2px; padding: 22px 0 18px; pointer-events: none;
+    background: radial-gradient(closest-side, var(--paper) 62%, rgba(255, 253, 248, 0)); opacity: 0; transition: opacity .2s; }
+  .proof.growing .sprout { opacity: 1; transition: opacity .3s .15s; }
+  .sprout svg { width: 48px; height: 48px; animation: sprout-turn 9s linear infinite; }
+  .sprout path { fill: var(--sprout-ink, #2456c4); opacity: .18; animation: sprout-petal 1.5s ease-in-out infinite; }
+  .sprout path:nth-child(2) { animation-delay: .3s; } .sprout path:nth-child(3) { animation-delay: .6s; }
+  .sprout path:nth-child(4) { animation-delay: .9s; } .sprout path:nth-child(5) { animation-delay: 1.2s; }
+  .sprout circle { fill: var(--sprout-accent, #b4662f); }
+  .sprout span { font-family: var(--fell); font-style: italic; font-size: 14px; color: var(--ink-700); }
+  .proof:not(.growing) .sprout, .proof:not(.growing) .sprout * { animation-play-state: paused; }
+  @keyframes sprout-turn { to { transform: rotate(360deg); } }
+  @keyframes sprout-petal { 0%, 100% { opacity: .18; } 30% { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .sprout svg { animation: none; } }
   .crop { position: absolute; width: 18px; height: 18px; pointer-events: none; }
   .crop::before, .crop::after { content: ""; position: absolute; background: var(--table-ink); opacity: .55; }
   .crop::before { width: 14px; height: 1px; }
@@ -206,6 +225,10 @@
       <figure class="proof growing" id="proof">
         <div class="text" id="text"></div>
         <img class="garden" id="garden" alt="">
+        <div class="sprout" id="sprout" aria-hidden="true">
+          <svg viewBox="-22 -22 44 44"><path d="M0 -3C5 -7 5 -16 0 -21C-5 -16 -5 -7 0 -3Z"/><path transform="rotate(72)" d="M0 -3C5 -7 5 -16 0 -21C-5 -16 -5 -7 0 -3Z"/><path transform="rotate(144)" d="M0 -3C5 -7 5 -16 0 -21C-5 -16 -5 -7 0 -3Z"/><path transform="rotate(216)" d="M0 -3C5 -7 5 -16 0 -21C-5 -16 -5 -7 0 -3Z"/><path transform="rotate(288)" d="M0 -3C5 -7 5 -16 0 -21C-5 -16 -5 -7 0 -3Z"/><circle r="3.4"/></svg>
+          <span>growing</span>
+        </div>
         <div class="folio" id="folio">1</div>
         <span class="crop tl"></span><span class="crop tr"></span><span class="crop bl"></span><span class="crop br"></span>
       </figure>
@@ -224,7 +247,7 @@
     <img class="orn" src="hedera.svg" alt="">
     <h2>Colophon</h2>
     <p class="colophon" id="colophon"></p>
-    <p class="grown" id="grown" role="status">The garden is growing…</p>
+    <p class="grown" id="grown" role="status">Fetching the Lua that grows the garden…</p>
     <div class="rule"><img src="sparkle.svg" alt=""></div>
     <p class="take">To set it in your own pages</p>
     <div class="tabs" id="tabs" role="tablist"></div>

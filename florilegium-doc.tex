@@ -1,0 +1,67 @@
+% florilegium-doc.tex -- the manual, the PDF that texdoc florilegium opens.
+%   lualatex florilegium-doc.tex   (twice, for the contents and the links;  make florilegium-doc.pdf)
+% Its text is the documentation in docs/*.md, with README.md's opening, origin, quick start,
+% credits and license, set by docs/manual.lua, so the manual and the docs never disagree. Write
+% in the Markdown, not here. The plants on the title page are the TikZ library's, drawn by its
+% Lua engine; the opening letter is the package's \florilegiuminitial.
+% Copyright (c) 2026 Kevin Raymond. MIT License: see LICENSE or florilegium.sty.
+\documentclass[a4paper,11pt]{article}
+\usepackage[a4paper,top=25mm,bottom=28mm,left=30mm,right=30mm]{geometry}
+\usepackage{fontspec}
+\usepackage{graphicx,array,longtable,booktabs,fvextra}
+\usepackage[nomargin]{florilegium}            % \florilegiuminitial, and the colors ink and accent
+\usepackage{tikz}
+\usetikzlibrary{florilegium}
+\usepackage[colorlinks,linkcolor=ink,urlcolor=ink,citecolor=ink,bookmarksnumbered]{hyperref}
+
+\directlua{florilegiummanual = dofile("docs/manual.lua")}
+\directlua{
+  local version, date = florilegiummanual.release()
+  local y, m, d = date:match("(.+)/(.+)/(.+)")
+  local months = { "January", "February", "March", "April", "May", "June", "July",
+    "August", "September", "October", "November", "December" }
+  tex.sprint("\string\\def\string\\floversion{" .. version .. "}")
+  tex.sprint("\string\\def\string\\flodate{" .. tonumber(d) .. " " .. months[tonumber(m)] .. " " .. y .. "}")
+}
+\hypersetup{pdftitle={florilegium, version \floversion}, pdfauthor={Kevin Raymond},
+  pdfsubject={Procedurally generated floral page margins for LuaLaTeX, and plants in TikZ}}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6\baselineskip plus 2pt}
+\setlength{\LTpre}{0.4\baselineskip}
+\setlength{\LTpost}{0.4\baselineskip}
+\renewcommand{\arraystretch}{1.15}
+\urlstyle{same}
+\setcounter{tocdepth}{2}
+\setlength{\emergencystretch}{2.5em}
+\raggedbottom
+
+\begin{document}
+\thispagestyle{empty}
+\begin{center}
+  \vspace*{6mm}
+  {\fontsize{40}{44}\selectfont florilegium\par}
+  \vspace{4mm}
+  {\large Procedurally generated floral page margins for LuaLaTeX,\\
+  and plants and their visitors in TikZ\par}
+  \vspace{5mm}
+  Version \floversion, \flodate\par
+  \vspace{2mm}
+  Kevin Raymond\par
+  \vspace{1mm}
+  \url{https://github.com/kevinraymond/florilegium}\par
+  \vfill
+  \begin{tikzpicture}
+    \pic {florilegium plants={plants={3/rose, 17/umbellifer, 29/mustard}, size=15cm, width=7cm}};
+    \pic at (5.2,9.6) {florilegium visitor={seed=3, role=butterfly, size=2.6cm}};
+  \end{tikzpicture}
+  \vfill
+\end{center}
+\clearpage
+
+\tableofcontents
+\clearpage
+
+\directlua{tex.print(florilegiummanual.book())}
+
+\end{document}

@@ -2,11 +2,13 @@ LUALATEX = $(RUN) lualatex -interaction=nonstopmode -halt-on-error
 SEEDS   ?= 1 2 3 4 5 6
 # RUN=tools/in-docker builds inside the florilegium-tex image (see tools/Dockerfile)
 RUN     ?=
-LUA      = florilegium-ink.lua florilegium-flora.lua florilegium.lua florilegium-initial.lua florilegium-figures.lua florilegium-theme-geometric.lua florilegium-theme-math.lua
+LUA      = florilegium-ink.lua florilegium-flora.lua florilegium-species.lua florilegium-pgfmath.lua florilegium-native.lua florilegium.lua florilegium-initial.lua florilegium-figures.lua florilegium-theme-geometric.lua florilegium-theme-math.lua
 GS      ?= gs
 SEED    ?= 7
+# the manual and the zip are dated by the last commit, so the same commit gives the same bytes
+EPOCH   ?= $(shell git log -1 --format=%ct 2>/dev/null || date +%s)
 
-all: florilegium.pdf florilegium-grow.pdf showcase.pdf spread.pdf
+all: florilegium.pdf florilegium-grow.pdf showcase.pdf spread.pdf florilegium-doc.pdf
 
 # authored composition (florilegium-authored.lua), one pass, about a second a page
 florilegium.pdf: florilegium.tex florilegium.sty florilegium-authored.lua florilegium-grow.lua $(LUA) text-methods.tex text-sharing.tex
@@ -26,6 +28,20 @@ showcase.pdf: showcase.tex florilegium.sty florilegium-grow.lua $(LUA)
 # right-hand pages; its last page is grown from the math theme
 spread.pdf: spread.tex florilegium.sty florilegium-grow.lua $(LUA)
 	$(LUALATEX) spread.tex
+
+# the manual (texdoc florilegium), typeset from docs/*.md and README.md by docs/manual.lua;
+# three passes from nothing (the contents fill two pages, which moves every page after them),
+# so the same commit gives the same bytes whatever an earlier build left behind
+florilegium-doc.pdf: florilegium-doc.tex docs/manual.lua $(wildcard docs/*.md) README.md florilegium.sty tikzlibraryflorilegium.code.tex tikzlibraryflorilegium.tables.code.tex $(LUA)
+	rm -f florilegium-doc.aux florilegium-doc.toc florilegium-doc.out
+	for pass in 1 2 3; do SOURCE_DATE_EPOCH=$(EPOCH) FORCE_SOURCE_DATE=1 $(LUALATEX) florilegium-doc.tex > /dev/null || exit 1; done
+	@grep -q "Rerun to get" florilegium-doc.log && { echo "florilegium-doc.pdf still asks for another pass"; exit 1; } || true
+
+# the package as one folder, for CTAN and the release (tools/zip.py lists what goes in):
+#   make zip RUN=tools/in-docker  ->  build/florilegium.zip
+zip: florilegium-doc.pdf tools/zip.py
+	mkdir -p build
+	SOURCE_DATE_EPOCH=$(EPOCH) $(RUN) python3 tools/zip.py build/florilegium.zip
 
 # one of every primitive, drawn with \florilegiumdraw; the same for the math theme
 specimen.pdf: specimen.tex florilegium.sty $(LUA)
@@ -62,7 +78,7 @@ gallery: gallery.tex florilegium.sty florilegium-grow.lua $(LUA) tools/gallery.p
 grow-%: animation.tex florilegium.sty florilegium-grow.lua $(LUA) tools/animate.py
 	python3 tools/animate.py --seed $* --run "$(RUN)" $(if $(EXPLAIN),--explain)
 
-# the README's animations (seed 6: all four visitors)
+# the README's animations (seed 6)
 animation:
 	$(MAKE) grow-6 RUN="$(RUN)"
 	$(MAKE) grow-6 RUN="$(RUN)" EXPLAIN=1
@@ -84,6 +100,16 @@ postscript: postscript/florilegium.ps
 # the PostScript port's tests (postscript/README.md), ~10 s:  make pscheck
 pscheck:
 	GS=$(GS) postscript/check.sh
+
+# luacheck over the Lua (.luacheckrc says which files, and what it allows)
+luacheck:
+	$(RUN) luacheck .
+
+# l3build's regression tests (build.lua, testfiles/), ~10 s: each test's pages, every drawing
+# on them by its md5, against the log saved beside it; after an intended change:
+# $(RUN) l3build save <test>, and look at the pages
+check:
+	$(RUN) l3build check
 
 preview: florilegium.pdf florilegium-grow.pdf showcase.pdf spread.pdf specimen-geometric.pdf ornaments.pdf build/geometric.pdf build/math.pdf
 	mkdir -p gallery build
@@ -110,11 +136,32 @@ svg: florilegium-svg.lua florilegium-grow.lua florilegium-authored.lua $(LUA)
 	mkdir -p build
 	$(RUN) texlua florilegium-svg.lua --seed $(SEED) -o build/svg-$(SEED).svg
 
+# an earlier release's margin against this tree's, and the TikZ library's engines, timed on
+# this machine; prints a Markdown table (a few minutes; pure TikZ under pdfLaTeX is most of it)
+#   make bench RUN=tools/in-docker [OLD=v1.3]
+OLD ?= v1.3
+bench: tools/bench.sh tools/bench.tex tools/bench-tikz.tex florilegium.sty tikzlibraryflorilegium.code.tex $(LUA)
+	rm -rf build/bench && mkdir -p build/bench/$(OLD)
+	git archive $(OLD) | tar -x -C build/bench/$(OLD)
+	$(RUN) sh tools/bench.sh build/bench/$(OLD)
+
+# the GitHub social image (tools/social.tex), 1280 x 640 px, printed as a cyanotype. It is
+# drawn at twice the size and scaled down, and its darkness (Rec. 709 luma) is mapped from
+# Delft blue (the paper) to paper white (the darkest ink) -> gallery/social.png (pdftoppm, Pillow)
+social: tools/social.tex tools/social.lua tools/hershey/scripts.jhf florilegium.sty tikzlibraryflorilegium.code.tex tikzlibraryflorilegium.tables.code.tex $(LUA)
+	mkdir -p build gallery
+	$(LUALATEX) -output-directory=build tools/social.tex
+	pdftoppm -png -r 144 -singlefile build/social.pdf build/social-2x
+	python3 -c "from PIL import Image, ImageOps; \
+	  im = Image.open('build/social-2x.png').convert('RGB').resize((1280, 640), Image.LANCZOS); \
+	  dark = ImageOps.invert(im.convert('L', (0.2126, 0.7152, 0.0722, 0))); \
+	  ImageOps.colorize(dark, '#132a63', '#fffdf8').save('gallery/social.png', optimize=True)"
+
 # the playground in web/, served from the repository: http://localhost:8000/web/
 playground:
 	python3 -m http.server 8000
 
 clean:
-	rm -rf build *.aux *.log *.out *.synctex.gz
+	rm -rf build *.aux *.log *.out *.toc *.synctex.gz
 
-.PHONY: all gallery animation preview postscript pscheck svg playground clean
+.PHONY: all zip gallery animation preview postscript pscheck luacheck check svg bench social playground clean

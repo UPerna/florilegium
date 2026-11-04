@@ -1,0 +1,257 @@
+% specimen-tikz.tex -- florilegium's species drawn in TikZ (\usetikzlibrary{florilegium}).
+% Under pdfLaTeX pgfmath computes and TikZ draws (pure TikZ, the proof, about 10 minutes);
+% under LuaLaTeX florilegium-native.lua draws the same plants with the same random draws,
+% computed in doubles (engine=lua, the library's default there), within a fraction of a
+% point of pure TikZ's, in seconds. \pgfkeys{/florilegium/engine=tikz} draws in pure TikZ
+% under LuaLaTeX too.
+% Page 1: two margins' worth of plants, three species each, grown as florilegium-grow.lua
+% grows a margin; page 2: each body plan's flower and leaf close up, and one plant through
+% the seasons; page 3: every flower form as its plant holds it; page 4: every kind of
+% cluster, and one cluster through the seasons; pages 5 and 6: every kind of leaf, by its
+% blade, its edge and veins, and compound; page 7: fronds, and one fern through the year;
+% page 8: the visitors, one or two of each kind.
+% Copyright (c) 2026 Kevin Raymond. MIT License.
+%   lualatex specimen-tikz.tex
+%   extra_mem_top=20000000 pdflatex specimen-tikz.tex
+% pdfLaTeX keeps a page's drawing in main memory until the page is shipped out. One strip
+% of plants in v1.3's detail takes about 7 million words of it, and the fullest page here
+% about 12.5 million, far more than pdfTeX's default 5 million: extra_mem_top raises it
+% for the run. LuaLaTeX's memory grows as needed.
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=12mm]{geometry}
+\usepackage{tikz}
+\usetikzlibrary{florilegium}
+\pagestyle{empty}
+\setlength\parindent{0pt}
+\newcommand\traits[2]{% #1 seed, #2 role: a few of the species' traits, for a caption
+  \florilegiumspecies{#1}{#2}%
+  \florilegiumtrait{plan} #1: \florilegiumtrait{merosity}~parts, \florilegiumtrait{form},
+  \florilegiumtrait{inflo}, \florilegiumtrait{color}, for \florilegiumtrait{syndrome};
+  \florilegiumtrait{compound} \florilegiumtrait{leafmargin} leaves, \florilegiumtrait{arrangement}}
+\newcommand\closeup[2]{% #1 plan, #2 seed: its flower and leaf, and a caption
+  \begin{tikzpicture}
+    \pic at (1.4,1.6) {florilegium flower={seed=#2, role=#1, size=2.6cm}};
+    \pic at (3.6,0) {florilegium leaf={seed=#2, role=#1, size=3.4cm}};
+  \end{tikzpicture}\par
+  \parbox{5.4cm}{\raggedright\scriptsize\traits{#2}{#1}.}}
+\newcommand\held[4]{% #1 role, #2 seed, #3 season, #4 what it is: the species' flowers as it holds them
+  \begin{minipage}[b]{0.245\linewidth}\centering
+    \begin{tikzpicture}\pic {florilegium inflorescence={seed=#2, role=#1, scale=1.3, season=#3}};\end{tikzpicture}\par
+    \smallskip{\scriptsize #4\\ \textit{#1 #2}}\par\medskip
+  \end{minipage}}
+\newcommand\visit[4][2.6cm]{% [its size] #2 role, #3 seed, #4 the visitor in words
+  \begin{minipage}[b]{0.245\linewidth}\centering
+    \begin{tikzpicture}\pic {florilegium visitor={seed=#3, role=#2, size=#1}};\end{tikzpicture}\par
+    \smallskip{\scriptsize #4\\ \textit{#2 #3}}\par\medskip
+  \end{minipage}}
+\newcommand\leafof[4][2.9cm]{% [its length] #2 role, #3 seed, #4 what it shows: the species' leaf
+  \begin{minipage}[b]{0.163\linewidth}\centering
+    \begin{tikzpicture}\pic {florilegium leaf={seed=#3, role=#2, size=#1}};\end{tikzpicture}\par
+    \smallskip{\scriptsize #4\\ \textit{#2 #3}}\par\medskip
+  \end{minipage}}
+\begin{document}
+{\Large Species in TikZ}\par\smallskip
+{\small Each plant is a species sampled from a genome (body plan, the visitor its flowers are
+for, the flower, its cluster, the leaf, the fruit) and painted in florilegium's v1.3
+hand. Under pdfLaTeX, pgfmath computes every point and TikZ draws it; under LuaLaTeX, Lua takes
+the same steps with the same random draws, within a fraction of a point, a hundred times sooner.
+Three species share a root, as a margin's main stems do: stems and
+the flowers at their tops first, then leaves at the nodes, then branches wherever there is
+room, a pale flower of the first behind them.}\par\medskip
+\begin{tikzpicture}
+  \pic at (0,0) {florilegium plants={plants={3/rose,17/umbellifer,29/mustard}, size=21cm, width=6cm}};
+  \pic at (9.3,0) {florilegium plants={plants={3/daisy,17/lily,29/rose}, size=21cm, width=6cm}};
+\end{tikzpicture}\par\medskip
+{\scriptsize\begin{minipage}[t]{0.48\linewidth}\raggedright
+  \traits{3}{rose}.\\ \traits{17}{umbellifer}.\\ \traits{29}{mustard}.\end{minipage}\hfill
+\begin{minipage}[t]{0.48\linewidth}\raggedright
+  \traits{3}{daisy}.\\ \traits{17}{lily}.\\ \traits{29}{rose}.\end{minipage}}
+\newpage
+{\large Each body plan close up}\par\medskip
+\begin{minipage}[t]{0.32\linewidth}\closeup{rose}{17}\end{minipage}\hfill
+\begin{minipage}[t]{0.32\linewidth}\closeup{mustard}{3}\end{minipage}\hfill
+\begin{minipage}[t]{0.32\linewidth}\closeup{daisy}{29}\end{minipage}\par\bigskip
+\begin{minipage}[t]{0.32\linewidth}\closeup{umbellifer}{3}\end{minipage}\hfill
+\begin{minipage}[t]{0.32\linewidth}\closeup{lily}{29}\end{minipage}\hfill
+\begin{minipage}[t]{0.32\linewidth}\closeup{rose}{29}\end{minipage}\par\bigskip
+{\large One plant through the year}\par\medskip
+\begin{tikzpicture}
+  \foreach \a/\name [count=\k from 0] in {0.3/spring,0.75/summer,1.25/autumn}{
+    \pic at (\k*6.2,0) {florilegium plant={seed=17, role=rose, size=8.5cm, width=5.2cm, season=\a}};
+    \node[font=\footnotesize] at (\k*6.2,-0.4) {\name};
+  }
+\end{tikzpicture}\par
+{\footnotesize Rose 17 in spring, summer and autumn: its flowers open from the top of the
+plant down, so the top is the first to open and the first to turn to hips.}
+\newpage
+{\large Every flower form, as its plant holds it}\par\medskip
+{\small A species' flowers face the way its kind holds them: a rose or a daisy face on, a
+pea, a mint or an orchid in profile, bells and columbines nodding, trumpets at a tilt, and a
+lily as its tepals are, in a trumpet or swept back. Each is the inflorescence pic at 1.3
+times a margin's scale, labeled with the role
+and seed that draw it; red and orange flowers are painted in the copper.}\par\bigskip
+\held{rose}{6}{0.75}{rose}\hfill
+\held{eudicot}{110}{0.75}{wheel of free petals}\hfill
+\held{eudicot}{12}{0.75}{wheel of fused lobes}\hfill
+\held{daisy}{3}{0.75}{daisy head}\par
+\held{mustard}{1}{0.75}{cross of four petals, along a raceme}\hfill
+\held{pea}{5}{0.75}{pea flowers, along a raceme}\hfill
+\held{mint}{5}{0.75}{two-lipped flowers, along a raceme}\hfill
+\held{columbine}{7}{0.75}{columbine, five spurs}\par
+\held{heath}{20}{0.75}{nodding bells, along a raceme}\hfill
+\held{heath}{8}{0.75}{urns, along a raceme}\hfill
+\held{eudicot}{31}{0.75}{tube}\hfill
+\held{eudicot}{38}{0.75}{trumpet}\par
+\held{eudicot}{16}{0.75}{flat-faced tube}\hfill
+\held{lily}{3}{0.75}{trumpet lily}\hfill
+\held{lily}{25}{0.75}{lily, its tepals swept back}\hfill
+\held{catkin}{1}{0.75}{hanging catkins}\par
+\held{monocot}{230}{0.75}{narcissus, a short cup}\hfill
+\held{monocot}{463}{0.75}{daffodil, a long trumpet}\hfill
+\held{iris}{5}{0.75}{iris, falls and standards}\hfill
+\held{iris}{11}{0.75}{orchid, a broad lip}\par
+\newpage
+{\large Every kind of cluster}\par\medskip
+{\small The plant's flowers grow together as its genome says, and they open in order: from
+the base up along a raceme, a spike, a panicle or a thyrse, from the outside in across a
+corymb, an umbel or a head, from the center out in a forked cyme, and along the coil of a
+coiled cyme as it unrolls.}\par\bigskip
+\held{any}{6}{0.75}{raceme}\hfill
+\held{any}{87}{0.75}{spike}\hfill
+\held{any}{147}{0.75}{panicle}\hfill
+\held{any}{156}{0.75}{thyrse}\par
+\held{any}{34}{0.75}{corymb}\hfill
+\held{any}{31}{0.75}{umbel}\hfill
+\held{any}{14}{0.75}{compound umbel}\hfill
+\held{any}{217}{0.75}{forked cyme (dichasium)}\par
+\held{any}{16}{0.75}{coiled cyme}\hfill
+\held{pea}{27}{0.75}{round head}\hfill
+\begin{minipage}[b]{0.245\linewidth}\mbox{}\end{minipage}\hfill
+\begin{minipage}[b]{0.245\linewidth}\mbox{}\end{minipage}\par\bigskip
+{\large One cluster through the year}\par\medskip
+\held{any}{156}{0.3}{spring}\hfill
+\held{any}{156}{0.75}{summer}\hfill
+\held{any}{156}{1.05}{late summer}\hfill
+\held{any}{156}{1.25}{autumn}\par
+{\footnotesize Thyrse 156 opens from the base up: in spring the lowest flowers open among
+buds, by late summer the lowest have set fruit, and by autumn only the top is still in flower.}
+\newpage
+{\large Every leaf, by its blade, tip, base and stalk}\par\medskip
+{\small A species' leaf is drawn from its traits, which set the blade's outline and how long
+it is for its width, its tip and its base, its stalk and the stipules at its foot, its edge,
+its veins, and whether its tip curls over. Each leaf here is the leaf pic of the species named
+under it, labeled with the trait it shows; the others are that species' own.}\par\bigskip
+{\small\itshape Blades}\par\smallskip
+\leafof{heath}{174}{linear}\hfill
+\leafof{eudicot}{1849}{lanceolate}\hfill
+\leafof{eudicot}{2076}{elliptic}\hfill
+\leafof{eudicot}{577}{ovate}\hfill
+\leafof{eudicot}{180}{obovate}\hfill
+\leafof{eudicot}{854}{oblong}\par
+\leafof{eudicot}{344}{orbicular}\hfill
+\leafof{eudicot}{172}{heart-shaped (cordate)}\hfill
+\leafof{eudicot}{951}{kidney-shaped (reniform)}\hfill
+\leafof{eudicot}{1051}{triangular (deltoid)}\hfill
+\leafof{eudicot}{3263}{arrow-shaped (sagittate)}\hfill
+\leafof{eudicot}{408}{spear-shaped (hastate)}\par
+{\small\itshape Tips}\par\smallskip
+\leafof{eudicot}{624}{acute}\hfill
+\leafof{eudicot}{990}{acuminate}\hfill
+\leafof{eudicot}{638}{obtuse}\hfill
+\leafof{eudicot}{359}{rounded}\hfill
+\leafof{eudicot}{2612}{notched (emarginate)}\hfill
+\leafof{eudicot}{1519}{with a point (mucronate)}\par
+{\small\itshape Bases}\par\smallskip
+\leafof{eudicot}{648}{tapering (cuneate)}\hfill
+\leafof{eudicot}{620}{rounded}\hfill
+\leafof{eudicot}{1369}{truncate}\hfill
+\leafof{eudicot}{269}{cordate}\hfill
+\leafof{eudicot}{1487}{eared (auriculate)}\hfill
+\leafof{eudicot}{1561}{oblique}\par
+{\small\itshape Stalks}\par\smallskip
+\leafof{eudicot}{490}{on a stalk (petiolate)}\hfill
+\leafof{eudicot}{13}{sessile}\hfill
+\leafof{eudicot}{2961}{clasping}\hfill
+\leafof{eudicot}{1180}{small stipules}\hfill
+\leafof{rose}{94}{leafy stipules}\hfill
+\leafof{eudicot}{201}{hairy}\par
+\newpage
+{\large Every leaf edge and vein, and every compound leaf}\par\medskip
+{\small\itshape Edges}\par\smallskip
+\leafof{eudicot}{257}{entire}\hfill
+\leafof{eudicot}{353}{wavy (undulate)}\hfill
+\leafof{eudicot}{154}{serrate}\hfill
+\leafof{eudicot}{67}{doubly serrate}\hfill
+\leafof{eudicot}{151}{toothed (dentate)}\hfill
+\leafof{eudicot}{464}{scalloped (crenate)}\par
+\leafof{eudicot}{89}{lobed}\hfill
+\leafof{eudicot}{361}{cut deep (pinnatifid)}\hfill
+\leafof{eudicot}{2035}{palmately lobed, three}\hfill
+\leafof{eudicot}{497}{palmately lobed, seven}\hfill
+\leafof{eudicot}{1140}{toothed, round}\hfill
+\leafof{eudicot}{2402}{heart-shaped, palmate veins}\par
+{\small\itshape Veins and curls}\par\smallskip
+\leafof{eudicot}{624}{pinnate}\hfill
+\leafof{eudicot}{1424}{arcuate}\hfill
+\leafof{eudicot}{344}{palmate}\hfill
+\leafof{monocot}{2}{parallel}\hfill
+\leafof{eudicot}{47}{a curled tip}\hfill
+\leafof{eudicot}{278}{a tip bent aside}\par
+{\small\itshape Compound leaves}\par\smallskip
+\leafof[3.6cm]{rose}{13}{pinnate, leafy stipules}\hfill
+\leafof[3.6cm]{pea}{2}{pinnate, a tendril}\hfill
+\leafof[3.4cm]{umbellifer}{1}{twice pinnate}\hfill
+\leafof[2.4cm]{eudicot}{1011}{palmate}\hfill
+\leafof[2.3cm]{pea}{4}{in threes (trifoliate)}\hfill
+\leafof[3.6cm]{eudicot}{97}{pinnate, entire}\par
+\newpage
+{\large Ferns}\par\medskip
+{\small A fern's frond is divided once, twice or three times, its pinnae paired inside the
+blade's outline above a bare stalk. In spring each frond unrolls from a fiddlehead, the
+stalk lengthening first; from summer some fronds turn to show the sori beneath, and a
+dimorphic fern sends up a narrow fertile frond.}\par\bigskip
+\leafof[6cm]{fern}{11}{once divided}\hfill
+\leafof[6cm]{fern}{5}{twice divided}\hfill
+\leafof[6cm]{fern}{8}{three times divided}\hfill
+\leafof[6cm]{fern}{36}{triangular}\par\bigskip
+{\large One fern through the year}\par\medskip
+\foreach \a/\name in {0.25/early spring,0.4/spring,0.75/summer,1.25/autumn}{%
+  \begin{minipage}[b]{0.49\linewidth}\centering
+    \begin{tikzpicture}\pic {florilegium fern={seed=20, size=5.8cm, season=\a}};\end{tikzpicture}\par
+    \smallskip{\scriptsize \name\\ \textit{fern 20}}\par\medskip
+  \end{minipage}\hfill}\par
+{\footnotesize Fern 20 unrolls its fronds from fiddleheads in spring, each a little ahead of
+the season or behind it. From midsummer its fertile frond stands in the middle, beaded with
+spores and painted in the copper, and in autumn a frond turns.}
+\newpage
+{\large Visitors}\par\medskip
+{\small A visitor is sampled from a genome of its own, first its kind, then the traits that
+kind has (a butterfly's wing tips, edges, tails and the systems of its pattern, a bee's bands and
+hair, a dragonfly's tinted wings, a beetle's spots, a caterpillar's stripes, tufts and horn,
+a snail's whorls and spire, a bird's bill). In a margin each plant draws the visitor its
+flowers are for, a bee to a bee flower and a hawkmoth to a pale one that opens at dusk,
+and none comes to a plant the wind pollinates; a snail climbs a stem, a caterpillar feeds on
+a leaf of its own, a dragonfly or damselfly flies by the page's lily or grass, a ladybird climbs a stem, and a small
+bird perches on a twig.}\par\bigskip
+\visit[2.8cm]{butterfly}{4}{a blue butterfly with tails and a row of eyespots}\hfill
+\visit[2.8cm]{butterfly}{1}{an orange butterfly with toothed wings}\hfill
+\visit[2.6cm]{moth}{1}{a moth resting with its wings folded like a tent}\hfill
+\visit[3cm]{moth}{3}{a brown hawkmoth hovering}\par
+\visit[1.7cm]{honeybee}{5}{a honeybee with pollen on its legs}\hfill
+\visit[1.9cm]{bumblebee}{6}{a bumblebee with a pale tail}\hfill
+\visit[1.5cm]{solitarybee}{1}{a dark solitary bee}\hfill
+\visit[1.5cm]{hoverfly}{2}{a yellow-banded hoverfly}\par
+\visit[2.6cm]{dragonfly}{4}{a red dragonfly}\hfill
+\visit[2.4cm]{damselfly}{5}{a blue damselfly with tinted wings}\hfill
+\visit[1.6cm]{beetle}{4}{a blue beetle with striped wing cases}\hfill
+\visit[1.2cm]{ladybird}{1}{a red ladybird with seven black spots}\par
+\visit[1.8cm]{caterpillar}{3}{a caterpillar with tufts and a horn, on its bitten leaf}\hfill
+\visit[1.8cm]{caterpillar}{2}{a looping caterpillar}\hfill
+\visit[1.8cm]{snail}{4}{a pale snail with a banded shell}\hfill
+\visit[3cm]{perch}{12}{a russet seed-eater with a crest}\par
+\visit[3cm]{hummingbird}{1}{a nectar bird hovering}\hfill
+\begin{minipage}[b]{0.72\linewidth}\footnotesize Sizes are free here; in a margin a visitor is
+drawn at about its real size enlarged, the small ones most, as an illustrator enlarges them:
+a butterfly about 1.3~cm across and a bee 0.8~cm long, as v1.3's, and about three come to a
+page.\par\medskip\end{minipage}
+\end{document}

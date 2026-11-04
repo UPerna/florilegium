@@ -21,11 +21,10 @@ local ink = require("florilegium-ink")
 local figs = require("florilegium-figures")
 local FIG, FAM = figs.figures, figs.families
 local M = {}
-M.version = "1.3"                 -- the release; florilegium.lua checks that every file has the same
+M.version = "2.0.0"                 -- the release; florilegium.lua checks that every file has the same
 
-local sin, cos, sqrt, pi, abs, floor, max, min = math.sin, math.cos, math.sqrt, math.pi, math.abs, math.floor, math.max, math.min
+local sin, sqrt, pi, floor, max, min = math.sin, math.sqrt, math.pi, math.floor, math.max, math.min
 local tone = ink.tone
-local rad = pi / 180
 
 -- ---------------------------------------------------------------- what is set in TeX
 local GLYPHS = {
@@ -119,7 +118,6 @@ function M.page(g, grow)
       if ring then ink.stroke(c, 0.5) else ink.fill(c, 0.85, true) end
     end)
   end
-  local function inside(r, x, y) return x > r[1] and x < r[3] and y > r[2] and y < r[4] end
 
   -- 1. the corner figure, where the column meets the bottom
   local cw = col[3] - col[1]

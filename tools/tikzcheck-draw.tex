@@ -1,0 +1,13 @@
+% The drawings of tools/tikzcheck.lua: one pic per page from build/tikzcheck-draw.pics,
+% uncompressed, with \tikzcheckengine (tikz or lua) as the library's engine. LuaLaTeX.
+\pdfvariable compresslevel=0
+\pdfvariable objcompresslevel=0
+\documentclass{article}
+\usepackage[a4paper,margin=1cm]{geometry}
+\usepackage{tikz}
+\usetikzlibrary{florilegium}
+\pagestyle{empty}
+\begin{document}
+\edef\tikzcheckset{\noexpand\pgfkeys{/florilegium/engine=\tikzcheckengine}}\tikzcheckset
+\input{build/tikzcheck-draw.pics}
+\end{document}

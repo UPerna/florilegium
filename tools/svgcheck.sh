@@ -17,7 +17,10 @@ pages='--seed 7
 --seed 11 --paper letter --season spring --ink 1D6E7A --accent C9A227 --novisitors
 --seed 5 --density 0.05 --intensity 0.5 --nohead
 --seed 9 --theme math --textend 90mm
+--seed 4 --page 2 --twoside --left 25mm --right 65mm --season autumn
+--seed 3 --season spring
 --seed 4 --paper 120x200 --left 36mm --right 12mm --top 36mm --bottom 12mm --textend 50mm --nohead --bleed 14mm
+--authored --bleed 6mm
 --authored'
 
 status=0

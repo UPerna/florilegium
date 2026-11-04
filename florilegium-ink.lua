@@ -12,7 +12,7 @@
 -- computed in OKLCH so the light end stays blue instead of turning gray.
 
 local M = {}
-M.version = "1.3"                 -- the release; florilegium.lua checks that every file has the same
+M.version = "2.0.0"                 -- the release; florilegium.lua checks that every file has the same
 
 local fmt, floor, sqrt, sin, cos, atan, pi, abs = string.format, math.floor, math.sqrt, math.sin, math.cos, math.atan, math.pi, math.abs
 local concat = table.concat
@@ -39,10 +39,33 @@ function M.rng(seed)
   function r.pick(t) return t[1 + floor(#t * r.u())] end
   function r.normal() local u1 = math.max(r.u(), 1e-12) return sqrt(-2 * math.log(u1)) * cos(2 * pi * r.u()) end
   function r.fork() return M.rng(floor(r.u() * 4294967295)) end   -- an independent stream
+  -- the i in 1..n with the largest w[i] * range(lo, hi), drawing for each i (only those with
+  -- near[i] <= reach, given near): the growth's search for room, the same draws and the same
+  -- numbers as calling range in a loop, the generator inlined (a fifth of a page's time)
+  function r.best(w, n, lo, hi, near, reach)
+    local best, bi, d, st = -1, nil, hi - lo, s
+    for i = 1, n do
+      if not near or near[i] <= reach then
+        st = (st + 0x6D2B79F5) & 0xffffffff
+        local t = ((st ~ (st >> 15)) * (st | 1)) & 0xffffffff
+        t = (t ~ (t + (((t ~ (t >> 7)) * (t | 61)) & 0xffffffff))) & 0xffffffff
+        local v = w[i] * (lo + d * (((t ~ (t >> 14)) & 0xffffffff) / 4294967296))
+        if v > best then best, bi = v, i end
+      end
+    end
+    s = st
+    return best, bi
+  end
   function r.save() return s end                                  -- replay a draw (animation)
   function r.load(v) s = v end
   return r
 end
+
+-- pgf's own random generator, replayed step for step (\pgfmathsetseed, rnd, rand, random),
+-- so that a species drawn by TikZ and by Lua from the same seed makes the same choices. It
+-- lives in florilegium-pgfmath.lua with the rest of what reimplements pgf, under that file's
+-- license (the LaTeX Project Public License 1.3c)
+M.pgfrng = require("florilegium-pgfmath").pgfrng
 
 -- ---------------------------------------------------------------- noise
 -- 1-D gradient noise with a seeded gradient table, smooth, roughly in [-1,1]
@@ -197,11 +220,6 @@ function M.set_pale(v) local old = pale pale = v return old end
 local T = { CM, 0, 0, CM, 0, 0 }           -- current transform: local cm -> page bp
 local stack = {}
 
-local function mul(A, B)                   -- A then B, i.e. B(A(p))
-  return { B[1] * A[1] + B[3] * A[2], B[2] * A[1] + B[4] * A[2],
-           B[1] * A[3] + B[3] * A[4], B[2] * A[3] + B[4] * A[4],
-           B[1] * A[5] + B[3] * A[6] + B[5], B[2] * A[5] + B[4] * A[6] + B[6] }
-end
 function M.set_transform(t) T = t end
 -- the page: cm from the lower-left corner of the paper -> bp. With `mirror` (the
 -- paper width in cm) x becomes mirror - x: a garden laid out in the left margin
@@ -255,9 +273,26 @@ local function gs(op, mult)
   return name
 end
 
+-- the extent of what is drawn, while tracked (a TikZ pic tells pgf its size): page bp.
+-- What is drawn inside a clip lies within the clip's path, which counts already, so it
+-- adds nothing (a petal's wash, a rectangle larger than the petal, would)
+local box, clipped = nil, 0
+function M.track(on)
+  local b = box
+  box = on and { math.huge, math.huge, -math.huge, -math.huge } or nil
+  clipped = 0
+  return b
+end
 -- 0.1 bp (0.035 mm) is finer than any printer resolves
 local function P(x, y)
-  return fmt("%.1f %.1f", T[1] * x + T[3] * y + T[5], T[2] * x + T[4] * y + T[6])
+  local px, py = T[1] * x + T[3] * y + T[5], T[2] * x + T[4] * y + T[6]
+  if box and clipped == 0 then
+    if px < box[1] then box[1] = px end
+    if py < box[2] then box[2] = py end
+    if px > box[3] then box[3] = px end
+    if py > box[4] then box[4] = py end
+  end
+  return fmt("%.1f %.1f", px, py)
 end
 
 -- path construction: polyline or smooth (Catmull-Rom as Béziers) through points {{x,y},...}
@@ -312,8 +347,8 @@ function M.stroke(c, w, op, mult, dash)
   if g then put("q /" .. g .. " gs " .. s .. " Q") else put("q " .. s .. " Q") end
 end
 -- clip to the current path until the matching unclip()
-function M.clip() put("q " .. take() .. " W n") end
-function M.unclip() put("Q") end
+function M.clip() put("q " .. take() .. " W n") clipped = clipped + 1 end
+function M.unclip() put("Q") clipped = clipped - 1 end
 function M.discard() path = {} end
 -- paint the whole of the current clip (inside a clip(), cheaper than repeating the path)
 function M.flood(c, x0, y0, x1, y1)
@@ -343,6 +378,9 @@ function M.flush()
   layers, tags = {}, {}
   return literal(parts)
 end
+-- forget what was drawn since the last flush, unwritten: a drawing that failed part way (a
+-- TikZ pic) may have left a clip open, which would clip the rest of the page
+function M.drop() path, layers, tags, clipped = {}, {}, {}, 0 end
 
 -- hand over what was recorded instead of writing it: { keys, layers, tags }
 function M.take_recording()
@@ -354,9 +392,9 @@ end
 function M.emit(rec, keep)
   local parts = {}
   for _, k in ipairs(rec.keys) do
-    local L, T, out = rec.layers[k], rec.tags[k], {}
+    local L, tagged, out = rec.layers[k], rec.tags[k], {}
     for i = 1, #L do
-      local t = T[i]
+      local t = tagged[i]
       if t == nil or keep(t) then out[#out + 1] = L[i] end
     end
     if #out > 0 then parts[#parts + 1] = concat(out, "\n") end

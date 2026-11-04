@@ -18,7 +18,7 @@ const PAPERS = {
 const TOP = 32, BOTTOM = 30, INNER = 22, MINTEXT = 60, MINMARGIN = 30     // mm, as florilegium-grow.tex
 const INKS = [['Delft blue', '2456C4'], ['teal', '1D6E7A'], ['viridian', '2F6B4F'], ['sepia', '5B2A1F'], ['madder', '8E1B3A'], ['indigo', '4B3B8F']]
 const ACCENTS = [['copper', 'B4662F'], ['ochre', 'C9A227'], ['madder', '8E1B3A'], ['cobalt', '2456C4']]
-const STYLES = [['flora', 'a flowering plant'], ['geometric', 'a plant cut from flat shapes'], ['math', 'a cascade of figures and equations']]
+const STYLES = [['flora', 'flowering plants'], ['geometric', 'a plant cut from flat shapes'], ['math', 'a cascade of figures and equations']]
 // each density is a whole phrase, so the sentence reads at every one of them
 const DENSITY = [[1, 'at full density'], [0.75, 'at three-quarter density'], [0.5, 'at half density'], [0.25, 'at quarter density'], [0.05, '']]
 const SPARSEST = { flora: 'pared down to a single vine', geometric: 'pared down to a single stem', math: 'pared down to a few figures' }
@@ -35,6 +35,9 @@ const DEFAULTS = {
   ink: '2456C4', accent: 'B4662F', visitors: true, last: false, end: 45, head: true, seen: '', tab: 'latex',
 }
 const state = { ...DEFAULTS }
+// the flowering plants are species, each stem a plant of its own sampled from a genome;
+// the geometric theme grows v1.3's garden, the math theme figures
+const isSpecies = () => state.style === 'flora'
 
 const paper = () => PAPERS[state.paper]
 const maxMargin = () => Math.min(100, Math.floor(paper().w - INNER - MINTEXT))
@@ -88,6 +91,10 @@ function options(seed = state.seed) {
   if (state.last) o.textend = endMM() + 'mm'
   return o
 }
+// the options that change what grows (not its colors or the head rule): the page text
+// tells only a garden grown with these, so it never describes the last one while the next grows
+const GROWN = ['seed', 'paper', 'left', 'right', 'season', 'theme', 'density', 'visitors', 'textend']
+const grownKey = (o = options()) => GROWN.map((k) => o[k]).join('|')
 
 // ---------------------------------------------------------------- the colophon
 const term = (k, text) => `<button class="term" data-k="${k}" aria-haspopup="listbox" aria-expanded="false">${esc(text)}</button>`
@@ -95,8 +102,9 @@ function colophon() {
   const s = state, P = paper()
   const what = isMath() ? 'figures' : 'garden'
   // a seed that no visitor came to says so, or the switch would seem to do nothing
-  const counts = current && current.stats && current.stats.counts
-  const none = counts && !VISITORS.some((k) => counts[k] > 0) ? ', though none came to this seed' : ''
+  const counts = current && current.key === grownKey() && current.stats && current.stats.counts
+  const vs = current && current.key === grownKey() && current.stats && current.stats.visitors   // species: the visitors that came
+  const none = counts && (vs ? !vs.length : !VISITORS.some((k) => counts[k] > 0)) ? ', though none came to this seed' : ''
   return `This proof is ${P.art} ${term('paper', P.name)} page, its ${what} in a ${term('margin', s.margin + ' mm')} margin on the
     ${term('side', s.side)}. It grew from seed <span class="nowrap"><button class="stepper" data-step="-1" aria-label="Previous seed">‹</button>${term('seed', s.seed)}<button class="stepper" data-step="1" aria-label="Next seed">›</button></span>
     ${isMath() ? '' : `in ${term('season', s.season)}, `}as ${term('style', styleName())} ${term('density', densityWord(s.density))}, and it is
@@ -311,10 +319,15 @@ function layout() {
   const full = g.ytop - g.ybot, h = state.last ? full * state.end / 100 : full
   const text = $('#text')
   Object.assign(text.style, { left: pct(x0 / g.pw), width: pct((x1 - x0) / g.pw), top: pct((g.ph - g.ytop) / g.ph), height: pct(h / g.ph) })
-  $('#proof').style.setProperty('--fs', (11 / 72.27 * 2.54 / g.pw * 100).toFixed(4) + 'cqw')
+  const proof = $('#proof')
+  proof.style.setProperty('--fs', (11 / 72.27 * 2.54 / g.pw * 100).toFixed(4) + 'cqw')
+  // the flower that shows while a garden grows: in the middle of the margin, in its ink
+  proof.style.setProperty('--sx', pct((state.side === 'left' ? x0 / 2 : (x1 + g.pw) / 2) / g.pw))
+  proof.style.setProperty('--sprout-ink', '#' + state.ink)
+  proof.style.setProperty('--sprout-accent', '#' + state.accent)
   const folio = $('#folio')
   Object.assign(folio.style, { left: text.style.left, width: text.style.width, top: `calc(${pct((g.ph - g.ybot + 1.054) / g.ph)} - 0.9em)` })
-  folio.hidden = state.last
+  folio.hidden = false                       // LaTeX prints it on a last page too; a species garden leaves its line clear
   Object.assign($('#foot').style, { left: text.style.left, width: text.style.width, top: pct((g.ph - g.ytop + h) / g.ph) })
   $('#foot-label').textContent = state.last ? `⌄ the text ends here, ${endMM()} mm down` : '⌃ drag up to end the text here'
   $('#foot').setAttribute('aria-valuetext', state.last ? `the text ends ${endMM()} millimeters down` : 'the text runs the full page')
@@ -390,12 +403,17 @@ const NAMES = {
   leaf: ['leaf on a stalk of its own', 'leaves on stalks of their own'], bud: ['bud', 'buds'], bells: ['stem of bells', 'stems of bells'],
   tendril: ['tendril', 'tendrils'], budding: ['budding stem', 'budding stems'], seedhead: ['seed head', 'seed heads'],
   crystal: ['crystal', 'crystals'], butterfly: ['butterfly', 'butterflies'], bee: ['bee', 'bees'], snail: ['snail', 'snails'], bird: ['bird', 'birds'],
+  // species: what the page's plants carry, counted together (florilegium-grow.lua's groups)
+  'g:unit': ['flowering shoot', 'flowering shoots'], 'g:bloom': ['single large flower', 'single large flowers'],
+  'g:spray': ['smaller shoot', 'smaller shoots'], 'g:budding': ['stalk of buds', 'stalks of buds'],
+  'g:leaf': ['leaf on a stalk of its own', 'leaves on stalks of their own'], 'g:tendril': ['tendril', 'tendrils'],
 }
 const VISITORS = ['butterfly', 'bee', 'snail', 'bird']
 const count = (n, name) => `${n === 1 ? (/^[aeiou]/.test(NAMES[name][0]) ? 'an' : 'a') : say(n)} ${NAMES[name][n === 1 ? 0 : 1]}`
 const list = (xs) => xs.length < 2 ? xs.join('') : xs.slice(0, -1).join(', ') + ' and ' + xs[xs.length - 1]
 
 function pageText(m) {
+  if (m && m.key !== grownKey()) m = null
   const s = state, inkN = named(s.ink, INKS), accN = named(s.accent, ACCENTS)
   const counts = (m && m.stats && m.stats.counts) || {}
   const P = []
@@ -407,20 +425,49 @@ function pageText(m) {
       in the tones of ${inkN} and in ${accN}. In a PDF TeX sets them; here MathJax does, in the same Computer Modern.`)
   } else {
     const stems = s.density >= 0.6 ? 3 : s.density >= 0.25 ? 2 : 1
-    P.push(`This margin was grown, not drawn. ${upper(say(stems))} stem${stems > 1 ? 's' : ''} rose from a root in the lower corner of the margin.
-      ${stems > 1 ? `The tallest reached the head of the page and opened the largest flower there; the other${stems > 2 ? 's stopped at about two thirds and two fifths' : ' stopped at about two thirds'} of the height.` : 'It climbed to the head of the page and opened a flower there.'}`)
+    const sp = isSpecies(), plants = sp && m && m.stats && m.stats.species
+    P.push(`This margin was grown, not drawn. ${upper(say(stems))} stem${stems > 1 ? 's' : ''} rose from a root in the lower corner of the margin${sp && stems > 1 ? ', each a plant of its own species' : ''}.
+      ${stems > 1 ? `The tallest reached the head of the page and ${sp ? 'flowered' : 'opened the largest flower'} there; the other${stems > 2 ? 's stopped at about two thirds and two fifths' : ' stopped at about two thirds'} of the height.` : `It climbed to the head of the page and ${sp ? 'flowered' : 'opened a flower'} there.`}`)
+    // species: how they were chosen, then each plant that grew, in the words of florilegium-species.lua's describe()
+    if (plants) {
+      const grew = plants.filter((p) => p.grew), mains = grew.filter((p) => p.role !== 'spray')
+      P.push(`Each species was sampled from a genome in steps (monocot or eudicot, a body plan, the visitor its flowers are for, then
+        the traits those allow), so that no lily ever has five petals. Seed ${s.seed} chose eight species for the whole document, and
+        this page grows ${say(grew.length)} of them.`)
+      const who = (p) => p.role === 'spray' ? 'The stem along the foot of the page' : mains.length === 1 ? 'The stem'
+        : p === mains[0] ? 'The tallest stem' : mains.length === 2 ? 'The other' : p === mains[1] ? 'The second' : 'The third'
+      P.push(grew.map((p) => `${who(p)} bears ${p.text[0].toLowerCase()}${p.text.slice(1)}`).join(' '))
+      // the document's fern, on the pages that have it (florilegium-grow.lua: stats.fern)
+      const fern = m.stats.fern
+      if (fern) {
+        P.push(`The document has a fern as well, which grows on some of its pages, and on this one it sends up ${say(fern.fronds)}
+          frond${fern.fronds === 1 ? '' : 's'} from the root beside the stems. It is ${fern.text[0].toLowerCase()}${fern.text.slice(1)}`)
+      }
+    }
     const grown = Object.keys(NAMES).filter((k) => !VISITORS.includes(k) && counts[k] > 0)
     const branches = grown.reduce((a, k) => a + counts[k], 0)
     if (m && m.stats && branches) {
       P.push(`Then the program looked for room. ${upper(say(branches))} times it found the largest empty space within reach of a stem, chose
-        something that would fit there, scaled it to the space and grew a branch out to it: ${list(grown.map((k) => count(counts[k], k)))}.
+        something ${sp ? "of that stem's own plant " : ''}that would fit there, scaled it to the space and grew a branch out to it: ${list(grown.map((k) => count(counts[k], k)))}.
         Each branch became stem in its turn, so the next could start from it, and ${m.stats.stems} points of stem now hold the garden together.`)
     }
     const came = VISITORS.filter((k) => counts[k] > 0)
-    P.push(!s.visitors ? 'Visitors were asked to stay away: no butterflies, bees, snails or birds.'
+    // species: each visitor in florilegium-species.lua's words, where it came (florilegium-grow.lua: stats.visitors)
+    const vs = sp && m && m.stats && m.stats.visitors
+    const an = (t) => `${/^[aeiou]/.test(t) ? 'an' : 'a'} ${t}`
+    const DID = { flowers: 'came to the flowers', monocot: 'flew by the monocot', stem: 'climbed a stem', leaf: 'fed on a leaf of its own', twig: 'perched on a twig' }
+    // what it did, with the words after a comma ("resting with its wings closed") after the verb
+    const visited = (v) => { const [head, ...tail] = v.text.split(', '); return `${an(head)} ${DID[v.at]}${tail.length ? ', ' + tail.join(', ') : ''}` }
+    const semi = (xs) => xs.length < 2 ? xs.join('') : xs.slice(0, -1).join('; ') + '; and ' + xs[xs.length - 1]
+    P.push(!s.visitors ? (sp ? 'Visitors were asked to stay away, so no insects, snails or birds came.' : 'Visitors were asked to stay away: no butterflies, bees, snails or birds.')
+      : vs && vs.length ? `Each visitor was sampled from a genome too, and came for what it lives on, as a plant's flowers draw the visitor they are made for.
+        On this page ${semi(vs.map(visited))}. Another seed brings others, or none.`
+      : vs ? 'No visitors came to this page. On another seed a bee works the flowers it is made for, a caterpillar eats a leaf or a ladybird climbs a stem; nothing here decides that but the seed.'
       : came.length ? `${upper(list(came.map((k) => count(counts[k], k))))} came to visit; another seed brings others, or none.`
       : 'No visitors came to this page. On another seed a butterfly crosses the margin, a bee works the flowers, or a snail climbs a stem; nothing here decides that but the seed.')
     P.push(s.season === 'summer' ? 'It is summer, and everything is in flower.'
+      : sp && s.season === 'spring' ? 'It is spring. Each plant opens its first flowers at the top; lower down they are still in bud.'
+      : sp ? `It is autumn. The flowers have turned to fruit, from the top of each plant down, and some leaves have turned ${accN}.`
       : s.season === 'spring' ? `It is spring. The shorter stems end in buds${counts.budding ? `, ${count(counts.budding, 'budding')} ${counts.budding === 1 ? 'opens' : 'open'} among them` : ''}, and the young leaves come small and pale.`
       : `It is autumn. ${counts.seedhead ? `${upper(count(counts.seedhead, 'seedhead'))} ${counts.seedhead === 1 ? 'stands' : 'stand'} where flowers were, and s` : 'S'}ome leaves have turned ${accN}; petals lie below the blooms that dropped them.`)
     if (s.style === 'geometric') {
@@ -453,9 +500,13 @@ function pageText(m) {
   P.push(isMath()
     ? `Nothing on this page is a stored picture. Every figure is computed from its formula while the page is written: Maurer's roses,
       Lissajous figures, Koch's snowflake, Hilbert's curve, the Petersen graph, Vogel's sunflower, and the seed chooses which, where and how large.`
+    : isSpecies()
+    ? `Nothing on this page is a picture of a flower. There are no stored shapes and no drawings to copy: a species is a list of
+      traits (how many petals and of what shape, how its flowers cluster, how deeply its leaves are cut, what fruit follows), and every
+      stem, leaf and petal is computed from them, each a little different from the last.`
     : `Nothing on this page is a picture of a flower. There are no stored shapes and no drawings to copy: every stem is a path along
       a noisy curve, every leaf a blade around its spine, every flower a ring of petals each a little different from the last, and the seed chooses all of it.`)
-  P.push(`Every page of a long document grows its own margin, from its own seed and fitted to its own space${isMath() ? '' : ', and the seasons can turn from the first page to the last'}.`)
+  P.push(`Every page of a long document grows its own margin, from its own seed and fitted to its own space${isSpecies() ? ', its plants drawn from the same eight species' : ''}${isMath() ? '' : ', and the seasons can turn from the first page to the last'}.`)
   $('#text').innerHTML = `<h2><span>1</span>Seed ${esc(s.seed)}</h2>` + P.map((p) => `<p>${esc(p.replace(/\s+/g, ' ').trim())}</p>`).join('')
   fit()
 }
@@ -491,7 +542,7 @@ function snippet() {
     if (s.accent !== DEFAULTS.accent) L.push(`\\definecolor{accent}{HTML}{${s.accent}}`)
     if (s.season !== 'summer' && !isMath()) L.push(`\\florilegiumage{${s.season === 'spring' ? 0 : 1}}`)
     L.push('\\begin{document}', '...', ...(s.last ? ['% the margin fills the space below:', '\\florilegiumtextend'] : ['% \\florilegiumtextend at the very end']), '\\end{document}')
-    return [L.join('\n'), `Page 1 of this document has this garden, and every page after it grows its own. Build it with lualatex${s.head ? '' : '; LaTeX always draws the head rule'}.`]
+    return [L.join('\n'), `Page 1 of this document has this garden, and every page after it grows its own${isSpecies() ? ' from the same eight species' : ''}. Build it with lualatex${s.head ? '' : '; LaTeX always draws the head rule'}.`]
   }
   if (s.tab === 'typst') {
     return [['#set page(', `  paper: "${P.typst}",`, `  margin: (left: ${left}mm, right: ${right}mm,`, `    top: ${TOP}mm, bottom: ${BOTTOM}mm),`,
@@ -542,7 +593,7 @@ function refresh(light) {
 
 // ---------------------------------------------------------------- the worker
 const worker = new Worker('worker.js')
-let ready = false, busy = false, pending = false, seq = 0, current = null, gardenURL = null, timer = null
+let ready = false, busy = false, pending = false, seq = 0, current = null, gardenURL = null, timer = null, sentKey = ''
 const soon = () => { clearTimeout(timer); timer = setTimeout(render, 250) }
 function status(t, error) { const g = $('#grown'); g.textContent = t; g.classList.toggle('error', !!error) }
 worker.onmessage = async (e) => {
@@ -562,28 +613,36 @@ function render() {
   if (busy) { pending = true; return }
   busy = true
   $('#proof').classList.add('growing')
-  status('The garden is growing…')
-  worker.postMessage({ id: ++seq, options: options() })
+  status(isSpecies() ? 'The species are growing; they take a few seconds…' : 'The garden is growing…')
+  const o = options()
+  sentKey = grownKey(o)
+  worker.postMessage({ id: ++seq, options: o })
 }
 async function show(m) {
   if (m.captions && m.captions.length) {
     try { m.svg = await withCaptions(m.svg, m.captions) } catch (err) { status(String(err.message || err), true) }
   }
   if (m.id !== seq) return
+  m.key = sentKey
   current = window.current = m
   geom = { pw: m.pw, ph: m.ph, x0: m.mirror ? m.pw - m.textright : m.textleft, x1: m.mirror ? m.pw - m.textleft : m.textright,
     ytop: m.ytop, ybot: m.ybot, key: JSON.stringify(options()) }
   if (gardenURL) URL.revokeObjectURL(gardenURL)
   gardenURL = URL.createObjectURL(new Blob([m.svg], { type: 'image/svg+xml' }))
   const img = $('#garden')
-  img.onload = () => $('#proof').classList.remove('growing')
+  // the text and the status tell what grew once the garden shows, not while its picture loads
+  const took = m.ms < 950 ? `${Math.max(10, Math.round(m.ms / 10) * 10)} milliseconds` : `${(m.ms / 1000).toFixed(1)} seconds`
+  img.onload = () => {
+    if (m.id !== seq) return   // another garden is growing: this one's picture tells nothing
+    $('#proof').classList.remove('growing')
+    pageText(m)
+    fit()
+    status(`This proof grew in ${took}, here in your browser.`)
+  }
   img.src = gardenURL
   layout()
-  pageText(m)
   refresh()
   $('#download').disabled = false
-  const took = m.ms < 950 ? `${Math.max(10, Math.round(m.ms / 10) * 10)} milliseconds` : `${(m.ms / 1000).toFixed(1)} seconds`
-  status(`This proof grew in ${took}, here in your browser.`)
 }
 
 $('#download').onclick = () => {

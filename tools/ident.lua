@@ -1,6 +1,8 @@
--- Write the content streams of 45 pages to a directory, one file each, without TeX:
--- five seeds of the grown composition, with and without the space under the text, in
--- summer, without visitors, in spring and in autumn with marks, and the authored one.
+-- Write the content streams of 65 pages to a directory, one file each, without TeX:
+-- five seeds of the grown composition (the species garden), with and without the space
+-- under the text, in summer, without visitors, in spring and in autumn with marks; the
+-- geometric theme (v1.3's garden in flat shapes) in summer and in autumn with marks; and
+-- the authored one.
 -- Run it before and after a change that should not move anything, and compare:
 --   texlua tools/ident.lua build/ident-before    (or: tools/in-docker texlua ...)
 --   ... change ...
@@ -10,7 +12,7 @@ luatexbase = { registernumber = function() return 0 end }
 local out
 node = { new = function() return {} end, write = function(n) out = n.data end }
 package.path = "./?.lua;" .. package.path
-local ink, grow, authored = require("florilegium-ink"), require("florilegium-grow"), require("florilegium-authored")
+local grow, authored = require("florilegium-grow"), require("florilegium-authored")
 local dir = assert(arg[1], "usage: texlua tools/ident.lua <directory>")
 os.execute("mkdir -p " .. dir)
 local CASES = {
@@ -18,12 +20,15 @@ local CASES = {
   { name = "novis", visitors = false },
   { name = "spring", age = 0.05 },
   { name = "autumn-marks", age = 0.95, marks = { { kind = "heading", arg = 1, y = 20 }, { kind = "heading", arg = 2, y = 14 }, { kind = "bloom", arg = "", y = 9 }, { kind = "bloom", arg = "umbel", y = 6 } } },
+  { name = "geometric", extra = { theme = "geometric" } },
+  { name = "geometric-autumn-marks", age = 0.95, extra = { theme = "geometric" },
+    marks = { { kind = "heading", arg = 1, y = 20 }, { kind = "bloom", arg = "crystal", y = 9 } } },
 }
 local function geometry(seed, spill, case)
   local g = { pw = 21, ph = 29.7, textleft = 6.8, textright = 18.8, ytop = 25.4, ybot = 3.0 }
   g.colright, g.headrule, g.footy = g.textleft - 0.4, g.ytop + 0.7, 1.9
   g.seed, g.spill, g.spilly = seed, spill, spill == 1 and 19.0 or 0
-  g.age, g.marks, g.visitors = case.age, case.marks, case.visitors
+  g.age, g.marks, g.visitors, g.docseed = case.age, case.marks, case.visitors, seed
   for k, v in pairs(case.extra or {}) do g[k] = v end
   return g
 end

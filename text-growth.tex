@@ -1,26 +1,60 @@
 %% text-growth.tex -- the growth stage (used by florilegium-grow.tex only)
 \subsubsection{The growth stage}
 
-This document is the answer to the exercise. Its margin is not the authored composition of
-the previous section: nothing in it was placed by hand. A Lua program decides where every
-stem, leaf and flower goes and how large it is, and then calls the same primitives to paint
-them.
+This document is the answer to the exercise, and it goes one step further. Its margin is not
+the authored composition of the previous section: nothing in it was placed by hand. A Lua
+program decides where every stem, leaf and flower goes and how large it is, and before that,
+what kind of plant each stem is.
+
+\begin{definition}
+A \emph{genome} is a sequence of traits $\tau_1,\dots,\tau_{62}$, each with a distribution over
+its values that may depend on the values already drawn. A \emph{species} is one draw of every
+trait, in that order, from a seeded generator. The first trait is the \emph{body plan} (lily,
+iris, rose, mustard, pea, mint, daisy, umbellifer, heath, borage, catkin, columbine, a generic
+eudicot or monocot, or a fern), which fixes the clade and chooses the distributions of all the
+others. Then come the visitor the flowers are for, the flower (its color, form and symmetry,
+the number of its parts, the petal's shape, tip, edge and markings, how it is held), the
+cluster, the leaf (simple or compound, its shape, base, tip, edge, veins and arrangement), the
+stem, the fruit, and how early in the year it flowers.
+\end{definition}
+
+The primitives of the previous section become \emph{organs}. A petal is painted as before, but
+how many petals a flower has, whether they are free or fused into a bell, a tube or a pea
+flower, and how the flowers stand on their stalks are traits of the species. Because every
+distribution is conditioned on the body plan, the rules of botany hold by construction. A lily
+has its parts in threes, a pea flower is two-sided with five petals and a pod, a catkin has no
+petals and no visitor, and only a radially symmetric flower varies its number of petals. Each
+species can also describe itself, as ``a blue wheel of five lobes in a coiled cyme that
+uncurls, for bees; hairy, smooth-edged, oval leaves; then nutlets''.
+
+\begin{construction}[Community]
+The document's seed draws a \emph{pool} of eight species, two heroes, two sprays, a monocot
+and three others, with no body plan twice, and with heroes that are \emph{showy} (single
+flowers or loose clusters, painted in the ink). Each page draws four of the eight, a hero, a
+second showy plant, the monocot and a spray. The same plants therefore recur through the
+document, as plants recur through a garden, while each page's selection and layout are its
+own.
+\end{construction}
 
 \begin{construction}[Stems]
-The root is placed near the bottom-left corner of the page. Three stems rise from it; the
-$x$ coordinate of each is a smooth function of the height,
+The root is placed near the bottom-left corner of the page. Three stems rise from it, one
+plant each; the $x$ coordinate of each is a smooth function of the height,
 \[
   x(y)=c+A\,n\bigl(y/\lambda+\varphi\bigr),
   \qquad A=0.2\,\text{(column width)},\ \lambda\in[6,9]\,\text{cm},
 \]
 with $n$ a two-octave gradient noise and $\varphi$ a phase drawn per stem, blended into the
 root over the first four centimeters. Different phases make the stems sway apart and cross
-now and then, as real stems do. The first reaches the top of the page and ends in the
-largest flower; the second stops at $60$ to $72\%$ of the height and ends in a lily; the
-third at $36$ to $48\%$, in a flower. A footer stem leaves the root along the bottom of the
-page. Leaves are hung at the nodes, every $1.4$ to $2.2\,$cm, alternately left and right,
-$35^\circ$ to $60^\circ$ off the stem, $2.4\,$cm long at the bottom of the page and $1.3\,$cm at
-the top, and only where there is room.
+now and then, as real stems do. The hero's stem reaches the top of the page and ends in its
+largest flower; the second showy plant stops at $60$ to $72\%$ of the height, the monocot at
+$36$ to $48\%$, each ending in its own cluster. A flower seen from the side, such as a bell,
+a tube or a pea flower, reaches out from its stalk as a solid shape, so it is drawn at $0.72$
+of the size of one seen face on. The spray leaves the root along the bottom of
+the page as the footer. Leaves are hung at the nodes as the species sets them, alone, in pairs
+or in whorls, $35^\circ$ to $60^\circ$ off the stem, $2.4\,$cm long at the bottom of the page
+and smaller toward the top by the species' own taper, and only where there is room; most
+monocots raise their strap leaves from the root instead, the longer ones arching over and
+some twisting to show their paler underside.
 \end{construction}
 
 \begin{definition}
@@ -37,24 +71,26 @@ the edge of a flower; stems are proxies too, as chains of small discs.
 
 \begin{construction}[Growth]
 The region $R$ is the margin column, a band along the bottom of the page, and on the last
-page also the rectangle between the end of the text and the footer. On a grid of candidates
+page also the space between the end of the text and the page number. On a grid of candidates
 spaced $2\,$mm apart, each point keeps $f(p)$ and its distance to the nearest stem. Then,
 until the largest free radius falls below $3.6\,$mm:
 \begin{enumerate}
   \item take the point $p$ that maximizes $f(p)$ among those within $3\,$cm of a stem, with
         a random factor in $[0.85,1.15]$ so that ties break differently on every seed;
-  \item choose a motif whose smallest proxy fits, by weight; a motif that has already
-        appeared $k$ times has its weight divided by $1+k/c$, and only flowers, lilies,
-        umbels and bells have a hard cap. Set its scale so that $r(s)\approx0.95\,f(p)$;
+  \item choose, by weight, a motif that fits from those of the plant whose stem is nearest,
+        which are its cluster, a smaller spray of it, a spray of buds, a leaf, a tendril if it
+        climbs, and the visitor its flowers are for. A motif that has already appeared $k$ times has its
+        weight divided by $1+k/c$, and the full cluster has a hard cap. Set its scale so that
+        $r(s)\approx0.95\,f(p)$;
   \item give it an axis pointing away from the nearest stem point, leaning upward for the
         kinds that reach for the light, and grow a branch to it from that point, as in the
-        authored composition. The branch becomes a stem for later branches.
+        authored composition. The branch becomes a stem of the same plant for later branches.
 \end{enumerate}
-Because the largest hole is always taken first, flowers and lilies are placed early,
-sprays and leaves fill the middle, and a last pass puts pairs of leaflets, buds and small
-clusters of florets on the stems wherever a hole of more than $1.7\,$mm is left next to
-one; a hole far from any stem may get one of six copper accents, and otherwise stays empty.
-That ordering is the whole reason the result looks \emph{composed} rather than scattered.
+Because the largest hole is always taken first, the big clusters are placed early, sprays and
+leaves fill the middle, and a last pass puts buds and small leaves on the stems wherever a hole
+of more than $1.7\,$mm is left next to one; a hole far from any stem may get one of six copper
+accents, and otherwise stays empty. That ordering is the whole reason the result looks
+\emph{composed} rather than scattered.
 \end{construction}
 
 \begin{remark}[Adapting to the text]
@@ -63,20 +99,34 @@ garden. The end of the text is measured where it happens: \verb|\florilegiumtext
 records \verb|\pagetotal| and \verb|\pagedepth|, the height of the material already on the
 current page, and the background of that page is drawn after it. On the last page, the
 garden therefore spills into the space below the words in a single compilation: branches
-arch out of the main stems into that space and each ends in a flower.
+arch out of the main stems into that space, from each plant in turn, and each ends in a
+flower.
 \end{remark}
 
 \begin{remark}[Visitors, marks and seasons]
-Butterflies and bees take holes like any motif but need no branch; a snail is put on a
-main stem and, on about one page in five, a bird on a twig of its own. Their decisions come
-from a random stream of their own, so a page without them is the page it would have been.
-A mark in the text, left by \verb|\florilegiumbloom| or by a section heading, is found in
-the page box at shipout and gets its flower before any leaf is hung. An age between $0$
-and $1$ reweights the motifs from buds in spring to seed heads in autumn.
+Visitors are sampled from genomes of their own, of fifteen kinds, from butterflies, hawkmoths and
+bumblebees to dragonflies, ladybirds, caterpillars, snails and birds, each with its own markings
+and pose. A plant brings the visitor its flowers are for, which takes a hole near that plant's
+stems like a motif but needs no branch; a snail climbs a main stem, a seed-eater perches on a
+twig of its own, a caterpillar feeds on a leaf it has bitten, a dragonfly hunts by the monocot.
+Their decisions come from a random stream of their own, so a page without them is the page it
+would have been. A mark in the text, left by \verb|\florilegiumbloom| or by a section heading, is
+found in the page box at shipout and gets the flowers of the nearest plant, in copper, before any
+leaf is hung. An age between $0$ and $1$ sets each flower's stage, from bud to fruit, by the
+season, its place in its cluster and how early its species flowers.
+\end{remark}
+
+\begin{remark}[The same species in \TeX]
+The species are drawn from pgf's own random generator, which the Lua replays exactly, and
+every choice is a whole-number draw, so the TikZ library of this package finds the same species
+for the same seed with pgfmath alone, under pdf\LaTeX. It grows and paints them with the same
+steps and draws, in pgfmath's arithmetic instead of floating point, and the two drawings agree
+within a fraction of a point. The layout of a margin around a page's text stays in Lua.
 \end{remark}
 
 \begin{remark}[Cost]
 The layout is cheap: the grid has a few thousand points, a proxy only updates the points
-near it, and the whole loop takes a fraction of a second. This document of four pages
-compiles in about five seconds.
+near it, and the whole loop takes a fraction of a second. Painting is most of the cost. A page
+of species is about five megabytes of path operators, one in the PDF, and adds a little over a
+second to the compilation.
 \end{remark}

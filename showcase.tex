@@ -36,9 +36,9 @@ text, invisibly, so the paragraph still copies and searches as \emph{Every}.
 \subsection{Flowers at the headings}
 
 With the option \code{sections}, every numbered section and subsection gets a flower in the
-margin, beside its heading: a large one for a section, a spray of small ones for a
-subsection, painted in the copper of the accents, the way headings were once picked out in
-red. The heading carries an invisible mark. When the page is shipped out, the
+margin, beside its heading: the flowers of the plant nearest to it for a section, its buds
+for a subsection, painted in the copper of the accents, the way headings were once picked
+out in red. The heading carries an invisible mark. When the page is shipped out, the
 garden is drawn and the page box is searched for these marks, so the garden knows the
 height of each heading on the same page in the same run. Where the margin is already
 taken, by the large flower at the top of the page for example, the flower is made
@@ -48,31 +48,48 @@ smaller or left out.
 
 The same mark can be placed by hand. \code{\textbackslash florilegiumbloom} puts a flower
 in the margin beside the line in which it stands, like this
-one\florilegiumbloom, and \code{\textbackslash florilegiumbloom[lily]} asks for any of the
-motifs the garden is made of: \code{lily}, \code{blossoms}, \code{cyme}, \code{umbel},
-\code{bud}, or a \code{butterfly}. It costs nothing on pages that have no marks and does
+one\florilegiumbloom, and an argument asks for something else of the plant nearest to it,
+\code{bud}, \code{leaf} or \code{tendril}, or for another plant of the page, by its role
+(\code{hero}, \code{showy}, \code{monocot}, \code{spray}) or by its body plan
+(\code{rose}, \code{lily}, \dots). It costs nothing on pages that have no marks and does
 not move the text.
 
 \section{Summer}
 
-By the middle of the document the garden is in full bloom: open flowers, star lilies,
-forget-me-nots curling at their tips, umbels. The page count needed to know where the
+By the middle of the document every plant is in flower, each cluster opening from its oldest
+bud. The page count needed to know where the
 middle is comes from the previous run, which is why the option \code{aging} asks for two;
 on the first run every page is summer, and LaTeX says so with a request to rerun.
 
-The seasons change what grows, not where. In spring sprays of closed buds take the place of
-most open flowers, the two shorter stems end in buds instead of a lily and a flower, the
-leaves are smaller and paler, and there are more tendrils. Summer is the garden as it
-always was, which is also what a document without the option gets.
+The seasons change what grows, not where. In spring most flowers are still in bud and sprays
+of closed buds take the place of many clusters, the leaves are smaller and paler, and a fern,
+where one grows, unrolls from its fiddleheads. Summer is the garden in full flower, which is also what a
+document without the option gets.
+
+\subsection{Plants of its own}
+
+The plants in this margin were not drawn from a fixed set of shapes. Each main stem is one
+plant of a \emph{species}, sampled from a genome: its body plan first (a rose, a lily, a
+pea, a daisy, an umbellifer, an iris and more), then the visitor its flowers are for, the
+color and form of the flower, how the flowers are clustered, the leaf with its shape, edge
+and veins, and the fruit. A body plan keeps the rules of botany, so a lily has its parts in
+threes and a pea flower has a keel and a pod. The document draws eight species from its
+seed, and each page grows four of them: a hero, whose largest flower opens at the top of the
+page, a second showy plant, a monocot and a spray along the foot. A branch belongs to the
+plant it grows from, so the margin reads as a few plants twined together rather than a
+bouquet of parts. The same species can be drawn on their own, in pure TikZ, with
+\code{\textbackslash usetikzlibrary\{florilegium\}}.
 
 \subsection{Visitors}
 
-Most pages have visitors: one or two butterflies and bees in the open spaces, a snail
-crawling up one of the main stems, and on about one page in five a bird perched on a twig
-of its own. They are drawn from their own random stream, so a page without them is
-exactly the page it would have been, and the option \code{novisitors} leaves them all out.
-In the growth animation the butterflies and bees fly in, the bird glides onto its twig
-and the snail crawls up its stem until the last frame.
+Most pages have visitors, and they come for the plants. A species' flowers are made for one
+kind of visitor, a bee, a butterfly or a moth, a bird, a beetle or a hoverfly, and it flies in
+near that plant's stems; a snail climbs a main stem, a seed-eater perches on a twig of its own,
+a caterpillar eats a leaf it has bitten, and a dragonfly hunts by the monocot. Each is sampled
+from a genome too, its kind first, then its markings and its pose, and about three come to a
+page. They are drawn from their own random stream, so a page without them is exactly the page
+it would have been, and the option \code{novisitors} leaves them all out. In the growth
+animation they fly in, or crawl up their stems, at the end.
 
 \subsection{Watching it grow}
 
@@ -90,7 +107,8 @@ the large holes fill, slowly, and the small ones last, quickly.
 Nothing changes from one run to the next. A page's seed comes from its page number, or
 from \code{\textbackslash def\textbackslash florilegiumseed\{7\}} for all of them, and
 every decision is drawn from random streams derived from it: the layout from one, each
-primitive from a fork of another, and the visitors and the season each from their own.
+primitive from a fork of another, and the species, the visitors and the season each from
+their own.
 A page without visitors, or without an age, is therefore exactly the page it would have
 been without those features. The same source always gives the same PDF.
 
@@ -104,8 +122,8 @@ sparkles and the flowers' eyes, and in autumn of some of the leaves.
 
 \section{Autumn}
 
-On the last page the garden goes to seed. Fewer flowers open; the shorter stems end in
-seed heads, dandelion clocks whose seeds drift away from them; loose petals have fallen
+On the last page the garden goes to seed. Fewer flowers open, and each species' clusters
+turn to its own fruit, pods, hips, berries, capsules or seed clocks; loose petals have fallen
 into the space below the flowers; and some of the leaves have turned copper.
 \code{\textbackslash florilegiumage\{0.8\}} sets the age by hand instead, from 0, spring,
 through 0.5, summer, to 1, autumn, for all the pages that follow.

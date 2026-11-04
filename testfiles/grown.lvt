@@ -1,0 +1,33 @@
+% grown.lvt -- the grown margin over two pages. Page 1: a flower at each heading
+% (option sections), one asked for by \florilegiumbloom[spray] (the page's spray plant), and a
+% decorated initial;
+% page 2: spring (\florilegiumage), and the space under the text (\florilegiumtextend).
+\input{regression-test}
+\documentclass[11pt,a4paper]{article}
+\renewcommand\rmdefault{cmr}
+\usepackage[T1]{fontenc}
+\usepackage[a4paper,left=68mm,right=22mm,top=32mm,bottom=30mm,headsep=8mm]{geometry}
+\def\florilegiumseed{7}
+\usepackage[grown,sections]{florilegium}
+\directlua{require("fingerprint")}
+\newcount\paracount
+\newcommand\paras[1]{\paracount=0
+  \loop A grown margin is laid out by a greedy loop: it finds the largest free disc near a
+  stem, picks a motif that fits it, and draws a branch from the stem to it, until no free
+  disc is larger than a few millimeters. The same seed grows the same garden.\par
+  \advance\paracount 1 \ifnum\paracount<#1 \repeat}
+\begin{document}
+\START
+\section{A heading}
+\florilegiuminitial{T}his paragraph opens with a decorated initial: a vine over and under
+the letter, leaflets, and flowers in its gaps.\par
+\paras{5}
+This line asks the margin for the spray's flowers.\florilegiumbloom[spray]\par
+\paras{4}
+\newpage
+\florilegiumage{0.1}
+\section{Another heading}
+\paras{3}
+\florilegiumtextend
+\clearpage
+\END

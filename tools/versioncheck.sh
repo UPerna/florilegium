@@ -1,6 +1,6 @@
 #!/bin/sh
-# Checks that florilegium.sty (the v-number in \ProvidesPackage) and every florilegium*.lua
-# (M.version) name the same release, and, given a tag such as v1.3, that it is the tag's.
+# Checks that florilegium.sty (the v-number in \ProvidesPackage), every florilegium*.lua
+# (M.version) and tikzlibraryflorilegium.code.tex (\ProvidesFile) name the same release, and, given a tag such as v1.3, that it is the tag's.
 # CI runs it on every pull request and push, and with the tag when a v* tag is pushed, so a
 # release can't be drafted from files that say another version. Locally:
 #   tools/versioncheck.sh             # the files agree
@@ -17,8 +17,11 @@ for f in florilegium*.lua; do
   v=$(sed -n 's/^M\.version = "\([^"]*\)".*/\1/p' "$f")
   [ "$v" = "$sty" ] || { echo "FAIL  $f says ${v:-no version}, florilegium.sty says $sty"; status=1; }
 done
+lib=$(sed -n 's/^ *\\ProvidesFile{tikzlibraryflorilegium.code.tex}\[[0-9/]* v\([0-9][0-9.]*\) .*/\1/p' tikzlibraryflorilegium.code.tex)
+n=$((n + 1))
+[ "$lib" = "$sty" ] || { echo "FAIL  tikzlibraryflorilegium.code.tex says ${lib:-no version}, florilegium.sty says $sty"; status=1; }
 if [ $# -gt 0 ] && [ "${1#v}" != "$sty" ]; then
   echo "FAIL  the tag is $1, florilegium.sty says v$sty"; status=1
 fi
-[ $status -eq 0 ] && echo "ok    florilegium.sty and $n Lua files say $sty${1:+, as the tag $1 does}"
+[ $status -eq 0 ] && echo "ok    florilegium.sty and $n Lua and TikZ files say $sty${1:+, as the tag $1 does}"
 exit $status

@@ -1,0 +1,21 @@
+% versions.lvt -- every file of the package must come from one release. florilegium.lua
+% refuses a part of another release, and a florilegium.sty of another release, naming the
+% file and where it was found (an old copy in a personal tree, a newer one beside the document).
+\input{regression-test}
+\documentclass{article}
+\START
+\directlua{
+  local test = require("fingerprint")
+  local function load() package.loaded["florilegium"] = nil require("florilegium").check_versions() end
+  test.try("one release", load)
+  local ink = package.loaded["florilegium-ink"]
+  package.loaded["florilegium-ink"] = setmetatable({ version = "0.9" }, { __index = ink })
+  test.try("florilegium-ink.lua from 0.9", load)
+  package.loaded["florilegium-ink"] = ink
+}
+\expandafter\def\csname ver@florilegium.sty\endcsname{2001/01/01 v0.9 an older release}
+\directlua{
+  local test = require("fingerprint")
+  test.try("florilegium.sty from 0.9", function() package.loaded["florilegium"] = nil require("florilegium").check_versions() end)
+}
+\END

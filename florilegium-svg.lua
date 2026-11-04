@@ -13,7 +13,7 @@
 -- \def\florilegiumseed{7} and the same margins.
 
 local M = {}
-M.version = "1.3"                 -- the release; florilegium.lua checks that every file has the same
+M.version = "2.0.0"                 -- the release; florilegium.lua checks that every file has the same
 local fmt, floor, concat = string.format, math.floor, table.concat
 
 -- ---------------------------------------------------------------- lengths
@@ -126,8 +126,9 @@ function M.translate(stream, out, id)
         local kind, v = args[n]:match("^/flo([am])(%d+)$")
         if not kind then error("florilegium: unknown graphics state " .. tostring(args[n]), 0) end
         st.op, st.mult = tonumber(v) / 100, kind == "m"
-      elseif t == "J" or t == "j" then        -- always round (ink sets 1 J 1 j); the root group says so
-      else error("florilegium: florilegium-svg.lua cannot translate the PDF operator '" .. t .. "'", 0) end
+      elseif t ~= "J" and t ~= "j" then       -- J, j: always round (ink sets 1 J 1 j); the root group says so
+        error("florilegium: florilegium-svg.lua cannot translate the PDF operator '" .. t .. "'", 0)
+      end
       args = {}
     end
   end
@@ -175,10 +176,8 @@ end
 -- of the text block: the last page, with the garden in the space below), season
 -- ("spring", "summer", "autumn" or 0..1), theme, density, intensity, visitors,
 -- ink, accent (RRGGBB), head (false: no head rule), authored, background (RRGGBB),
--- bleed (a length: the grown garden may run that far past the paper's edges, which no
--- longer cut it, and the SVG grows by as much on every side; for a garden set on a
--- page that does not end where the paper does, an e-book's part-title page say),
--- id (prefix for the clip ids). Returns the SVG, the page layout g (cm), and a table:
+-- bleed (a length, for e-books and screens: the garden's safety clip reaches past the
+-- paper's edge and the SVG that far around the paper), id (prefix for the clip ids). Returns the SVG, the page layout g (cm), and a table:
 -- streams, the PDF literals the SVG was made from; captions, the text a theme sets in
 -- the margin (the math theme's symbols and equations), which needs a TeX typesetter
 -- and is not in the SVG: { x, y (page cm), tex, anchor (TikZ's), size (pt), rotate
@@ -234,7 +233,7 @@ function M.page(o)
     fl.density = tonumber(o.density) or 1
     fl.intensity = tonumber(o.intensity) or 1
     fl.visitors = o.visitors ~= false
-    fl.bleed = o.bleed and M.sp(o.bleed) * 2.54 / (72.27 * 65536) or nil
+    fl.bleed = o.bleed and M.sp(o.bleed) * 2.54 / (72.27 * 65536) or 0
     local g = fl.geometry()
     fl.last_captions, fl.last_stats = nil, nil
     if o.authored then fl.authored(seed, nil)
@@ -259,14 +258,11 @@ function M.page(o)
       }
     end
     ink.set_pale(0)
-    fl.bleed = nil
     return { g = g, captions = caps, stats = fl.last_stats }
   end)
   if not ok then                              -- leave nothing half drawn for the next page
     local ink = package.loaded["florilegium-ink"]
     if ink then ink.take_recording() ink.discard() ink.set_lift(0) ink.set_pale(0) end
-    local fl = package.loaded["florilegium"]
-    if fl then fl.bleed = nil end
   end
   tex, node, luatexbase, texio = saved.tex, saved.node, saved.luatexbase, saved.texio
   if not ok then error(res, 0) end
@@ -277,17 +273,21 @@ function M.page(o)
   local W, H = g.pw * CM, g.ph * CM
   local id = o.id or fmt("flo%d-", floor(tonumber(o.seed) or 0))
   local out = {}
-  if o.bleed then
-    local b = M.sp(o.bleed) * 2.54 / (72.27 * 65536)
+  local b = package.loaded["florilegium"].bleed * CM   -- the bleed around the paper, if any
+  if b > 0 then
     out[1] = fmt('<svg xmlns="http://www.w3.org/2000/svg" width="%.2fmm" height="%.2fmm" viewBox="%.2f %.2f %.2f %.2f">',
-      (g.pw + 2 * b) * 10, (g.ph + 2 * b) * 10, -b * CM, -b * CM, W + 2 * b * CM, H + 2 * b * CM)
+      (W + 2 * b) / CM * 10, (H + 2 * b) / CM * 10, -b, -b, W + 2 * b, H + 2 * b)
   else
     out[1] = fmt('<svg xmlns="http://www.w3.org/2000/svg" width="%.2fmm" height="%.2fmm" viewBox="0 0 %.2f %.2f">', g.pw * 10, g.ph * 10, W, H)
   end
   if o.background then
     local h = tostring(o.background):gsub("^#", "")
     if not h:match("^%x%x%x%x%x%x$") then error("florilegium: not a color (RRGGBB): '" .. h .. "'", 0) end
-    out[#out + 1] = fmt('<rect width="%.2f" height="%.2f" fill="#%s"/>', W, H, h:lower())
+    if b > 0 then
+      out[#out + 1] = fmt('<rect x="%.2f" y="%.2f" width="%.2f" height="%.2f" fill="#%s"/>', -b, -b, W + 2 * b, H + 2 * b, h:lower())
+    else
+      out[#out + 1] = fmt('<rect width="%.2f" height="%.2f" fill="#%s"/>', W, H, h:lower())
+    end
   end
   out[#out + 1] = fmt('<g transform="matrix(1 0 0 -1 0 %.2f)" stroke-linecap="round" stroke-linejoin="round">', H)
   for i, s in ipairs(streams) do M.translate(s, out, id .. i) end
@@ -310,12 +310,12 @@ usage: texlua florilegium-svg.lua [options] > page.svg      (lua 5.3 or 5.4 work
   --theme NAME      flora (default), geometric or math (math: its text needs TeX, left out)
   --density X       0.05..1 (default 1)      --intensity X   0..1 (default 1)
   --ink RRGGBB      (default 2456C4)         --accent RRGGBB (default B4662F)
-  --novisitors      no butterflies, bees, snails or birds
+  --novisitors      no visitors (insects, snails, birds)
   --nohead          leave out the head rule and its ivy leaf
   --authored        the hand-placed composition (A4, 68 mm left margin)
   --background RRGGBB   paint the paper (default: transparent)
-  --bleed LEN       let the garden run LEN past the paper's edges, uncut; the SVG grows by LEN
-                    on every side (for a garden set on a page of its own, as in an e-book)
+  --bleed LEN       for e-books and screens: the garden is not cut at the paper's edge, and the
+                    SVG reaches LEN past it on every side (default 0, the page LuaLaTeX draws)
   -o FILE           write to FILE instead of standard output
 A length is a number and a unit (mm, cm, in, pt, bp); a bare number is mm.
 ]]

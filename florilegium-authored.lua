@@ -13,9 +13,9 @@
 local ink = require("florilegium-ink")
 local grow = require("florilegium-grow")
 local M = {}
-M.version = "1.3"                 -- the release; florilegium.lua checks that every file has the same
+M.version = "2.0.0"                 -- the release; florilegium.lua checks that every file has the same
 
-local sqrt, cos, sin, atan, pi, max, min, floor = math.sqrt, math.cos, math.sin, math.atan, math.pi, math.max, math.min, math.floor
+local sqrt, cos, sin, atan, pi, min, floor = math.sqrt, math.cos, math.sin, math.atan, math.pi, math.min, math.floor
 local rad = pi / 180
 local function norm(x, y) local L = sqrt(x * x + y * y) if L < 1e-9 then return 0, 1 end return x / L, y / L end
 local function deg(x, y) return atan(y, x) / rad end
@@ -260,10 +260,12 @@ function M.page(g)
       ink.scale(SNAIL[3], 1) F.snail(r, SNAIL[4]) end)
   end
 
-  -- a safety clip: the column (a little past its edge) and the footer band
+  -- a safety clip: the column (a little past its edge) and the footer band, reaching
+  -- g.bleed past the paper's edge (florilegium-svg.lua's --bleed)
   ink.layer(0)
-  ink.poly({ { 0, 0 }, { g.colright + 0.25, 0 }, { g.colright + 0.25, g.ph }, { 0, g.ph } }, true)
-  ink.poly({ { g.colright, 0 }, { fx1 + 3, 0 }, { fx1 + 3, min(2.0, g.footy - 0.2) }, { g.colright, min(2.0, g.footy - 0.2) } }, true)
+  local b = g.bleed or 0
+  ink.poly({ { -b, -b }, { g.colright + 0.25, -b }, { g.colright + 0.25, g.ph + b }, { -b, g.ph + b } }, true)
+  ink.poly({ { g.colright, -b }, { fx1 + 3, -b }, { fx1 + 3, min(2.0, g.footy - 0.2) }, { g.colright, min(2.0, g.footy - 0.2) } }, true)
   ink.clip()
   ink.layer(99)
   ink.unclip()

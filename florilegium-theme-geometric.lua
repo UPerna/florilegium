@@ -14,12 +14,11 @@
 -- Use: \usepackage[grown,theme=geometric]{florilegium}.
 
 local ink = require("florilegium-ink")
-local flora = require("florilegium-flora")
 local figures = require("florilegium-figures")
 local M = {}
-M.version = "1.3"                 -- the release; florilegium.lua checks that every file has the same
+M.version = "2.0.0"                 -- the release; florilegium.lua checks that every file has the same
 
-local sin, cos, sqrt, pi, abs, floor, max, min = math.sin, math.cos, math.sqrt, math.pi, math.abs, math.floor, math.max, math.min
+local sin, cos, sqrt, pi, abs, max, min = math.sin, math.cos, math.sqrt, math.pi, math.abs, math.max, math.min
 local tone, white = ink.tone, ink.white
 local rad = pi / 180
 local PHI = (1 + sqrt(5)) / 2
@@ -494,7 +493,7 @@ function M.snail(rng, s, o)
   local x, y, w, h = 0.36 - 0.27, -0.42, 0.52, 0.84
   local spiral = {}
   for i = 0, 7 do
-    local d, sq = i % 4, nil
+    local d, sq = i % 4
     if d == 0 then sq = { x, y + h - w, w } spiral[#spiral + 1] = { x, y + h } h = h - w
     elseif d == 1 then sq = { x + w - h, y, h } spiral[#spiral + 1] = { x + w, y + h } w = w - h
     elseif d == 2 then sq = { x, y, w } spiral[#spiral + 1] = { x + w, y } y, h = y + w, h - w
@@ -563,9 +562,8 @@ M.flora = {
 function M.motifs(rows, F)
   local grow = require("florilegium-grow")
   local L = grow.layers
-  local by = {}
+  local by = {}                     -- luacheck: ignore 241 (the rows are changed through it)
   for _, m in ipairs(rows) do by[m.name] = m end
-  local tone = ink.tone
   -- the sprays of florilegium-grow.lua on straight stalks
   local function spray(rng, s, n0, n1, spread, fn)
     local n = rng.int(n0, n1)

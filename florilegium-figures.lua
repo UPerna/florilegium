@@ -18,10 +18,10 @@
 local ink = require("florilegium-ink")
 local flora = require("florilegium-flora")
 local M = {}
-M.version = "1.3"                 -- the release; florilegium.lua checks that every file has the same
+M.version = "2.0.0"                 -- the release; florilegium.lua checks that every file has the same
 
 local sin, cos, sqrt, exp, pi, abs, floor, max, min = math.sin, math.cos, math.sqrt, math.exp, math.pi, math.abs, math.floor, math.max, math.min
-local tone, white = ink.tone, ink.white
+local tone = ink.tone
 local rad = pi / 180
 local PHI = (1 + sqrt(5)) / 2
 local GOLDEN = pi * (3 - sqrt(5))             -- 137.5°: 360° divided in the golden ratio
@@ -214,8 +214,7 @@ end
 -- radius R (cm) around the origin, caption(p) -> TeX for the label under it.
 local FIG = {}
 
--- Maurer rose (florilegium-theme-math.lua draws it)
-local MAURER = { { 2, 39 }, { 6, 71 }, { 5, 97 }, { 4, 31 }, { 7, 19 }, { 3, 47 } }
+-- Maurer rose (florilegium-theme-math.lua draws it), with the (n, d) pairs of M.maurer
 FIG.maurer = {
   w = 2, max = 2, r = { 0.7, 1.3 },
   pick = function(L) return MAURER[L.int(1, #MAURER)] end,
