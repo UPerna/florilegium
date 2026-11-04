@@ -250,15 +250,21 @@
       "primary_url": "https://www.cs.ubc.ca/labs/imager/tr/2011/Micrography/",
       "doi": null,
       "sections": [
-        "Boundary-condition optimization, singularity-free low-curvature vector fields, streamline/text placement; exact section numbers require recovered full text"
+        "4.1 Boundary Conditions Design",
+        "4.2 Computing the Vector Field",
+        "5 Tracing Lines",
+        "6 Orienting and Ordering",
+        "7 Text Generation"
       ],
       "stage_owner": "24",
-      "retrieved": "2026-11-02",
-      "access": "Primary author metadata/abstract/license verified; 47.7 MB PDF rejected by web reader and direct download closed twice. Recover primary full text before implementation.",
+      "retrieved": "2026-11-04",
+      "access": "Complete 11-page author-hosted paper recovered and inspected. Prior one-page poster kept separately.",
       "code_availability": "No reusable code/license established; independent implementation required unless separately verified",
       "data_availability": "Use original fixtures; publication access is not artwork permission",
       "paper_license": "Author page: personal use only; paper and all images not for redistribution; third-party source graphics have separate rights",
-      "implementation_status": "pending"
+      "implementation_status": "Bounded exact signed boundary labeling, doubled-angle solve and portable Latin/Greek layout implemented. Native acceptance pending.",
+      "download_url": "https://www.cs.ubc.ca/labs/imager/tr/2011/Micrography/micrography.pdf",
+      "sha256": "7906be137b7756c2c148141cf0a242116f52de34d03df3c93e16f7ec3d2fdd57"
     },
     {
       "id": "R09",
@@ -286,7 +292,7 @@
       "code_availability": "No reusable code/license established; independent implementation required unless separately verified",
       "data_availability": "Use original fixtures; publication access is not artwork permission",
       "paper_license": "No redistribution permission established; do not bundle paper",
-      "implementation_status": "Bounded Stage 23 analytic chart, single-route, and perspective profiles implemented. Native acceptance pending.",
+      "implementation_status": "The Stage 23 source-led bounded maze profiles and original scaffold extensions passed native CI, independent topology/geometry checks and visual acceptance.",
       "sha256": "139852bf5fc462e16c3631e3df5faca26bff33e67a03bbe8ab9b9bd80f245004"
     },
     {

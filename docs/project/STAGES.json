@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_stage": "23",
+  "current_stage": "24",
   "prompt_sha256": "8D25740D944FC98943FD005737BD825215CFCF6F894218790E140EDE8EE3F09E",
   "stages": [
     {
@@ -659,37 +659,54 @@
     {
       "id": "23",
       "title": "image-guided mazes and independently verified solutions",
-      "status": "in_progress",
+      "status": "passed",
       "prerequisites": "22",
       "acceptance_items": [
         "the source-guided capability works and has quantitative/topological plus visual evidence; impossible inputs fail; solution overlays derive from the actual graph; no illustrated wall contradicts the solver graph. Record stage 23 in STAGES.json, make stage 24 depend on it, and include maze fixtures in all later CLI/browser/export/release gates."
       ],
-      "observed_results": "31 checks on each Lua runtime and 51 matching output hashes. The independent oracle solved ten exported trees across 2,557 cells, verified route ink clearance and the constrained tree objective, and measured 308 preferred removals against 167 in the baseline. Fifteen PDF/SVG pairs passed inspection. Native CI pending.",
+      "observed_results": "Both native jobs passed. 31 checks, 51 output hashes, 15 visual pairs and 416 source kit hashes verified. The independent checker solved ten exported trees across 2,557 cells, verified all route openings and measured 308 biased removals versus 167 in the matched baseline. Native/local byte differences: ['failures.json', 'spiral.instance', 'vortex.instance'].",
       "evidence_paths": [
         "artifacts/receipts/23/receipt-Lua-5.3.json",
         "artifacts/receipts/23/receipt-Lua-5.4.json",
         "artifacts/receipts/23/oracle.json",
-        "artifacts/receipts/23/source-reference.json"
+        "artifacts/receipts/23/source-reference.json",
+        "artifacts/receipts/23/publication.json",
+        "artifacts/receipts/23/ci-final.json"
       ],
       "tested_code_revision": null,
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Publish from exact parent 30c5a6c, verify normal Git fetch and both native CI jobs, then inspect all fresh PDF/SVG pairs."
+      "next_action": "Passed. Proceed to Stage 24.",
+      "workflow_runs": [
+        {
+          "id": 41900860345,
+          "status": "success",
+          "head_sha": "24fe6eb72dc39ad70ff835a2f2a126c35a79f054"
+        }
+      ],
+      "tested_revision": "24fe6eb72dc39ad70ff835a2f2a126c35a79f054",
+      "verified_revision": "24fe6eb72dc39ad70ff835a2f2a126c35a79f054"
     },
     {
       "id": "24",
       "title": "micrography with meaningful readable text",
-      "status": "pending",
+      "status": "in_progress",
       "prerequisites": "23",
       "acceptance_items": [
         "the microgram follows the image/region while carrying real meaningful text, source-method coverage is honest, and font/searchability behavior is verified for each supported backend. Preserve failure cases for insufficient space and impossible legibility constraints."
       ],
-      "observed_results": null,
-      "evidence_paths": null,
+      "observed_results": "19 checks on each Lua runtime and 13 verified output hashes. Local numerical differences were compared explicitly. Independent checks verified exact boundary masks, the doubled-angle solve, 995 source graphemes and actual Latin, combining and Greek text extraction from PDF and SVG. Three vector pairs passed inspection. Native CI pending.",
+      "evidence_paths": [
+        "artifacts/receipts/24/receipt-Lua-5.3.json",
+        "artifacts/receipts/24/receipt-Lua-5.4.json",
+        "artifacts/receipts/24/oracle.json",
+        "artifacts/receipts/24/local-parity.json",
+        "artifacts/receipts/24/source-reference.json"
+      ],
       "tested_code_revision": null,
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+      "next_action": "Publish from exact parent 24fe6eb, verify normal Git fetch and both native CI jobs, then inspect all fresh PDF/SVG pairs."
     },
     {
       "id": "25",

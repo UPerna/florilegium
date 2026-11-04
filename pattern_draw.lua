@@ -124,7 +124,12 @@ validate_ops=function(ops,map,ids,text,asset)
       local glyphs={};for _,g in ipairs(font.glyphs)do glyphs[g.id]=g end
       seq(op.glyphs,"positioned glyphs");need(#op.glyphs>0,"actual positioned glyphs required")
       local content={}
-      for _,g in ipairs(op.glyphs)do fields(g,"glyph_ref offset","positioned glyph");need(glyphs[g.glyph_ref],"missing glyph");numbers(g.offset,2,"glyph.offset");content[#content+1]=glyphs[g.glyph_ref].unicode end
+      for _,g in ipairs(op.glyphs)do
+        fields(g,"glyph_ref offset rotation","positioned glyph")
+        need(glyphs[g.glyph_ref],"missing glyph");numbers(g.offset,2,"glyph.offset")
+        if g.rotation~=nil then need(finite(g.rotation) and math.abs(g.rotation)<=math.pi,"glyph rotation must be finite radians")end
+        content[#content+1]=glyphs[g.glyph_ref].unicode
+      end
       need(table.concat(content)==op.text,"glyph clusters differ from Unicode content")
     else error("drawing: unsupported operation "..tostring(op.op),0)end
   end

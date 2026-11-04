@@ -6,7 +6,9 @@
       "source": "R08",
       "owner": "24",
       "reason": "Primary full PDF download closes; web service rejects size",
-      "next_action": "Retrieve primary paper through author/publication mirror or chunked PDF access; inspect field optimization and text placement before implementing; do not redistribute restricted images."
+      "next_action": "Retain provenance and private source boundary.",
+      "status": "resolved",
+      "resolution": "Full 11-page R08 paper recovered and sections 4–7 inspected. See artifacts/receipts/24/source-reference.json."
     },
     {
       "id": "O02",

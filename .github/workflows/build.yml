@@ -70,6 +70,8 @@ jobs:
             python3 tools/stroke_oracle.py &&
             texlua tools/mazecheck.lua &&
             python3 tools/maze_oracle.py &&
+            texlua tools/micrographycheck.lua &&
+            python3 tools/micrography_oracle.py &&
             texlua tools/layoutcheck.lua &&
             texlua tools/spacecheck.lua &&
             texlua tools/initialcheck.lua &&
@@ -106,6 +108,7 @@ jobs:
             build/mosaic/
             build/strokes/
             build/maze/
+            build/micrography/
 
   portable:
     runs-on: ubuntu-latest

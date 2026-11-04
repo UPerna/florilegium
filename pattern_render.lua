@@ -43,7 +43,15 @@ function M.plan(scene,x,v,d)
       elseif o.op=="symbol"then lower(D.asset(resources[o.resource_ref]).operations,matrix,o.semantic_ref)
       elseif o.op=="text"then
         local font=resources[o.font_ref];local glyphs={};for _,g in ipairs(font.glyphs)do glyphs[g.id]=g end
-        for _,p in ipairs(o.glyphs)do local k=o.size/font.units_per_em;local gm=G.compose(matrix,{k,0,0,k,o.origin[1]+p.offset[1],o.origin[2]+p.offset[2]})
+        for _,p in ipairs(o.glyphs)do
+          local k=o.size/font.units_per_em
+          local x,y=o.origin[1]+p.offset[1],o.origin[2]+p.offset[2]
+          local local_matrix={k,0,0,k,x,y}
+          if p.rotation then
+            local c,s=math.cos(p.rotation),math.sin(p.rotation)
+            local_matrix={c*k,s*k,-s*k,c*k,x,y}
+          end
+          local gm=G.compose(matrix,local_matrix)
           if #glyphs[p.glyph_ref].commands>0 then emit({op="path",semantic_ref=o.semantic_ref,commands=P.plain(glyphs[p.glyph_ref].commands),paint=P.plain(o.paint),transform=gm})end
         end
         runs[o.semantic_ref]=P.plain(o)
@@ -176,10 +184,23 @@ function M.svg(plan)
   end
   for _,o in ipairs(plan.text)do
     local f=assert(fonts[o.font_ref]);local matrix=o.transform or identity
+    if o.glyphs[1].rotation~=nil then
+      local visible_parts={}
+      local glyphs={}
+      for _,g in ipairs(f.font.glyphs)do glyphs[g.id]=g end
+      for _,g in ipairs(o.glyphs)do
+        visible_parts[#visible_parts+1]='<tspan x="'..n(o.origin[1]+g.offset[1])..'" y="'..
+          n(-o.origin[2]-g.offset[2])..'">'..B.xml(glyphs[g.glyph_ref].unicode)..'</tspan>'
+      end
+      out[#out+1]='<g transform="matrix('..nums(matrix)..')"><text data-semantic-ref="'..B.xml(o.semantic_ref)..
+        '" aria-label="'..B.xml(o.text)..'" xml:space="preserve" font-family="'..f.name..'" font-size="'..
+        n(o.size)..'" opacity="0" transform="scale(1 -1)">'..table.concat(visible_parts)..'</text></g>'
+    else
     out[#out+1]='<g transform="matrix('..nums(matrix)..')"><text data-semantic-ref="'..B.xml(o.semantic_ref)..'" aria-label="'..B.xml(o.text)..'" font-family="'..f.name..'" font-size="'..n(o.size)..'" opacity="0" transform="scale(1 -1)">'
     local glyphs={};for _,g in ipairs(f.font.glyphs)do glyphs[g.id]=g end
     for _,g in ipairs(o.glyphs)do out[#out+1]='<tspan x="'..n(o.origin[1]+g.offset[1])..'" y="'..n(-o.origin[2]-g.offset[2])..'">'..B.xml(glyphs[g.glyph_ref].unicode)..'</tspan>'end
     out[#out+1]='</text></g>'
+    end
   end
   return '<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="'..n(w)..'cm" height="'..n(h)..'cm" viewBox="0 0 '..n(w)..' '..n(h)..'" role="img"><defs>'..table.concat(defs,"\n")..'</defs><g transform="translate('..n(-b[1])..' '..n(b[4])..') scale(1 -1)">'..table.concat(out,"\n")..'</g></svg>\n'
 end
@@ -232,7 +253,18 @@ function M.pdf_document(plans)
     -- PDF1.7 section5.2.5: Tr alone does not suppress Type3 painting.
     -- Inherited zero opacity makes the semantic layer invisible in that case.
     local font=assert(fonts[o.font_ref]);append(content,{'q',state({opacity=0}),nums(o.transform or identity)..' cm','/Span << /ActualText <'..B.utf16_hex(o.text,true)..'> >> BDC','BT /'..font.name..' '..n(o.size)..' Tf 3 Tr'})
+    if o.glyphs[1].rotation~=nil then
+      -- A rotated visual run still has one logical search string. Anchor the
+      -- invisible horizontal run at its first glyph to avoid spurious words
+      -- from text extractors interpreting every curved placement as a new row.
+      local first=o.glyphs[1]
+      local encoded={}
+      for _,g in ipairs(o.glyphs)do encoded[#encoded+1]=string.format('%02X',font.codes[g.glyph_ref])end
+      content[#content+1]=nums({1,0,0,1,o.origin[1]+first.offset[1],o.origin[2]+first.offset[2]})..
+        ' Tm <'..table.concat(encoded)..'> Tj'
+    else
     for _,g in ipairs(o.glyphs)do content[#content+1]=nums({1,0,0,1,o.origin[1]+g.offset[1],o.origin[2]+g.offset[2]})..' Tm '..string.format('<%02X> Tj',font.codes[g.glyph_ref])end
+    end
     append(content,{'ET','EMC','Q'})
   end
   content[#content+1]='Q';local contents=stream(table.concat(content,'\n'))
