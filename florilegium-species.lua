@@ -397,6 +397,7 @@ function M.roleplans(role)
   for _, p in ipairs(M.PLANS) do
     if (role == "any" and not p.apart) or p.roles[role] then t[#t + 1] = p.name t[#t + 1] = p.w end
   end
+  assert(#t > 0, "florilegium: no plant for the role " .. tostring(role))
   return W(table.unpack(t))
 end
 

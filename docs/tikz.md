@@ -41,7 +41,7 @@ can't be found, the library draws in pure TikZ.
 | `florilegium flower` | one flower face on, `size` its diameter | `seed role size draw` |
 | `florilegium leaf` | one leaf from its base along +y, `size` its length | `seed role size draw` |
 | `florilegium inflorescence` | the species' cluster from its stalk's base along +y, as large as the margin's at `scale=1` | `seed role scale season draw` |
-| `florilegium plant` | one plant from its root, `size` its height, its branches reaching about `width` | `seed role size width season draw` |
+| `florilegium plant` | one plant from its root, `size` its height, its branches reaching about `width` | `seed role size width season` |
 | `florilegium plants` | plants on one root, like a margin's main stems, the first `size` tall and the others 60–72% and 36–48% of it, with a pale flower of the first behind them | `plants={3/rose, 17/umbellifer, 29/mustard}`, `size width season ghost` |
 | `florilegium fern` | a fern's crown, `size` its longest frond | `seed size season draw` |
 | `florilegium visitor` | a visitor, `size` its wingspan, or its length | `seed role size draw` |
@@ -50,7 +50,9 @@ can't be found, the library draws in pure TikZ.
   `spray`, `monocot`, `any` (the default), or a body plan (`rose`, `lily`, `pea`, `daisy`,
   `umbellifer`, ...). One seed and role is always one species.
 - `draw` seeds the drawing, so one species can be drawn many ways; by default it is the
-  species' seed plus one.
+  species' seed plus one. A plant grows from its species' seed alone, so it has no `draw`.
+- `seed`, `draw` and `season` may be anything pgfmath computes, such as `seed=10+\i` in a
+  `\foreach`; a seed's digits after the point are dropped, as `\pgfmathsetseed` drops them.
 - `season` is 0.3 for spring, 0.75 for summer (the default) and 1.25 for autumn, and sets each
   flower's stage, from bud to fruit.
 - For a visitor, `role` is the visitor of a kind of flower (`bee`, `butterfly`, `moth`, `bird`,

@@ -5361,10 +5361,11 @@ local function rgb(s)
 end
 -- kind: flower, leaf, v13 flower, v13 leaf, inflorescence, plant, plants, fern, visitor;
 -- seed and draw (or "") whole numbers, size and width in sp, season and scale decimals,
--- plants "seed/role,seed/role,"; inkrgb, accrgb "r,g,b"; lib the library's \ProvidesFile line
+-- plants "seed/role,seed/role,", ghost "true" or "false"; inkrgb, accrgb "r,g,b"; lib the
+-- library's \ProvidesFile line
 function M.tikz(kind, seed, role, draw, size, width, season, plants, ghost, scale, inkrgb, accrgb, lib, traits)
   if not checked then check(lib) end
-  local o = { role = role, size = size, width = width, season = pm.sp(season), ghost = ghost ~= "false",
+  local o = { role = role, size = size, width = width, season = pm.sp(season), ghost = ghost == "true",
     scale = pm.sp(scale), seed = math.tointeger(tonumber(seed)) }
   if traits and traits:match("%S") then
     -- a trait the genome lacks, or a value it cannot draw: TeX's error, and the pic as sampled

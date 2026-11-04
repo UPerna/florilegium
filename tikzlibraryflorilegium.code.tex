@@ -53,6 +53,7 @@
 \def\flo@pgfpatchs@b#1\csname pgfmath@base@\expandafter\pgfmath@number\expandafter\string\pgfmath@token\endcsname\relax\flo@pgfpatch@end{\def\flo@tmpb{#1}}
 \def\flo@pgfpatchs@c#1#2{\def\pgfmath@parse@@number{#2%
   \csname pgfmath@base@\ifx\pgfmath@number\pgfmath@char@zero0\expandafter\string\pgfmath@token\else-\fi\endcsname\relax#1}}
+\let\flo@tmp\pgfutil@empty
 \ifdefined\pgfmath@parse@@number
   \expandafter\flo@pgfpatch\pgfmath@parse@@number
     \csname pgfmath@base@\pgfmath@number\pgfmath@token\endcsname\relax\flo@pgfpatch@end
@@ -60,13 +61,14 @@
     \expandafter\flo@pgfpatchs\pgfmath@parse@@number
       \csname pgfmath@base@\expandafter\pgfmath@number\expandafter\string\pgfmath@token\endcsname\relax\flo@pgfpatch@end
   \fi
-  % neither form: say so under pdfTeX, whose string pool is fixed (LuaTeX's grows)
-  \ifx\flo@tmp\pgfutil@empty\ifdefined\directlua\else
-    \pgfutil@packagewarning{florilegium}{pgf \pgfversion's number scanner is not in a form
-      this library knows, so it is left as it is; a page of plants may then fill pdfTeX's
-      string pool (TeX capacity exceeded, pool size)}%
-  \fi\fi
 \fi
+% neither form, or no scanner by that name: say so under pdfTeX, whose string pool is
+% fixed (LuaTeX's grows)
+\ifx\flo@tmp\pgfutil@empty\ifdefined\directlua\else
+  \pgfutil@packagewarning{florilegium}{pgf \pgfversion's number scanner is not in a form
+    this library knows, so it is left as it is; a page of plants may then fill pdfTeX's
+    string pool (TeX capacity exceeded, pool size)}%
+\fi\fi
 
 % ---------------------------------------------------------------- traits
 \def\flo@set#1#2{\expandafter\edef\csname flo@v@#1\endcsname{#2}}
@@ -162,7 +164,13 @@
   \pgfmathgeneratepseudorandomnumber\pgfmathgeneratepseudorandomnumber
   \flo@set{seed}{#2}\flo@set{role}{#3}%
   \edef\florilegiumspecieslog{seed=#2}%
-  \csname flo@role@#3\endcsname
+  \ifcsname flo@role@#3\endcsname\else
+    \pgfutil@packageerror{florilegium}{No plant has the role `#3'}{A plant's role is hero,
+      spray, monocot, any, or a body plan (rose, lily, pea, fern, ...); see docs/species.md.
+      Press return to draw one of role any}%
+    \flo@set{role}{any}%
+  \fi
+  \csname flo@role@\flo@get{role}\endcsname
   \ifcsname flo@fix@plan\endcsname\edef\flo@val{\flo@fix@plan}\fi
   \flo@set{plan}{\flo@val}\flo@logT{plan}%
   \csname flo@plan@\flo@val\endcsname
@@ -192,7 +200,13 @@
   \pgfmathgeneratepseudorandomnumber\pgfmathgeneratepseudorandomnumber
   \flo@xset{seed}{#2}\flo@xset{role}{#3}%
   \edef\florilegiumspecieslog{seed=#2}%
-  \csname flo@vrole@#3\endcsname
+  \ifcsname flo@vrole@#3\endcsname\else
+    \pgfutil@packageerror{florilegium}{No visitor has the role `#3'}{A visitor's role is
+      bee, butterfly, moth, bird, beetle, fly, leaf, stem, perch, any, or a kind (ladybird,
+      snail, ...); see docs/species.md. Press return to draw one of role any}%
+    \flo@xset{role}{any}%
+  \fi
+  \csname flo@vrole@\flo@xget{role}\endcsname
   \ifcsname flo@vfix@kind\endcsname\edef\flo@val{\flo@vfix@kind}\fi
   \flo@xset{kind}{\flo@val}\flo@logT{kind}%
   \csname flo@vkind@\flo@val\endcsname
@@ -206,7 +220,7 @@
 % line widths are absolute, as in florilegium-ink.lua.
 
 % ---------------------------------------------------------------- loops and draws
-\newcount\flo@i \newcount\flo@j \newcount\flo@n \newcount\flo@m \newcount\flo@p \newcount\flo@q
+\newcount\flo@i \newcount\flo@j \newcount\flo@n \newcount\flo@m \newcount\flo@p \newcount\flo@tdi
 % \flo@loop{name}{\count}{from}{to}{body}: an ungrouped loop; each loop site has its own name
 \def\flo@loop#1#2#3#4#5{%
   \expandafter\def\csname flo@b@#1\endcsname{#5}%
@@ -326,9 +340,9 @@
   \ifnum\flo@ptend=1
     \flo@tone{flo@c}{0.22}{flo@ink}\pgfsetstrokecolor{flo@c}\pgfsetlinewidth{0.25pt}%
     \flo@chance{0.4}\ifflo@yes\def\flo@tdn{2}\else\def\flo@tdn{1}\fi
-    \flo@loop{ten}\flo@q{1}{\flo@tdn}{%
+    \flo@loop{ten}\flo@tdi{1}{\flo@tdn}{%
       \begin{pgfscope}\pgftransformshift{\flo@P0\flo@pend}%
-        \ifnum\flo@tdn=1 \flo@sym\flo@t{15}\else\flo@range\flo@t{10}{30}\ifnum\flo@q=2 \flo@calc\flo@t{-\flo@t}\fi\fi
+        \ifnum\flo@tdn=1 \flo@sym\flo@t{15}\else\flo@range\flo@t{10}{30}\ifnum\flo@tdi=2 \flo@calc\flo@t{-\flo@t}\fi\fi
         \pgftransformrotate{\flo@t}%
         \flo@range\flo@t{0.35}{0.55}\flo@vcurl\flo@t\flo@smoothopen{45}\pgfusepath{stroke}%
       \end{pgfscope}}%
@@ -621,7 +635,7 @@
         \pgftransformrotate{\flo@t}%
         \ifx\flo@fm\flo@tmp\flo@range\flo@oarg{0.72}{1}\pgftransformxscale{\flo@oarg}\fi
         \pgftransformscale{\flo@bd}%
-        \flo@calc\flo@t{\flo@bd*28.45276}\flo@sflower\flo@t
+        \flo@calc\flo@oarg{\flo@bd*28.45276}\flo@sflower\flo@oarg
         \ifx\flo@vw\flo@Vback\flo@vcalyx\fi
       \fi\fi\fi\fi\fi\fi\fi\fi
     \end{pgfscope}%
@@ -818,7 +832,7 @@
   \edef\flo@sva{#1}\flo@vtube\flo@sva{salvertube}%
   \flo@range\flo@t{0.3}{0.45}%
   \begin{pgfscope}\pgftransformshift{\flo@P0{0.55}}\pgftransformyscale{\flo@t}\flo@sym\flo@t{30}\pgftransformrotate{\flo@t}%
-    \flo@calc\flo@t{\flo@sva*28.45276}\flo@sflower\flo@t\end{pgfscope}}
+    \flo@calc\flo@oarg{\flo@sva*28.45276}\flo@sflower\flo@oarg\end{pgfscope}}
 % a pea flower in profile (papilionaceous), in \flo@vtube's units: its base at the origin,
 % toward +y, about 1 long, its standard on the +x side (the upper side: \flo@bloom
 % mirrors it). Flora's petals: the standard broad and notched, raised and bent back, the
@@ -1493,7 +1507,7 @@
 % ---------------------------------------------------------------- room
 % Which 5 mm cells are taken, kept per walk: a leaf or a branch goes only where the cells
 % under it are mostly free, as florilegium-grow.lua's leaves and branches go on its grid.
-\newcount\flo@Oi \newcount\flo@Oj \newcount\flo@On \newcount\flo@Ot \newcount\flo@gardens
+\newcount\flo@Oi \newcount\flo@Oj \newcount\flo@On \newcount\flo@Ot
 % mark (#1 = 1) or count (#1 = 0: \flo@On taken of \flo@Ot) the cells whose centers lie in
 % the disc at (#2,#3), radius #4 cm (at least 3 mm)
 \def\flo@room#1#2#3#4{%
@@ -1715,7 +1729,7 @@
       \pgftransformshift{\flo@P\flo@lx\flo@ly}\flo@calc\flo@t{\flo@la-90}\pgftransformrotate{\flo@t}%
       \pgftransformscale{\flo@lf}\ifdim\flo@fore pt<1pt \pgftransformyscale{\flo@fore}\fi\flo@autumnleaf
       \ifx\flo@lsd\pgfutil@empty\else\flo@calc\flo@lsw{1.8*\flo@nw/\flo@lf}\fi
-      \flo@calc\flo@t{\flo@lf*28.45276}\flo@leaf\flo@t}\fi
+      \flo@calc\flo@oarg{\flo@lf*28.45276}\flo@leaf\flo@oarg}\fi
   \fi
   \def\flo@fore{1}\def\flo@lsd{}}
 % basal leaves of a rosette: three to five, spread low
@@ -1818,7 +1832,7 @@
     \flo@seedorgan
     \flo@at\flo@Lleaf\ifflo@draw\flo@organ{\pgftransformshift{\flo@P\flo@bx\flo@by}\flo@calc\flo@t{\flo@a-90}%
       \pgftransformrotate{\flo@t}\pgftransformscale{\flo@lf}\flo@autumnleaf
-      \flo@calc\flo@t{\flo@lf*28.45276}\flo@leaf\flo@t}\fi
+      \flo@calc\flo@oarg{\flo@lf*28.45276}\flo@leaf\flo@oarg}\fi
   \fi}
 % 4. more branches, from anywhere up the stem, while there is room: three rounds of a few
 % tries for each plant in turn, as florilegium-grow.lua's branch loop fills the holes
@@ -1832,10 +1846,11 @@
   \def\flo@filling{0}}
 
 % ---------------------------------------------------------------- pics
+\newif\ifflo@ghost
 \pgfkeys{/florilegium/.is family, /florilegium,
   seed/.store in=\flo@o@seed, role/.store in=\flo@o@role, size/.store in=\flo@o@size,
   draw/.store in=\flo@o@draw, season/.store in=\flo@o@season,
-  plants/.store in=\flo@o@plants, width/.store in=\flo@o@width, ghost/.store in=\flo@o@ghost,
+  plants/.store in=\flo@o@plants, width/.store in=\flo@o@width, ghost/.is if=flo@ghost,
   engine/.store in=\flo@o@engine, scale/.store in=\flo@o@scale, traits/.store in=\flo@o@traits,
   seed=1, role=any, size=2cm, draw=, season=0.75, plants=, width=6cm, ghost=true, engine=auto, scale=1,
   traits=}
@@ -1863,14 +1878,15 @@
   \extractcolorspecs{flo@ink}{\flo@cmodel}{\flo@cspec}\convertcolorspec{\flo@cmodel}{\flo@cspec}{rgb}\flo@picink
   \extractcolorspecs{flo@accent}{\flo@cmodel}{\flo@cspec}\convertcolorspec{\flo@cmodel}{\flo@cspec}{rgb}\flo@picacc}
 % a seed as \pgfmathsetseed takes it: the expression's value, the digits before the point
-\def\flo@luaint#1#2{\pgfmathparse{#2}\expandafter\flo@luaint@\pgfmathresult.\relax#1}
-\def\flo@luaint@#1.#2\relax#3{\def#3{#1}}
+% (a plain number stays as written)
+\def\flo@intof#1#2{\pgfmathparse{#2}\expandafter\flo@intof@\pgfmathresult.\relax#1}
+\def\flo@intof@#1.#2\relax#3{\def#3{#1}}
 % the keys for Lua as the TikZ code reads them: the seeds as \pgfmathsetseed, the season
 % and the scale as pgfmath's numbers, the plants as \flo@parseplants lists them
 \def\flo@luapic#1#2{%
   \pgfkeys{/florilegium,#2}\flo@picrgb
-  \flo@luaint\flo@luaseed\flo@o@seed
-  \ifx\flo@o@draw\pgfutil@empty\let\flo@luadraw\pgfutil@empty\else\flo@luaint\flo@luadraw\flo@o@draw\fi
+  \flo@intof\flo@luaseed\flo@o@seed
+  \ifx\flo@o@draw\pgfutil@empty\let\flo@luadraw\pgfutil@empty\else\flo@intof\flo@luadraw\flo@o@draw\fi
   \pgfmathparse{\flo@o@season}\let\flo@luaseason\pgfmathresult
   \pgfmathparse{\flo@o@scale}\let\flo@luascale\pgfmathresult
   \let\flo@luaplants\pgfutil@empty
@@ -1882,7 +1898,7 @@
   \pgfmathsetlength\pgf@x{\flo@o@size}\pgfmathsetlength\pgf@y{\flo@o@width}%
   \directlua{require("florilegium-native").tikz("#1", "\flo@luaseed",
     "\luaescapestring{\flo@o@role}", "\flo@luadraw", \number\pgf@x, \number\pgf@y,
-    "\flo@luaseason", "\luaescapestring{\flo@luaplants}", "\luaescapestring{\flo@o@ghost}",
+    "\flo@luaseason", "\luaescapestring{\flo@luaplants}", "\ifflo@ghost true\else false\fi",
     "\flo@luascale", "\flo@picink", "\flo@picacc",
     "\ifcsname ver@tikzlibraryflorilegium.code.tex\endcsname\luaescapestring{\csname ver@tikzlibraryflorilegium.code.tex\endcsname}\fi",
     "\luaescapestring{\flo@o@traits}")}}
@@ -1892,7 +1908,7 @@
   \ifx\flo@o@engine\flo@lua\ifdefined\directlua\flo@luapic{#2}{#1}\else\flo@nolua#3\fi\else#3\fi}
 % sample the species, then reseed for the drawing (draw=, or the species seed + 1)
 \def\flo@picsetup#1{%
-  \pgfkeys{/florilegium,#1}\flo@colors
+  \pgfkeys{/florilegium,#1}\flo@colors\flo@intof\flo@o@seed\flo@o@seed
   \edef\flo@tmp{\noexpand\florilegiumspecies[\flo@o@traits]{\flo@o@seed}{\flo@o@role}}\flo@tmp
   \ifx\flo@o@draw\pgfutil@empty
     \edef\flo@o@draw{\the\numexpr\ifnum\flo@o@seed=2147483646 1\else\flo@o@seed+1\fi\relax}\fi
@@ -1915,7 +1931,7 @@
 \tikzset{pics/florilegium inflorescence/.style={code={\flo@engine{#1}{inflorescence}{%
   \flo@picsetup{#1}%
   \pgfsetroundcap\pgfsetroundjoin\pgftransformscale{28.45276}%
-  \flo@kindof\edef\flo@season{\flo@o@season}\def\flo@ulate{0}%
+  \flo@kindof\pgfmathparse{\flo@o@season}\let\flo@season\pgfmathresult\def\flo@ulate{0}%
   \flo@sym\flo@t{0.08}\flo@calc\flo@ust{1.2*\flo@season-\flo@ulate+\flo@t+\flo@get{phenology}}%
   \flo@unitdraw{\flo@o@scale}}}}}
 % the list plants={seed/role, ...} into \flo@pp@s<k>, \flo@pp@r<k>, k = 1..\flo@Np
@@ -1933,7 +1949,7 @@
 \def\flo@garden{%
   \pgfsetroundcap\pgfsetroundjoin
   \pgftransformscale{28.45276}%
-  \edef\flo@season{\flo@o@season}\global\advance\flo@gardens by1
+  \pgfmathparse{\flo@o@season}\let\flo@season\pgfmathresult
   % heights, each plant's stream, the ghost: from the first plant's seed
   \flo@drawseed{\csname flo@pp@s1\endcsname}%
   \flo@loop{gl}\flo@Ga{1}{\flo@Np}{%
@@ -1947,7 +1963,7 @@
   \flo@calc\flo@pxmin{-\flo@gW/2+0.7}\flo@calc\flo@pxmax{\flo@gW/2-0.7}%
   \ifnum\flo@Np=1 \def\flo@pA{0.5}\else\flo@calc\flo@pA{0.2*\flo@gW}\fi
   \flo@loop{glay}\flo@Gc{1}{5}{%
-    \edef\flo@layer{\the\flo@Gc}\edef\flo@roomid{\the\flo@gardens.\flo@layer}%
+    \edef\flo@layer{\the\flo@Gc}\let\flo@roomid\flo@layer%
     \flo@loop{gw}\flo@Ga{1}{\flo@Np}{%
       \expandafter\let\csname flo@pp@w\the\flo@Ga\expandafter\endcsname\csname flo@pp@z\the\flo@Ga\endcsname}%
     \ifx\flo@gghost\flo@true
@@ -1958,7 +1974,7 @@
         % a plain flower of the species, as v1.3's ghosts are: no daisy disk, no lily
         \flo@organ{\def\flo@lift{0.62}\pgftransformshift{\flo@P\flo@gx\flo@gy}\flo@stone
           \flo@set{form}{rotate}\ifnum\flo@get{merosity}>6 \flo@set{merosity}{5}\fi
-          \pgftransformscale{\flo@gdiam}\flo@calc\flo@t{\flo@gdiam*28.45276}\flo@sflower\flo@t}%
+          \pgftransformscale{\flo@gdiam}\flo@calc\flo@oarg{\flo@gdiam*28.45276}\flo@sflower\flo@oarg}%
       \fi
     \fi
     \flo@loop{gps}\flo@Ga{1}{\flo@Np}{\flo@plantsetup\flo@passstem\flo@plantsave}%
@@ -1992,7 +2008,7 @@
   \expandafter\flo@parseplants\expandafter{\flo@o@plants}
   \pgfmathsetlength\pgf@x{\flo@o@size}\flo@calc\flo@gH{\pgf@x/28.45276}%
   \pgfmathsetlength\pgf@x{\flo@o@width}\flo@calc\flo@gW{\pgf@x/28.45276}%
-  \edef\flo@gghost{\flo@o@ghost}%
+  \edef\flo@gghost{\ifflo@ghost true\else false\fi}%
   \flo@garden}}}}
 
 % ================================================================ v1.3's hand
@@ -4159,7 +4175,7 @@
 % from its own stream (\flo@seedorgan)
 \def\flo@ferncrown{%
   \pgfsetroundcap\pgfsetroundjoin\pgftransformscale{28.45276}%
-  \edef\flo@season{\flo@o@season}\flo@int\flo@fenf{3}{5}%
+  \pgfmathparse{\flo@o@season}\let\flo@season\pgfmathresult\flo@int\flo@fenf{3}{5}%
   \flo@loop{fecu}\flo@Ga{1}{\flo@fenf}{%
     \flo@calc\flo@f{(\the\flo@Ga-(\flo@fenf+1)/2)/((\flo@fenf-1)/2)}%
     \flo@sym\flo@t{8}\flo@calc\flo@fela{90-44*\flo@f+\flo@t}%
@@ -4174,7 +4190,7 @@
       \ifdim\flo@feun pt<0.97pt \def\flo@feund{0}\else\edef\flo@feund{\flo@feuf}\fi
       \pgftransformshift{\flo@P\flo@fexx{0}}\flo@calc\flo@t{\flo@fela-90}\pgftransformrotate{\flo@t}%
       \pgftransformscale{\flo@fell}\flo@autumnleaf
-      \flo@calc\flo@t{\flo@fell*28.45276}\flo@frond\flo@t}}%
+      \flo@calc\flo@oarg{\flo@fell*28.45276}\flo@frond\flo@oarg}}%
   \ifnum\flo@get{dimorphic}=1 \ifdim\flo@season pt>0.55pt
     \flo@sym\flo@t{6}\flo@calc\flo@fela{90+\flo@t}\flo@sym\flo@feac{12}%
     \flo@range\flo@t{0.55}{0.7}\flo@calc\flo@fell{\flo@gH*\flo@t}%
@@ -4182,7 +4198,7 @@
     \flo@organ{%
       \def\flo@fefert{1}\edef\flo@fearch{\flo@feac}\def\flo@feun{1}%
       \flo@calc\flo@t{\flo@fela-90}\pgftransformrotate{\flo@t}\pgftransformscale{\flo@fell}%
-      \flo@calc\flo@t{\flo@fell*28.45276}\flo@frond\flo@t}%
+      \flo@calc\flo@oarg{\flo@fell*28.45276}\flo@frond\flo@oarg}%
   \fi\fi}
 
 % ================================================================ visitors
@@ -5950,7 +5966,7 @@
   \def\flo@tmp{bird}\ifx\flo@vg\flo@tmp\pgftransformscale{#1}\flo@bird{#1}\fi}
 % sample the visitor, then reseed for the drawing
 \def\flo@vispicsetup#1{%
-  \pgfkeys{/florilegium,#1}\flo@colors
+  \pgfkeys{/florilegium,#1}\flo@colors\flo@intof\flo@o@seed\flo@o@seed
   \edef\flo@tmp{\noexpand\florilegiumvisitor[\flo@o@traits]{\flo@o@seed}{\flo@o@role}}\flo@tmp
   \ifx\flo@o@draw\pgfutil@empty
     \edef\flo@o@draw{\the\numexpr\ifnum\flo@o@seed=2147483646 1\else\flo@o@seed+1\fi\relax}\fi
