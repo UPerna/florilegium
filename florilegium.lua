@@ -341,6 +341,7 @@ end
 -- mark, so the theme changes from the page that the mark is on.
 M.theme = nil
 local function themes(list)
+  if M.theme == "" then M.theme = nil end   -- \florilegiumtheme{} in the preamble, as in the text
   local rest = {}
   for _, m in ipairs(list) do
     if m.kind == "theme" then M.theme = m.arg ~= "" and m.arg or nil else rest[#rest + 1] = m end
