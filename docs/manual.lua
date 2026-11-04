@@ -319,7 +319,9 @@ local function blocks(lines, ctx, out)
       out[#out + 1] = "\\end{quote}"
     else
       local para = {}
-      while i <= #lines and not lines[i]:match("^%s*$") and not lines[i]:match("^#")
+      -- stop at a heading only: a line such as "#4 ..." is text, and stopping there would
+      -- leave it unread and loop for ever
+      while i <= #lines and not lines[i]:match("^%s*$") and not lines[i]:match("^#+%s")
           and not lines[i]:match("^```") and not lines[i]:match("^<img ") do
         para[#para + 1] = lines[i]
         i = i + 1
