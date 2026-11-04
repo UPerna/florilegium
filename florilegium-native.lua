@@ -117,15 +117,18 @@ end
 -- \flo@vmottle: blotches and specks over (x0,y0)-(x1,y1), inside the clip. With `drift`
 -- the x range moves, as the library's does: it passes the range by the names \flo@xa and
 -- \flo@xb, which each blotch's curve (\flo@smoothprep) sets to its sixth and first points
--- and each speck to two of its corners, so only the first blotch spans the petal
+-- and each speck to two of its corners, so only the first blotch spans the petal. With
+-- drift "xy" the top moves too: the strap leaf passes it as \flo@yb, which the curve sets
+-- to its first point's y and a speck to its second corner's
 local function mottle(x0, y0, x1, y1, n, size, dark, light, nspk, drift)
-  local xa, xb = x0, x1
+  local xa, xb, yb = x0, x1, y1
   for _ = 1, n do
-    local mx, my = range(xa, xb), range(y0, y1)
+    local mx, my = range(xa, xb), range(y0, yb)
     local mr = size * range(0.5, 1.4)
     local ms = mr * range(0.5, 1)
     local pts = blob(mx, my, mr, ms, 0.35, 7)
     if drift then xa, xb = pts[6][1], pts[1][1] end
+    if drift == "xy" then yb = pts[1][2] end
     if chance(0.6) then
       local c = tone(dark + sym(0.06))
       smooth(pts, true) fill(c, range(0.10, 0.22), true)
@@ -136,13 +139,14 @@ local function mottle(x0, y0, x1, y1, n, size, dark, light, nspk, drift)
   end
   if nspk > 0 then
     for _ = 1, nspk do
-      local mx, my = range(xa, xb), range(y0, y1)
+      local mx, my = range(xa, xb), range(y0, yb)
       local mr = size * range(0.03, 0.08)
       local ma = range(0, 180)
       local sc, ss = mr * cos(ma), mr * sin(ma)
       moveto(mx + sc, my + ss) lineto(mx - 0.6 * ss, my + 0.6 * sc)
       lineto(mx - sc, my - ss) lineto(mx + 0.6 * ss, my - 0.6 * sc) close()
       if drift then xa, xb = mx + sc, mx - 0.6 * ss end
+      if drift == "xy" then yb = my + 0.6 * sc end
     end
     local c = tone(dark - 0.08)
     fill(c, range(0.3, 0.5), true)
@@ -1972,7 +1976,7 @@ local function strap(lW, bend, u)
     x0, x1, y1 = xa - lW * 2.5, xb + lW * 2.5, yb + lW
   end
   fill(tone(0.12), 0.28, true)
-  mottle(x0, 0, x1, y1, 10, 0.07, lt - 0.2, lt + 0.22, 8, true)
+  mottle(x0, 0, x1, y1, 10, 0.07, lt - 0.2, lt + 0.22, 8, "xy")
   smooth(outline, true) stroke(tone(0.06), 1.3 * u, 0.22, true)
   -- the midrib in white, and faint parallel veins either side
   local mid = {}
