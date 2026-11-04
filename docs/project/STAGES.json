@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_stage": "09",
+  "current_stage": "10",
   "prompt_sha256": "8D25740D944FC98943FD005737BD825215CFCF6F894218790E140EDE8EE3F09E",
   "stages": [
     {
@@ -285,45 +285,40 @@
     {
       "id": "09",
       "title": "periodic tiling and symmetry infrastructure",
-      "status": "in_progress",
+      "status": "passed",
       "prerequisites": "08",
       "acceptance_items": [
         "the supported tiling registry and its limits are inspectable, standard fixtures are correct independently of rendering, and later families can attach motifs using shared boundary ports. Periodicity is a declared mathematical construction property, not an inference from the size of an exported rectangle."
       ],
-      "observed_results": [
-        "Isolated work/stage09 created at verified08 9041fafcdc5587126d75aecd8b03d6bcb1898412; older dirty worktrees untouched.",
-        "Seven exact affine group descriptors and five certified periodic quotients; actual rotated negative/nonzero world patches, directed seams, stable owners and rational ports implemented.",
-        "Initial source ffd3dc459e24ca70ca5be5be1802bcfd8fc79c7befc11fa95422132ecbd1f9cb passed33 Lua checks per runtime. Independent exact area, vertex types, edge classes and potential-overlap SAT proved all five quotients.",
-        "Initial distinct-viewport raster: PDF pixel-exact, SVG seven changed pixels out of17056 (peak4). Keeping world paths and stable paint order confirmed54 exact common paths but retained the same backend raster diagnostic. Added exact same physical window witnesses from independent source patches; latest full suite pending."
-      ],
+      "observed_results": "Both local runtimes passed 36 periodic checks with 39 identical output hashes. Independent exact quotient, geometry and determinism checks passed. All nine local PDF/SVG pairs reviewed; same physical viewport is byte/pixel exact. Both native jobs passed; all 39 native outputs match local bytes, nine fresh pairs accepted, 259 source-kit hashes verified.",
       "evidence_paths": [
-        "docs/architecture/PERIODIC.md",
-        "pattern_wallpaper.lua",
-        "pattern_periodic_templates.lua",
-        "pattern_periodic.lua",
-        "tools/periodiccheck.lua",
-        "tools/periodic_oracle.py",
-        "artifacts/receipts/09/"
+        "artifacts/receipts/09/local-final.json",
+        "artifacts/receipts/09/publication.json",
+        "artifacts/receipts/09/ci-final.json"
       ],
-      "tested_code_revision": null,
-      "local_commit": null,
-      "verified_remote_revision": null,
-      "next_action": "Poll current full suite33383; require exact identical common-window PDF/SVG/plan and pixels, verify all final local rasters and source bytes, then guarded publication/required exact-head native CI."
+      "tested_code_revision": "ac76ce9c75522f2a653b697ddd8d97cd3dc803bf",
+      "local_commit": "ac76ce9c75522f2a653b697ddd8d97cd3dc803bf",
+      "verified_remote_revision": "ac76ce9c75522f2a653b697ddd8d97cd3dc803bf",
+      "next_action": "Passed; proceed to stage 10."
     },
     {
       "id": "10",
       "title": "Celtic knotwork with actual strand semantics",
-      "status": "pending",
+      "status": "in_progress",
       "prerequisites": "09",
       "acceptance_items": [
         "all four fixtures produce correct semantic topology and readable vector output, width changes preserve graph/crossing identities, impossible constraints fail clearly, and the capability ledger accurately records which source mechanisms have been implemented."
       ],
-      "observed_results": null,
-      "evidence_paths": null,
+      "observed_results": "23 checks on each Lua version, 16 identical output hashes, independent traversal of all 50 crossing branches, six local PDF/SVG pairs inspected. Native CI pending.",
+      "evidence_paths": [
+        "artifacts/receipts/10/oracle.json",
+        "artifacts/receipts/10/receipt-Lua-5.3.json",
+        "artifacts/receipts/10/receipt-Lua-5.4.json"
+      ],
       "tested_code_revision": null,
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+      "next_action": "Publish with expected parent ac76ce9, verify branch bytes, require both native CI jobs, and inspect fresh Celtic artifacts."
     },
     {
       "id": "11",

@@ -26,6 +26,8 @@ check:
 	$(RUN) python3 tools/botanical_oracle.py
 	$(RUN) texlua tools/periodiccheck.lua
 	$(RUN) python3 tools/periodic_oracle.py
+	$(RUN) texlua tools/celticcheck.lua
+	$(RUN) python3 tools/celtic_oracle.py
 	$(RUN) texlua tools/layoutcheck.lua
 	$(RUN) texlua tools/spacecheck.lua
 	$(RUN) texlua tools/initialcheck.lua
