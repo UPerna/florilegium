@@ -1,0 +1,20 @@
+% tools/specimen-page.tex -- one page of specimen-tikz.tex, the others left out, so that CI
+% can typeset the sheet's pages in pure TikZ all at once (tools/tikzcheck-ci.sh). From the
+% repository's root:
+%   extra_mem_top=20000000 pdflatex -jobname=page-3 "\def\specimenpage{3}\input{tools/specimen-page.tex}"
+% specimen-tikz.tex puts \newpage between its pages and nowhere else. Before the page asked
+% for, everything up to the next \newpage is read and dropped unexpanded; that page's own
+% \newpage ends the document. Nothing in the sheet carries over from one page to the next.
+% Copyright (c) 2026 Kevin Raymond. MIT License: see LICENSE or florilegium.sty.
+\providecommand\specimenpage{1}
+\newcount\specimenAt
+\specimenAt=1
+\long\def\specimenSkip#1\newpage{\advance\specimenAt by 1 \specimenGo}
+\def\specimenGo{\ifnum\specimenAt<\specimenpage\relax\expandafter\specimenSkip\fi}
+% at the end of \begin{document}, where only \ignorespaces follows the hook
+\AddToHook{begindocument/end}{%
+  \let\specimenNewpage\newpage
+  \def\newpage{\end{document}}%
+  \specimenGo}
+\AddToHook{enddocument}{\let\newpage\specimenNewpage}
+\input{specimen-tikz.tex}

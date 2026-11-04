@@ -85,29 +85,32 @@ jobs:
             showcase.pdf
             spread.pdf
 
-  # The species in pure TikZ, which promise pdfLaTeX too. pgfmath computes every point of the
-  # specimen sheet under pdflatex; a strip of plants takes more of pdfTeX's main memory than its
-  # default 5 million words (specimen-tikz.tex says why), and pre_compile runs in the shell that
-  # then runs latexmk, so the export reaches pdflatex. Then tikzcheck draw quick builds the same
-  # pics with engine=tikz and engine=lua and compares their renders (pdftoppm, which the
-  # image lacks: poppler-utils): a flower, a leaf and an inflorescence of every body plan,
-  # every kind of cluster, leaf, fern and visitor, a plant in three seasons. Pure TikZ is slow,
-  # about 25 minutes for both on a fast desktop, so it runs beside pdfs, not in it.
+  # The species in pure TikZ, which promise pdfLaTeX too, on every core of the runner
+  # (tools/tikzcheck-ci.sh, which latex-action runs as its compiler, in its TeX Live). Every
+  # page of the specimen sheet is typeset under pdflatex in a run of its own, all at once, with
+  # the main memory a strip of plants needs (specimen-tikz.tex says why); a page fails on any
+  # error, and on the library's warning that it could not patch pgf's number scanner. Then
+  # tikzcheck draw quick builds the same pics with engine=tikz and engine=lua, each in as many
+  # runs as there are cores, and compares their renders (pdftoppm, which the image lacks:
+  # poppler-utils): a flower, a leaf and an inflorescence of every body plan, every kind of
+  # cluster, leaf, fern and visitor, a plant in three seasons. Pure TikZ is slow: in one run it
+  # took 70 minutes here. The pages, the pics' shards and the comparison (of the inked part of
+  # each page only) now share the runner's cores, about 12 minutes on four threads of a fast
+  # desktop, beside pdfs.
   tikz:
     runs-on: ubuntu-latest
-    timeout-minutes: 75
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: the pure-TikZ species sheet (pdflatex), and the two engines' pics compared
+      - name: the pure-TikZ species sheet page by page (pdflatex), and the two engines' pics compared
         uses: xu-cheng/latex-action@6549dc21effb2730855a1281407ecfcececc6c1b # 4.1.0
         with:
-          root_file: specimen-tikz.tex
-          latexmk_use_lualatex: false
+          root_file: tools/tikzcheck-ci.sh
+          compiler: sh
+          args: -e
           extra_system_packages: poppler-utils
-          pre_compile: export extra_mem_top=20000000
-          post_compile: texlua tools/tikzcheck.lua draw quick
 
   # l3build's regression tests (build.lua, testfiles/): each test typesets a few pages and logs
   # the md5 of every drawing on them, so a change that moves one point of one drawing fails
