@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_stage": "15",
+  "current_stage": "16",
   "prompt_sha256": "8D25740D944FC98943FD005737BD825215CFCF6F894218790E140EDE8EE3F09E",
   "stages": [
     {
@@ -413,37 +413,43 @@
     {
       "id": "15",
       "title": "Spectre, with correct chirality and boundaries",
-      "status": "in_progress",
+      "status": "passed",
       "prerequisites": "14",
       "acceptance_items": [
         "actual Spectre boundaries and one-chirality construction are implemented and accurately labelled; Tile(1,1) diagnostics are distinct; valid patches preserve IDs across views. All mathematical claims match the source case actually generated. Retain required code/data attribution and licenses."
       ],
-      "observed_results": "18 checks on each Lua version, 25 matching output hashes, five exact author-reference coordinate hashes and 34 stable shared leaves. Nine local PDF/SVG pairs inspected including curved and straight close-ups. Native CI pending.",
+      "observed_results": "Native CI passed both jobs. 18 checks, five independent reference comparisons, 34 common leaf IDs, 25 artifact hashes and 320 source kit hashes. Nine native pairs accepted. Native/local byte differences: [].",
       "evidence_paths": [
         "artifacts/receipts/15/oracle.json",
         "artifacts/receipts/15/receipt-Lua-5.3.json",
         "artifacts/receipts/15/receipt-Lua-5.4.json",
-        "artifacts/receipts/15/source-reference.json"
+        "artifacts/receipts/15/source-reference.json",
+        "artifacts/receipts/15/publication.json",
+        "artifacts/receipts/15/ci-final.json"
       ],
-      "tested_code_revision": null,
-      "local_commit": null,
-      "verified_remote_revision": null,
-      "next_action": "Publish with expected parent 580053a, verify branch bytes, require both native CI jobs, and inspect fresh Celtic artifacts."
+      "tested_code_revision": "34dc7614459c2694910d24710835006cdc73eb43",
+      "local_commit": "34dc7614459c2694910d24710835006cdc73eb43",
+      "verified_remote_revision": "34dc7614459c2694910d24710835006cdc73eb43",
+      "next_action": "Passed. Proceed to stage 16."
     },
     {
       "id": "16",
       "title": "pass the five-family architecture gate",
-      "status": "pending",
+      "status": "in_progress",
       "prerequisites": "15",
       "acceptance_items": [
         "all five real implementations work without changing core contracts per example. Every required capability to this point has evidence, no placeholder output is counted, and the updated architecture explains any necessary decisions. If a family fails, fix the failure or remain on stage 16. Do not describe this milestone as completion of the remaining family scope."
       ],
-      "observed_results": null,
-      "evidence_paths": null,
+      "observed_results": "62 integration checks on each Lua runtime and 35 matching output hashes. Independent semantics, protected paint probes, and thirteen PDF/SVG comparisons passed. Native CI pending.",
+      "evidence_paths": [
+        "artifacts/receipts/16/receipt-Lua-5.3.json",
+        "artifacts/receipts/16/receipt-Lua-5.4.json",
+        "artifacts/receipts/16/oracle.json"
+      ],
       "tested_code_revision": null,
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+      "next_action": "Publish from exact parent 34dc761, verify normal Git fetch and both native CI jobs, then inspect all fresh PDF/SVG pairs."
     },
     {
       "id": "17",

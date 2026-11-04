@@ -69,6 +69,68 @@ function M.operations(plan)
     j=j+1;total=total+1;return part[j]
   end
 end
+-- Place fully resolved vector plans in physical page slots. Each panel keeps
+-- its own clip scope, including protected regions and internal symbol clips.
+function M.compose_vectors(bounds, panels)
+  local function valid_box(b)
+    assert(#b==4,"expected four page bounds")
+    for _,v in ipairs(b) do
+      assert(type(v)=="number" and v==v and math.abs(v)<math.huge,"invalid page coordinate")
+    end
+    assert(b[1]<b[3] and b[2]<b[4],"empty page box")
+  end
+  valid_box(bounds)
+  local out={version=M.VERSION,unit="cm",bounds=P.plain(bounds),operations=P.array(),
+    fonts=P.array(),text=P.array(),reading_order=P.array(),operation_segments=P.array(),operation_count=0}
+  local bytes=0
+  local function flush()
+    if #out.operations==0 then return end
+    local data=P.serialize(out.operations)
+    bytes=bytes+#data
+    assert(#data<=2*1024*1024 and bytes<=64*1024*1024,"composition byte budget exceeded")
+    out.operation_segments[#out.operation_segments+1]=data
+    out.operations=P.array()
+  end
+  local function emit(op)
+    out.operation_count=out.operation_count+1
+    assert(out.operation_count<=100000,"composition operation budget exceeded")
+    out.operations[#out.operations+1]=op
+    if #out.operations==32 then flush() end
+  end
+  for _,panel in ipairs(panels) do
+    local plan,slot=panel.plan,panel.bounds
+    valid_box(slot)
+    assert(slot[1]>=bounds[1] and slot[2]>=bounds[2] and slot[3]<=bounds[3]
+      and slot[4]<=bounds[4],"panel leaves page bounds")
+    assert(plan.version==M.VERSION and plan.unit=="cm","incompatible render plan")
+    assert(#plan.text==0 and #plan.reading_order==0,"vector composition cannot place logical text")
+    local b=plan.bounds
+    valid_box(b)
+    local width,height=b[3]-b[1],b[4]-b[2]
+    local scale=math.min((slot[3]-slot[1])/width,(slot[4]-slot[2])/height)
+    local m={scale,0,0,scale,(slot[1]+slot[3]-scale*(b[1]+b[3]))/2,
+      (slot[2]+slot[4]-scale*(b[2]+b[4]))/2}
+    emit({op="push_clip",commands=rect(slot),fill_rule="nonzero"})
+    local depth=0
+    for operation in M.operations(plan) do
+      local op=P.plain(operation)
+      if op.op=="path" then op.transform=G.compose(m,op.transform)
+      elseif op.op=="push_clip" then
+        op.commands=transformed(op.commands,m)
+        depth=depth+1
+      elseif op.op=="pop_clip" then
+        assert(depth>0,"unbalanced panel clipping")
+        depth=depth-1
+      else error("unsupported vector composition operation") end
+      emit(op)
+    end
+    assert(depth==0,"unbalanced panel clipping")
+    emit({op="pop_clip"})
+  end
+  flush()
+  out.operations=nil
+  return P.snapshot(out)
+end
 local function path(commands,pdf)
   local out={};local names={M="m",L="l",C="c",Z="h"}
   for _,c in ipairs(commands)do local a={};for i=2,#c do a[#a+1]=n(c[i])end

@@ -296,9 +296,13 @@ local colors={
   matching={thick={.92,.88,.78},thin={.80,.88,.91}},
 }
 local function lower(x,v,style)
-  for k in pairs(style) do assert(k=="display" or k=="stroke_width","penrose-unsupported-style:"..k) end
+  for k in pairs(style) do assert(k=="display" or k=="stroke_width" or k=="palette","penrose-unsupported-style:"..k) end
   local display=style.display or "clean"
   local fill=assert(colors[display],"penrose-unsupported-display")
+  if style.palette then
+    assert(style.palette=="plum","penrose-unsupported-palette")
+    fill={thick={.49,.29,.47},thin={.81,.67,.69}}
+  end
   local width=style.stroke_width or .012
   assert(finite(width) and width>0 and width<=.12,"penrose-stroke-width")
   local G=require("pattern_geometry")

@@ -1,5 +1,5 @@
 # Florilegium execution status
 
-Stages 00-14 passed. Stage 15 is in progress. 18 checks on each Lua version, 25 matching output hashes, five exact author-reference coordinate hashes and 34 stable shared leaves. Nine local PDF/SVG pairs inspected including curved and straight close-ups. Native CI pending.
+Stages 00–15 passed. Stage 16 local acceptance passed. 62 integration checks on each Lua runtime and 35 matching output hashes. Independent semantics, protected paint probes, and thirteen PDF/SVG comparisons passed. Native CI pending.
 
-Publish with expected parent 580053a, verify branch bytes, require both native CI jobs, and inspect fresh Celtic artifacts.
+Publish from exact parent 34dc761, verify normal Git fetch and both native CI jobs, then inspect all fresh PDF/SVG pairs.

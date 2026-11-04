@@ -144,11 +144,33 @@ function M.register(registry)
     assumptions={"Named new convex-panel recipe, distinct from legacy defaults","World root anchor, 0.4cm candidate grid and bounded serial proxy rules","Conservative paint-envelope containment, not a claim of source MAT reproduction"}})
   registry:register(d,{validate_inputs=function(s)region(s);return true end,generate=function(s,c)return generate(d,s,c)end,validate=function(x)return M.validate(x,d)end,
     lower=function(x,v,style)
-      assert(next(style)==nil,"named watercolor recipe currently has no repaint controls")
+      for key in pairs(style) do assert(key=="palette","unsupported botanical style: "..key) end
+      local resources=P.plain(x.extensions.panel.resources)
+      if style.palette then
+        assert(style.palette=="indigo","unsupported botanical palette")
+        for _,resource in ipairs(resources) do
+          local variant=resource.variants.scene
+          local asset=require("pattern_parse").decode(variant.content)
+          for _,operation in ipairs(asset.operations) do
+            if operation.op=="path" then
+              local paint=operation.paint
+              for _,key in ipairs{"fill","stroke"} do
+                if paint[key] then
+                  local c=paint[key]
+                  local shade=.2126*c[1]+.7152*c[2]+.0722*c[3]
+                  paint[key]={.12+.71*shade,.16+.71*shade,.32+.57*shade}
+                end
+              end
+            end
+          end
+          variant.content=P.serialize(asset)
+          variant.sha256=H.sha256(variant.content)
+        end
+      end
       local ops={};for _,p in ipairs(x.extensions.panel.placements)do local a,b=v.transform,p.transform
         ops[#ops+1]={op="symbol",semantic_ref=p.semantic_ref,resource_ref=p.resource_ref,transform={a[1]*b[1],a[2]*b[1],a[3]*b[4],a[4]*b[4],a[1]*b[5]+a[3]*b[6]+a[5],a[2]*b[5]+a[4]*b[6]+a[6]}}
       end
-      return{id=x.id.."/scene",instance_ref=x.id,view_ref=v.id,unit="cm",validity=v.validity,clip={bounds=P.plain(v.crop),protected_regions=P.plain(v.protected_regions)},operations=ops,resources=P.plain(x.extensions.panel.resources)}
+      return{id=x.id.."/scene",instance_ref=x.id,view_ref=v.id,unit="cm",validity=v.validity,clip={bounds=P.plain(v.crop),protected_regions=P.plain(v.protected_regions)},operations=ops,resources=resources}
     end})
   return d
 end
