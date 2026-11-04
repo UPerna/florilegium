@@ -34,6 +34,8 @@ check:
 	$(RUN) python3 tools/freeform_oracle.py
 	$(RUN) texlua tools/substitutioncheck.lua
 	$(RUN) python3 tools/substitution_oracle.py
+	$(RUN) texlua tools/penrosecheck.lua
+	$(RUN) python3 tools/penrose_oracle.py
 	$(RUN) texlua tools/layoutcheck.lua
 	$(RUN) texlua tools/spacecheck.lua
 	$(RUN) texlua tools/initialcheck.lua

@@ -557,19 +557,22 @@
         "N. G. de Bruijn"
       ],
       "year": 1981,
-      "version": "Indagationes Mathematicae (Proceedings) 84(1), pp.39–52",
-      "primary_url": "https://doi.org/10.1016/1385-7258(81)90016-0",
+      "version": "Proceedings A 84(1), March 20 1981; pp. 39-52 (Part I)",
+      "primary_url": "https://pure.tue.nl/ws/files/4344195/597566.pdf",
       "doi": "10.1016/1385-7258(81)90016-0",
       "sections": [
-        "Regular pentagrid duality, admissible shifts and matching; full-text sections pending recovery"
+        "2 AR-patterns",
+        "4 Regular pentagrids",
+        "5 Pentagrid duality and edge arrows",
+        "7 Five-dimensional interpretation"
       ],
       "stage_owner": "14",
-      "retrieved": "2026-11-02",
-      "access": "Institutional author metadata verified; primary full text remains a recovery obligation before stage 14",
+      "retrieved": "2026-11-04",
+      "access": "Both full parts verified in TU/e scan and readable University of Illinois mirror",
       "code_availability": "No reusable code/license established; independent implementation required unless separately verified",
       "data_availability": "Use original fixtures; publication access is not artwork permission",
       "paper_license": "No redistribution permission established; do not bundle paper",
-      "implementation_status": "pending"
+      "implementation_status": "Primary recovery resolved; regular-pentagrid P3 stage 14 in progress"
     },
     {
       "id": "R19b",
@@ -578,19 +581,20 @@
         "N. G. de Bruijn"
       ],
       "year": 1981,
-      "version": "Indagationes Mathematicae (Proceedings) 84(1), pp.53–66",
-      "primary_url": "https://doi.org/10.1016/1385-7258(81)90017-2",
+      "version": "Proceedings A 84(1), March 20 1981; pp. 53-66 (Part II)",
+      "primary_url": "https://pure.tue.nl/ws/files/4344195/597566.pdf",
       "doi": "10.1016/1385-7258(81)90017-2",
       "sections": [
-        "Continuation of algebraic Penrose construction; full-text sections pending recovery"
+        "9 New parameters for pentagrids",
+        "10 Singular pentagrids and phase conditions"
       ],
       "stage_owner": "14",
-      "retrieved": "2026-11-02",
-      "access": "Institutional author metadata verified; full text recovery pending before stage 14",
+      "retrieved": "2026-11-04",
+      "access": "Both full parts verified in TU/e scan and readable University of Illinois mirror",
       "code_availability": "No reusable code/license established; independent implementation required unless separately verified",
       "data_availability": "Use original fixtures; publication access is not artwork permission",
       "paper_license": "No redistribution permission established; do not bundle paper",
-      "implementation_status": "pending"
+      "implementation_status": "Primary recovery resolved; regular-pentagrid P3 stage 14 in progress"
     },
     {
       "id": "R20",
@@ -682,7 +686,7 @@
       "code_availability": "No copied implementation",
       "data_availability": "Original integer fixtures only",
       "paper_license": "Paper not bundled",
-      "implementation_status": "Finite L-triomino dissection implemented; native CI pending",
+      "implementation_status": "Stage 13 finite L-triomino infrastructure passed native CI and artifact review",
       "kind": "paper"
     }
   ]

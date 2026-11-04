@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_stage": "13",
+  "current_stage": "14",
   "prompt_sha256": "8D25740D944FC98943FD005737BD825215CFCF6F894218790E140EDE8EE3F09E",
   "stages": [
     {
@@ -370,36 +370,43 @@
     {
       "id": "13",
       "title": "aperiodic construction and validation infrastructure",
-      "status": "in_progress",
+      "status": "passed",
       "prerequisites": "12",
       "acceptance_items": [
         "a real substitution fixture exercises the infrastructure; deliberate reflection, duplicate, seam and parent-child corruptions fail. Overlap queries and expanded generation agree inside their declared valid domain. The Build record states the source construction, hypotheses, query horizon and every performed finite check."
       ],
-      "observed_results": "18 checks on each Lua version, 14 matching output hashes, 256 leaves and 768 exact unit squares, 64 unchanged shared leaves and byte/pixel exact common-window views. Four local PDF/SVG pairs inspected. Native CI pending.",
+      "observed_results": "Native CI passed both jobs. 18 checks, 256 exact leaves, 768 covered unit squares, 64 stable overlap leaves, 14 artifact hashes and 299 source kit hashes. Four native pairs accepted. Native/local byte differences: [].",
       "evidence_paths": [
         "artifacts/receipts/13/oracle.json",
         "artifacts/receipts/13/receipt-Lua-5.3.json",
-        "artifacts/receipts/13/receipt-Lua-5.4.json"
+        "artifacts/receipts/13/receipt-Lua-5.4.json",
+        "artifacts/receipts/13/publication.json",
+        "artifacts/receipts/13/ci-final.json"
       ],
-      "tested_code_revision": null,
-      "local_commit": null,
-      "verified_remote_revision": null,
-      "next_action": "Publish with expected parent e84897b, verify branch bytes, require both native CI jobs, and inspect fresh Celtic artifacts."
+      "tested_code_revision": "5fc7a9ee535e36614fc640d682fcfbfbffcbe08c",
+      "local_commit": "5fc7a9ee535e36614fc640d682fcfbfbffcbe08c",
+      "verified_remote_revision": "5fc7a9ee535e36614fc640d682fcfbfbffcbe08c",
+      "next_action": "Passed. Proceed to stage 14."
     },
     {
       "id": "14",
       "title": "Penrose tilings",
-      "status": "pending",
+      "status": "in_progress",
       "prerequisites": "13",
       "acceptance_items": [
         "a reproducible Penrose instance passes structural and source-rule checks, renders through shared PDF/SVG output, and supports view changes without interior regeneration. Published aperiodicity is cited with its applicable assumptions; finite test results remain separately labelled."
       ],
-      "observed_results": null,
-      "evidence_paths": null,
+      "observed_results": "18 checks on each Lua version, 23 matching output hashes, 1682 independently audited query rhombi, 187 stable shared rhombi and 12 gutter-crossing rhombi. Eight local PDF/SVG pairs inspected. Both required primary papers recovered. Native CI pending.",
+      "evidence_paths": [
+        "artifacts/receipts/14/oracle.json",
+        "artifacts/receipts/14/receipt-Lua-5.3.json",
+        "artifacts/receipts/14/receipt-Lua-5.4.json",
+        "artifacts/receipts/14/primary-recovery.json"
+      ],
       "tested_code_revision": null,
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+      "next_action": "Publish with expected parent 5fc7a9e, verify branch bytes, require both native CI jobs, and inspect fresh Celtic artifacts."
     },
     {
       "id": "15",

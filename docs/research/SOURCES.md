@@ -57,7 +57,7 @@ R14 v3 (July 2024) and R15 v2 (September 2024) are the journal-era revisions sel
 
 ## Open obligations and recovery
 
-OPEN_OBLIGATIONS.json records source recovery and license checks with exact owning gates. Full-text recovery is still needed for R08, R10a, R16b, R19a/b and original R04c. The author thesis R20 is available but is not misrepresented as the original R04c publication. Related papers, abstracts and plausible images cannot close those fidelity gates. Recover the named primary texts before the corresponding implementation stage; record exact source sections/equations and versions at that point. Publication/implementation status must remain separate from source access status.
+OPEN_OBLIGATIONS.json records source recovery and license checks with exact owning gates. Full-text recovery is still needed for R08, R10a, R16b and original R04c. The author thesis R20 is available but is not misrepresented as the original R04c publication. Related papers, abstracts and plausible images cannot close those fidelity gates. Recover the named primary texts before the corresponding implementation stage; record exact source sections/equations and versions at that point. Publication/implementation status must remain separate from source access status.
 
 Canonical fixture IDs in COVERAGE.csv are planned acceptance targets. Their status is pending until the owning stage creates and verifies the artifacts; they are not existing generated gallery items.
 
@@ -107,3 +107,5 @@ Stage06 blend audit: [W3C Compositing1 sections3.1/3.3/3.4.1](https://www.w3.org
 - [International Tables for Crystallography, Volume A, 2016, chapter2.2](https://it.iucr.org/Ac/contents/), plane groups1,2,10,11,13,16,17; accessible [p4mm](https://it.iucr.org/Ac/ch2o2v0001/sgtable2o2o011/) and [p6](https://it.iucr.org/Ac/ch2o2v0001/sgtable2o2o016/) tables, and the [official volume PDF](https://it.iucr.org/Ac/itac.pdf) for the p6mm chamber. The integer actions are derived in our60° basis by exact conjugation from the conventional120° chart. The [IUCr Gavezzotti supplement](https://www.iucr.org/what-we-do/education/pamphlets/crystal-packing/supplement) records the older p4m/p6m names. No source diagrams copied.
 
 R21 (stage 13) documents the finite L-triomino substitution fixture. Natalie Priebe Frank, *A primer of substitution tilings of the Euclidean plane*, Expositiones Mathematicae (2008), section 2.1. [Author-hosted primary PDF](https://pages.vassar.edu/nafrank/files/2012/08/substitutions.pdf).
+
+R19a and R19b were recovered as the complete combined TU/e scan with a readable University of Illinois full-text mirror. See artifacts/receipts/14/primary-recovery.json for the exact digest and inspected sections.

@@ -26,8 +26,10 @@
       "id": "O04",
       "source": "R19a;R19b",
       "owner": "14",
-      "reason": "Primary institutional metadata retrieved; complete original text not yet recovered",
-      "next_action": "Retrieve original de Bruijn papers through institutional/publisher open copy; fix admissible pentagrid phase rules and matching construction before stage 14 implementation."
+      "reason": "Full primary Parts I and II recovered and read",
+      "next_action": "Proceed with regular pentagrid P3 under the recovered source assumptions.",
+      "status": "resolved",
+      "evidence": "artifacts/receipts/14/primary-recovery.json"
     },
     {
       "id": "O05",
