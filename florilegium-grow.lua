@@ -852,7 +852,7 @@ function M.page(g)
       local e = event({ kind = "stem", parent = mainev[si], at = sa[bi] / La })
       stem(pts, 0.06, 0.025)
       add_stem_points(pts, 0.06, 0.025, nil, comm and comm[si])
-      leafy[#leafy + 1] = { pts = pts, big = true, ev = e, sp = comm and comm[si], w0 = 0.06, w1 = 0.025 }
+      leafy[#leafy + 1] = { pts = pts, big = true, ev = e, sp = comm and comm[si], w0 = 0.06, w1 = 0.025, branch = true }
       arcs[#arcs + 1] = pts
       arcev[#arcs] = e
       arcsp[#arcs] = comm and comm[si]
@@ -1247,7 +1247,8 @@ function M.page(g)
   if FOOTER then leafy[#leafy + 1] = { pts = footpts, big = false, ev = footev } end
   -- species: the plant's own leaves (its arrangement: one, two or three at a node, a
   -- lily's too; a basal rosette; an iris's or a grass's straps from the base and two leaves
-  -- up the stem), smaller up the stem by the species' taper
+  -- up the stem), smaller up the stem by the species' taper. A branch under the text
+  -- (st.branch) starts partway up its plant, so it has no root: no rosette or straps
   local function species_leaves(st)
     local sp, pts = st.sp, st.pts
     -- a leaf at (x, y) along a; fore: foreshortened (a decussate pair's), sa, w: the stem's
@@ -1283,7 +1284,7 @@ function M.page(g)
     local young = season(0.8, 1, 1)
     local b0 = pts[1]
     if sp.clade == "monocot" and sp.arrangement ~= "alternate" and sp.arrangement ~= "whorled" then
-      local nb = layout.int(3, 5)
+      local nb = st.branch and 0 or layout.int(3, 5)
       local H = pts[#pts][2] - b0[2]
       for b = 1, nb do
         local f = (b - (nb + 1) / 2) / max(1, (nb - 1) / 2)
@@ -1308,7 +1309,7 @@ function M.page(g)
     -- much leaf whatever its arrangement
     if arr == "opposite" then per, gap = 2, 1.7 elseif arr == "whorled" then per, gap = 3, 2.2 end
     if arr == "rosette" then
-      local nb = layout.int(3, 5)
+      local nb = st.branch and 0 or layout.int(3, 5)
       for b = 1, nb do
         local f = (b - (nb + 1) / 2) / max(1, (nb - 1) / 2)
         leafat(b0[1], b0[2] + 0.1, 90 - 62 * f + layout.sym(8), layout.range(1.6, 2.3) * leafc * young, 0, f < 0 and 1 or -1)
