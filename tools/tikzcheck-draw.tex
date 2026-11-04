@@ -1,5 +1,6 @@
-% The drawings of tools/tikzcheck.lua: one pic per page from build/tikzcheck-draw.pics,
-% uncompressed, with \tikzcheckengine (tikz or lua) as the library's engine. LuaLaTeX.
+% The drawings of tools/tikzcheck.lua: one pic per page from \tikzcheckpics (a shard's list,
+% build/tikzcheck-draw-K.pics), uncompressed, with \tikzcheckengine (tikz or lua) as the
+% library's engine. LuaLaTeX.
 \pdfvariable compresslevel=0
 \pdfvariable objcompresslevel=0
 \documentclass{article}
@@ -9,5 +10,6 @@
 \pagestyle{empty}
 \begin{document}
 \edef\tikzcheckset{\noexpand\pgfkeys{/florilegium/engine=\tikzcheckengine}}\tikzcheckset
-\input{build/tikzcheck-draw.pics}
+\providecommand\tikzcheckpics{build/tikzcheck-draw.pics}% tikzcheck.lua names a shard's list
+\input{\tikzcheckpics}
 \end{document}

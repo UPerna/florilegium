@@ -18,6 +18,7 @@ make postscript             # the PostScript port through Ghostscript -> build/p
 make bench                  # v1.3 against this tree, and the TikZ library's engines (about 5 minutes)
 lualatex specimen-tikz.tex                         # every species form, the Lua engine (seconds)
 extra_mem_top=20000000 pdflatex specimen-tikz.tex  # the same in pure TikZ (about 10 minutes)
+sh tools/tikzcheck-ci.sh                           # what CI's tikz job runs, on every core
 ```
 
 No TeX installed? Build the image once and run everything in it:

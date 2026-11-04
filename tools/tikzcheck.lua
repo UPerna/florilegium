@@ -8,7 +8,8 @@
 --   e.g. "compound=palmate, leaflets=7": those traits fixed in every one, #5109)
 --   tools/in-docker texlua tools/tikzcheck.lua 1 1000 pdflatex
 --
--- Drawings: builds tools/tikzcheck-draw.tex twice under LuaLaTeX, once with the pure-TikZ
+-- Drawings: builds tools/tikzcheck-draw.tex twice under LuaLaTeX (each time in as many
+-- runs at once as there are cores, TIKZCHECK_JOBS to say otherwise), once with the pure-TikZ
 -- library and once with the Lua engine (engine=lua: florilegium-native.lua draws the same
 -- steps in doubles, with ink), renders both with pdftoppm (gray, 150 dpi) and compares
 -- every pic pixel by pixel, each from the center of its ink: a pixel differs where nothing within
@@ -340,28 +341,57 @@ if arg[1] == "draw" then
     pic("florilegium plants={plants={3/daisy,17/lily,29/rose}, size=21cm, width=6cm}")
   end
   end
-  local list = assert(io.open("build/tikzcheck-draw.pics", "w"))
-  for _, p in ipairs(pics) do list:write("\\begin{tikzpicture}\\pic {", p, "};\\end{tikzpicture}\\newpage\n") end
-  list:close()
+  -- the pics in K shards, each built in a LuaLaTeX run of its own, all at once: K is
+  -- TIKZCHECK_JOBS, or the machine's cores (pure TikZ takes minutes a shard, and one run
+  -- would use one core). The pics are dealt to the shards in turn, so that the heavy ones,
+  -- which come together in the list, are spread over all of them.
+  local K = tonumber(os.getenv("TIKZCHECK_JOBS") or "")
+  if not K then
+    local h = io.popen("nproc 2>/dev/null")
+    K = h and tonumber(h:read("a"):match("%d+")) or 1
+    if h then h:close() end
+  end
+  K = math.max(1, math.min(K, 16, #pics))
+  local shard, local_index, count_of = {}, {}, {}
+  for k = 1, K do
+    local list = assert(io.open(fmt("build/tikzcheck-draw-%d.pics", k), "w"))
+    count_of[k] = 0
+    for i = k, #pics, K do
+      list:write("\\begin{tikzpicture}\\pic {", pics[i], "};\\end{tikzpicture}\\newpage\n")
+      count_of[k] = count_of[k] + 1
+      shard[i], local_index[i] = k, count_of[k]
+    end
+    list:close()
+  end
   local res = {}
   for _, engine in ipairs({ "tikz", "lua" }) do
     local job = "tikzcheck-draw-" .. engine
     local t0 = os.time()
     if not reuse then
-      os.remove("build/" .. job .. ".pdf")
-      os.execute(fmt([[lualatex -interaction=batchmode -output-directory=build -jobname=%s "\def\tikzcheckengine{%s}\input{tools/tikzcheck-draw.tex}" >/dev/null]],
-        job, engine))
+      local runs = {}
+      for k = 1, K do
+        os.remove(fmt("build/%s-%d.pdf", job, k))
+        runs[k] = fmt([[lualatex -interaction=batchmode -output-directory=build -jobname=%s-%d "\def\tikzcheckengine{%s}\def\tikzcheckpics{build/tikzcheck-draw-%d.pics}\input{tools/tikzcheck-draw.tex}" >/dev/null &]],
+          job, k, engine, k)
+      end
+      os.execute(table.concat(runs, " ") .. " wait")
     end
-    local pdf = io.open("build/" .. job .. ".pdf", "rb")
-    if not pdf then error("tikzcheck: the " .. engine .. " build failed, see build/" .. job .. ".log") end
-    local size = pdf:seek("end")
-    pdf:close()
-    res[engine] = { secs = os.time() - t0, size = size, streams = streams("build/" .. job .. ".pdf") }
+    local size, streamsn = 0, 0
+    for k = 1, K do
+      local path = fmt("build/%s-%d.pdf", job, k)
+      local pdf = io.open(path, "rb")
+      if not pdf then error(fmt("tikzcheck: the %s build of shard %d failed, see build/%s-%d.log", engine, k, job, k)) end
+      size = size + pdf:seek("end")
+      pdf:close()
+      local n = #streams(path)
+      assert(n == count_of[k], fmt("tikzcheck: shard %d has %d pics, its %s PDF %d pages", k, count_of[k], engine, n))
+      streamsn = streamsn + n
+    end
+    res[engine] = { secs = os.time() - t0, size = size, pages = streamsn }
   end
-  local a, b = res.tikz.streams, res.lua.streams
-  assert(#a == #pics and #b == #pics, fmt("tikzcheck: %d pics, %d and %d pages", #pics, #a, #b))
-  -- every page of both PDFs as a gray image (pdftoppm numbers them with as many digits as
-  -- the last page needs)
+  assert(res.tikz.pages == #pics and res.lua.pages == #pics, fmt("tikzcheck: %d pics, %d and %d pages", #pics, res.tikz.pages, res.lua.pages))
+  -- every page of every shard's PDFs as a gray image (pdftoppm numbers them with as many
+  -- digits as the shard's last page needs)
   local function pgm(path)
     local f = assert(io.open(path, "rb"), "tikzcheck: no " .. path)
     local d = f:read("a")
@@ -369,8 +399,14 @@ if arg[1] == "draw" then
     local w, h, at = d:match("^P5%s+(%d+)%s+(%d+)%s+%d+%s()")
     return tonumber(w), tonumber(h), d:sub(at)
   end
-  for _, engine in ipairs({ "tikz", "lua" }) do
-    os.execute(fmt("pdftoppm -gray -r 150 build/tikzcheck-draw-%s.pdf build/tikzcheck-draw-%s", engine, engine))
+  do
+    local runs = {}
+    for _, engine in ipairs({ "tikz", "lua" }) do
+      for k = 1, K do
+        runs[#runs + 1] = fmt("pdftoppm -gray -r 150 build/tikzcheck-draw-%s-%d.pdf build/tikzcheck-draw-%s-%d &", engine, k, engine, k)
+      end
+    end
+    os.execute(table.concat(runs, " ") .. " wait")
   end
   -- pics where pgfmath's rounding and a double's send a choice different ways, each looked
   -- at and the step found: reported, not counted
@@ -378,25 +414,48 @@ if arg[1] == "draw" then
     ["florilegium plant={seed=54, role=any, size=8.5cm, width=5.2cm, season=0.75}"] =
       "a leaf's room disc 0.0002 cm either side of a cell's edge (pgfmath's five-digit veclen), so TeX grows one more branch",
   }
-  local digits = #tostring(#pics)
   local bad, worst, wdark = 0, 0, 0
   -- a pic fails when its ink is this much darker or lighter, by at least 60 pixels' worth of a
   -- quarter gray: a hairline's pixels darken with where it falls on the grid (poppler draws it
   -- at least a pixel wide), which moves a pic of veins and stalks up to 3% either way
   local DARK, DARKMIN = 0.035, 60 * 64
   for i = 1, #pics do
-    local n = fmt("%0" .. digits .. "d", i)
+    local sk = shard[i]
+    local n = fmt("%d-%0" .. #tostring(count_of[sk]) .. "d", sk, local_index[i])
     local w, h, x = pgm("build/tikzcheck-draw-tikz-" .. n .. ".pgm")
     local w2, h2, y = pgm("build/tikzcheck-draw-lua-" .. n .. ".pgm")
     -- each drawing from the center of its ink: a pic whose box differs by a fraction of a
     -- point sits a pixel over on its page; and a pixel differs
     -- only where nothing within a pixel of it in the other drawing is near its gray, both
     -- ways, so a hairline drawn a fraction of a pixel aside is the same hairline
-    local function corner(d)                         -- the center of the ink's darkness
+    -- the rows and columns that hold ink (a gray under 250): every pixel outside them is
+    -- paper in that drawing, so the sums below skip them and come out the same
+    local INK = "[\0-\249]"
+    local function bbox(d)
+      local s = d:find(INK)
+      if not s then return nil end
+      local e = d:match(".*()" .. INK)
+      local x0, x1 = w, -1
+      for row = (s - 1) // w, (e - 1) // w do
+        local seg = d:sub(row * w + 1, row * w + w)
+        local f = seg:find(INK)
+        if f then
+          if f - 1 < x0 then x0 = f - 1 end
+          local l = seg:match(".*()" .. INK) - 1
+          if l > x1 then x1 = l end
+        end
+      end
+      return { x0, (s - 1) // w, x1, (e - 1) // w }
+    end
+    local function corner(d, bb)                     -- the center of the ink's darkness
       local sx, sy, sw = 0, 0, 0
-      for k = 1, #d do
-        local v = 255 - d:byte(k)
-        if v > 5 then sx, sy, sw = sx + v * ((k - 1) % w), sy + v * ((k - 1) // w), sw + v end
+      if bb then
+        for py = bb[2], bb[4] do
+          for k = py * w + bb[1] + 1, py * w + bb[3] + 1 do
+            local v = 255 - d:byte(k)
+            if v > 5 then sx, sy, sw = sx + v * ((k - 1) % w), sy + v * py, sw + v end
+          end
+        end
       end
       if sw == 0 then return 0, 0, 0 end
       return math.floor(sx / sw + 0.5), math.floor(sy / sw + 0.5), sw
@@ -405,8 +464,9 @@ if arg[1] == "draw" then
     local dark = 0
     if w ~= w2 or h ~= h2 then differ, inked = 1, 1
     else
-      local ax, ay, da = corner(x)
-      local bx, by, db = corner(y)
+      local bbx, bby = bbox(x), bbox(y)
+      local ax, ay, da = corner(x, bbx)
+      local bx, by, db = corner(y, bby)
       -- the ink's total darkness, which a fill drawn lighter, darker or not at all moves while
       -- every pixel stays near a gray of the other (a leaf's darker half, 28% multiplied in)
       dark = (da > 0 and math.abs(db - da) >= DARKMIN) and (db - da) / da or 0
@@ -422,14 +482,29 @@ if arg[1] == "draw" then
         end
         return false
       end
-      local function count(dx, dy, step)             -- inked and differing pixels at an offset
+      -- inked and differing pixels at an offset: of every step-th pixel of the page, those
+      -- inked in either drawing, so only those within x's ink or y's (moved by the offset)
+      local function count(dx, dy, step)
         local ink, m = 0, 0
-        for k = 1, #x, step do
-          local px, py = (k - 1) % w, (k - 1) // w
-          local p, q = x:byte(k), at(y, px + dx, py + dy)
-          if p < 250 or q < 250 then
-            ink = ink + 1
-            if not near(y, px + dx, py + dy, p) or not near(x, px, py, q) then m = m + 1 end
+        local r
+        if bbx then r = { bbx[1], bbx[2], bbx[3], bbx[4] } end
+        if bby then
+          local q = { bby[1] - dx, bby[2] - dy, bby[3] - dx, bby[4] - dy }
+          if r then r = { math.min(r[1], q[1]), math.min(r[2], q[2]), math.max(r[3], q[3]), math.max(r[4], q[4]) }
+          else r = q end
+        end
+        if not r then return 0, 0 end
+        r = { math.max(0, r[1]), math.max(0, r[2]), math.min(w - 1, r[3]), math.min(h - 1, r[4]) }
+        for py = r[2], r[4] do
+          local k0 = py * w + r[1] + 1
+          k0 = k0 + (step - (k0 - 1) % step) % step     -- the page's own every step-th pixel
+          for k = k0, py * w + r[3] + 1, step do
+            local px = (k - 1) % w
+            local p, q = x:byte(k), at(y, px + dx, py + dy)
+            if p < 250 or q < 250 then
+              ink = ink + 1
+              if not near(y, px + dx, py + dy, p) or not near(x, px, py, q) then m = m + 1 end
+            end
           end
         end
         return ink, m
@@ -455,7 +530,7 @@ if arg[1] == "draw" then
   end
   print(fmt("tikzcheck draw: %d pics, %d differ in 1%% or more of their inked pixels and 60 or more, or in their ink's darkness by %.1f%% "
     .. "(the largest share %.3f%%, darkness %.2f%%, but for the known)", #pics, bad, 100 * DARK, 100 * worst, 100 * wdark))
-  print(fmt("  pure TikZ %d s, %d bytes; Lua %d s, %d bytes", res.tikz.secs, res.tikz.size, res.lua.secs, res.lua.size))
+  print(fmt("  pure TikZ %d s, %d bytes; Lua %d s, %d bytes; %d runs at once", res.tikz.secs, res.tikz.size, res.lua.secs, res.lua.size, K))
   os.exit(bad == 0 and 0 or 1)
 end
 
