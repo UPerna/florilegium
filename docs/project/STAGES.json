@@ -497,17 +497,26 @@
       "acceptance_items": [
         "Hat is correctly differentiated from Spectre and Tile(1,1); all four named aperiodic families are implemented; the three construction routes have real exercised examples; bounded construction has honest finite guarantees and reproducible failure handling."
       ],
-      "observed_results": "22 checks on each Lua runtime and 30 matching output hashes. The independent oracle verified twelve pinned Hat clusters, 1352 distinct kites, 35 common leaves, five solver receipts, and seven PDF/SVG pairs. Native CI pending.",
+      "observed_results": "Stage 18 passed 22 local checks on both Lua versions and all independent Hat and solver checks. The first native source archive included the adapted rule module without the required BSD notice. The corrected packager includes and verifies the exact notice, rejects a missing notice, and produces the same bytes in two local builds.",
       "evidence_paths": [
         "artifacts/receipts/18/receipt-Lua-5.3.json",
         "artifacts/receipts/18/receipt-Lua-5.4.json",
         "artifacts/receipts/18/oracle.json",
-        "artifacts/receipts/18/source-reference.json"
+        "artifacts/receipts/18/source-reference.json",
+        "artifacts/receipts/18/publication-initial.json",
+        "artifacts/receipts/18/package-repair.json"
       ],
-      "tested_code_revision": null,
-      "local_commit": null,
-      "verified_remote_revision": null,
-      "next_action": "Publish from exact parent ab59799, verify normal Git fetch and both native CI jobs, then inspect all fresh PDF/SVG pairs."
+      "tested_code_revision": "d3fb59365faff5b73f87ba776ce8dd5f6c86c33f",
+      "local_commit": "d3fb59365faff5b73f87ba776ce8dd5f6c86c33f",
+      "verified_remote_revision": "d3fb59365faff5b73f87ba776ce8dd5f6c86c33f",
+      "next_action": "Publish the Stage 18 package correction from d3fb593, verify the exact Git revision, and require both native jobs and a fresh PDF/SVG review. The corrected portable archive must contain the exact pinned BSD notice.",
+      "workflow_runs": [
+        {
+          "id": 41861516912,
+          "head_sha": "d3fb59365faff5b73f87ba776ce8dd5f6c86c33f",
+          "status": "rejected_artifact"
+        }
+      ]
     },
     {
       "id": "19",

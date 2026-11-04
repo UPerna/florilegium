@@ -5,6 +5,7 @@ import stat
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
+REQUIRED_NOTICES = {"pattern_hat_rules.lua": "docs/research/licenses/HATVIZ-BSD-3-Clause.txt"}
 
 
 def package(output=None):
@@ -20,6 +21,12 @@ def package(output=None):
                                   ("artifacts/receipts", {".json"})):
         paths.update(p for p in (ROOT / directory).rglob("*") if p.suffix in extensions)
     paths.update(ROOT / "tools" / name for name in ("Dockerfile", "in-docker"))
+    for module, notice in REQUIRED_NOTICES.items():
+        if ROOT / module in paths and (ROOT / module).is_file():
+            license_path = ROOT / notice
+            if not license_path.is_file() or license_path.is_symlink():
+                raise FileNotFoundError(f"Required notice for {module} is missing: {notice}")
+            paths.add(license_path)
     paths = sorted(p for p in paths if p.is_file() and not p.is_symlink() and not p.name.endswith("-flo.tex"))
     output = Path(output or ROOT / "build/florilegium-v1.4-source.zip")
     output.parent.mkdir(parents=True, exist_ok=True)
