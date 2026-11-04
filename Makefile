@@ -48,6 +48,8 @@ check:
 	$(RUN) python3 tools/tracery_oracle.py
 	$(RUN) texlua tools/eschercheck.lua
 	$(RUN) python3 tools/escher_oracle.py
+	$(RUN) texlua tools/mosaiccheck.lua
+	$(RUN) python3 tools/mosaic_oracle.py
 	$(RUN) texlua tools/layoutcheck.lua
 	$(RUN) texlua tools/spacecheck.lua
 	$(RUN) texlua tools/initialcheck.lua

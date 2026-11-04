@@ -126,7 +126,7 @@
       "code_availability": "No reusable code/license established; independent implementation required unless separately verified",
       "data_availability": "Use original fixtures; publication access is not artwork permission",
       "paper_license": "No redistribution permission established; do not bundle paper",
-      "implementation_status": "Source-led bounded IH41, split and P3 profiles implemented. Native CI and visual gates pending."
+      "implementation_status": "Bounded Stage 20 Escherization profiles passed native CI, independent objective/geometry checks and visual acceptance."
     },
     {
       "id": "R04d",
@@ -151,7 +151,7 @@
       "code_availability": "No reusable code/license established; independent implementation required unless separately verified",
       "data_availability": "Use original fixtures; publication access is not artwork permission",
       "paper_license": "No redistribution permission established; do not bundle paper",
-      "implementation_status": "Source-led bounded IH41, split and P3 profiles implemented. Native CI and visual gates pending."
+      "implementation_status": "Bounded Stage 20 Escherization profiles passed native CI, independent objective/geometry checks and visual acceptance."
     },
     {
       "id": "R05",
@@ -232,7 +232,8 @@
       "code_availability": "No reusable code/license established; independent implementation required unless separately verified",
       "data_availability": "Use original fixtures; publication access is not artwork permission",
       "paper_license": "No redistribution permission established; do not bundle paper",
-      "implementation_status": "pending"
+      "implementation_status": "Stage 21 independently implements sections 3–6 using CPU sample assignment and a bounded convex-panel vector packing projection. Native acceptance pending.",
+      "sha256": "cc0778b1457d7f0db4cf2ea31e1caf0095743762883de2e1a7b3e9770eb8465a"
     },
     {
       "id": "R08",
@@ -622,7 +623,7 @@
       "code_availability": "No reusable code/license established; independent implementation required unless separately verified",
       "data_availability": "Use original fixtures; publication access is not artwork permission",
       "paper_license": "No redistribution permission established; do not bundle paper",
-      "implementation_status": "Source-led bounded IH41, split and P3 profiles implemented. Native CI and visual gates pending."
+      "implementation_status": "Bounded Stage 20 Escherization profiles passed native CI, independent objective/geometry checks and visual acceptance."
     },
     {
       "id": "R01",

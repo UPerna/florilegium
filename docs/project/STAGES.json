@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_stage": "20",
+  "current_stage": "21",
   "prompt_sha256": "8D25740D944FC98943FD005737BD825215CFCF6F894218790E140EDE8EE3F09E",
   "stages": [
     {
@@ -558,37 +558,53 @@
     {
       "id": "20",
       "title": "Escherization and boundary-coupled deformation",
-      "status": "in_progress",
+      "status": "passed",
       "prerequisites": "19",
       "acceptance_items": [
         "users can provide a real target shape and obtain a valid improved approximation in the supported cases; matching and coverage survive the edits; rejected deformations fail clearly; aperiodic decoration preserves its declared source construction. Keep solver artifacts and source-specific fidelity claims inspectable."
       ],
-      "observed_results": "20 checks on each Lua runtime and 34 matching output hashes. The independent oracle reproduced improved IH41, split-IH41 and P3 objectives, finite coverage, 947 common exact P3 edges, and nine PDF/SVG comparisons. Native CI pending.",
+      "observed_results": "Both native jobs passed. 20 checks, 34 output hashes, 947 exact shared P3 seams, nine visual pairs and 379 source kit hashes verified. The independent checker reproduced score improvements and finite coverage. Native/local byte differences: ['solver-failures.json', 'split-solver.json', 'split.instance'].",
       "evidence_paths": [
         "artifacts/receipts/20/receipt-Lua-5.3.json",
         "artifacts/receipts/20/receipt-Lua-5.4.json",
         "artifacts/receipts/20/oracle.json",
-        "artifacts/receipts/20/source-reference.json"
+        "artifacts/receipts/20/source-reference.json",
+        "artifacts/receipts/20/publication.json",
+        "artifacts/receipts/20/ci-final.json"
       ],
       "tested_code_revision": null,
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Publish from exact parent 890657c, verify normal Git fetch and both native CI jobs, then inspect all fresh PDF/SVG pairs."
+      "next_action": "Passed. Proceed to Stage 21.",
+      "workflow_runs": [
+        {
+          "id": 41879093437,
+          "status": "success",
+          "head_sha": "340bf32c0a7b7a15adf1f721e3a47d6ff1007249"
+        }
+      ],
+      "tested_revision": "340bf32c0a7b7a15adf1f721e3a47d6ff1007249",
+      "verified_revision": "340bf32c0a7b7a15adf1f721e3a47d6ff1007249"
     },
     {
       "id": "21",
       "title": "decorative mosaics with field-aligned packing",
-      "status": "pending",
+      "status": "in_progress",
       "prerequisites": "20",
       "acceptance_items": [
         "source-required behavior is present, quantitative packing/feature evidence exists, vector exports contain the actual tiles and color samples, and difficult boundary/convergence cases are diagnosed. A visually attractive mosaic does not by itself establish nonoverlap or faithful implementation of the chosen metric."
       ],
-      "observed_results": null,
-      "evidence_paths": null,
+      "observed_results": "20 checks on each Lua runtime and 19 matching output hashes. The independent oracle reproduced the CPU Manhattan assignments and centroid updates, found no interior overlap, and measured 11 curved-feature crossings against 17 in the baseline. Five PDF/SVG pairs passed review. Native CI pending.",
+      "evidence_paths": [
+        "artifacts/receipts/21/receipt-Lua-5.3.json",
+        "artifacts/receipts/21/receipt-Lua-5.4.json",
+        "artifacts/receipts/21/oracle.json",
+        "artifacts/receipts/21/source-reference.json"
+      ],
       "tested_code_revision": null,
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+      "next_action": "Publish from exact parent 340bf32, verify normal Git fetch and both native CI jobs, then inspect all fresh PDF/SVG pairs."
     },
     {
       "id": "22",

@@ -40,3 +40,5 @@ Stage 19 final gate passed on 890657c. Both native jobs succeeded. The independe
 ## Stage 20 Escherization
 
 The bounded IH41 and split IH41 profiles use a shared translation chart. The derived Penrose patches retain the original P3 scaffold and match four exact source fundamental edge classes. Local fixtures improve the turning objective and retain positive mismatch residuals. The verified coverage applies to the declared finite patches and admitted deformations. Native CI and artifact review are pending. See [the boundary-coupled construction](../architecture/ESCHERIZATION.md).
+
+Stage 20 final gate passed on 340bf32. Both native jobs succeeded. Independent checks reproduced the objective improvements and finite coverage and found 947 exact shared P3 seams. Nine fresh PDF/SVG pairs passed inspection.

@@ -64,6 +64,8 @@ jobs:
             python3 tools/tracery_oracle.py &&
             texlua tools/eschercheck.lua &&
             python3 tools/escher_oracle.py &&
+            texlua tools/mosaiccheck.lua &&
+            python3 tools/mosaic_oracle.py &&
             texlua tools/layoutcheck.lua &&
             texlua tools/spacecheck.lua &&
             texlua tools/initialcheck.lua &&
@@ -97,6 +99,7 @@ jobs:
             build/hat/
             build/tracery/
             build/escher/
+            build/mosaic/
 
   portable:
     runs-on: ubuntu-latest
