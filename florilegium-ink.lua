@@ -378,6 +378,9 @@ function M.flush()
   layers, tags = {}, {}
   return literal(parts)
 end
+-- forget what was drawn since the last flush, unwritten: a drawing that failed part way (a
+-- TikZ pic) may have left a clip open, which would clip the rest of the page
+function M.drop() path, layers, tags, clipped = {}, {}, {}, 0 end
 
 -- hand over what was recorded instead of writing it: { keys, layers, tags }
 function M.take_recording()

@@ -5359,10 +5359,15 @@ function M.tikz(kind, seed, role, draw, size, width, season, plants, ghost, scal
     tex.dimen["pgf@pt@x"] * bp, tex.dimen["pgf@pt@y"] * bp })
   local lift, pale, layer = ink.set_lift(0), ink.set_pale(0), ink.layer(5)
   ink.track(true)
-  M.pic(kind, o)
+  -- a pic that fails leaves ink as it found it, so the next pic or margin page draws in its
+  -- own layer and pale, and what it drew is dropped (a clip it opened may still be open);
+  -- then TeX reports the error
+  local ok, err = pcall(M.pic, kind, o)
+  if not ok then ink.drop() end
   local box = ink.track(false)
   ink.flush()
   ink.set_lift(lift) ink.set_pale(pale) ink.layer(layer)
+  if not ok then error(err, 0) end
   if box and box[1] <= box[3] then
     local f = 72.27 / 72
     local cct = luatexbase and luatexbase.registernumber and luatexbase.registernumber("catcodetable@atletter")
