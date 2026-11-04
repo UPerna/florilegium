@@ -727,18 +727,31 @@
       "acceptance_items": [
         "a user can supply/select a real exemplar library and guide, obtain a valid structured synthesis and refine a region without replacing unrelated output. Provenance and failure diagnostics are available; no model/API-dependent generation is required for basic replay. Respect code/data licenses separately from paper access."
       ],
-      "observed_results": "Eight checks and 19 outputs on each local Lua runtime. Five PDF/SVG pairs inspected. Independent audit verified connected contours, a geometric opening, certified overlap cuts, coherent coordinate correction, fixed-stamp comparison, and an erase with unchanged outside samples. Three cross-runtime files differed numerically by at most 6.94e-18. Native CI pending.",
+      "observed_results": "Eight checks and 19 outputs on each local Lua runtime. Five PDF/SVG pairs inspected. Independent audit verified connected contours, a geometric opening, certified overlap cuts, coherent coordinate correction, fixed-stamp comparison, and an erase with unchanged outside samples. This follow-up fixes the initial native floral fixture identity mismatch by pinning polygon profile coordinates. Repaired native CI pending.",
       "evidence_paths": [
         "artifacts/receipts/25/receipt-Lua-5.3.json",
         "artifacts/receipts/25/receipt-Lua-5.4.json",
         "artifacts/receipts/25/oracle.json",
         "artifacts/receipts/25/local-parity.json",
-        "artifacts/receipts/25/source-reference.json"
+        "artifacts/receipts/25/source-reference.json",
+        "artifacts/receipts/25/ci-initial-rejected.json",
+        "artifacts/receipts/25/publication-initial.json",
+        "artifacts/receipts/25/portable.json"
       ],
       "tested_code_revision": null,
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Publish the exact Stage 25 manifest from parent 27eef52, verify the fetched Git tree, run native CI and inspect the native PDF/SVG pairs."
+      "next_action": "Publish the exact Stage 25 manifest from parent f2b4ff7, verify the fetched Git tree, run native CI and inspect the native PDF/SVG pairs.",
+      "workflow_runs": [
+        {
+          "id": 41919421379,
+          "status": "success",
+          "head_sha": "f2b4ff790c8919a97b60e1d47d9604e46b3ccdce",
+          "acceptance": "rejected"
+        }
+      ],
+      "verified_revision": "f2b4ff790c8919a97b60e1d47d9604e46b3ccdce",
+      "tested_revision": "f2b4ff790c8919a97b60e1d47d9604e46b3ccdce"
     },
     {
       "id": "26",

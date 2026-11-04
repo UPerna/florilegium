@@ -29,12 +29,15 @@ end
 
 local guide={{.4,.55,.6},{1.4,.59,.6},{2.4,.67,.6},{3.4,.79,.6}}
 local bounds={0,0,4,1.5}
+local oval_profile={
+  {1,0},{.92388,.382683},{.707107,.707107},{.382683,.92388},
+  {0,1},{-.382683,.92388},{-.707107,.707107},{-.92388,.382683},
+  {-1,0},{-.92388,-.382683},{-.707107,-.707107},{-.382683,-.92388},
+  {0,-1},{.382683,-.92388},{.707107,-.707107},{.92388,-.382683},
+}
 local function oval(cx,cy,rx,ry)
   local ring={}
-  for i=0,15 do
-    local t=math.pi*i/8
-    ring[#ring+1]={cx+rx*math.cos(t),cy+ry*math.sin(t)}
-  end
+  for i,p in ipairs(oval_profile) do ring[i]={cx+rx*p[1],cy+ry*p[2]} end
   return {ring=ring}
 end
 local classes={

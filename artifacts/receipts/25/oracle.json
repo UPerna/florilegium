@@ -53,7 +53,7 @@
       ]
     },
     "floral": {
-      "area": 0.6353156509430178,
+      "area": 0.6353156605282334,
       "coherent_corrections": 651,
       "cut_energies": [
         {
@@ -103,5 +103,5 @@
       ]
     }
   },
-  "source_digest": "ea996bd455fc7681260fb8feb6ffbd8e9366da48b5647fe20b98a2454ef95026"
+  "source_digest": "4c7ef6dae1b91465d49f3bd67470d49111f35cb0e3dcdc37495efc0dc1099410"
 }
