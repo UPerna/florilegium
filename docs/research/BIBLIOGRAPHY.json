@@ -286,7 +286,8 @@
       "code_availability": "No reusable code/license established; independent implementation required unless separately verified",
       "data_availability": "Use original fixtures; publication access is not artwork permission",
       "paper_license": "No redistribution permission established; do not bundle paper",
-      "implementation_status": "pending"
+      "implementation_status": "Bounded Stage 23 analytic chart, single-route, and perspective profiles implemented. Native acceptance pending.",
+      "sha256": "139852bf5fc462e16c3631e3df5faca26bff33e67a03bbe8ab9b9bd80f245004"
     },
     {
       "id": "R10a",
@@ -317,7 +318,7 @@
       "code_availability": "No reusable code/license established; independent implementation required unless separately verified",
       "data_availability": "Use original fixtures; publication access is not artwork permission",
       "paper_license": "No redistribution permission established; do not bundle paper",
-      "implementation_status": "Stage 22 bounded causal 2D profile implemented. Final acceptance pending.",
+      "implementation_status": "The Stage 22 bounded stroke analysis and synthesis profiles passed native CI, independent distribution and geometry checks, and visual acceptance.",
       "download_url": "https://damassets.autodesk.net/content/dam/autodesk/research/publications-assets/pdf/stroke-pattern-analysis-and.pdf",
       "sha256": "42411b631777411e4520246ad73ea76dcf646f29b764805c3e772c33161ce309"
     },
@@ -348,7 +349,7 @@
       "code_availability": "No reusable code/license established; independent implementation required unless separately verified",
       "data_availability": "Use original fixtures; publication access is not artwork permission",
       "paper_license": "No redistribution permission established; do not bundle paper",
-      "implementation_status": "Stage 22 2D nearest-neighbor group profile and three behaviors implemented. Final acceptance pending.",
+      "implementation_status": "The Stage 22 bounded stroke analysis and synthesis profiles passed native CI, independent distribution and geometry checks, and visual acceptance.",
       "sha256": "45a5aed3cb76492b1255b65bae31a6a1df91256eb99952a47ce9b1dc3a615fef"
     },
     {

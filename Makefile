@@ -52,6 +52,8 @@ check:
 	$(RUN) python3 tools/mosaic_oracle.py
 	$(RUN) texlua tools/strokecheck.lua
 	$(RUN) python3 tools/stroke_oracle.py
+	$(RUN) texlua tools/mazecheck.lua
+	$(RUN) python3 tools/maze_oracle.py
 	$(RUN) texlua tools/layoutcheck.lua
 	$(RUN) texlua tools/spacecheck.lua
 	$(RUN) texlua tools/initialcheck.lua
