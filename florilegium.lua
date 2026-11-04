@@ -11,7 +11,7 @@ local M = { ink = ink, flora = flora }
 -- file up on its own, so files from two releases can meet (a set installed in ~/texmf,
 -- a newer florilegium.sty and florilegium.lua beside the document); check_versions
 -- stops such a mix before anything is drawn. A release changes all of them together.
-M.version = "1.3"
+M.version = "2.0.0"
 local PARTS = { "ink", "flora", "grow", "authored", "figures", "theme-geometric", "theme-math", "initial", "svg", "species",
   "pgfmath", "native" }
 

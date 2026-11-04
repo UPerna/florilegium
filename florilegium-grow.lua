@@ -29,7 +29,7 @@
 local ink = require("florilegium-ink")
 local flora = require("florilegium-flora")
 local M = {}
-M.version = "1.3"                 -- the release; florilegium.lua checks that every file has the same
+M.version = "2.0.0"                 -- the release; florilegium.lua checks that every file has the same
 -- the primitives of the current theme: flora itself, or a theme's own in front
 -- of it (see M.theme); every primitive in this file is called through F
 local F = flora

@@ -12,7 +12,7 @@
 -- computed in OKLCH so the light end stays blue instead of turning gray.
 
 local M = {}
-M.version = "1.3"                 -- the release; florilegium.lua checks that every file has the same
+M.version = "2.0.0"                 -- the release; florilegium.lua checks that every file has the same
 
 local fmt, floor, sqrt, sin, cos, atan, pi, abs = string.format, math.floor, math.sqrt, math.sin, math.cos, math.atan, math.pi, math.abs
 local concat = table.concat

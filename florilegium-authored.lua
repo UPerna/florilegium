@@ -13,7 +13,7 @@
 local ink = require("florilegium-ink")
 local grow = require("florilegium-grow")
 local M = {}
-M.version = "1.3"                 -- the release; florilegium.lua checks that every file has the same
+M.version = "2.0.0"                 -- the release; florilegium.lua checks that every file has the same
 
 local sqrt, cos, sin, atan, pi, min, floor = math.sqrt, math.cos, math.sin, math.atan, math.pi, math.min, math.floor
 local rad = pi / 180

@@ -26,7 +26,7 @@ body:
     attributes:
       label: florilegium version
       description: The release, or the commit if you use main. The log shows the package date.
-      placeholder: v1.3
+      placeholder: v2.0.0
   - type: textarea
     id: log
     attributes:

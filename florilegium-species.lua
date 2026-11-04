@@ -22,7 +22,7 @@
 local ink = require("florilegium-ink")
 local pm = require("florilegium-pgfmath")
 local M = {}
-M.version = "1.3"                 -- the release; florilegium.lua checks that every file has the same
+M.version = "2.0.0"                 -- the release; florilegium.lua checks that every file has the same
 
 local floor, fmt, concat = math.floor, string.format, table.concat
 
