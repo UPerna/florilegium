@@ -56,6 +56,9 @@ check:
 	$(RUN) python3 tools/maze_oracle.py
 	$(RUN) texlua tools/micrographycheck.lua
 	$(RUN) python3 tools/micrography_oracle.py
+	$(RUN) texlua tools/check-deco-integration.lua
+	$(RUN) texlua tools/decocheck.lua
+	$(RUN) python3 tools/deco_oracle.py
 	$(RUN) texlua tools/layoutcheck.lua
 	$(RUN) texlua tools/spacecheck.lua
 	$(RUN) texlua tools/initialcheck.lua
@@ -162,3 +165,4 @@ clean:
 	rm -rf build *.aux *.log *.out *.synctex.gz
 
 .PHONY: all check botanical-engine-check engine-check offset-check folio-preview xe source-package export-check visual-check book-preview layout-preview gallery animation preview postscript clean
+

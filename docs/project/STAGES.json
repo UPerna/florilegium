@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_stage": "24",
+  "current_stage": "25",
   "prompt_sha256": "8D25740D944FC98943FD005737BD825215CFCF6F894218790E140EDE8EE3F09E",
   "stages": [
     {
@@ -690,38 +690,55 @@
     {
       "id": "24",
       "title": "micrography with meaningful readable text",
-      "status": "in_progress",
+      "status": "passed",
       "prerequisites": "23",
       "acceptance_items": [
         "the microgram follows the image/region while carrying real meaningful text, source-method coverage is honest, and font/searchability behavior is verified for each supported backend. Preserve failure cases for insufficient space and impossible legibility constraints."
       ],
-      "observed_results": "19 checks on each Lua runtime and 13 verified output hashes. Local numerical differences were compared explicitly. Independent checks verified exact boundary masks, the doubled-angle solve, 995 source graphemes and actual Latin, combining and Greek text extraction from PDF and SVG. Three vector pairs passed inspection. Native CI pending.",
+      "observed_results": "Both native jobs passed. 19 checks, 13 output hashes, three visual pairs and 431 source kit hashes verified. The independent checker verified 995 source graphemes, all three actual PDF and SVG extractions, the signed labeling optimum and the doubled-angle field. Native/local byte differences: ['combining.instance', 'combining.pdf', 'combining.svg', 'failures.json', 'greek.instance', 'greek.pdf', 'greek.svg', 'latin.instance', 'latin.pdf', 'latin.svg'].",
       "evidence_paths": [
         "artifacts/receipts/24/receipt-Lua-5.3.json",
         "artifacts/receipts/24/receipt-Lua-5.4.json",
         "artifacts/receipts/24/oracle.json",
         "artifacts/receipts/24/local-parity.json",
-        "artifacts/receipts/24/source-reference.json"
+        "artifacts/receipts/24/source-reference.json",
+        "artifacts/receipts/24/publication.json",
+        "artifacts/receipts/24/ci-final.json"
       ],
       "tested_code_revision": null,
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Publish from exact parent 24fe6eb, verify normal Git fetch and both native CI jobs, then inspect all fresh PDF/SVG pairs."
+      "next_action": "Passed. Proceed to Stage 25.",
+      "workflow_runs": [
+        {
+          "id": 41908776000,
+          "status": "success",
+          "head_sha": "27eef521f814e71a49ce38a5b333c29e2bb9e3be"
+        }
+      ],
+      "tested_revision": "27eef521f814e71a49ce38a5b333c29e2bb9e3be",
+      "verified_revision": "27eef521f814e71a49ce38a5b333c29e2bb9e3be"
     },
     {
       "id": "25",
       "title": "example-driven decorative synthesis",
-      "status": "pending",
+      "status": "in_progress",
       "prerequisites": "24",
       "acceptance_items": [
         "a user can supply/select a real exemplar library and guide, obtain a valid structured synthesis and refine a region without replacing unrelated output. Provenance and failure diagnostics are available; no model/API-dependent generation is required for basic replay. Respect code/data licenses separately from paper access."
       ],
-      "observed_results": null,
-      "evidence_paths": null,
+      "observed_results": "Eight checks and 19 outputs on each local Lua runtime. Five PDF/SVG pairs inspected. Independent audit verified connected contours, a geometric opening, certified overlap cuts, coherent coordinate correction, fixed-stamp comparison, and an erase with unchanged outside samples. Three cross-runtime files differed numerically by at most 6.94e-18. Native CI pending.",
+      "evidence_paths": [
+        "artifacts/receipts/25/receipt-Lua-5.3.json",
+        "artifacts/receipts/25/receipt-Lua-5.4.json",
+        "artifacts/receipts/25/oracle.json",
+        "artifacts/receipts/25/local-parity.json",
+        "artifacts/receipts/25/source-reference.json"
+      ],
       "tested_code_revision": null,
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+      "next_action": "Publish the exact Stage 25 manifest from parent 27eef52, verify the fetched Git tree, run native CI and inspect the native PDF/SVG pairs."
     },
     {
       "id": "26",

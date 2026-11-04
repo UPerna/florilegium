@@ -72,6 +72,9 @@ jobs:
             python3 tools/maze_oracle.py &&
             texlua tools/micrographycheck.lua &&
             python3 tools/micrography_oracle.py &&
+            texlua tools/check-deco-integration.lua &&
+            texlua tools/decocheck.lua &&
+            python3 tools/deco_oracle.py &&
             texlua tools/layoutcheck.lua &&
             texlua tools/spacecheck.lua &&
             texlua tools/initialcheck.lua &&
@@ -109,6 +112,7 @@ jobs:
             build/strokes/
             build/maze/
             build/micrography/
+            build/decobrush/
 
   portable:
     runs-on: ubuntu-latest
@@ -175,3 +179,4 @@ jobs:
         with:
           name: gallery
           path: gallery/
+

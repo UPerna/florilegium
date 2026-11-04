@@ -262,7 +262,7 @@
       "code_availability": "No reusable code/license established; independent implementation required unless separately verified",
       "data_availability": "Use original fixtures; publication access is not artwork permission",
       "paper_license": "Author page: personal use only; paper and all images not for redistribution; third-party source graphics have separate rights",
-      "implementation_status": "Bounded exact signed boundary labeling, doubled-angle solve and portable Latin/Greek layout implemented. Native acceptance pending.",
+      "implementation_status": "The Stage 24 bounded signed-boundary and doubled-angle micrography profile passed native CI, independent geometry and extraction checks, and visual acceptance.",
       "download_url": "https://www.cs.ubc.ca/labs/imager/tr/2011/Micrography/micrography.pdf",
       "sha256": "7906be137b7756c2c148141cf0a242116f52de34d03df3c93e16f7ec3d2fdd57"
     },
