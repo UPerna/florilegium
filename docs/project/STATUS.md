@@ -1,5 +1,7 @@
 # Florilegium execution status
 
-Stages 00–24 passed. Stage 25 local acceptance passed. Eight checks and 19 outputs on each local Lua runtime. Five PDF/SVG pairs inspected. Independent audit verified connected contours, a geometric opening, certified overlap cuts, coherent coordinate correction, fixed-stamp comparison, and an erase with unchanged outside samples. This follow-up fixes the initial native floral fixture identity mismatch by pinning polygon profile coordinates. Repaired native CI pending.
+Stages 00–25 passed. Stage 25 native CI 41922300569 accepted on af18c26.
 
-Publish the exact Stage 25 manifest from parent f2b4ff7, verify the fetched Git tree, run native CI and inspect the native PDF/SVG pairs.
+Local acceptance passed on Lua 5.3 and 5.4. Both produced byte-identical sets of 22 outputs with eight harness checks. The independent oracle checked 635 spatial samples, 3125 chord probes, 1878 projected samples, four joined crossings, two separate-depth crossings and two nested supports. Four PDF/SVG pairs inspected at 9 × 9.5 cm. Native CI pending.
+
+Publish the exact stage 26 manifest from af18c26, verify the fetched Git tree, and validate the native CI archives and four projected pairs.

@@ -50,3 +50,5 @@ Stage 22 final gate passed on 30c5a6c. Both native jobs succeeded. Independent c
 Stage 23 final gate passed on 24fe6eb. Both native jobs succeeded. Independent checks solved ten vector mazes across 2,557 cells and verified constrained spanning-tree costs, physical route clearance and 39 guided openings. Fifteen fresh PDF/SVG pairs passed inspection.
 
 Stage 24 final gate passed on 27eef52. Both native jobs succeeded. Independent checks verified the signed boundary labeling optimum, field residual, and 995 graphemes through actual PDF and SVG extraction. Three fresh PDF/SVG pairs passed inspection.
+
+Stage 25 final gate passed on af18c26. Both native jobs succeeded. Independent checks verified connected vector contours, matched endpoints, certified overlap cuts and masked erase locality. Five fresh PDF/SVG pairs passed inspection.

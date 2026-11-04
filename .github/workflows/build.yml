@@ -75,6 +75,8 @@ jobs:
             texlua tools/check-deco-integration.lua &&
             texlua tools/decocheck.lua &&
             python3 tools/deco_oracle.py &&
+            texlua tools/gothiccheck.lua &&
+            python3 tools/gothic_oracle.py &&
             texlua tools/layoutcheck.lua &&
             texlua tools/spacecheck.lua &&
             texlua tools/initialcheck.lua &&
@@ -113,6 +115,7 @@ jobs:
             build/maze/
             build/micrography/
             build/decobrush/
+            build/gothic/
 
   portable:
     runs-on: ubuntu-latest

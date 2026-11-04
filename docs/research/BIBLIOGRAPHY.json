@@ -389,7 +389,7 @@
       "code_availability": "No reusable code/license established; independent implementation required unless separately verified",
       "data_availability": "Use original fixtures; publication access is not artwork permission",
       "paper_license": "No redistribution permission established; do not bundle paper",
-      "implementation_status": "pending"
+      "implementation_status": "The Stage 25 bounded polygon-exemplar DecoBrush profile passed native CI, topology, edit locality and visual acceptance."
     },
     {
       "id": "R12",

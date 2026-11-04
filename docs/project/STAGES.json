@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_stage": "25",
+  "current_stage": "26",
   "prompt_sha256": "8D25740D944FC98943FD005737BD825215CFCF6F894218790E140EDE8EE3F09E",
   "stages": [
     {
@@ -722,12 +722,12 @@
     {
       "id": "25",
       "title": "example-driven decorative synthesis",
-      "status": "in_progress",
+      "status": "passed",
       "prerequisites": "24",
       "acceptance_items": [
         "a user can supply/select a real exemplar library and guide, obtain a valid structured synthesis and refine a region without replacing unrelated output. Provenance and failure diagnostics are available; no model/API-dependent generation is required for basic replay. Respect code/data licenses separately from paper access."
       ],
-      "observed_results": "Eight checks and 19 outputs on each local Lua runtime. Five PDF/SVG pairs inspected. Independent audit verified connected contours, a geometric opening, certified overlap cuts, coherent coordinate correction, fixed-stamp comparison, and an erase with unchanged outside samples. This follow-up fixes the initial native floral fixture identity mismatch by pinning polygon profile coordinates. Repaired native CI pending.",
+      "observed_results": "Both native jobs passed. 8 checks, 19 output hashes, five visual pairs and 454 source kit hashes verified. The independent checker verified connected ornament contours, the geometric opening, exact overlap cut certificates, and frozen samples outside the edit mask. Native/local byte differences: ['branched-edit.instance', 'branched-edit.pdf', 'branched-edit.svg', 'branched.instance', 'branched.pdf', 'branched.svg', 'floral.instance', 'floral.pdf', 'floral.svg', 'geometric.instance', 'geometric.pdf', 'geometric.svg'].",
       "evidence_paths": [
         "artifacts/receipts/25/receipt-Lua-5.3.json",
         "artifacts/receipts/25/receipt-Lua-5.4.json",
@@ -736,37 +736,50 @@
         "artifacts/receipts/25/source-reference.json",
         "artifacts/receipts/25/ci-initial-rejected.json",
         "artifacts/receipts/25/publication-initial.json",
-        "artifacts/receipts/25/portable.json"
+        "artifacts/receipts/25/portable.json",
+        "artifacts/receipts/25/publication.json",
+        "artifacts/receipts/25/ci-final-progress.json",
+        "artifacts/receipts/25/ci-final.json"
       ],
       "tested_code_revision": null,
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Publish the exact Stage 25 manifest from parent f2b4ff7, verify the fetched Git tree, run native CI and inspect the native PDF/SVG pairs.",
+      "next_action": "Passed. Proceed to Stage 26.",
       "workflow_runs": [
         {
           "id": 41919421379,
           "status": "success",
           "head_sha": "f2b4ff790c8919a97b60e1d47d9604e46b3ccdce",
-          "acceptance": "rejected"
+          "acceptance": "rejected: floral fixture identity differed"
+        },
+        {
+          "id": 41922300569,
+          "status": "success",
+          "head_sha": "af18c263e2cf9fbc1eb8b5103d1dd47d1f2a65bf"
         }
       ],
-      "verified_revision": "f2b4ff790c8919a97b60e1d47d9604e46b3ccdce",
-      "tested_revision": "f2b4ff790c8919a97b60e1d47d9604e46b3ccdce"
+      "verified_revision": "af18c263e2cf9fbc1eb8b5103d1dd47d1f2a65bf",
+      "tested_revision": "af18c263e2cf9fbc1eb8b5103d1dd47d1f2a65bf"
     },
     {
       "id": "26",
       "title": "Gothic microarchitecture and projected 3D curve networks",
-      "status": "pending",
+      "status": "in_progress",
       "prerequisites": "25",
       "acceptance_items": [
         "users can edit/generate the declared genuine spatial construction and derive consistent 2D ornamental views. The core remains lightweight for ordinary 2D use. Source fidelity, optional dependencies, dimensional scope and all unimplemented source capabilities remain explicit in the coverage ledger."
       ],
-      "observed_results": null,
-      "evidence_paths": null,
+      "observed_results": "Local acceptance passed on Lua 5.3 and 5.4. Both produced byte-identical sets of 22 outputs with eight harness checks. The independent oracle checked 635 spatial samples, 3125 chord probes, 1878 projected samples, four joined crossings, two separate-depth crossings and two nested supports. Four PDF/SVG pairs inspected at 9 × 9.5 cm. Native CI pending.",
+      "evidence_paths": [
+        "artifacts/receipts/26/receipt-Lua-5.3.json",
+        "artifacts/receipts/26/receipt-Lua-5.4.json",
+        "artifacts/receipts/26/oracle.json",
+        "artifacts/receipts/26/source-reference.json"
+      ],
       "tested_code_revision": null,
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+      "next_action": "Publish the exact stage 26 manifest from af18c26, verify the fetched Git tree, and validate the native CI archives and four projected pairs."
     },
     {
       "id": "27",
