@@ -48,6 +48,8 @@ jobs:
             python3 tools/islamic_oracle.py &&
             texlua tools/freeformcheck.lua &&
             python3 tools/freeform_oracle.py &&
+            texlua tools/substitutioncheck.lua &&
+            python3 tools/substitution_oracle.py &&
             texlua tools/layoutcheck.lua &&
             texlua tools/spacecheck.lua &&
             texlua tools/initialcheck.lua &&
@@ -73,6 +75,7 @@ jobs:
             build/celtic/
             build/islamic/
             build/freeform/
+            build/substitution/
 
   portable:
     runs-on: ubuntu-latest

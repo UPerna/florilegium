@@ -148,6 +148,10 @@ function M.execute(recipe,registry,environment,options)
     end)
     if ok then accepted=value;record.status="complete";record.validation={status="passed",checks=P.plain(result.validation.checks)}
       if result.validation.solver then record.extensions={solver=P.plain(result.validation.solver)} end
+      if result.validation.construction then
+        record.extensions=record.extensions or {}
+        record.extensions.construction=P.plain(result.validation.construction)
+      end
       if value.planning then
         record.validation.checks[#record.validation.checks+1]="document planner: source-preserving selection and requested physical policies"
         record.validation.planning={document_digest=value.planning.document_digest,source_digest=value.planning.source_digest,page_ref=value.planning.decisions.page_ref}

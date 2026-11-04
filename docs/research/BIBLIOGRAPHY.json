@@ -662,6 +662,28 @@
       "paper_license": "No redistribution permission established; do not bundle paper",
       "implementation_status": "pending",
       "kind": "web_reference"
+    },
+    {
+      "id": "R21",
+      "title": "A primer of substitution tilings of the Euclidean plane",
+      "authors": [
+        "Natalie Priebe Frank"
+      ],
+      "year": 2008,
+      "version": "Author-hosted primary PDF; Expositiones Mathematicae (2008)",
+      "primary_url": "https://pages.vassar.edu/nafrank/files/2012/08/substitutions.pdf",
+      "doi": null,
+      "sections": [
+        "2.1 Self-similar tilings; L-triomino example"
+      ],
+      "stage_owner": "13",
+      "retrieved": "2026-11-04",
+      "access": "Primary PDF read through web retrieval; independent exact reconstruction",
+      "code_availability": "No copied implementation",
+      "data_availability": "Original integer fixtures only",
+      "paper_license": "Paper not bundled",
+      "implementation_status": "Finite L-triomino dissection implemented; native CI pending",
+      "kind": "paper"
     }
   ]
 }
