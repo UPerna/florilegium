@@ -1,5 +1,5 @@
 # Florilegium execution status
 
-Stages 00-09 passed. Stage 10 is in progress. 23 checks on each Lua version, 16 identical output hashes, independent traversal of all 50 crossing branches, six local PDF/SVG pairs inspected. Native CI pending.
+Stages 00-10 passed. Stage 11 is in progress. 23 checks on each Lua version, 22 identical output hashes, 3880 interior contacts, 4358 source greedy bend pairs, 8 irregular-gap rays, and seven local PDF/SVG pairs inspected. Native CI pending.
 
-Publish with expected parent ac76ce9, verify branch bytes, require both native CI jobs, and inspect fresh Celtic artifacts.
+Publish with expected parent c45310b, verify branch bytes, require both native CI jobs, and inspect fresh Celtic artifacts.

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_stage": "10",
+  "current_stage": "11",
   "prompt_sha256": "8D25740D944FC98943FD005737BD825215CFCF6F894218790E140EDE8EE3F09E",
   "stages": [
     {
@@ -304,36 +304,43 @@
     {
       "id": "10",
       "title": "Celtic knotwork with actual strand semantics",
-      "status": "in_progress",
+      "status": "passed",
       "prerequisites": "09",
       "acceptance_items": [
         "all four fixtures produce correct semantic topology and readable vector output, width changes preserve graph/crossing identities, impossible constraints fail clearly, and the capability ledger accurately records which source mechanisms have been implemented."
       ],
-      "observed_results": "23 checks on each Lua version, 16 identical output hashes, independent traversal of all 50 crossing branches, six local PDF/SVG pairs inspected. Native CI pending.",
+      "observed_results": "Native CI passed both jobs. 23 checks, 50 independently verified branches, 16 artifact hashes and 268 source kit hashes. Six native pairs and enlarged crossings accepted. Native/local byte differences: [].",
       "evidence_paths": [
         "artifacts/receipts/10/oracle.json",
         "artifacts/receipts/10/receipt-Lua-5.3.json",
-        "artifacts/receipts/10/receipt-Lua-5.4.json"
+        "artifacts/receipts/10/receipt-Lua-5.4.json",
+        "artifacts/receipts/10/remote-tree.json",
+        "artifacts/receipts/10/publication.json",
+        "artifacts/receipts/10/ci-final.json"
       ],
-      "tested_code_revision": null,
-      "local_commit": null,
-      "verified_remote_revision": null,
-      "next_action": "Publish with expected parent ac76ce9, verify branch bytes, require both native CI jobs, and inspect fresh Celtic artifacts."
+      "tested_code_revision": "c45310b2d7db36dd0d423a28407950140906c01a",
+      "local_commit": "c45310b2d7db36dd0d423a28407950140906c01a",
+      "verified_remote_revision": "c45310b2d7db36dd0d423a28407950140906c01a",
+      "next_action": "Passed. Proceed to stage 11."
     },
     {
       "id": "11",
       "title": "classical Islamic geometric construction",
-      "status": "pending",
+      "status": "in_progress",
       "prerequisites": "10",
       "acceptance_items": [
         "the declared classical capabilities run through the shared contracts and renderer, quantitative seam/continuity checks pass, fixtures are visually inspected, and unsupported geometry is reported accurately. No claim of historical authenticity follows merely from algorithmic validity."
       ],
-      "observed_results": null,
-      "evidence_paths": null,
+      "observed_results": "23 checks on each Lua version, 22 identical output hashes, 3880 interior contacts, 4358 source greedy bend pairs, 8 irregular-gap rays, and seven local PDF/SVG pairs inspected. Native CI pending.",
+      "evidence_paths": [
+        "artifacts/receipts/11/oracle.json",
+        "artifacts/receipts/11/receipt-Lua-5.3.json",
+        "artifacts/receipts/11/receipt-Lua-5.4.json"
+      ],
       "tested_code_revision": null,
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+      "next_action": "Publish with expected parent c45310b, verify branch bytes, require both native CI jobs, and inspect fresh Celtic artifacts."
     },
     {
       "id": "12",
