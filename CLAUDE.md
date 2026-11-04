@@ -135,7 +135,7 @@ is ~70 KB of path operators, a v1.3 page ~3 MB uncompressed, ~0.6 MB in the PDF;
   CC BY-NC-SA: bare codes only). Code that reproduces pgf (`florilegium-pgfmath.lua`, ink's
   `pgfrng`, the library's patch of pgf's number parser) keeps its LPPL notice: not part of
   pgf, how it differs, no support from pgf's authors, where unmodified pgf is (LPPL 1.3c
-  clauses 6 and 10, which let it stay MIT).
+  clauses 6 and 10, which let it stay MIT). Every file is MIT except `florilegium-pgfmath.lua`, which is LPPL 1.3c (board #5119, 2026-11-03): it reimplements pgfmath's arithmetic and pgf's random generator, a Derived Work of pgf, with the clause-6 notices and the LPPL maintenance statement in its header; keep anything else that reimplements pgf in it (`ink.pgfrng` is a reference to it). `LICENSE` stays plain MIT text so GitHub recognizes it; README, the `.sty` header, CONTRIBUTING and `CITATION.cff` name the exception.
 - **Docs.** README is the front page: keep its compelling examples (the user, 2026-11-03: "don't go
   overboard" trimming it), one picture and a few sentences per feature, each linking to its page
   in `docs/`; reference material goes in `docs/`, never back into README. Numbers come from

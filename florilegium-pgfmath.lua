@@ -1,5 +1,7 @@
--- florilegium-pgfmath.lua -- the part of pgfmath's arithmetic the species need, replayed exactly.
--- Copyright (c) 2026 Kevin Raymond. MIT License: see LICENSE or florilegium.sty.
+-- florilegium-pgfmath.lua -- the part of pgfmath's arithmetic the species need, and pgf's
+-- random generator, replayed exactly.
+-- Copyright (c) 2026 Kevin Raymond. LaTeX Project Public License 1.3c (below); the rest of
+-- florilegium is under the MIT License (see LICENSE).
 --
 -- The TikZ library (tikzlibraryflorilegium.code.tex) computes every drawing with pgfmath,
 -- in TeX's fixed point: a number is a whole count of scaled points (1/65536 pt), every
@@ -17,16 +19,20 @@
 -- Not part of pgf. pgfmath is Mark Wibrow's (pgfmathfunctions.*.code.tex, "Copyright 2019
 -- by Mark Wibrow", building on code by Till Tantau); its ln follows an algorithm due to
 -- Rouben Rostamian with coefficients contributed by Alain Matthes, as pgfmath credits them.
--- This file is a reimplementation of part of pgfmath 3.1.10's arithmetic in Lua, made to
--- give the same results, and differs from it in this: the TeX macros are rewritten as Lua
--- functions on integers, and an overflow raises a Lua error where TeX reports one and goes
--- on (tools/pgfmathcheck.lua tests that the results agree). It replaces and changes no
--- file of pgf. pgf's authors do not support it: report problems with it to florilegium.
--- pgf itself, unmodified, is at https://ctan.org/pkg/pgf and
--- https://github.com/pgf-tikz/pgf. pgf is distributed under the LaTeX Project Public
--- License 1.3c or the GNU GPL 2; this file takes it under the LPPL, whose clause 10 lets a
--- derived work carry another license (here MIT) if it keeps the conditions of clause 6,
--- which this paragraph states. Keep it with any copy.
+-- This file is a reimplementation of part of pgfmath 3.1.10's arithmetic, and of its random
+-- generator (pgfmathfunctions.random.code.tex), in Lua, made to give the same results, and
+-- differs from them in this: the TeX macros are rewritten as Lua functions on integers, and
+-- an overflow raises a Lua error where TeX reports one and goes on (tools/pgfmathcheck.lua
+-- tests that the results agree). It replaces and changes no file of pgf. pgf's authors do
+-- not support it: report problems with it to florilegium. pgf itself, unmodified, is at
+-- https://ctan.org/pkg/pgf and https://github.com/pgf-tikz/pgf; it is distributed under the
+-- LaTeX Project Public License 1.3c or the GNU GPL 2. This file is a Derived Work of pgf
+-- under the LPPL, and this paragraph gives the notices the LPPL's clause 6 asks for.
+--
+-- This work may be distributed and/or modified under the conditions of the LaTeX Project
+-- Public License, version 1.3c (https://www.latex-project.org/lppl/lppl-1-3c/). This work
+-- has the LPPL maintenance status `maintained'. The Current Maintainer of this work is
+-- Kevin Raymond. This work consists of the file florilegium-pgfmath.lua.
 --
 -- Values in and out are integers in sp: M.sp(text) reads a number, M.str(v) prints one,
 -- M.mulf(x, y) is y as a factor times x, M.add, M.div (pgfmath's a/b), M.int (the integer
@@ -308,6 +314,50 @@ function M.pow(a, b)
     return x
   end
   return M.exp(mulf(M.ln(a), b))
+end
+
+-- ---------------------------------------------------------------- pgf's random generator
+-- pgf's own generator, replayed step for step, so that a species drawn by TikZ
+-- (tikzlibraryflorilegium.code.tex) and by Lua from the same seed makes the same
+-- choices. pgfmathfunctions.random.code.tex (pgf, Mark Wibrow; LPPL 1.3c / GPL 2): Lehmer's
+-- generator, a = 69621, m = 2^31-1, by Schrage's method (q = 30845, r = 23902). Not part of
+-- pgf: a reimplementation in Lua, not supported by pgf's authors (pgf itself, unmodified,
+-- is at https://ctan.org/pkg/pgf); under this file's license, as above.
+-- rnd is (z mod 100001) written as five decimals and read as a TeX dimension,
+-- rand the same over (z mod 200001) - 100000, random(a,b) is a + z mod (b-a+1).
+-- Values are returned as TeX holds them: whole scaled points (1/65536 pt).
+-- TeX's round_decimals of the five digits of n (0 <= n < 100000): it takes the digits from
+-- the last, a = (a + digit * 2^17) div 10, then (a + 1) div 2; the digits are whole numbers,
+-- so the five truncations are one, of n * 2^17 / 10^5 (checked for every n)
+local function decimals_sp(n) return (n * 131072 // 100000 + 1) // 2 end
+function M.pgfrng(seed)
+  local z = math.floor(seed)
+  assert(z >= 1 and z <= 2147483646, "florilegium: a pgf seed is an integer from 1 to 2147483646")
+  local r = {}
+  local function step()
+    local t = 69621 * (z % 30845) - 23902 * (z // 30845)
+    if t < 0 then t = t + 2147483647 end
+    z = t
+    return t
+  end
+  function r.rnd()                          -- [0, 1]
+    local c = step() % 100001
+    return c == 100000 and 1.0 or decimals_sp(c) / 65536
+  end
+  function r.rand()                         -- [-1, 1]
+    local c = step() % 200001 - 100000
+    if c == 100000 or c == -100000 then return c / 100000 end
+    local v = decimals_sp(c < 0 and -c or c) / 65536
+    return c < 0 and -v or v
+  end
+  function r.random(a, b)                   -- integer in [a, b]
+    if a > b then a, b = b, a end
+    return a + step() % (b - a + 1)
+  end
+  r.step = step                             -- \pgfmathgeneratepseudorandomnumber
+  function r.save() return z end
+  function r.load(v) z = v end
+  return r
 end
 
 return M

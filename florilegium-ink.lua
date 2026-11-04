@@ -61,48 +61,11 @@ function M.rng(seed)
   return r
 end
 
--- pgf's own generator, replayed step for step, so that a species drawn by TikZ
--- (tikzlibraryflorilegium.code.tex) and by Lua from the same seed makes the same
--- choices. pgfmathfunctions.random.code.tex (pgf, Mark Wibrow; LPPL 1.3c / GPL 2): Lehmer's
--- generator, a = 69621, m = 2^31-1, by Schrage's method (q = 30845, r = 23902). Not part of
--- pgf: a reimplementation in Lua, not supported by pgf's authors (pgf itself, unmodified,
--- is at https://ctan.org/pkg/pgf); see florilegium-pgfmath.lua for its license terms.
--- rnd is (z mod 100001) written as five decimals and read as a TeX dimension,
--- rand the same over (z mod 200001) - 100000, random(a,b) is a + z mod (b-a+1).
--- Values are returned as TeX holds them: whole scaled points (1/65536 pt).
--- TeX's round_decimals of the five digits of n (0 <= n < 100000): it takes the digits from
--- the last, a = (a + digit * 2^17) div 10, then (a + 1) div 2; the digits are whole numbers,
--- so the five truncations are one, of n * 2^17 / 10^5 (checked for every n)
-local function decimals_sp(n) return (n * 131072 // 100000 + 1) // 2 end
-function M.pgfrng(seed)
-  local z = floor(seed)
-  assert(z >= 1 and z <= 2147483646, "florilegium: a pgf seed is an integer from 1 to 2147483646")
-  local r = {}
-  local function step()
-    local t = 69621 * (z % 30845) - 23902 * (z // 30845)
-    if t < 0 then t = t + 2147483647 end
-    z = t
-    return t
-  end
-  function r.rnd()                          -- [0, 1]
-    local c = step() % 100001
-    return c == 100000 and 1.0 or decimals_sp(c) / 65536
-  end
-  function r.rand()                         -- [-1, 1]
-    local c = step() % 200001 - 100000
-    if c == 100000 or c == -100000 then return c / 100000 end
-    local v = decimals_sp(c < 0 and -c or c) / 65536
-    return c < 0 and -v or v
-  end
-  function r.random(a, b)                   -- integer in [a, b]
-    if a > b then a, b = b, a end
-    return a + step() % (b - a + 1)
-  end
-  r.step = step                             -- \pgfmathgeneratepseudorandomnumber
-  function r.save() return z end
-  function r.load(v) z = v end
-  return r
-end
+-- pgf's own random generator, replayed step for step (\pgfmathsetseed, rnd, rand, random),
+-- so that a species drawn by TikZ and by Lua from the same seed makes the same choices. It
+-- lives in florilegium-pgfmath.lua with the rest of what reimplements pgf, under that file's
+-- license (the LaTeX Project Public License 1.3c)
+M.pgfrng = require("florilegium-pgfmath").pgfrng
 
 -- ---------------------------------------------------------------- noise
 -- 1-D gradient noise with a seeded gradient table, smooth, roughly in [-1,1]

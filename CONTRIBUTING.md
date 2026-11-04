@@ -58,4 +58,5 @@ either to a new version, change its URL in `web/` and use the hash `tools/sri.sh
 ## License
 
 By contributing, you agree that your contribution is released under the project's
-[MIT License](LICENSE).
+[MIT License](LICENSE), or, for `florilegium-pgfmath.lua`, under the LaTeX Project Public
+License 1.3c, as that file's header says.
