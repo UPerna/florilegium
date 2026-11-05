@@ -13,7 +13,7 @@
 -- \def\florilegiumseed{7} and the same margins.
 
 local M = {}
-M.version = "2.0.0"                 -- the release; florilegium.lua checks that every file has the same
+M.version = "2.0.1"                 -- the release; florilegium.lua checks that every file has the same
 local fmt, floor, concat = string.format, math.floor, table.concat
 
 -- ---------------------------------------------------------------- lengths

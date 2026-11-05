@@ -11,7 +11,7 @@
 local ink = require("florilegium-ink")
 local flora = require("florilegium-flora")
 local M = {}
-M.version = "2.0.0"                 -- the release; florilegium.lua checks that every file has the same
+M.version = "2.0.1"                 -- the release; florilegium.lua checks that every file has the same
 
 local sqrt, cos, sin, pi, max, min, atan = math.sqrt, math.cos, math.sin, math.pi, math.max, math.min, math.atan
 local tone, white = ink.tone, ink.white

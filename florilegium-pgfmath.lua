@@ -39,7 +39,7 @@
 -- part, in sp) and M.pow.
 
 local M = {}
-M.version = "2.0.0"                 -- the release; florilegium.lua checks that every file has the same
+M.version = "2.0.1"                 -- the release; florilegium.lua checks that every file has the same
 
 local UNITY = 65536
 local MAXDIMEN = 1073741823       -- 16383.99998pt

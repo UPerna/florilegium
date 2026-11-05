@@ -21,7 +21,7 @@ local ink = require("florilegium-ink")
 local pm = require("florilegium-pgfmath")
 
 local M = {}
-M.version = "2.0.0"                 -- the release; florilegium.lua checks that every file has the same
+M.version = "2.0.1"                 -- the release; florilegium.lua checks that every file has the same
 
 local floor, sqrt, abs, min, max = math.floor, math.sqrt, math.abs, math.min, math.max
 local CM = pm.sp("28.45276")      -- pt in a cm as TeX holds it, in sp (TeX's arithmetic below)
