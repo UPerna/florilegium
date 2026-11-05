@@ -1090,6 +1090,9 @@ function M.page(g)
         if m.group then counts[m.group] = counts[m.group] + 1 end
         disc(px, py, r, 0.85)
       end
+    elseif mk.kind == "bloom" and luatexbase and luatexbase.module_warning then
+      -- a name that is no motif, role or plan on this page (a typo, or a plan another page has)
+      luatexbase.module_warning("florilegium", "\\florilegiumbloom[" .. mk.arg .. "] names no motif, role or plan on this page; nothing is drawn there")
     end
   end
 
@@ -1108,10 +1111,12 @@ function M.page(g)
       local pts = mains[k]
       local i = vis.int(max(10, floor(#pts * 0.15)), max(11, floor(#pts * 0.45)))
       local side = vis.chance(0.5) and 1 or -1
-      local tx, ty = tangent(pts, i)
-      local nx, ny = ty * side, -tx * side             -- toward the shell
-      local f = free_at(pts[i][1] + nx * 0.8 * s, pts[i][2] + ny * 0.8 * s)
-      if f > best then best, c = f, { k = k, i = i, side = side, nx = nx, ny = ny } end
+      if i < #pts then                                 -- a stem shorter than that (a small page) has no place
+        local tx, ty = tangent(pts, i)
+        local nx, ny = ty * side, -tx * side           -- toward the shell
+        local f = free_at(pts[i][1] + nx * 0.8 * s, pts[i][2] + ny * 0.8 * s)
+        if f > best then best, c = f, { k = k, i = i, side = side, nx = nx, ny = ny } end
+      end
     end
     if c and best > 0.25 then
       local pts = mains[c.k]
@@ -1150,12 +1155,15 @@ function M.page(g)
       local p = pts[i]
       local dir = vis.chance(0.5) and 1 or -1
       local L = vis.range(1.2, 1.7)
-      local ex, ey = p[1] + dir * L, p[2] + vis.range(0.05, 0.4)
-      local bx, by = ex - dir * 0.25, ey
+      local rise = vis.range(0.05, 0.4)
       local facing = vis.chance(0.65) and dir or -dir
-      local bodyx, bodyy = bx + facing * 0.03 * s, by + 0.4 * s
-      local f = min(free_at(bodyx, bodyy) / (0.36 * s), free_at(bx - facing * 0.35 * s, by + 0.15 * s) / (0.2 * s))
-      if f > best then best, c = f, { k = k, i = i, ex = ex, ey = ey, dir = dir, facing = facing, cx = bodyx, cy = bodyy } end
+      if p and i < #pts then                           -- a stem shorter than that (a small page) has no place
+        local ex, ey = p[1] + dir * L, p[2] + rise
+        local bx, by = ex - dir * 0.25, ey
+        local bodyx, bodyy = bx + facing * 0.03 * s, by + 0.4 * s
+        local f = min(free_at(bodyx, bodyy) / (0.36 * s), free_at(bx - facing * 0.35 * s, by + 0.15 * s) / (0.2 * s))
+        if f > best then best, c = f, { k = k, i = i, ex = ex, ey = ey, dir = dir, facing = facing, cx = bodyx, cy = bodyy } end
+      end
     end
     if c and best > 1 then
       local pts = mains[c.k]
@@ -1189,10 +1197,12 @@ function M.page(g)
       local pts = mains[k]
       local i = vis.int(max(4, floor(#pts * 0.2)), max(5, floor(#pts * 0.7)))
       local side = vis.chance(0.5) and 1 or -1
-      local tx, ty = tangent(pts, i)
-      local ax, ay = norm(ty * side + tx, -tx * side + ty)       -- out from the stem, leaning up
-      local f = free_at(pts[i][1] + ax * 0.6 * Lf, pts[i][2] + ay * 0.6 * Lf) / (0.42 * Lf)
-      if f > best then best, c = f, { k = k, i = i, side = side, ax = ax, ay = ay } end
+      if i < #pts then                                 -- a stem shorter than that (a small page) has no place
+        local tx, ty = tangent(pts, i)
+        local ax, ay = norm(ty * side + tx, -tx * side + ty)     -- out from the stem, leaning up
+        local f = free_at(pts[i][1] + ax * 0.6 * Lf, pts[i][2] + ay * 0.6 * Lf) / (0.42 * Lf)
+        if f > best then best, c = f, { k = k, i = i, side = side, ax = ax, ay = ay } end
+      end
     end
     if c and best > 0.8 then
       local p = mains[c.k][c.i]
@@ -1214,11 +1224,13 @@ function M.page(g)
       local k = vis.int(1, NSTEM)
       local pts = mains[k]
       local i = vis.int(max(10, floor(#pts * 0.2)), max(11, floor(#pts * 0.7)))
-      local tx, ty = tangent(pts, i)
-      local p = pts[i]
-      local f = min(free_at(p[1] + ty * 0.5 * s, p[2] - tx * 0.5 * s),
-        free_at(p[1] - ty * 0.5 * s, p[2] + tx * 0.5 * s))
-      if f > best then best, c = f, { k = k, i = i } end
+      if i < #pts then                                 -- a stem shorter than that (a small page) has no place
+        local tx, ty = tangent(pts, i)
+        local p = pts[i]
+        local f = min(free_at(p[1] + ty * 0.5 * s, p[2] - tx * 0.5 * s),
+          free_at(p[1] - ty * 0.5 * s, p[2] + tx * 0.5 * s))
+        if f > best then best, c = f, { k = k, i = i } end
+      end
     end
     if c and best > 0.3 * s then
       local pts = mains[c.k]

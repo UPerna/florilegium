@@ -142,12 +142,13 @@
 % #1 the names, #2 #3 the range of a number (empty if none), #4 1 for a real number, #5 the
 % trait, #6 its value
 \def\flo@fixcheck@#1#2#3#4#5#6{%
-  \pgfutil@in@{,#6,}{,#1,}%
+  \def\flo@tmp{#6}%
+  \ifx\flo@tmp\pgfutil@empty\pgfutil@in@false\else\pgfutil@in@{,#6,}{,#1,}\fi
   \ifpgfutil@in@\else
     \flo@yesfalse
-    \def\flo@t{#2}\def\flo@tmp{#6}%
+    \def\flo@t{#2}%
     \ifx\flo@t\pgfutil@empty\else\ifx\flo@tmp\pgfutil@empty\else
-      \flo@yestrue\flo@isnum@#6\flo@stop
+      \flo@isnum{#6}%
       \ifflo@yes
         \pgfmathparse{and(and((#6)>=(#2),(#6)<=(#3)),or(#4==1,(#6)==int(#6)))}%
         \ifdim\pgfmathresult pt>0pt \else\flo@yesfalse\fi
@@ -167,9 +168,17 @@
         return to draw it as sampled, without the traits.}%
     \fi
   \fi}
-% digits, a point or a minus sign, and nothing else
+% \ifflo@yes when #1 is a plain decimal number, as florilegium-species.lua's M.fixes reads
+% one: a minus sign first or none, digits with at most one point among them, and at least
+% one digit (no +, exponent, hexadecimal or expression)
+\newif\ifflo@numpt \newif\ifflo@numdig \newif\ifflo@numfirst
+\def\flo@isnum#1{\flo@yestrue\flo@numptfalse\flo@numdigfalse\flo@numfirsttrue
+  \flo@isnum@#1\flo@stop\ifflo@numdig\else\flo@yesfalse\fi}
 \def\flo@isnum@#1{\ifx#1\flo@stop\expandafter\pgfutil@gobble\else
-  \pgfutil@in@{#1}{0123456789.-}\ifpgfutil@in@\else\flo@yesfalse\fi\fi\flo@isnum@}
+  \if-\noexpand#1\ifflo@numfirst\else\flo@yesfalse\fi
+  \else\if.\noexpand#1\ifflo@numpt\flo@yesfalse\fi\flo@numpttrue
+  \else\pgfutil@in@{#1}{0123456789}\ifpgfutil@in@\flo@numdigtrue\else\flo@yesfalse\fi\fi\fi
+  \flo@numfirstfalse\fi\flo@isnum@}
 
 % ---------------------------------------------------------------- a log of the choices
 % \florilegiumspecieslogtrue collects "trait=value" for the species last drawn in
@@ -188,6 +197,15 @@
 \def\flo@seedcheck{\ifnum\pgfmath@rnd@z<1 \flo@seedreset\else
   \ifnum\pgfmath@rnd@z>2147483646 \flo@seedreset\fi\fi}
 \def\flo@seedreset{\flo@badseed\flo@seedval\pgfmathsetseed{1}}
+% \ifflo@roleok when #2 names a role in the table #1 (flo@role@ or flo@vrole@). \ifcsname
+% stops a name at the first unexpandable token, so rose\relax would pass as rose: a role
+% that passes is expanded (\flo@rq) and looked up again as a string
+\newif\ifflo@roleok
+\def\flo@isrole#1#2{\flo@roleokfalse
+  \ifcsname #1#2\endcsname
+    \protected@edef\flo@rq{#2}%
+    \ifcsname #1\detokenize\expandafter{\flo@rq}\endcsname\flo@roleoktrue\fi
+  \fi}
 \def\florilegiumspecies{\pgfutil@ifnextchar[\flo@sample@species{\flo@sample@species[]}}
 \def\flo@sample@species[#1]#2#3{%
   \flo@fixset{}{#1}%
@@ -204,9 +222,10 @@
 \def\flo@sample@plan#1#2{%
   \pgfmathsetseed{#1}\edef\flo@seedval{#1}\flo@seedcheck
   \pgfmathgeneratepseudorandomnumber\pgfmathgeneratepseudorandomnumber
-  \flo@set{seed}{\flo@seedval}\flo@set{role}{#2}%
+  \flo@set{seed}{\flo@seedval}%
   \edef\florilegiumspecieslog{seed=\flo@seedval}%
-  \ifcsname flo@role@#2\endcsname\else
+  \flo@isrole{flo@role@}{#2}%
+  \ifflo@roleok\flo@set{role}{\flo@rq}\else
     \flo@roleerror{#2}%
     \flo@set{role}{any}%
   \fi
@@ -276,9 +295,10 @@
   \flo@fixset{v}{#1}%
   \pgfmathsetseed{#2}\edef\flo@seedval{#2}\flo@seedcheck
   \pgfmathgeneratepseudorandomnumber\pgfmathgeneratepseudorandomnumber
-  \flo@xset{seed}{\flo@seedval}\flo@xset{role}{#3}%
+  \flo@xset{seed}{\flo@seedval}%
   \edef\florilegiumspecieslog{seed=\flo@seedval}%
-  \ifcsname flo@vrole@#3\endcsname\else
+  \flo@isrole{flo@vrole@}{#3}%
+  \ifflo@roleok\flo@xset{role}{\flo@rq}\else
     \flo@vroleerror{#3}%
     \flo@xset{role}{any}%
   \fi
@@ -1710,7 +1730,7 @@
   \ifnum\flo@Np=1 \def\flo@root{0}\def\flo@pc{0}\fi
   \ifnum\flo@Ga=1 \def\flo@pw{0.085}\else\def\flo@pw{0.065}\fi
   \edef\flo@pH{\csname flo@pp@H\the\flo@Ga\endcsname}%
-  \edef\flo@tmp{\noexpand\florilegiumspecies[\flo@o@traits]{\csname flo@pp@s\the\flo@Ga\endcsname}{\csname flo@pp@r\the\flo@Ga\endcsname}}\flo@tmp
+  \edef\flo@tmp{\noexpand\florilegiumspecies[{\flo@o@traits}]{\csname flo@pp@s\the\flo@Ga\endcsname}{\csname flo@pp@r\the\flo@Ga\endcsname}}\flo@tmp
   \xdef\pgfmath@rnd@z{\csname flo@pp@w\the\flo@Ga\endcsname}}
 \def\flo@plantsave{\expandafter\xdef\csname flo@pp@w\the\flo@Ga\endcsname{\pgfmath@rnd@z}}
 % 1. the stem and the inflorescence at its top
@@ -1959,21 +1979,27 @@
 % (a plain number stays as written)
 \def\flo@intof#1#2{\pgfmathparse{#2}\expandafter\flo@intof@\pgfmathresult.\relax#1}
 \def\flo@intof@#1.#2\relax#3{\def#3{#1}}
+% a number for \directlua as TeX holds it, so that nothing but digits, a minus sign and a
+% point reaches the Lua string: a whole number as pgf's generator reads a seed (a count
+% register), a pgfmath result as a dimen
+\def\flo@luanum#1{\count@=#1\relax\edef#1{\the\count@}}
+\def\flo@luadim#1#2{\pgfmathparse{#2}\dimen@=\pgfmathresult pt\relax\edef#1{\pgf@sys@tonumber\dimen@}}
 % the keys for Lua as the TikZ code reads them: the seeds as \pgfmathsetseed, the season
 % and the scale as pgfmath's numbers, the plants as \flo@parseplants lists them
 \def\flo@luapic#1#2{%
   \pgfkeys{/florilegium,#2}\flo@picrgb
   \flo@intof\flo@luaseed\flo@o@seed
   \ifnum\flo@luaseed<1 \flo@badseed\flo@luaseed\else\ifnum\flo@luaseed>2147483646 \flo@badseed\flo@luaseed\fi\fi
+  \flo@luanum\flo@luaseed
   \def\flo@luakind{#1}\def\flo@t{visitor}%
   \ifx\flo@luakind\flo@t
-    \ifcsname flo@vrole@\flo@o@role\endcsname\else\flo@vroleerror{\flo@o@role}\def\flo@o@role{any}\fi
+    \flo@isrole{flo@vrole@}{\flo@o@role}\ifflo@roleok\else\flo@vroleerror{\flo@o@role}\def\flo@o@role{any}\fi
   \else
-    \ifcsname flo@role@\flo@o@role\endcsname\else\flo@roleerror{\flo@o@role}\def\flo@o@role{any}\fi
+    \flo@isrole{flo@role@}{\flo@o@role}\ifflo@roleok\else\flo@roleerror{\flo@o@role}\def\flo@o@role{any}\fi
   \fi
-  \ifx\flo@o@draw\pgfutil@empty\let\flo@luadraw\pgfutil@empty\else\flo@intof\flo@luadraw\flo@o@draw\fi
-  \pgfmathparse{\flo@o@season}\let\flo@luaseason\pgfmathresult
-  \pgfmathparse{\flo@o@scale}\let\flo@luascale\pgfmathresult
+  \ifx\flo@o@draw\pgfutil@empty\let\flo@luadraw\pgfutil@empty\else\flo@intof\flo@luadraw\flo@o@draw\flo@luanum\flo@luadraw\fi
+  \flo@luadim\flo@luaseason\flo@o@season
+  \flo@luadim\flo@luascale\flo@o@scale
   \let\flo@luaplants\pgfutil@empty
   \def\flo@t{plants}%
   \ifx\flo@luakind\flo@t
@@ -1995,7 +2021,7 @@
 % sample the species, then reseed for the drawing (draw=, or the species seed + 1)
 \def\flo@picsetup#1{%
   \pgfkeys{/florilegium,#1}\flo@colors\flo@intof\flo@o@seed\flo@o@seed
-  \edef\flo@tmp{\noexpand\florilegiumspecies[\flo@o@traits]{\flo@o@seed}{\flo@o@role}}\flo@tmp
+  \edef\flo@tmp{\noexpand\florilegiumspecies[{\flo@o@traits}]{\flo@o@seed}{\flo@o@role}}\flo@tmp
   \edef\flo@o@seed{\flo@get{seed}}\edef\flo@o@role{\flo@get{role}}% as the sampler settled them
   \ifx\flo@o@draw\pgfutil@empty
     \edef\flo@o@draw{\the\numexpr\ifnum\flo@o@seed=2147483646 1\else\flo@o@seed+1\fi\relax}\fi
@@ -2036,11 +2062,14 @@
     \expandafter\flo@parseplant
   \fi}
 \def\flo@parseplant@#1/#2/#3\relax{%
-  \def\flo@q{#2}\def\flo@tmp{fern}%
+  \def\flo@q{#2}\def\flo@tmp{#1}%
   \ifx\flo@q\flo@endmark
     \pgfutil@packageerror{florilegium}{A plant in plants is seed/role, not `#1'}{Write
       plants={3/rose, 17/umbellifer}. The plant `#1' is left out}%
-  \else\ifx\flo@q\flo@tmp
+  \else\ifx\flo@tmp\pgfutil@empty
+    \pgfutil@packageerror{florilegium}{A plant in plants is seed/role, not `/#2'}{Write
+      plants={3/rose, 17/umbellifer}. The plant `/#2' is left out}%
+  \else\def\flo@tmp{fern}\ifx\flo@q\flo@tmp
     \pgfutil@packageerror{florilegium}{A fern grows from its crown, not on a stem: draw
       #1/fern with the fern pic}{\string\pic\space{florilegium fern={seed=#1}} draws it. The
       fern is left out of plants}%
@@ -2049,9 +2078,9 @@
     \pgfmathtruncatemacro\flo@t{#1}%
     \ifnum\flo@t<1 \flo@badseed\flo@t\else\ifnum\flo@t>2147483646 \flo@badseed\flo@t\fi\fi
     \expandafter\let\csname flo@pp@s\the\flo@Np\endcsname\flo@t
-    \ifcsname flo@role@#2\endcsname\def\flo@t{#2}\else\flo@roleerror{#2}\def\flo@t{any}\fi
+    \flo@isrole{flo@role@}{#2}\ifflo@roleok\let\flo@t\flo@rq\else\flo@roleerror{#2}\def\flo@t{any}\fi
     \expandafter\let\csname flo@pp@r\the\flo@Np\endcsname\flo@t
-  \fi\fi}
+  \fi\fi\fi}
 % the plants \flo@pp.. from one root at the origin, the first \flo@gH cm tall, within
 % \flo@gW cm; a pale flower of the first behind them when \flo@gghost is true. Walked once
 % per layer: the ghost, stems, leaves, sprays, flowers
@@ -2078,7 +2107,7 @@
     \ifx\flo@gghost\flo@true
       \flo@calc\flo@t{0.25*\flo@gdiam}\flo@room1\flo@gx\flo@gy\flo@t
       \ifnum\flo@Gc=1
-        \edef\flo@tmp{\noexpand\florilegiumspecies[\flo@o@traits]{\csname flo@pp@s1\endcsname}{\csname flo@pp@r1\endcsname}}\flo@tmp
+        \edef\flo@tmp{\noexpand\florilegiumspecies[{\flo@o@traits}]{\csname flo@pp@s1\endcsname}{\csname flo@pp@r1\endcsname}}\flo@tmp
         \let\flo@os\flo@gos
         % a plain flower of the species, as v1.3's ghosts are: no daisy disk, no lily
         \flo@organ{\def\flo@lift{0.62}\pgftransformshift{\flo@P\flo@gx\flo@gy}\flo@stone
@@ -2108,7 +2137,15 @@
 % \pic {florilegium fern={seed=7, size=8cm, season=0.75}}: a fern (role fern) as a margin
 % grows one at its root, size its longest frond
 \tikzset{pics/florilegium fern/.style={code={\flo@engine{#1,role=fern}{fern}{%
-  \flo@picsetup{#1,role=fern}\flo@calc\flo@gH{\flo@sizept/28.45276}\flo@ferncrown}}}}
+  \flo@picsetup{#1,role=fern}\flo@fernpic{#1}\flo@calc\flo@gH{\flo@sizept/28.45276}\flo@ferncrown}}}}
+% a plan fixed to a flowering plant is an error, and the fern is drawn as sampled, without
+% the traits, as M.tikz does
+\def\flo@fernpic#1{\edef\flo@t{\flo@get{clade}}\def\flo@tmp{fern}%
+  \ifx\flo@t\flo@tmp\else
+    \pgfutil@packageerror{florilegium}{The fern pic draws a fern, and plan=\flo@get{plan}\space is a
+      flowering plant's}{Press return to draw it as sampled, without the traits.}%
+    \flo@picsetup{#1,role=fern,traits=}%
+  \fi}
 % \pic {florilegium plants={plants={3/rose, 17/umbellifer, 29/mustard}, size=20cm, width=6cm}}:
 % plants from one root, like a margin's main stems; the first reaches size, the others
 % 60-72% and 36-48% of it; a pale flower of the first behind them (ghost=false: none)
@@ -6092,7 +6129,7 @@
 % sample the visitor, then reseed for the drawing
 \def\flo@vispicsetup#1{%
   \pgfkeys{/florilegium,#1}\flo@colors\flo@intof\flo@o@seed\flo@o@seed
-  \edef\flo@tmp{\noexpand\florilegiumvisitor[\flo@o@traits]{\flo@o@seed}{\flo@o@role}}\flo@tmp
+  \edef\flo@tmp{\noexpand\florilegiumvisitor[{\flo@o@traits}]{\flo@o@seed}{\flo@o@role}}\flo@tmp
   \edef\flo@o@seed{\flo@xget{seed}}\edef\flo@o@role{\flo@xget{role}}% as the sampler settled them
   \ifx\flo@o@draw\pgfutil@empty
     \edef\flo@o@draw{\the\numexpr\ifnum\flo@o@seed=2147483646 1\else\flo@o@seed+1\fi\relax}\fi

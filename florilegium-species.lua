@@ -932,10 +932,15 @@ function M.fixes(text, visitor)
     else
       local ok = vals[t]
       if not ok then error("florilegium: " .. (visitor and "a visitor" or "a species") .. " has no trait '" .. t .. "'", 0) end
-      local n = tonumber(v)
+      -- as TeX reads it (\flo@fixcheck): pgfkeys takes one pair of braces off a value; a
+      -- number is a plain decimal (a minus sign first or none, at most one point), compared
+      -- with the range as TeX holds both, in sp
+      v = v:match("^{(.*)}$") or v
+      local n = v:match("^%-?%d*%.?%d*$") and v:match("%d") and tonumber(v)
+      local s = n and ok.lo and n > -16384 and n < 16384 and pm.sp(v)
       if ok.names[v] then fix[t] = v
-      elseif n and ok.lo and n >= ok.lo and n <= ok.hi and (ok.real or math.tointeger(n)) then
-        fix[t] = ok.real and pm.sp(v) / 65536 or math.tointeger(n)
+      elseif s and s >= pm.sp(tostring(ok.lo)) and s <= pm.sp(tostring(ok.hi)) and (ok.real or s % 65536 == 0) then
+        fix[t] = ok.real and s / 65536 or s // 65536
       else
         local names = {}
         for name in pairs(ok.names) do names[#names + 1] = name end

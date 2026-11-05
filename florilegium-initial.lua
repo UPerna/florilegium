@@ -26,8 +26,11 @@ local cache = {}
 local function font_glyphs(file)
   if cache[file] then return cache[file] end
   local path = kpse.find_file(file, "opentype fonts") or kpse.find_file(file, "truetype fonts")
-  if not path then return nil end
-  local shapes = fonts.handlers.otf.readers.loadshapes(path)
+  if not path then return nil, "font not found: " .. file end
+  local ok, shapes = pcall(fonts.handlers.otf.readers.loadshapes, path)
+  if not ok or type(shapes) ~= "table" then
+    return nil, "cannot read the outlines in " .. path .. " (the initial needs an OpenType or TrueType font)"
+  end
   local byuni = {}
   for _, gl in pairs(shapes.glyphs or {}) do
     if type(gl.unicode) == "number" and not byuni[gl.unicode] then byuni[gl.unicode] = gl end
@@ -39,8 +42,9 @@ end
 -- the contours of one character, as path commands and as flattened polygons,
 -- scaled to fit a box of height h and width w (cm) centered at (cx, cy)
 local function contours(file, char, cx, cy, h, w)
-  local f = font_glyphs(file)
-  if not f then return nil, "font not found: " .. file end
+  local f, err = font_glyphs(file)
+  if not f then return nil, err end
+  if char == "" then return nil, "\\florilegiuminitial has no letter" end
   local gl = f.byuni[utf8.codepoint(char)]
   if not gl or not gl.segments then return nil, "no outline for '" .. char .. "' in " .. file end
   local bb = gl.boundingbox

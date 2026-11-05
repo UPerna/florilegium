@@ -204,7 +204,7 @@
 %% the margin follows the text (grown only): a whatsit marks the line, and the
 %% shipout hook finds it in the page box (florilegium.lua)
 \newcommand\florilegiumbloom[1][]{\directlua{florilegium.mark("bloom", "\luaescapestring{#1}")}}
-\protected\def\florilegium@headmark#1{\ifnum#1<3 \directlua{florilegium.mark("heading", #1)}\fi}
+\protected\def\florilegium@headmark#1{\ifnum#1<3 \directlua{florilegium.mark("heading", \number#1)}\fi}
 \ifflorilegium@sections
   % standard classes build every heading with \@sect; its last argument is the
   % text that is typeset (the TOC and marks get the optional one), so the mark
@@ -223,7 +223,7 @@
   \global\flo@ini@tile=\dimexpr\baselineskip*\numexpr#1-1\relax+\flo@ini@cap\relax
   \hangindent=\dimexpr\flo@ini@tile+0.6em\relax \hangafter=-#1\relax
   \noindent\florilegium@colors
-  \directlua{florilegium.initial("\luaescapestring{#2}", \number\flo@ini@tile, \number\hangindent, \number\flo@ini@cap)}%
+  \directlua{florilegium.initial("\luaescapestring{\csname text_purify:n\endcsname{#2}}", \number\flo@ini@tile, \number\hangindent, \number\flo@ini@cap)}%
   \llap{\directlua{florilegium.hidden(true)}#2\directlua{florilegium.hidden(false)}}%
   \ignorespaces}
 \newcommand\florilegiuminitialfont[1]{\directlua{florilegium.initial_font = "\luaescapestring{#1}"}}
@@ -243,9 +243,9 @@
 %% ---------------------------------------------------------------- plumbing
 \ifflorilegium@margin
   \ifflorilegium@grown
-    \AddToShipoutPictureBG{\AtPageLowerLeft{\florilegium@growngarden}}
+    \AddToShipoutPictureBG{\AtPageLowerLeft{\put(-\hoffset,\voffset){\florilegium@growngarden}}}
   \else
-    \AddToShipoutPictureBG{\AtPageLowerLeft{\florilegium@authoredgarden}}
+    \AddToShipoutPictureBG{\AtPageLowerLeft{\put(-\hoffset,\voffset){\florilegium@authoredgarden}}}
   \fi
 \fi
 \endinput

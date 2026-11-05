@@ -67,7 +67,7 @@ line that make the same garden, and the address bar keeps every setting, so a ga
 shared as a link.
 
 To run it from a clone, serve the repository with `make playground` and open
-<http://localhost:8000/web/>. The math theme works too. Its figures come from the same Lua; its
+`http://localhost:8000/web/`. The math theme works too. Its figures come from the same Lua; its
 equations and symbols, which TeX sets in a PDF, are set in the playground by MathJax in the same
 Computer Modern, and the command line leaves them out. The fonts are served with the page (IM
 FELL DW Pica, and Latin Modern renamed as its license asks), so nothing is fetched from a font

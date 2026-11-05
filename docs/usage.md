@@ -33,7 +33,7 @@ hand-designed shapes.
 | option | what it does |
 |---|---|
 | `grown` | the garden grown to fit the page; without it, the authored composition |
-| `sections` | a flower beside every numbered section and subsection, in the copper of the accents (standard classes; grown only) |
+| `sections` | a flower beside every numbered section and subsection, in the copper of the accents (standard classes and KOMA-Script's; grown only) |
 | `aging` | the garden ages from spring on the first page to autumn on the last (grown only; two runs, for the page count) |
 | `novisitors` | no butterflies, bees, beetles, dragonflies, caterpillars, snails or birds |
 | `theme=geometric`, `theme=math` | another drawing, or another composition (see [themes](themes.md)) |
@@ -95,7 +95,9 @@ Each section describes the feature it shows.*
 - **Flowers at the headings.** With `sections`, every numbered section and subsection gets a
   flower beside it in the copper of the accents, the way headings were once picked out in red.
 - **A flower where the text asks.** `\florilegiumbloom` leaves a mark in the text. The marks
-  are found in the page box when the page is shipped out, so this works in one run.
+  are found in the page box when the page is shipped out, so this works in one run. A name
+  that is no motif, role or plan on the page (a typo, `lilly`) draws nothing and says so in
+  the log.
 - **Seasons.** With `aging`, the garden ages from spring on the first page (buds, small pale
   leaves, fiddleheads) to autumn on the last (fruit and seed heads, falling petals, a few copper
   leaves). It needs two runs, for the page count; `\florilegiumage{0.8}` sets an age by hand.

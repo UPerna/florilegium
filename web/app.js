@@ -57,7 +57,7 @@ function readHash() {
     else if (typeof d === 'boolean') state[k] = v === '1'
     else if (/^[\w-]*$/.test(v)) state[k] = v
   }
-  if (!PAPERS[state.paper]) state.paper = 'a4'
+  if (!Object.keys(PAPERS).includes(state.paper)) state.paper = 'a4'
   for (const k of ['ink', 'accent']) if (!/^[0-9A-F]{6}$/.test(state[k] = state[k].toUpperCase())) state[k] = DEFAULTS[k]
   if (!['left', 'right'].includes(state.side)) state.side = 'left'
   if (!['spring', 'summer', 'autumn'].includes(state.season)) state.season = 'summer'
@@ -66,8 +66,8 @@ function readHash() {
   if (!TABS.some(([s]) => s === state.tab)) state.tab = 'latex'
   state.seed = Math.max(1, Math.min(999999, Math.round(state.seed) || 1))
   state.margin = clampMargin(state.margin)
-  state.density = Math.max(0.05, Math.min(1, state.density))
-  state.strength = Math.max(0.1, Math.min(1, state.strength))
+  state.density = Math.max(0.05, Math.min(1, +state.density.toFixed(2)))
+  state.strength = Math.max(0.1, Math.min(1, +state.strength.toFixed(2)))
   state.end = Math.max(10, Math.min(95, Math.round(state.end)))
 }
 function writeHash() {

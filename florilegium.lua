@@ -83,26 +83,57 @@ end
 -- \florilegiumage): its value, or, when it is not a number, the default, with a warning
 -- in the log (once for each text) that says what was used instead (`instead`, or the default)
 local warned = {}
-function M.number(key, text, default, instead)
-  local v = tonumber(text)
-  if v then return v end
-  local msg = string.format(key:sub(1, 1) == "\\" and "%s{%s} is not a number; using %s" or "%s=%s is not a number; using %s",
-    key, text, instead or tostring(default))
+local function warn(msg)
   if not warned[msg] and luatexbase and luatexbase.module_warning then
     warned[msg] = true
     luatexbase.module_warning("florilegium", msg)
   end
+end
+function M.number(key, text, default, instead)
+  local v = tonumber(text)
+  if v and v - v == 0 then return v end         -- a finite number (inf - inf and nan - nan are nan)
+  warn(string.format(key:sub(1, 1) == "\\" and "%s{%s} is not a number; using %s" or "%s=%s is not a number; using %s",
+    key, text, instead or tostring(default)))
   return default
+end
+-- a seed as ink's generator takes it: a whole number of any size (its arithmetic wraps), or a
+-- decimal for which seed * k (the largest factor it meets) is still one; a larger decimal
+-- (1e20, 1e999) is no seed, nil with a warning, where it stopped the drawing with "number has
+-- no integer representation"
+local function seedvalue(v, k, key, instead)
+  if math.type(v) == "float" and math.type(math.floor(v * k + 401)) ~= "integer" then
+    warn(string.format("%s %g is too large for a seed; using %s", key, v, instead))
+    return nil
+  end
+  return v
 end
 
 -- one rng per page; primitives drawn from TeX fork it in call order
 local page_rng = ink.rng(1)
 M.docseed = 0                                 -- \florilegiumseed, or 0: the species pool
 function M.seed(page, fixed)
+  fixed = fixed and seedvalue(fixed, 104729, "\\florilegiumseed", "the page's own seed")
   M.docseed = fixed or 0
   local s = fixed and (fixed * 7919 + page * 131) or (page * 97 + 1030)
   page_rng = ink.rng(s)
   return s
+end
+
+-- a drawing that fails (a helper given as a primitive, a number that is not one, a theme
+-- that cannot be loaded) leaves ink as it found it, so that the next ornament or page draws
+-- as always: what it drew is dropped, its ghost lift and pale are put back, and the error
+-- goes to TeX as one message, without a Lua traceback
+local function guarded(fn)
+  return function(...)
+    local lift, pale = ink.get_lift(), ink.set_pale(0)
+    ink.set_pale(pale)
+    local ok, err = pcall(fn, ...)
+    if not ok then
+      ink.take_recording() ink.drop() ink.set_lift(lift) ink.set_pale(pale)
+      err = tostring(err)
+      tex.error(err:find("^florilegium") and err or "florilegium: " .. err)
+    end
+  end
 end
 
 -- the current pgf transformation (TikZ scopes) as an ink transform: local cm -> page bp
@@ -118,7 +149,20 @@ end
 -- \florilegiumdraw{name}{s, opts}: one primitive at the origin of the current TikZ
 -- scope; the names of the current theme's primitives work too
 local scaled = { leaf = true, leaflet = true, petal = true }
-local function primitives() return require("florilegium-grow").theme(M.theme) end
+-- the theme in use: M.theme, unless it cannot be loaded, which is reported once (with the
+-- first ornament or page after it was set) and dropped, so that the garden grows without it
+local function usable_theme()
+  if M.theme == "" or M.theme == "flora" then M.theme = nil end
+  if M.theme then
+    local ok, err = pcall(require("florilegium-grow").theme, M.theme)
+    if not ok then
+      M.theme = nil
+      tex.error(tostring(err), { "The margin grows without a theme until another one is set." })
+    end
+  end
+  return M.theme
+end
+local function primitives() return require("florilegium-grow").theme(usable_theme()) end
 function M.draw(name, s, o)
   local F = primitives()
   local fn = F[name]
@@ -139,8 +183,10 @@ function M.draw_inner(name, o, rng)
   o = o or {}
   local F = primitives()
   local fn = F[name]
+  if type(fn) ~= "function" then error("florilegium: unknown primitive '" .. tostring(name) .. "'", 0) end
   if scaled[name] then ink.scale(o.s or 1) fn(rng, o) else fn(rng, o.s or 1, o) end
 end
+M.draw = guarded(M.draw)
 
 -- ---------------------------------------------------------------- ornaments in the text
 -- \florilegiumornament[size, ink, accent, angle, seed]{name}: one primitive in a box
@@ -167,18 +213,21 @@ local function hexkey(key, h)
   return ""
 end
 local nornament = 0
+local HELPER = { ghost = true, branch_path = true, mottle = true, streak = true, streak3 = true, walk = true, stem = true, motifs = true }
 function M.ornament(name, size, inkhex, acchex, angle, seed)
   local F = primitives()
   local fn = F[name]
-  if type(fn) ~= "function" then tex.error("florilegium: unknown primitive '" .. tostring(name) .. "'") return end
+  if type(fn) ~= "function" or HELPER[name] then tex.error("florilegium: unknown primitive '" .. tostring(name) .. "'") return end
   nornament = nornament + 1
   inkhex, acchex = hexkey("ink", inkhex), hexkey("accent", acchex)
   -- the k-th ornament of the document always gets the same shape, unless a seed
   -- is given; seed=random gives a new one every time the document is built
   local s
   if seed == "random" then s = (os.time() % 999983) * 7919 + math.floor(os.clock() * 1e6) + nornament * 131
-  elseif tonumber(seed) then s = tonumber(seed) * 7919 + 17
-  else s = nornament * 7919 + 4243 end
+  else
+    local n = seed ~= "" and seedvalue(M.number("seed", seed, nil, "the ornament's own"), 7919, "seed", "the ornament's own")
+    s = n and n * 7919 + 17 or nornament * 7919 + 4243
+  end
   if inkhex ~= "" or acchex ~= "" then
     local c = current
     M.colors(inkhex ~= "" and hex(inkhex) or c[1], inkhex ~= "" and select(2, hex(inkhex)) or c[2], inkhex ~= "" and select(3, hex(inkhex)) or c[3],
@@ -195,6 +244,7 @@ function M.ornament(name, size, inkhex, acchex, angle, seed)
   ink.flush()
   if inkhex ~= "" or acchex ~= "" then M.colors(table.unpack(current)) end
 end
+M.ornament = guarded(M.ornament)
 
 -- the header: a copper ivy leaf (or the theme's fleuron) whose stem becomes the head rule
 function M.head(g)
@@ -284,6 +334,7 @@ function M.initial(letter, side, hang, cap)
   if not ok then tex.error("florilegium: " .. tostring(err)) end
   ink.flush()
 end
+M.initial = guarded(M.initial)
 -- the letter is also typeset in the text, in PDF's invisible text rendering
 -- mode, so that the paragraph still copies and searches as "This", not "his"
 function M.hidden(on)
@@ -398,7 +449,7 @@ M.bleed = 0
 function M.grown(seed, spill, spilly, box)
   local g = M.geometry()
   g.marks = themes(page_marks(box))
-  g.seed, g.spill, g.spilly, g.visitors, g.age, g.theme = seed, spill, spilly, M.visitors, M.age, M.theme
+  g.seed, g.spill, g.spilly, g.visitors, g.age, g.theme = seed, spill, spilly, M.visitors, M.age, usable_theme()
   g.docseed = M.docseed
   if M.bleed > 0 then g.bleed = M.bleed end
   if not M.theme or M.theme == "flora" then use_organs() end
@@ -413,13 +464,14 @@ function M.grown(seed, spill, spilly, box)
   M.head(g)
   ink.set_pale(old)
 end
+M.grown = guarded(M.grown)
 
 -- the authored composition for this page (intensity applies; density does not,
 -- everything here is placed by hand)
 function M.authored(seed, box)
   themes(page_marks(box))
   local g = M.geometry()
-  g.seed, g.visitors, g.theme = seed, M.visitors, M.theme
+  g.seed, g.visitors, g.theme = seed, M.visitors, usable_theme()
   if M.bleed > 0 then g.bleed = M.bleed end
   local old = ink.set_pale(pale())
   local r = require("florilegium-authored").page(g)
@@ -428,6 +480,7 @@ function M.authored(seed, box)
   M.head(g)
   ink.set_pale(old)
 end
+M.authored = guarded(M.authored)
 
 -- load the rest of the package now, so that a mixed set stops in the preamble and not
 -- halfway through a page (florilegium-initial waits for the first initial; florilegium-svg

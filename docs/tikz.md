@@ -91,8 +91,10 @@ toothed leaflets, or a simple leaf lobed like a maple's:
 no plan (or no kind of visitor) can draw, is an error that says what the trait may be. So is a
 value only a fern draws fixed on a flowering plant (`inflo=none`, `compound=frond`), and on a
 fern a leaf tip, edge or outline that its frond has no drawing for (`leafapex=acuminate`).
-After such an error the pic is drawn as the seed samples it, without the traits. A whole number
-may be written `7` or `7.0`. A fixed trait still takes its
+After such an error the pic is drawn as the seed samples it, without the traits. A number is
+written plainly, `7`, `7.0` or `-0.5`, braced or not (`{7}`); `+7`, `1e1`, `0x7` or an
+expression is an error, the same in both engines. The fern pic draws a fern, so a flowering
+plant's `plan` there is an error too. A fixed trait still takes its
 random draw, so the traits drawn before it are as the seed gave them, and those after it too,
 unless one that depends on it draws differently (a palmate leaf draws how many leaflets it has,
 a simple one does not), which moves every later draw along. A trait that depends on a fixed one

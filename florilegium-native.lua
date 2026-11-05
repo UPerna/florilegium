@@ -5371,10 +5371,15 @@ function M.tikz(kind, seed, role, draw, size, width, season, plants, ghost, scal
     -- and the pic as sampled, as the library's \flo@fixset and \flo@planfixcheck do
     local ok, fix = pcall(species.fixes, traits, kind == "visitor")
     local err = not ok and fix or nil
-    if ok and kind ~= "visitor" and not kind:match("^v13") then
+    if ok and kind ~= "visitor" then
       for _, p in ipairs(o.plants or { { o.seed, role } }) do
         local drawn, e = pcall(species.sample, p[1], p[2], nil, fix)
         if not drawn then ok, err = false, e break end
+        -- the fern pic draws a fern (\flo@fernpic)
+        if kind == "fern" and e.clade ~= "fern" then
+          ok, err = false, string.format("florilegium: the fern pic draws a fern, and plan=%s is a flowering plant's", e.plan)
+          break
+        end
       end
     end
     if ok then o.traits = traits else tex.error(err) end
