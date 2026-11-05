@@ -5,7 +5,10 @@ title: florilegium
 abstract: >-
   Procedurally generated Delft-blue floral page margins for LuaLaTeX. Every petal, leaf
   and stem is a parametric curve computed in Lua while the page is written, and placed by a
-  greedy space-filling layout that grows a plant to fit the free space on each page.
+  greedy space-filling layout that grows plants to fit the free space on each page. The
+  plants and their visitors are species sampled from genomes of botanical traits, and a
+  TikZ library draws the same species as pics, in pure TikZ under pdfLaTeX or through Lua
+  under LuaLaTeX.
 authors:
   - family-names: Raymond
     given-names: Kevin
@@ -18,6 +21,8 @@ keywords:
   - LaTeX
   - LuaLaTeX
   - Lua
+  - TikZ
+  - pdfLaTeX
   - generative art
   - procedural generation
   - typography
