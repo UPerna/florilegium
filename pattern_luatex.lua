@@ -1,5 +1,6 @@
 -- Trusted LuaLaTeX host. Recipes remain bounded data; no subprocess is used.
 local P,H,V=require('pattern'),require('pattern_hash'),require('pattern_render')
+local B=require('pattern_bytes')
 local F=require('florilegium');local M={};local CM=2.54/(72.27*65536)
 local core,source,root;local bindings={};local declarations=P.array();local pages=P.array();local inline=P.array()
 local started,shipped=false,0;local pending
@@ -74,7 +75,7 @@ function M.use(name,width)
   need(type(width)=='number' and width>=0,'inline width must be nonnegative')
   local pdf=V.pdf(plan);local key=H.value('tex/inline',{source=asset.environment.source.digest,pdf=H.sha256(pdf)})
   local prefix,hashes=persist(key,{pdf=pdf})
-  local size=width>0 and ('[width='..string.format('%.9f',width*CM)..'cm]') or ''
+  local size=width>0 and ('[width='..B.pdf_number(width*CM)..'cm]') or ''
   local actual_width=width>0 and width*CM or plan.bounds[3]-plan.bounds[1]
   local actual_height=actual_width*(plan.bounds[4]-plan.bounds[2])/(plan.bounds[3]-plan.bounds[1])
   inline[#inline+1]={name=name,prefix=prefix,hashes=hashes,width_sp=width,instance_sha256=asset.instance_sha256}
@@ -122,8 +123,9 @@ function M.background(index)
     results[#results+1]={name=request.name,prefix=prefix,hashes=hashes,instance_sha256=result.asset.instance_sha256,
       record=result.record.id,view_ref=result.view.id,crop=P.plain(result.crop),transform=P.plain(result.view.transform),
       spread_document=result.spread_document and P.plain(result.spread_document) or nil}
-    tex.sprint(string.format('\\put(%.9fcm,%.9fcm){\\makebox(0,0)[lb]{\\includegraphics{%s.pdf}}}',
-      result.crop[1],result.crop[2]-page.size[2],prefix))
+    tex.sprint(string.format('\\put(%scm,%scm){\\makebox(0,0)[lb]{\\includegraphics{%s.pdf}}}',
+      B.pdf_number(result.crop[1]-page.dimensions_sp.hoffset*CM),
+      B.pdf_number(result.crop[2]-page.size[2]+page.dimensions_sp.voffset*CM),prefix))
   end
   pages[#pages+1]={geometry=P.plain(page),outputs=results}
 end

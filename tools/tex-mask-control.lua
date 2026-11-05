@@ -6,11 +6,11 @@ local d=P.definition(P.plain(recipe.definition));local x=P.instance(Parse.decode
 local view=Parse.decode(read(arg[2]..'.view'));local scene=Parse.decode(read(arg[2]..'.scene'))
 view=P.plain(P.view(view,x,d));scene=P.plain(P.scene(scene,x,P.view(view,x,d),d))
 local keep=P.array();local removed=0
+local requested=view.extensions.tex_document.geometry.reservations
+assert(#requested==2,'Expected the two captured callout reservations')
+local targets={};for _,bounds in ipairs(requested)do targets[P.serialize(bounds)]=true end
 for _,r in ipairs(view.protected_regions)do
-  local a=r.bounds
-  local vertical=math.abs(a[1]-.7)<1e-7 and math.abs(a[2]-9)<1e-7 and math.abs(a[3]-1.3)<1e-7 and math.abs(a[4]-12)<1e-7
-  local horizontal=math.abs(a[1]-1.3)<1e-7 and math.abs(a[2]-9)<1e-7 and math.abs(a[3]-2.5)<1e-7 and math.abs(a[4]-9.6)<1e-7
-  if vertical or horizontal then removed=removed+1 else keep[#keep+1]=r end
+  if targets[P.serialize(r.bounds)]then removed=removed+1 else keep[#keep+1]=r end
 end
 assert(removed==2,'Expected exactly the two measured callout reservations')
 view.extensions={diagnostic={operation='remove-two-callout-masks',source_view=view.id,removed_regions=removed}}
