@@ -84,6 +84,17 @@ local projected=adapter:place('spatial',page(7,20),{region='content',protect_tex
 check(projected.view.derived and projected.view.validity=='visualization_only','3D projection lost its declared validity')
 check(projected.asset.instance_sha256==spatial.instance_sha256,'spatial placement changed semantic curves')
 write('spatial.pdf',projected.pdf);write('spatial.svg',V.svg(projected.plan))
+local minimum_recipe=P.plain(require('pattern_recipe').decode(read('examples/cli/penrose.recipe')))
+local source_adapter=Tex.new(host)
+local source_asset=source_adapter:declare('measure',require('pattern_recipe').encode(minimum_recipe))
+local source_plan=source_adapter:plan('measure')
+local minimum=require('pattern_planner').check_render_requirements(source_plan,{minimum_stroke=1e-12}).minimum_stroke
+minimum_recipe.view.extensions.document_planning.options.minimum_stroke=minimum*.9
+local constrained=adapter:declare('minimum',require('pattern_recipe').encode(minimum_recipe))
+local expanded=adapter:place('minimum',page(8,31),{region='content',protect_text=false,padding=0})
+check(expanded.record.validation.print_requirements.minimum_stroke_lower_bound>=minimum*.9,'enlarged physical view lost source print requirements')
+reject(function()adapter:place('minimum',page(8,31),{region='outer'})end,'fitting must not silently violate the source minimum stroke')
+check(P.serialize(constrained.result.instance)==constrained.result.bytes.instance,'failed fit changed cached source instance')
 local receipt={source_digest=digest,checks=checks,outputs=outputs,unique_generations=adapter.generations,
   physical_views=adapter.views,source_files=hashes,shipped_index_test={physical=2,logical=41,label='XLI'},
   original_scene_selection_preserved=true,optimizer_at_shipout=false}

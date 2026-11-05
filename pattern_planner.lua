@@ -264,6 +264,33 @@ local function minimum_scale(m)
   local maximum=math.sqrt((trace+math.sqrt(math.max(0,trace*trace-4*det*det)))/2)
   return math.abs(det)/maximum*scale,64*math.sqrt(2^-52)*scale*math.sqrt(trace)
 end
+function M.check_render_requirements(rendered,requirements)
+  fields(requirements,"minimum_stroke minimum_text_size","render requirements")
+  for _,name in ipairs({"minimum_stroke","minimum_text_size"})do
+    need(requirements[name]==nil or finite(requirements[name]) and requirements[name]>0,"positive finite print minimum required")
+  end
+  local report={status="passed",stroke_scope="explicit stroke paints; filled-feature thickness is not certified"}
+  if requirements.minimum_stroke or requirements.minimum_text_size then
+    need(rendered and rendered.version==require("pattern_render").VERSION,"compatible render plan required");local minimum,minimum_lower,minimum_upper=math.huge,math.huge,math.huge
+    for o in require("pattern_render").operations(rendered)do if o.op=="path" and o.paint.stroke and (o.paint.opacity or 1)>0 then
+      local scale,error=minimum_scale(o.transform);minimum=math.min(minimum,o.paint.stroke_width*scale);minimum_lower=math.min(minimum_lower,o.paint.stroke_width*math.max(0,scale-error));minimum_upper=math.min(minimum_upper,o.paint.stroke_width*(scale+error))
+    end end
+    if minimum<math.huge then report.minimum_stroke=minimum end
+    if requirements.minimum_stroke and minimum==math.huge then fail("stroke_evidence_missing","scene has no explicit strokes; this profile cannot certify filled-feature thickness")end
+    if requirements.minimum_stroke and minimum_upper<requirements.minimum_stroke then fail("minimum_stroke_unsatisfied","actual transformed stroke is below the requested physical minimum")end
+    if minimum_lower<math.huge then report.minimum_stroke_lower_bound=minimum_lower end
+    if minimum_upper<math.huge then report.minimum_stroke_upper_bound=minimum_upper end
+    if requirements.minimum_stroke and minimum_lower<requirements.minimum_stroke then fail("minimum_stroke_unresolved","stroke minimum falls inside the affine rounding guard")end
+    local text,text_lower,text_upper=math.huge,math.huge,math.huge;for _,o in ipairs(rendered.text)do local scale,error=minimum_scale(o.transform or {1,0,0,1,0,0});text=math.min(text,o.size*scale);text_lower=math.min(text_lower,o.size*math.max(0,scale-error));text_upper=math.min(text_upper,o.size*(scale+error))end
+    if text<math.huge then report.minimum_text_size=text end
+    if requirements.minimum_text_size and text==math.huge then fail("text_evidence_missing","scene has no positioned text to establish the requested minimum")end
+    if requirements.minimum_text_size and text_upper<requirements.minimum_text_size then fail("minimum_text_size_unsatisfied","actual transformed text size is below the requested physical minimum")end
+    if text_lower<math.huge then report.minimum_text_size_lower_bound=text_lower end
+    if text_upper<math.huge then report.minimum_text_size_upper_bound=text_upper end
+    if requirements.minimum_text_size and text_lower<requirements.minimum_text_size then fail("minimum_text_size_unresolved","text minimum falls inside the affine rounding guard")end
+  end
+  return P.snapshot(report)
+end
 function M.lower(registry,id,instance,d,planned,style,context)
   return attempt(function()
     need(planned.status=="planned" and H.sha256(P.serialize(instance))==planned.source_digest,"plan refers to different instance bytes")
@@ -279,26 +306,10 @@ function M.lower(registry,id,instance,d,planned,style,context)
       end
       s.operations=ops;scene=P.scene(s,instance,v,d)
     end
-    local requirements=planned.decisions.requirements;local report={status="passed",stroke_scope="explicit stroke paints; filled-feature thickness is not certified"}
-    if requirements.minimum_stroke or requirements.minimum_text_size then
-      local rendered=require("pattern_render").plan(scene,instance,v,d);local minimum,minimum_lower,minimum_upper=math.huge,math.huge,math.huge
-      for o in require("pattern_render").operations(rendered)do if o.op=="path" and o.paint.stroke and (o.paint.opacity or 1)>0 then
-        local scale,error=minimum_scale(o.transform);minimum=math.min(minimum,o.paint.stroke_width*scale);minimum_lower=math.min(minimum_lower,o.paint.stroke_width*math.max(0,scale-error));minimum_upper=math.min(minimum_upper,o.paint.stroke_width*(scale+error))
-      end end
-      if minimum<math.huge then report.minimum_stroke=minimum end
-      if requirements.minimum_stroke and minimum==math.huge then fail("stroke_evidence_missing","scene has no explicit strokes; this profile cannot certify filled-feature thickness")end
-      if requirements.minimum_stroke and minimum_upper<requirements.minimum_stroke then fail("minimum_stroke_unsatisfied","actual transformed stroke is below the requested physical minimum")end
-      if minimum_lower<math.huge then report.minimum_stroke_lower_bound=minimum_lower end
-      if minimum_upper<math.huge then report.minimum_stroke_upper_bound=minimum_upper end
-      if requirements.minimum_stroke and minimum_lower<requirements.minimum_stroke then fail("minimum_stroke_unresolved","stroke minimum falls inside the affine rounding guard")end
-      local text,text_lower,text_upper=math.huge,math.huge,math.huge;for _,o in ipairs(rendered.text)do local scale,error=minimum_scale(o.transform or {1,0,0,1,0,0});text=math.min(text,o.size*scale);text_lower=math.min(text_lower,o.size*math.max(0,scale-error));text_upper=math.min(text_upper,o.size*(scale+error))end
-      if text<math.huge then report.minimum_text_size=text end
-      if requirements.minimum_text_size and text==math.huge then fail("text_evidence_missing","scene has no positioned text to establish the requested minimum")end
-      if requirements.minimum_text_size and text_upper<requirements.minimum_text_size then fail("minimum_text_size_unsatisfied","actual transformed text size is below the requested physical minimum")end
-      if text_lower<math.huge then report.minimum_text_size_lower_bound=text_lower end
-      if text_upper<math.huge then report.minimum_text_size_upper_bound=text_upper end
-      if requirements.minimum_text_size and text_lower<requirements.minimum_text_size then fail("minimum_text_size_unresolved","text minimum falls inside the affine rounding guard")end
-    end
+    local requirements=planned.decisions.requirements
+    local rendered
+    if requirements.minimum_stroke or requirements.minimum_text_size then rendered=require("pattern_render").plan(scene,instance,v,d)end
+    local report=M.check_render_requirements(rendered,requirements)
     return P.snapshot({status="lowered",scene=P.plain(scene),view=P.plain(v),validation=report,source_digest=planned.source_digest,decisions=P.plain(planned.decisions)})
   end,context)
 end

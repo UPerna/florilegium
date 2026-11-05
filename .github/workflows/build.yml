@@ -138,11 +138,12 @@ jobs:
           extra_system_packages: python3 py3-pillow py3-pypdf poppler-utils
           post_compile: >-
             texlua tools/check-pattern-tex.lua &&
+            texlua tools/check-pattern-luatex-host.lua &&
             python3 tools/pattern_tex_consumer.py
       - name: make common-pattern verification files readable
         if: always()
         run: |
-          for folder in build/pattern-tex build/pattern-luatex; do
+          for folder in build/pattern-tex build/pattern-luatex-host build/pattern-luatex; do
             if [ -d "$folder" ]; then sudo chmod -R a+rX "$folder"; fi
           done
       - uses: actions/upload-artifact@v4
@@ -151,6 +152,7 @@ jobs:
           name: florilegium-common-luatex
           path: |
             build/pattern-tex/
+            build/pattern-luatex-host/
             build/pattern-luatex/
 
   portable:

@@ -851,17 +851,25 @@
       "acceptance_items": [
         "old documents still build, the new API drives actual semantic generators through the same core, text remains searchable where declared, and existing plus new consumer regressions pass. Reject unsupported options clearly; no successful compile may hide missing artwork behind an unreported fallback."
       ],
-      "observed_results": "The common adapter passed 32 fixed-source checks on both Lua 5.3 and 5.4 (test/input digest d9cd5496a9af6b1698d3e673a86e9d6fe93d2e835f7d6e2dc7fa794efe0084ea). Python QA modules compile. The independent PDF Form reader located the known leaf in the previous native asset document and measured 4.500306875 cm against the requested 4.5 cm. The new opt-in host, included-chapter book, physical/ink/text oracle and dedicated native CI job are implemented. Native stage 29 checks remain unrun.",
+      "observed_results": "Repair: file lookup returns exactly one filename; structured view errors become useful TeX diagnostics. Source-declared print minima are checked after fitting with the existing planner calculations/tolerances. Both Lua versions passed 35 shared adapter checks and the actual host fallback/declaration regression. Both passed all 82 established planner regressions. The host regression uses separate source/runtime-bound directories. Native consumer rerun is pending; initial book failure remains preserved.",
       "evidence_paths": [
         "artifacts/receipts/29/core-local-lua53.json",
         "artifacts/receipts/29/core-local-lua54.json",
         "artifacts/receipts/29/fixture-provenance.json",
-        "artifacts/receipts/29/pdf-parser-native-smoke.json"
+        "artifacts/receipts/29/pdf-parser-native-smoke.json",
+        "artifacts/receipts/29/publication.json",
+        "artifacts/receipts/29/initial-native-rejected.json",
+        "artifacts/receipts/29/core-repair-lua53.json",
+        "artifacts/receipts/29/core-repair-lua54.json",
+        "artifacts/receipts/29/host-lookup-Lua-5.3.json",
+        "artifacts/receipts/29/host-lookup-Lua-5.4.json",
+        "artifacts/receipts/29/planner-repair-Lua-5.3.json",
+        "artifacts/receipts/29/planner-repair-Lua-5.4.json"
       ],
-      "tested_code_revision": null,
-      "local_commit": null,
-      "verified_remote_revision": null,
-      "next_action": "Publish the exact stage 29 manifest as a guarded child of d891f8e, independently fetch/verify its complete tree, then inspect the dedicated patterns-luatex job and both existing jobs. Native acceptance must measure book placements, L-mask ink against unmasked controls, travelling floats, actual shipout identity, searchable text, spread continuity, included-file/pattern convergence, load orders and expected failures. Repair every failure and publish an ordinary follow-up; only start 30 after all gates pass."
+      "tested_code_revision": "c4729e2901bdfcaf6f10e09e2571a0c0ea034ae9",
+      "local_commit": "c4729e2901bdfcaf6f10e09e2571a0c0ea034ae9",
+      "verified_remote_revision": "c4729e2901bdfcaf6f10e09e2571a0c0ea034ae9",
+      "next_action": "Publish the repair manifest as an ordinary guarded child of c4729e2, independently fetch/verify it, then rerun the dedicated patterns-luatex and both existing native jobs. The first native book failed at fallback file lookup; its run 42041129505/job 127291906300 is rejected. Verify all real book/PDF, float, protected-ink, text, spread, load-order, failure and convergence gates on the repaired exact head. Stay on stage 29 until all pass, then begin 30."
     },
     {
       "id": "30",

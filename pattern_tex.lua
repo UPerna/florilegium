@@ -67,7 +67,9 @@ function M.new(host)
     end
     self.assets[name]=a;return a
   end
-  function self:asset(name)return assert(self.assets[name],'pattern-tex: unknown asset '..tostring(name))end
+  function self:asset(name)
+    local asset=self.assets[name];need(asset,'unknown asset '..tostring(name));return asset
+  end
   function self:plan(name)
     local a=self:asset(name)
     return V.plan(a.result.scene,a.result.instance,a.result.view,a.definition),a
@@ -117,14 +119,21 @@ function M.new(host)
     local visible_area=available(crop,masks)
     local document=D.new({id='tex/page/'..page.index,unit='cm',frame={id='tex/physical-document',origin={0,0}},twoside=not not page.twoside,
       pages={page_data(page,'page/'..page.index,{0,0},masks)},spreads=P.array()})
+    local requirements={}
+    if a.recipe.view.extensions then
+      local original=a.recipe.view.extensions.document_planning.options
+      requirements.minimum_stroke=original.minimum_stroke;requirements.minimum_text_size=original.minimum_text_size
+    end
     local settings={id=a.result.instance.id..'/tex/'..H.value('tex/view',{transform=fit,crop=crop,masks=masks,
+        source_view=H.sha256(P.serialize(a.recipe.view)),
         document=H.sha256(P.serialize(document)),label=page.label,logical_number=page.logical_number}),
       instance_ref=a.result.instance.id,unit='cm',transform=G.compose(fit,a.recipe.view.transform),crop=crop,
       protected_regions=masks,derived=a.recipe.view.derived,validity=a.recipe.view.validity,
       projection=a.recipe.view.projection and P.plain(a.recipe.view.projection) or nil,
       extensions={tex_document={schema_version=1,document=P.plain(document),physical_index=page.index,
         logical_number=page.logical_number,printed_label=page.label,geometry=P.plain(page),spread=spread,
-        source_recipe_view=H.sha256(P.serialize(a.recipe.view)),available_crop_area=visible_area}}}
+        source_recipe_view=H.sha256(P.serialize(a.recipe.view)),available_crop_area=visible_area,
+        print_requirements=P.plain(requirements)}}}
     local view=P.view(settings,a.result.instance,a.definition)
     local context=R.context({seed=a.recipe.design.seed,source=a.environment.source,versions={lua=_VERSION,host=host.runtime},
       frame=P.plain(a.result.instance.frame),limits=a.recipe.design.budget,
@@ -143,6 +152,8 @@ function M.new(host)
     local scene=P.scene(data,a.result.instance,view,a.definition)
     context:consume('operations',#scene.operations);context:consume('bytes',#P.serialize(scene))
     local plan=V.plan(scene,a.result.instance,view,a.definition)
+    local valid,print_report=pcall(require('pattern_planner').check_render_requirements,plan,requirements)
+    need(valid,type(print_report)=='table' and print_report.message or tostring(print_report))
     local vb,sb=P.serialize(view),P.serialize(scene);local pdf=V.pdf(plan)
     local record={status='complete',source=P.plain(a.environment.source),runtime={name=_VERSION,version=host.runtime},
       seed=a.recipe.design.seed,inputs={{kind='recipe',sha256=H.sha256(a.recipe_bytes)},
@@ -150,8 +161,9 @@ function M.new(host)
         {kind='stored_instance',sha256=a.instance_sha256},{kind='physical_document',sha256=H.sha256(P.serialize(document))}},
       dependencies={renderer=V.VERSION,source_recipe_view=H.sha256(P.serialize(a.recipe.view))},
       lineage={{role='physical-document-view',parent_ref=a.result.record.id,instance_sha256=a.instance_sha256}},
-      validation={status='passed',checks={'Previously generated and structurally validated semantic instance',
-        'Typed physical document, source-preserving positive uniform view, scene and protected clips','No generator invocation at shipout'}},
+      validation={status='passed',print_requirements=P.plain(print_report),checks={'Previously generated and structurally validated semantic instance',
+        'Typed physical document, source-preserving positive uniform view, scene and protected clips',
+        'Source-declared physical print minima checked after fitting','No generator invocation at shipout'}},
       outputs={{kind='view',sha256=H.sha256(vb)},{kind='scene',sha256=H.sha256(sb)},{kind='pdf',sha256=H.sha256(pdf)}},
       diagnostics=P.array(),budgets=context:receipt()}
     record.id='build/'..H.value('tex/view-record',record);record=P.build_record(record)

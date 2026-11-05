@@ -18,7 +18,7 @@ ROOT=Path(__file__).resolve().parents[1]
 def fingerprint():
     files=[*ROOT.glob('*.lua'),*ROOT.glob('*.sty'),*ROOT.glob('*.def'),
            *ROOT.glob('examples/patterns/*.tex'),*ROOT.glob('examples/patterns/*.recipe')]
-    files.extend(ROOT/'tools'/name for name in ('build.py','check-pattern-tex.lua','pattern_tex_consumer.py','pattern_tex_pdf.py','tex-mask-control.lua'))
+    files.extend(ROOT/'tools'/name for name in ('build.py','check-pattern-tex.lua','check-pattern-luatex-host.lua','pattern_tex_consumer.py','pattern_tex_pdf.py','tex-mask-control.lua'))
     values={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(files)}
     return hashlib.sha256(json.dumps(values,sort_keys=True).encode()).hexdigest(),values
 

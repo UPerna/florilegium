@@ -12,7 +12,9 @@ end
 local function resolve(path)
   need(type(path)=='string' and #path>0 and not path:find('%z'),'invalid input filename')
   local file=io.open(path,'rb');if file then file:close();return path end
-  return assert(kpse.find_file(path),'florilegium patterns: input not found '..path)
+  local found=kpse.find_file(path)
+  need(found,'input not found '..path)
+  return found
 end
 local function source_bytes()
   local lfs=require('lfs');root=root or assert(kpse.find_file('pattern.lua','lua')):gsub('[^/\\]+$','')
@@ -114,7 +116,8 @@ function M.background(index)
   need(pending,'shipout capture is missing');local item=pending;pending=nil;shipped=index
   local page=item.page;page.index=index;local results=P.array()
   for _,request in ipairs(item.requests)do
-    local result=core:place(request.name,page,request.options)
+    local valid,result=pcall(core.place,core,request.name,page,request.options)
+    need(valid,type(result)=='table' and result.message or tostring(result))
     local prefix,hashes=persist(result.key,{pdf=result.pdf,view=result.bytes.view,scene=result.bytes.scene,record=result.bytes.record})
     results[#results+1]={name=request.name,prefix=prefix,hashes=hashes,instance_sha256=result.asset.instance_sha256,
       record=result.record.id,view_ref=result.view.id,crop=P.plain(result.crop),transform=P.plain(result.view.transform),
