@@ -120,7 +120,10 @@ def main():
                 if cache.exists():
                     assert all((cache/p.name).read_bytes()==p.read_bytes() for p in bundle.iterdir())
                 else:
-                    shutil.copytree(bundle,cache)
+                    # Export readable evidence without retaining private job-file modes.
+                    shutil.copytree(bundle,cache,copy_function=shutil.copyfile)
+                if sys.platform!="win32":
+                    assert all(p.stat().st_mode&0o444==0o444 for p in cache.iterdir()),"Unreadable exported cache evidence"
             results[row["id"]]={"family":row["family"],"artifacts":hashes,
                                 "parent_record":record["id"],"replay_record":replay["id"],
                                 "source_digest":record["source"]["digest"]}
