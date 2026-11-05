@@ -52,3 +52,5 @@ Stage 23 final gate passed on 24fe6eb. Both native jobs succeeded. Independent c
 Stage 24 final gate passed on 27eef52. Both native jobs succeeded. Independent checks verified the signed boundary labeling optimum, field residual, and 995 graphemes through actual PDF and SVG extraction. Three fresh PDF/SVG pairs passed inspection.
 
 Stage 25 final gate passed on af18c26. Both native jobs succeeded. Independent checks verified connected vector contours, matched endpoints, certified overlap cuts and masked erase locality. Five fresh PDF/SVG pairs passed inspection.
+
+Stage 26 accepted on a30898e. Both native jobs passed, all 22 artifacts match both local runtimes, and four native PDF/SVG pairs passed visual review. The exported 3D curve network preserves true replica junctions, separated-depth crossings and nested support.

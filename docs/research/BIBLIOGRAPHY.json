@@ -416,7 +416,7 @@
       "code_availability": "llorz/SIG25_goldschmiedrisse @ c48eae8ed972e127c2bd2a3adb430ad27aff7612; MATLAB/web; README CC BY-NC 4.0. Do not import into MIT core; implement equations independently with paper attribution.",
       "data_availability": "Author repository identifies Basel historical drawings as public domain; prefer original compass/straightedge fixtures and retain any dataset provenance.",
       "paper_license": "CC BY 4.0, confirmed on PDF first page",
-      "implementation_status": "pending"
+      "implementation_status": "The independently implemented circular compass/side-biarc profile passed native CI, spatial-network export, nested support and projection acceptance. Scope is documented in GOTHIC-MICROARCHITECTURE.md."
     },
     {
       "id": "R13",

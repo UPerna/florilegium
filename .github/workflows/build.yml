@@ -77,6 +77,8 @@ jobs:
             python3 tools/deco_oracle.py &&
             texlua tools/gothiccheck.lua &&
             python3 tools/gothic_oracle.py &&
+            texlua tools/collectioncheck.lua &&
+            python3 tools/collection_oracle.py &&
             texlua tools/layoutcheck.lua &&
             texlua tools/spacecheck.lua &&
             texlua tools/initialcheck.lua &&
@@ -116,6 +118,7 @@ jobs:
             build/micrography/
             build/decobrush/
             build/gothic/
+            build/collection/
 
   portable:
     runs-on: ubuntu-latest

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_stage": "26",
+  "current_stage": "27",
   "prompt_sha256": "8D25740D944FC98943FD005737BD825215CFCF6F894218790E140EDE8EE3F09E",
   "stages": [
     {
@@ -764,37 +764,45 @@
     {
       "id": "26",
       "title": "Gothic microarchitecture and projected 3D curve networks",
-      "status": "in_progress",
+      "status": "passed",
       "prerequisites": "25",
       "acceptance_items": [
         "users can edit/generate the declared genuine spatial construction and derive consistent 2D ornamental views. The core remains lightweight for ordinary 2D use. Source fidelity, optional dependencies, dimensional scope and all unimplemented source capabilities remain explicit in the coverage ledger."
       ],
-      "observed_results": "Local acceptance passed on Lua 5.3 and 5.4. Both produced byte-identical sets of 22 outputs with eight harness checks. The independent oracle checked 635 spatial samples, 3125 chord probes, 1878 projected samples, four joined crossings, two separate-depth crossings and two nested supports. Four PDF/SVG pairs inspected at 9 × 9.5 cm. Native CI pending.",
+      "observed_results": "Both exact-head native jobs passed on a30898e35bd9cd9db3a33268ac4c4084a418a3da. All 22 outputs match local Lua 5.3/5.4 byte for byte. Eight harness checks, four visual pairs, 466 source-kit hashes, independent analytic and projection checks passed.",
       "evidence_paths": [
         "artifacts/receipts/26/receipt-Lua-5.3.json",
         "artifacts/receipts/26/receipt-Lua-5.4.json",
         "artifacts/receipts/26/oracle.json",
-        "artifacts/receipts/26/source-reference.json"
+        "artifacts/receipts/26/source-reference.json",
+        "artifacts/receipts/26/publication.json",
+        "artifacts/receipts/26/ci-final.json"
       ],
       "tested_code_revision": null,
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Publish the exact stage 26 manifest from af18c26, verify the fetched Git tree, and validate the native CI archives and four projected pairs."
+      "next_action": "Passed. Continue to stage 27."
     },
     {
       "id": "27",
       "title": "original cross-family designs and coherent collections",
-      "status": "pending",
+      "status": "in_progress",
       "prerequisites": "26",
       "acceptance_items": [
         "all four original products are implemented, exportable and replayable; structural validators survive composition; styles remain coherent at physical document size; old fixtures are unchanged. Add a small visually reviewed collection and explicit capability/compatibility tables, with no theme counted complete solely because its name appears in a menu."
       ],
-      "observed_results": null,
-      "evidence_paths": null,
+      "observed_results": "All four original products passed 39 local checks on each Lua runtime, with 36 byte-identical outputs. Full collection replay, safe member references, clipped-text rejection, 314 shared-edge port pairs, nine semantic members, 62 Spectre detail cells and two searchable pages were checked. Six PDF/SVG pairs reviewed. Existing layout fingerprints and Celtic checks passed on both runtimes. Native CI pending.",
+      "evidence_paths": [
+        "artifacts/receipts/27/receipt-Lua-5.3.json",
+        "artifacts/receipts/27/receipt-Lua-5.4.json",
+        "artifacts/receipts/27/oracle-local.json",
+        "artifacts/receipts/27/source-reference.json",
+        "artifacts/receipts/27/regressions-local.json"
+      ],
       "tested_code_revision": null,
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+      "next_action": "Publish the exact stage 27 manifest from a30898e, verify its fetched Git tree, and validate the native archives, independent oracle and six rendered pairs before stage 28."
     },
     {
       "id": "28",

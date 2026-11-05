@@ -14,7 +14,7 @@ def package(output=None):
         paths.update(ROOT.glob(pattern))
     paths.update(ROOT / name for name in ("LICENSE", "Makefile"))
     for directory, extensions in (("tools", {".py", ".lua"}),
-                                  ("examples", {".tex", ".md", ".pdf", ".svg"}),
+                                  ("examples", {".tex", ".md", ".pdf", ".svg", ".json", ".recipe", ".instance"}),
                                   ("gallery", {".png", ".gif", ".jpg", ".jpeg"}),
                                   ("postscript", {".ps"}),
                                   ("docs", {".md", ".json", ".csv"}),
