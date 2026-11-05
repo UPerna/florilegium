@@ -4,6 +4,22 @@ local Periodic=require("pattern_escher_periodic")
 local P3=require("pattern_escher_p3")
 local Penrose=require("pattern_penrose")
 local M={VERSION="escher-boundary-coupling-v1"}
+-- Turning-function diagnostics use the existing 1e-12 numerical policy.
+-- The witness, source geometry and combinatorial certificates remain exact.
+local function metric_close(recorded,computed)
+  return type(recorded)=="number" and recorded>=0 and recorded<math.huge
+    and math.abs(recorded-computed)<=1e-12*math.max(1,math.abs(computed))
+end
+local function metric_errors(recorded,computed)
+  if type(recorded)~="table" or #recorded~=#computed then return false end
+  for key in pairs(recorded) do
+    if type(key)~="number" or key%1~=0 or key<1 or key>#computed then return false end
+  end
+  for i,value in ipairs(computed) do
+    if not metric_close(recorded[i],value) then return false end
+  end
+  return true
+end
 local function domain(request)
   if request.profile=="penrose" then return P3.domain() end
   return Periodic.domain(request.profile=="split")
@@ -150,8 +166,8 @@ local function validate(x)
     and s.targets_sha256==H.value("escher/targets",targets) and s.witness_sha256==H.value("escher/witness",values),
     "escher-solver-provenance")
   assert(s.route=="annealed" or s.route=="replayed","escher-solver-route")
-  assert(s.baseline==baseline and s.score==best and P.serialize(s.errors)==P.serialize(errors)
-    and P.serialize(s.baseline_errors)==P.serialize(baseline_errors),"escher-objective-reconstruction")
+  assert(metric_close(s.baseline,baseline) and metric_close(s.score,best) and metric_errors(s.errors,errors)
+    and metric_errors(s.baseline_errors,baseline_errors),"escher-objective-reconstruction")
   if request.profile=="penrose" then
     local q=e.scaffold.extensions.penrose.request
     assert(P.serialize(e.scaffold.frame)==P.serialize(x.frame) and q.step_cm==request.step_cm

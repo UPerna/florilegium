@@ -43,6 +43,23 @@ function M.new()
   function registry:definition(id)
     assert(entries[id],"unknown generator "..tostring(id));return entries[id].definition
   end
+  function registry:check_specification(id,specification)
+    local entry=assert(entries[id],"unknown generator "..tostring(id))
+    local spec=P.specification(P.plain(specification),entry.definition)
+    if next(P.plain(spec.inputs)) or next(P.plain(spec.constraints)) then
+      assert(type(entry.implementation.validate_inputs)=="function","generator does not support supplied inputs/constraints")
+      assert(entry.implementation.validate_inputs(spec)==true,"generator input validation failed")
+    end
+    return spec
+  end
+  function registry:validate(id,instance,context)
+    local entry=assert(entries[id],"unknown generator "..tostring(id))
+    local x=P.instance(P.plain(instance),entry.definition)
+    local validation=entry.implementation.validate(x,context)
+    assert(type(validation)=="table" and validation.ok==true and type(validation.checks)=="table"
+      and #validation.checks>0,"structural validation failed or provided no checks")
+    return x,validation
+  end
   function registry:generate(id,specification,context)
     local entry=assert(entries[id],"unknown generator "..tostring(id))
     local d,impl=entry.definition,entry.implementation
@@ -55,13 +72,8 @@ function M.new()
     end
     local function execute()
       context:consume("objects",0)
-      if next(P.plain(spec.inputs)) or next(P.plain(spec.constraints)) then
-        assert(type(impl.validate_inputs)=="function","generator does not support supplied inputs/constraints")
-        assert(impl.validate_inputs(spec)==true,"generator input validation failed")
-      end
-      local instance=P.instance(impl.generate(spec,context),d)
-      local validation=impl.validate(instance,context)
-      assert(type(validation)=="table" and validation.ok==true and type(validation.checks)=="table" and #validation.checks>0,"structural validation failed or provided no checks")
+      self:check_specification(id,spec)
+      local instance,validation=self:validate(id,impl.generate(spec,context),context)
       return {instance=instance,definition=d,validation=validation}
     end
     local ok,value=pcall(execute)

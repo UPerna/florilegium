@@ -1,7 +1,7 @@
 # Florilegium execution status
 
-Stages 00–26 passed. Stage 26 CI 41928392109 accepted on a30898e.
+Stages 00–27 passed. Stage 27 CI 42003202966 accepted on d840207.
 
-Stage 27 local acceptance passed. All four original products passed 39 local checks on each Lua runtime, with 36 byte-identical outputs. Full collection replay, safe member references, clipped-text rejection, 314 shared-edge port pairs, nine semantic members, 62 Spectre detail cells and two searchable pages were checked. Six PDF/SVG pairs reviewed. Existing layout fingerprints and Celtic checks passed on both runtimes. Native CI pending.
+Stage 28 local acceptance passed. The fixed-source local public CLI suite accepted all 22 supported families. Each was validated, generated, structurally checked, exported and replayed with identical instance/PDF/SVG bytes. The suite checked physical page dimensions and searchable micrography with the explicit local pypdf reader. Nineteen Windows failure/path checks passed, including junctions, hardlinked locks, partial batch repair, damaged output recovery, cancellation limits and concurrent destinations. Seventeen shared replay/cross-host invariants passed on both local Lua versions. The previous native split-Escher cache passes the existing numerical policy. Native CI pending.
 
-Publish the exact stage 27 manifest from a30898e, verify its fetched Git tree, and validate the native archives, independent oracle and six rendered pairs before stage 28.
+Publish the exact stage 28 manifest from d840207, independently fetch and verify its tree, then verify both native jobs, the Linux consumer/failure suite, all exports and the packaged CLI. Continue to stage 29 after acceptance.

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_stage": "27",
+  "current_stage": "28",
   "prompt_sha256": "8D25740D944FC98943FD005737BD825215CFCF6F894218790E140EDE8EE3F09E",
   "stages": [
     {
@@ -786,38 +786,48 @@
     {
       "id": "27",
       "title": "original cross-family designs and coherent collections",
-      "status": "in_progress",
+      "status": "passed",
       "prerequisites": "26",
       "acceptance_items": [
         "all four original products are implemented, exportable and replayable; structural validators survive composition; styles remain coherent at physical document size; old fixtures are unchanged. Add a small visually reviewed collection and explicit capability/compatibility tables, with no theme counted complete solely because its name appears in a menu."
       ],
-      "observed_results": "All four original products passed 39 local checks on each Lua runtime, with 36 byte-identical outputs. Full collection replay, safe member references, clipped-text rejection, 314 shared-edge port pairs, nine semantic members, 62 Spectre detail cells and two searchable pages were checked. Six PDF/SVG pairs reviewed. Existing layout fingerprints and Celtic checks passed on both runtimes. Native CI pending.",
+      "observed_results": "Both native jobs passed on d840207e204e1b268bedfd1a0a226ca12f4dff1c. All four original products passed 39 checks. Verified 36 output hashes, six native visual pairs, 314 shared-edge port pairs, 62 hierarchy detail cells, two searchable pages and 502 source kit hashes. Native/local differences were independently audited.",
       "evidence_paths": [
         "artifacts/receipts/27/receipt-Lua-5.3.json",
         "artifacts/receipts/27/receipt-Lua-5.4.json",
         "artifacts/receipts/27/oracle-local.json",
         "artifacts/receipts/27/source-reference.json",
-        "artifacts/receipts/27/regressions-local.json"
+        "artifacts/receipts/27/regressions-local.json",
+        "artifacts/receipts/27/publication.json",
+        "artifacts/receipts/27/ci-final.json",
+        "artifacts/receipts/27/portable.json"
       ],
       "tested_code_revision": null,
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Publish the exact stage 27 manifest from a30898e, verify its fetched Git tree, and validate the native archives, independent oracle and six rendered pairs before stage 28."
+      "next_action": "Passed. Continue to stage 28."
     },
     {
       "id": "28",
       "title": "one public CLI and batch/replay workflow",
-      "status": "pending",
+      "status": "in_progress",
       "prerequisites": "27",
       "acceptance_items": [
         "a documented CLI-only workflow generates and validates at least one instance from every family, replays cached solver output, exports PDF/SVG, and reports partial batch failure correctly. Real consumer examples and a small invalid-input/path-handling suite pass. Help output agrees with actual capabilities and defaults."
       ],
-      "observed_results": null,
-      "evidence_paths": null,
+      "observed_results": "The fixed-source local public CLI suite accepted all 22 supported families. Each was validated, generated, structurally checked, exported and replayed with identical instance/PDF/SVG bytes. The suite checked physical page dimensions and searchable micrography with the explicit local pypdf reader. Nineteen Windows failure/path checks passed, including junctions, hardlinked locks, partial batch repair, damaged output recovery, cancellation limits and concurrent destinations. Seventeen shared replay/cross-host invariants passed on both local Lua versions. The previous native split-Escher cache passes the existing numerical policy. Native CI pending.",
+      "evidence_paths": [
+        "artifacts/receipts/28/consumer-local.json",
+        "artifacts/receipts/28/development-replay-audit.json",
+        "artifacts/receipts/28/regressions-local.json",
+        "artifacts/receipts/28/receipt-Lua-5.3.json",
+        "artifacts/receipts/28/receipt-Lua-5.4.json",
+        "artifacts/receipts/28/cross-host-cache.json"
+      ],
       "tested_code_revision": null,
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+      "next_action": "Publish the exact stage 28 manifest from d840207, independently fetch and verify its tree, then verify both native jobs, the Linux consumer/failure suite, all exports and the packaged CLI. Continue to stage 29 after acceptance."
     },
     {
       "id": "29",

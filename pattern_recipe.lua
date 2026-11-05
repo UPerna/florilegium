@@ -94,7 +94,7 @@ function M.cache_keys(recipe,environment,options)
   out.renderer=H.value("cache/renderer",{style=out.style,view=out.view,dependencies=P.plain(q.dependencies.renderer),source=e.source.files.renderer,renderer=e.renderer})
   return P.snapshot(out)
 end
-function M.execute(recipe,registry,environment,options)
+local function execute(recipe,registry,environment,options,cached)
   local q=M.new(recipe);local env=P.plain(environment);options=options or {}
   keys(options,"limits cancelled","execution options")
   assert(options.cancelled==nil or type(options.cancelled)=="function","cancellation callback must be a function")
@@ -117,13 +117,54 @@ function M.execute(recipe,registry,environment,options)
       return verified[name]
     end})
   local recipe_digest=H.sha256(M.encode(q))
-  local result,problem=registry:generate(q.definition.id,construction_design(q),context)
+  local result,problem
+  local parent_record,cached_sha
+  if cached then
+    local ok,value=pcall(function()
+      parent_record=P.build_record(P.plain(cached.record))
+      assert(parent_record.status=="complete","cached build is incomplete")
+      cached_sha=H.sha256(P.serialize(cached.instance))
+      local recipe_match,instance_match=false,false
+      for _,item in ipairs(parent_record.inputs) do
+        recipe_match=recipe_match or item.kind=="recipe" and item.sha256==recipe_digest
+      end
+      for _,item in ipairs(parent_record.outputs) do
+        instance_match=instance_match or item.kind=="instance" and item.sha256==cached_sha
+      end
+      assert(recipe_match and instance_match,"cached recipe or instance digest mismatch")
+      assert(cached.instance.provenance.seed==q.design.seed
+        and cached.instance.frame.dimension==q.dimension,"cached instance seed or dimension mismatch")
+      registry:check_specification(q.definition.id,construction_design(q))
+      context:consume("objects",0)
+      local x,validation=registry:validate(q.definition.id,cached.instance,context)
+      local replay_keys={}
+      for key,digest in pairs(cache) do
+        replay_keys[key]=H.value("cache/replay-"..key,{generated=digest,instance=cached_sha})
+      end
+      cache=P.snapshot(replay_keys)
+      return {instance=x,definition=q.definition,validation=validation}
+    end)
+    if ok then result=value
+    else
+      local cancelled=type(value)=="table" and value.code=="cancelled"
+      problem={status=cancelled and "cancelled" or "failed",
+        diagnostics={type(value)=="table" and value.message or tostring(value)}}
+    end
+  else
+    result,problem=registry:generate(q.definition.id,construction_design(q),context)
+  end
   local outputs=P.array();local inputs={{kind="recipe",sha256=recipe_digest}}
   local names={};for name in pairs(env.inputs) do names[#names+1]=name end;table.sort(names,P.byte_less)
   for _,name in ipairs(names) do inputs[#inputs+1]={kind="dependency",id=name,sha256=env.inputs[name]} end
   local record={status="failed",source=env.source,runtime={name=env.runtime.lua,version=env.runtime.host,details=env.runtime},seed=q.design.seed,
     inputs=inputs,dependencies={declared=P.plain(q.dependencies),cache=P.plain(cache),renderer=env.renderer,random=Random.VERSION,hash=H.VERSION},
     lineage=P.array(),validation={status="failed",checks=P.array()},outputs=outputs,diagnostics=P.array(),budgets=context:receipt()}
+  if cached and result then
+    inputs[#inputs+1]={kind="stored_instance",sha256=cached_sha}
+    inputs[#inputs+1]={kind="parent_build_record",sha256=H.sha256(P.serialize(parent_record))}
+    record.lineage[1]={role="validated-instance-replay",parent_ref=parent_record.id,instance_sha256=cached_sha,
+      source=P.plain(parent_record.source)}
+  end
   local accepted
   if result then
     local ok,value=pcall(function()
@@ -165,5 +206,11 @@ function M.execute(recipe,registry,environment,options)
   record.budgets=context:receipt();record.id="build/"..H.value("build/record-body",record);record=P.build_record(record)
   if not accepted then return {record=record,keys=cache} end
   accepted.record=record;accepted.keys=cache;return accepted
+end
+function M.execute(recipe,registry,environment,options)
+  return execute(recipe,registry,environment,options)
+end
+function M.replay(recipe,instance,record,registry,environment,options)
+  return execute(recipe,registry,environment,options,{instance=instance,record=record})
 end
 return M

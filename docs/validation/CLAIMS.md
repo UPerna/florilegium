@@ -54,3 +54,5 @@ Stage 24 final gate passed on 27eef52. Both native jobs succeeded. Independent c
 Stage 25 final gate passed on af18c26. Both native jobs succeeded. Independent checks verified connected vector contours, matched endpoints, certified overlap cuts and masked erase locality. Five fresh PDF/SVG pairs passed inspection.
 
 Stage 26 accepted on a30898e. Both native jobs passed, all 22 artifacts match both local runtimes, and four native PDF/SVG pairs passed visual review. The exported 3D curve network preserves true replica junctions, separated-depth crossings and nested support.
+
+Stage 27 accepted on d840207. The original Compass Garden collection passed both native jobs, complete replay, independent port/hierarchy/text checks and six PDF/SVG visual pairs.
