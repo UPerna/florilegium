@@ -33,13 +33,13 @@ hand-designed shapes.
 | option | what it does |
 |---|---|
 | `grown` | the garden grown to fit the page; without it, the authored composition |
-| `sections` | a flower beside every numbered section and subsection, in the copper of the accents (standard classes) |
-| `aging` | the garden ages from spring on the first page to autumn on the last (two runs, for the page count) |
+| `sections` | a flower beside every numbered section and subsection, in the copper of the accents (standard classes and KOMA-Script's; grown only) |
+| `aging` | the garden ages from spring on the first page to autumn on the last (grown only; two runs, for the page count) |
 | `novisitors` | no butterflies, bees, beetles, dragonflies, caterpillars, snails or birds |
 | `theme=geometric`, `theme=math` | another drawing, or another composition (see [themes](themes.md)) |
 | `density=0.4` | less in the margin, down to a single vine at `0.05` (grown only) |
 | `intensity=0.6` | a paler margin, from `1` as painted to `0.3` faint |
-| `nomargin` | no garden, only ornaments in the text and `\florilegiumdraw` |
+| `nomargin` | no garden in the margin; ornaments, initials and `\florilegiumdraw` still work |
 
 ## Commands
 
@@ -48,8 +48,8 @@ hand-designed shapes.
 | `\florilegiumtextend` | at the very end of the text, so that the garden also fills the space below it, in the same run |
 | `\florilegiuminitial[5]{E}` | at the start of a paragraph, the letter as a decorated initial in a tile five lines tall (default 4) |
 | `\florilegiuminitialfont{file.otf}` | the OpenType font the initial's outline is read from (default Latin Modern Bold) |
-| `\florilegiumbloom`, `\florilegiumbloom[lily]` | a flower in the margin beside this line, or a bud, a leaf, a tendril, a role or a body plan on the page |
-| `\florilegiumage{0.8}` | the age of the pages from here on, from 0 (spring) through 0.5 (summer) to 1 (autumn) |
+| `\florilegiumbloom`, `\florilegiumbloom[lily]` | a flower in the margin beside this line, or a bud, a leaf, a tendril, a role or a body plan on the page (grown only) |
+| `\florilegiumage{0.8}` | the age of the pages from here on, from 0 (spring) through 0.5 (summer) to 1 (autumn) (grown only) |
 | `\florilegiumtheme{geometric}` | another theme from the page this stands on (`flora` for none) |
 | `\florilegiumornament{leaf}` | one primitive in the line, the size of a letter |
 | `\florilegiumdraw{flower}{1.2}` | one primitive at the origin of the current TikZ scope |
@@ -92,10 +92,12 @@ Each section describes the feature it shows.*
   petal. A vine passes over and under its strokes in turn, with leaves where they fit and
   flowers in the gaps, often in the letter's counters. The letter is also typeset invisibly,
   so the paragraph still copies as "Every".
-- **Flowers at the headings.** With `sections`, every numbered heading gets a flower beside it
-  in the copper of the accents, the way headings were once picked out in red.
+- **Flowers at the headings.** With `sections`, every numbered section and subsection gets a
+  flower beside it in the copper of the accents, the way headings were once picked out in red.
 - **A flower where the text asks.** `\florilegiumbloom` leaves a mark in the text. The marks
-  are found in the page box when the page is shipped out, so this works in one run.
+  are found in the page box when the page is shipped out, so this works in one run. A name
+  that is no motif, role or plan on the page (a typo, `lilly`) draws nothing and says so in
+  the log.
 - **Seasons.** With `aging`, the garden ages from spring on the first page (buds, small pale
   leaves, fiddleheads) to autumn on the last (fruit and seed heads, falling petals, a few copper
   leaves). It needs two runs, for the page count; `\florilegiumage{0.8}` sets an age by hand.

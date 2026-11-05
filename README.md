@@ -9,7 +9,7 @@
 Procedurally generated Delft-blue floral page margins for LaTeX. No images, no imported paths,
 no external assets: every petal, leaf and stem is a curve computed while the page is being
 written, painted like a watercolor, and written straight into the PDF. Every page grows a
-garden of its own, and every document its own plants, each sampled from a genome.
+garden of its own, and each document's seed its own plants, each sampled from a genome.
 
 ![six seeds](gallery/seeds.gif)
 
@@ -61,6 +61,9 @@ With pdfLaTeX, or in any TikZ picture, the TikZ library draws the same species i
 \end{tikzpicture}
 ```
 
+Under pdfLaTeX a strip this tall needs more memory than pdfTeX has by default; run it as
+`extra_mem_top=10000000 pdflatex doc.tex` ([pdfLaTeX's memory](docs/tikz.md#pdflatexs-memory)).
+
 [Using the package](docs/usage.md) lists every option and command.
 
 ## The documents
@@ -87,8 +90,8 @@ two-sided pages.
 *Seed 6, from an empty margin to the finished page. The stems rise first, leaves open as the
 tips pass their nodes, and each stem ends in a flower. Then the greedy loop takes over: on the
 right, each dashed circle is the largest free disc it found, just before a branch grows to it.
-Big holes come first, small ones last. The visitors fly in at the end, and the last frame is
-exactly the page this seed always gives.*
+Big holes come first, small ones last. The visitors fly in along the way, each to a hole of its
+own, and the last frame is exactly the page this seed always gives.*
 
 [How it works](docs/how-it-works.md) follows the loop step by step.
 
@@ -124,7 +127,7 @@ Visitors are sampled from genomes of their own, fifteen kinds from butterflies a
 ladybirds, caterpillars, snails and birds. Each plant brings the visitor its flowers are for, so
 a bee flies in near a bee flower and a hummingbird near a red tube, while a snail climbs a stem
 and a caterpillar eats a leaf of its own. About three come to a page; `novisitors` leaves them
-out and the page exactly as it was.
+out, and the plants grow into the room they would have taken.
 
 ## The margin reads the text
 
@@ -133,11 +136,11 @@ out and the page exactly as it was.
 *`showcase.tex`, "A year in the margin": spring on the first page, summer, autumn on the last.*
 
 A paragraph can open with a decorated initial, the letter's outline read from a font and wound
-with a vine that passes over and under its strokes. Every numbered heading can get a flower
-beside it in copper, the way headings were once picked out in red, and `\florilegiumbloom`
-puts one beside any line. With the option `aging`, the garden ages from buds on the first page
-to fruit and seed heads on the last. [Using the package](docs/usage.md#the-margin-reads-the-text)
-has the details.
+with a vine that passes over and under its strokes. Every numbered section and subsection can
+get a flower beside it in copper, the way headings were once picked out in red, and
+`\florilegiumbloom` puts one beside any line. With the option `aging`, the garden ages from
+buds on the first page to fruit and seed heads on the last.
+[Using the package](docs/usage.md#the-margin-reads-the-text) has the details.
 
 ## In pure TikZ
 
@@ -195,7 +198,7 @@ its own repository, and follows the release named beside it; questions about one
 | project | what it does | follows |
 |---|---|---|
 | [groeneveld/florilegiumTypst](https://github.com/groeneveld/florilegiumTypst) | a Typst package, the drawing code translated to Rust and run as a WebAssembly plugin, with a sumi-e plum style of its own | 1.1 |
-| [Baldomo/florilegium-typst](https://github.com/Baldomo/florilegium-typst) | a second Typst package, also a Rust port run as a WebAssembly plugin | 1.2 |
+| [Baldomo/florilegium-typst](https://github.com/Baldomo/florilegium-typst) | a second Typst package, also a Rust port run as a WebAssembly plugin | 1.3 |
 | [wilsybubs/florilegium](https://github.com/wilsybubs/florilegium) | a fork that compiles with XeLaTeX as well | 1.1 |
 | [jfoboss/florilegium](https://github.com/jfoboss/florilegium) | a JavaScript port that regrows the garden on an e-book's part-title pages, and a Claude skill (in Russian) that builds ePub, FB2 and MOBI books with it | 1.3 |
 | [amberwhitehead/florilegium](https://github.com/amberwhitehead/florilegium) | a single web page, in plain JavaScript and SVG, that grows a garden around a poem you write | 1.1 |
@@ -295,10 +298,15 @@ make playground             # the browser playground at http://localhost:8000/we
 - The tone ramp is computed in [Oklab](https://bottosson.github.io/posts/oklab/), Björn Ottosson's
   perceptual color space; the conversion matrices in `florilegium-ink.lua` are his, released into
   the public domain (or under the MIT license, for those who prefer it).
-- The random numbers come from [mulberry32](https://gist.github.com/tommyettinger/46a874533244883189143505d203312c),
-  Tommy Ettinger's generator, dedicated to the public domain (CC0). The PostScript port uses the "minimal standard"
-  generator of Park and Miller (Communications of the ACM, 1988) by Schrage's method (ACM
-  Transactions on Mathematical Software, 1979).
+- Most random numbers come from [mulberry32](https://gist.github.com/tommyettinger/46a874533244883189143505d203312c),
+  Tommy Ettinger's generator, dedicated to the public domain (CC0); a species is sampled and
+  drawn with pgf's generator instead, replayed in Lua (see the TikZ library below). The
+  PostScript port uses the "minimal standard" generator of Park and Miller (Communications of
+  the ACM, 1988) by Schrage's method (ACM Transactions on Mathematical Software, 1979).
+- The ivy-leaf fleuron (`hedera`) is outlined by the parametric heart curve x = 16 sin³ t,
+  y = 13 cos t − 5 cos 2t − 2 cos 3t − cos 4t, the first one in Eric W. Weisstein's
+  [*Heart Curve*](https://mathworld.wolfram.com/HeartCurve.html) (Wolfram MathWorld), which
+  names no author for it.
 - The species' trait tables follow research notes made for this project. Only a radially
   symmetric flower varies its number of petals, as Damerval and Nadot found in the buttercup
   order (Annals of Botany, 2007). Flowers and visitors are paired by the pollination syndromes

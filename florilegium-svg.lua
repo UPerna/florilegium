@@ -13,7 +13,7 @@
 -- \def\florilegiumseed{7} and the same margins.
 
 local M = {}
-M.version = "2.0.0"                 -- the release; florilegium.lua checks that every file has the same
+M.version = "2.0.1"                 -- the release; florilegium.lua checks that every file has the same
 local fmt, floor, concat = string.format, math.floor, table.concat
 
 -- ---------------------------------------------------------------- lengths
@@ -184,12 +184,22 @@ end
 -- (degrees, counterclockwise), color (#rrggbb), opacity }, mirrored as florilegium.lua
 -- mirrors it for TikZ; stats, what grew (florilegium-grow.lua: motifs, counts by motif, stems,
 -- cells; nil for the authored page and the math theme).
+-- an option that is a number: its value, the default when it is not given, an error
+-- when it is given and is not a number
+local function number(o, key, default, what)
+  if o[key] == nil then return default end
+  return tonumber(o[key]) or error("florilegium: " .. key .. " is " .. what .. ", not '" .. tostring(o[key]) .. "'", 0)
+end
+
 function M.page(o)
   o = o or {}
   for k, v in pairs(DEFAULTS) do if o[k] == nil then o[k] = v end end
   local paper = type(o.paper) == "table" and o.paper or PAPERS[o.paper]
   if not paper then error("florilegium: unknown paper '" .. tostring(o.paper) .. "'", 0) end
-  local page = floor(tonumber(o.page) or 1)
+  local page = math.tointeger(floor(number(o, "page", 1, "a whole number")))
+  if not page then error("florilegium: page is a whole number, not '" .. tostring(o.page) .. "'", 0) end
+  local density = number(o, "density", 1, "a number from 0 to 1")
+  local intensity = number(o, "intensity", 1, "a number from 0 to 1")
   local pw, ph = M.sp(paper[1]), M.sp(paper[2])
   local L, R, T, B = M.sp(o.left), M.sp(o.right), M.sp(o.top), M.sp(o.bottom)
   local hh, hs, inch = M.sp(o.headheight), M.sp(o.headsep), M.sp("1in")
@@ -204,7 +214,7 @@ function M.page(o)
   }
   local streams = {}
   local saved = { tex = tex, node = node, luatexbase = luatexbase, texio = texio }
-  tex = { dimen = dimen, count = { [0] = page }, hoffset = 0, sprint = function() end,
+  tex = { dimen = dimen, count = { [0] = page }, hoffset = 0, voffset = 0, sprint = function() end,
     error = function(m) error(m, 0) end }
   luatexbase = { registernumber = function() return 0 end }
   node = { new = function() return {} end, write = function(n) streams[#streams + 1] = n.data end,
@@ -218,7 +228,9 @@ function M.page(o)
     local ar, ag, ab = html(o.accent or "B4662F")
     fl.colors(ir, ig, ib, ar, ag, ab)
     local fixed = o.seed and tonumber(o.seed)
-    if o.seed and not (fixed and fixed >= 1) then error("florilegium: a seed is a positive integer", 0) end
+    if o.seed and not (fixed and fixed >= 1 and math.tointeger(floor(fixed))) then
+      error("florilegium: a seed is a positive integer below 2^63", 0)
+    end
     local seed = fl.seed(page, fixed and floor(fixed) or nil)
     local age = o.season
     if age == nil or age == "summer" then age = nil
@@ -230,8 +242,8 @@ function M.page(o)
     end
     fl.age = age
     fl.theme = (o.theme ~= "" and o.theme ~= "flora") and o.theme or nil
-    fl.density = tonumber(o.density) or 1
-    fl.intensity = tonumber(o.intensity) or 1
+    fl.density = density
+    fl.intensity = intensity
     fl.visitors = o.visitors ~= false
     fl.bleed = o.bleed and M.sp(o.bleed) * 2.54 / (72.27 * 65536) or 0
     local g = fl.geometry()
@@ -272,6 +284,7 @@ function M.page(o)
   local CM = 72 / 2.54
   local W, H = g.pw * CM, g.ph * CM
   local id = o.id or fmt("flo%d-", floor(tonumber(o.seed) or 0))
+  if type(id) ~= "string" or not id:match("^[%w_.-]*$") then error("florilegium: id is letters, digits, _ . and -, not '" .. tostring(id) .. "'", 0) end
   local out = {}
   local b = package.loaded["florilegium"].bleed * CM   -- the bleed around the paper, if any
   if b > 0 then
@@ -331,7 +344,7 @@ function M.main(argv)
     local a = argv[i]
     local key = a:match("^%-%-([%w]+)$")
     if a == "-h" or a == "--help" then io.write(USAGE) return 0
-    elseif a == "-o" then file = argv[i + 1] i = i + 1
+    elseif a == "-o" and argv[i + 1] then file = argv[i + 1] i = i + 1
     elseif key and flags[key] then
       if flags[key] == true then o[key] = true else o[flags[key]] = false end
     elseif key and values[key] and argv[i + 1] then
@@ -349,7 +362,9 @@ function M.main(argv)
   if #more.captions > 0 then
     io.stderr:write(fmt("florilegium-svg.lua: %d equations and symbols need TeX and are left out (LuaLaTeX sets them; the playground uses MathJax)\n", #more.captions))
   end
-  local f = file and assert(io.open(file, "w")) or io.stdout
+  local f, err = io.stdout, nil
+  if file then f, err = io.open(file, "w") end
+  if not f then io.stderr:write("florilegium-svg.lua: " .. tostring(err) .. "\n") return 1 end
   f:write(svg)
   if file then f:close() end
   return 0

@@ -18,7 +18,7 @@
 local ink = require("florilegium-ink")
 local flora = require("florilegium-flora")
 local M = {}
-M.version = "2.0.0"                 -- the release; florilegium.lua checks that every file has the same
+M.version = "2.0.1"                 -- the release; florilegium.lua checks that every file has the same
 
 local sin, cos, sqrt, exp, pi, abs, floor, max, min = math.sin, math.cos, math.sqrt, math.exp, math.pi, math.abs, math.floor, math.max, math.min
 local tone = ink.tone
@@ -857,7 +857,7 @@ FAM.dodeca = truncation(DODECA, ICOSA, 1 / (2 + PHI), "5,3", "3,5")
 FAM.dodeca.title = function() return "from the dodecahedron to its dual" end
 
 FAM.knots = {
-  values = { { 3, 1 }, { 5, 3 }, { 7, 5 }, { 9, 6 } },              -- T(2,q) and its place in plate's list
+  values = { { 3, 1 }, { 5, 3 }, { 7, 5 }, { 9, 6 } },              -- T(2,q) and its index in KNOTS
   pick = function(L) return { L.range(0, 360) } end,
   title = function() return "torus knots" end,
   label = function(v) return string.format("$T_{2,%d}$", v[1]) end,

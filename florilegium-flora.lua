@@ -10,7 +10,7 @@
 
 local ink = require("florilegium-ink")
 local M = {}
-M.version = "2.0.0"                 -- the release; florilegium.lua checks that every file has the same
+M.version = "2.0.1"                 -- the release; florilegium.lua checks that every file has the same
 
 local sin, cos, sqrt, pi, abs, floor, max, min = math.sin, math.cos, math.sqrt, math.pi, math.abs, math.floor, math.max, math.min
 local tone, white = ink.tone, ink.white
@@ -692,7 +692,7 @@ function M.seedhead(rng, r, o)
   end
 end
 
--- a tapered logarithmic spiral, s = size (cm); starts at the origin, outer end
+-- a tapered spiral that tightens toward its inner end, s = size (cm); starts at the origin, outer end
 function M.tendril(rng, s)
   local pts = {}
   local turns = rng.range(1.6, 2.3)
@@ -739,6 +739,8 @@ end
 function M.hedera(rng, s, o)
   local c = (o and o.color) or ink.accent(0)
   ink.push() ink.scale(s)
+  -- the outline is the parametric heart curve that Wolfram MathWorld gives as "the first
+  -- parametric heart curve" (E. W. Weisstein, "Heart Curve", MathWorld)
   local pts = {}
   for i = 0, 47 do
     local t = i / 48 * 2 * pi

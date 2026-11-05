@@ -42,13 +42,14 @@ can't be found, the library draws in pure TikZ.
 | `florilegium leaf` | one leaf from its base along +y, `size` its length | `seed role size draw` |
 | `florilegium inflorescence` | the species' cluster from its stalk's base along +y, as large as the margin's at `scale=1` | `seed role scale season draw` |
 | `florilegium plant` | one plant from its root, `size` its height, its branches reaching about `width` | `seed role size width season` |
-| `florilegium plants` | plants on one root, like a margin's main stems, the first `size` tall and the others 60–72% and 36–48% of it, with a pale flower of the first behind them | `plants={3/rose, 17/umbellifer, 29/mustard}`, `size width season ghost` |
+| `florilegium plants` | plants on one root, like a margin's main stems, the first `size` tall and the others 60–72% and 36–48% of it, with a pale flower of the first behind them (a fern grows from its crown, so `florilegium fern` draws it, not `plants`) | `plants={3/rose, 17/umbellifer, 29/mustard}`, `size width season ghost` |
 | `florilegium fern` | a fern's crown, `size` its longest frond | `seed size season draw` |
 | `florilegium visitor` | a visitor, `size` its wingspan, or its length | `seed role size draw` |
 
 - `seed` picks the species (1 to 2147483646), and `role` narrows what it may be to `hero`,
   `spray`, `monocot`, `any` (the default), or a body plan (`rose`, `lily`, `pea`, `daisy`,
-  `umbellifer`, ...). One seed and role is always one species.
+  `umbellifer`, ...). One seed and role is always one species. A seed outside that range or a
+  role that no plant has is an error, and the pic is drawn with seed 1 or role `any`.
 - `draw` seeds the drawing, so one species can be drawn many ways; by default it is the
   species' seed plus one. A plant grows from its species' seed alone, so it has no `draw`.
 - `seed`, `draw` and `season` may be anything pgfmath computes, such as `seed=10+\i` in a
@@ -87,13 +88,21 @@ toothed leaflets, or a simple leaf lobed like a maple's:
 ```
 
 [The traits](traits.md) lists every one and what it may be; a name the genome lacks, or a value
-no plan can draw, is an error that says what the trait may be. A fixed trait still takes its
+no plan (or no kind of visitor) can draw, is an error that says what the trait may be. So is a
+value only a fern draws fixed on a flowering plant (`inflo=none`, `compound=frond`), and on a
+fern a leaf tip, edge or outline that its frond has no drawing for (`leafapex=acuminate`).
+After such an error the pic is drawn as the seed samples it, without the traits. A number is
+written plainly, `7`, `7.0` or `-0.5`, braced or not (`{7}`); `+7`, `1e1`, `0x7` or an
+expression is an error, the same in both engines. The fern pic draws a fern, so a flowering
+plant's `plan` there is an error too. A fixed trait still takes its
 random draw, so the traits drawn before it are as the seed gave them, and those after it too,
 unless one that depends on it draws differently (a palmate leaf draws how many leaflets it has,
 a simple one does not), which moves every later draw along. A trait that depends on a fixed one
 follows it, and a fixed `plan` (or a visitor's `kind`) brings its own distributions. Botany's
 rules hold for what the genome samples; a fixed trait is taken as it is, so a lily with toothed
-leaves is yours to ask for. Both engines fix traits the same way.
+leaves is yours to ask for, and a value the drawing has no form for is drawn plainly (another
+kind's feelers as threads, a toothed edge with no teeth smooth). Both engines fix traits the
+same way.
 
 `specimen-tikz.tex` draws one of nearly everything, from the strips above to each body plan's flower
 and leaf, every flower form and kind of cluster, every leaf, ferns, and the visitors.
@@ -149,7 +158,9 @@ and under pdfLaTeX a few thousand coordinates fill the pool. The library changes
 it when it loads, so that the lookup behind the name is made only after a leading 0, the only
 place a base prefix can follow. Nothing else changes, and pgf's own files stay as they are.
 The change applies only if that line is found in one of the two forms pgf has written it in
-(pgf 3.1.10, and 3.1.12 in TeX Live 2026). Under another pgf the library leaves the scanner
-alone and says so in a warning under pdfLaTeX, where a page of plants may then stop with "TeX
-capacity exceeded, sorry [pool size]". Problems with the change belong to florilegium, not to
+(pgf 3.1.10, and 3.1.12 in TeX Live 2026). pgf has since fixed the scanner itself
+([pgf-tikz/pgf#1489](https://github.com/pgf-tikz/pgf/pull/1489), for the release after
+3.1.12), and with that pgf the library finds nothing to change and says nothing. Under any
+other pgf the library leaves the scanner alone and says so in a warning under pdfLaTeX, where
+a page of plants may then stop with "TeX capacity exceeded, sorry [pool size]". Problems with the change belong to florilegium, not to
 pgf's authors.

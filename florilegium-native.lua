@@ -21,7 +21,7 @@ local ink = require("florilegium-ink")
 local pm = require("florilegium-pgfmath")
 
 local M = {}
-M.version = "2.0.0"                 -- the release; florilegium.lua checks that every file has the same
+M.version = "2.0.1"                 -- the release; florilegium.lua checks that every file has the same
 
 local floor, sqrt, abs, min, max = math.floor, math.sqrt, math.abs, math.min, math.max
 local CM = pm.sp("28.45276")      -- pt in a cm as TeX holds it, in sp (TeX's arithmetic below)
@@ -218,14 +218,14 @@ function M.petal(o)
   local pW = o.W or (pointed and range(0.15, 0.2) or range(0.40, 0.48))
   local bend = o.bend or sym(0.08)
   local tz = o.tone
-  local fine = o.u > 0.45
+  local fine = K(o.u) > K(0.45)                 -- u as TeX holds it, in whole sp (\ifdim)
   local g = fbm()
   local notch = 0
   if not pointed and chance(o.notchp) then notch = range(0.03, 0.06) * o.notchk end
   -- a petal under 1.2 mm is tiny: a coarser outline, no heart, mottle or pooled rim (specks
   -- no printer resolves at that size), and at most five streaks
-  local tiny = o.u < 0.12
-  local bn = o.u > 0.5 and 28 or (tiny and 8 or 18)
+  local tiny = K(o.u) < K(0.12)
+  local bn = K(o.u) > K(0.5) and 28 or (tiny and 8 or 18)
   local outline = petal_outline(pointed, pW, bend, notch, g, bn)
   smooth(outline, true) ink.clip()
   ink.poly({ { -1, -0.1 }, { 1, -0.1 }, { 1, 1.2 }, { -1, 1.2 } }, true) fill(tone(tz), 1)
@@ -942,6 +942,7 @@ local function tube(u, form, tq, lp)
   local a, b, c, w, e, h, L, tt, sep = 0.1, 0.24, 1.3, 0, 0, 0, 0.85, 0.14, true
   local f = range(0.06, 0.12)
   local n = floor(S.merosity / 2 + 1.5)
+  if n == 1 then n = 0 end                      -- no parts (merosity 0): a rim without lobes
   local bd = sym(0.08)
   if form == "campanulate" then a, b, h, e, f = 0.06, 0, 0.26, 0.07, 0.35 * f end   -- a shoulder, then the rim flares
   if form == "urceolate" then a, b, w, L, tt, f = 0.09, 0, 0.25, 0.8, 0.08, 0.07 end
@@ -1259,7 +1260,7 @@ local function bview(o)
     vw = orient == "nodding" and "back" or "tilt"
     if fm == "lily" then
       vw = "lily"
-      if S.reflex < -40 then vw = "turk" elseif S.cup > 0.6 then vw = "trumpet" end
+      if S.reflex < -40 then vw = "turk" elseif S.cup > K(0.6) then vw = "trumpet" end
     end
     if fm == "salverform" then vw = "salver" end
   end
@@ -1692,8 +1693,10 @@ local function thyrse(len, st)
   fadd(list, A[25][1], A[25][2], ah - 90, 0.6 * fd, st - 0.75)
   fdraw(list)
 end
--- \flo@corymbunit: stalks of falling length, the flowers level at the top; fd the flowers' size
+-- \flo@corymbunit: stalks of falling length, the flowers level at the top; fd the flowers' size;
+-- none at length 0 (its width divides)
 local function corymb(len, fd, st)
+  if len == 0 then return end
   stone()
   local list = flowers()
   local cfd = min(0.6, 0.3 * fd)
@@ -2100,6 +2103,7 @@ local function smargin(s, depth, bn, u, over)
   local name = S.leafmargin
   if over then name = over end
   if depth <= 0 and LMARGIN[name] then LMARGIN[name](m) end
+  if m.k == 2 and S.teeth < 1 then m.k, m.tk = 0, 0.8 end    -- a toothed margin with no teeth: smooth
   local ms = {}
   if m.k < 2 then
     local n
@@ -2421,7 +2425,7 @@ local function sleaflet(lt, u)
 end
 
 -- ---------------------------------------------------------------- compound leaves
--- the rachis and stalks are stroked with the pen compoundleaf sets: P.c, P.w (bp)
+-- the rachis and stalks are stroked with the pen compoundleaf sets: RP.c, RP.w (bp)
 local RP = {}
 local function rachis(y0, y1) moveto(0, y0) lineto(0, y1) stroke(RP.c, RP.w, 1, false) end
 -- a leaflet's length on the page in cm, k of a leaf lpt pt long; for a pic's leaf (RP.pt, its
@@ -2967,7 +2971,7 @@ local visitor = (function()
       for i, p in ipairs(WSHAPE[w]) do t[i] = { p[1], p[2] } end
       WG[w] = t
     end
-    for _, p in ipairs(APEX[X.apex]) do WG[p[1]][p[2]] = { p[3], p[4] } end
+    for _, p in ipairs(APEX[X.apex] or APEX.rounded) do WG[p[1]][p[2]] = { p[3], p[4] } end
     for _, w in ipairs({ "fw", "hw" }) do
       for _, p in ipairs(WG[w]) do
         p[1] = p[1] + sym(0.03)
@@ -3100,7 +3104,7 @@ local visitor = (function()
       end
     end
     ink.unclip()
-    -- a swallowtail's two tails
+    -- two thread tails off the hindwing
     if X.tails == 2 and w == "hw" then
       local xb, yb = WG.hw[5][1], WG.hw[5][2]
       taper(xb - 0.05, yb - 0.02, xb - 0.04, yb - 0.1, xb - 0.025, yb - 0.18, xb - 0.02, yb - 0.26, 0.022, 0.006)
@@ -3145,9 +3149,9 @@ local visitor = (function()
     for b = 1, 2 do
       local sx = (WG.sides == 1 or b == 2) and 1 or -1
       local ex, ey
-      if ant == "clubbed" then ex, ey = range(0.22, 0.3), range(0.78, 0.9) end
-      if ant == "thread" then ex, ey = range(0.26, 0.36), range(0.72, 0.88) end
-      if ant == "feathery" then ex, ey = range(0.24, 0.32), range(0.62, 0.72) end
+      if ant == "clubbed" then ex, ey = range(0.22, 0.3), range(0.78, 0.9)
+      elseif ant == "feathery" then ex, ey = range(0.24, 0.32), range(0.62, 0.72)
+      else ex, ey = range(0.26, 0.36), range(0.72, 0.88) end       -- a thread, and any other kind's feeler
       if WG.sides == 1 and b == 2 then ex, ey = ex * 0.8, ey * 0.95 end
       ex = sx * ex
       local xa, xb, xc, yc = sx * 0.02, sx * 0.05, ex * 0.6, ey * 0.9
@@ -3471,6 +3475,7 @@ local visitor = (function()
     BG.kind, BG.ground = kind, X.ground
     BG.t, BG.pt = X.tone, 0.74
     if X.ground == "dark" then BG.t = BG.t - 0.12 end
+    if X.ground == "pale" then BG.t = min(0.78, BG.t + 0.32) end    -- fixed: paler, as a butterfly's
     if X.ground == "copper" then pen.accent = true BG.pt = 0.6 end
     local t = BG.t
     BG.rx, BG.ry, BG.sq, BG.egg = 0.48 * X.build, 0.3, 1, 1.12
@@ -3831,14 +3836,15 @@ local visitor = (function()
     ink.unclip()
     moveto(0, BT.et) lineto(0, BT.tip) stroke(tone(0.04), BT.w, 0.8, false)
   end
-  -- \flo@btfeeler: a feeler, threadlike, clubbed or combed, in color c
+  -- \flo@btfeeler: a feeler, threadlike, clubbed or combed, in color c (another kind's,
+  -- fixed, as a thread)
   local function btfeeler(c)
     local ant, fs = X.antenna, BT.fs
     local xa, ya = 0.35 * BT.hx, BT.hy + 0.6 * BT.hr
     local xb, yb, xc, yc
-    if ant == "thread" then xb, yb, xc, yc = range(0.1, 0.14), range(0.1, 0.14), range(0.2, 0.28), range(0.24, 0.32) end
-    if ant == "clubbed" then xb, yb, xc, yc = range(0.06, 0.08), range(0.06, 0.08), range(0.1, 0.13), range(0.12, 0.15) end
-    if ant == "comb" then xb, yb, xc, yc = range(0.08, 0.1), range(0.08, 0.1), range(0.16, 0.2), range(0.18, 0.22) end
+    if ant == "clubbed" then xb, yb, xc, yc = range(0.06, 0.08), range(0.06, 0.08), range(0.1, 0.13), range(0.12, 0.15)
+    elseif ant == "comb" then xb, yb, xc, yc = range(0.08, 0.1), range(0.08, 0.1), range(0.16, 0.2), range(0.18, 0.22)
+    else xb, yb, xc, yc = range(0.1, 0.14), range(0.1, 0.14), range(0.2, 0.28), range(0.24, 0.32) end   -- a thread, and any other kind's feeler
     xb, yb, xc, yc = xa + xb * fs, ya + yb * fs, xa + xc * fs, ya + yc * fs
     moveto(xa, ya) lineto(xb, yb) lineto(xc, yc) stroke(c, BT.w, 1, false)
     local da, db = xc - xb, yc - yb
@@ -4160,8 +4166,15 @@ local visitor = (function()
     local ox, oy = x + h, 0.1 * CT.hL
     h, x = hfw(0.62)
     local a = atan2(0.62 * CT.hL - oy, x + h - ox)
-    local rot = CT.pose == "curl" and a or a - atan2(CT.y[26], CT.x[26])
-    local hy = oy + CT.x[26] * sin(rot) + CT.y[26] * cos(rot)
+    -- straight or looping, the body is mirrored across its axis (y to -y, after the turn),
+    -- so its legs hold the edge and its back is turned away from the leaf, tail to head
+    -- along the edge; curled, it lies on the leaf from its tail, its legs turned in
+    local curled = CT.pose == "curl"
+    local rot, hy = a, oy + CT.x[26] * sin(a) + CT.y[26] * cos(a)
+    if not curled then
+      rot = a + atan2(CT.y[26], CT.x[26])
+      hy = oy + CT.x[26] * sin(rot) - CT.y[26] * cos(rot)
+    end
     CT.nb = chance(0.5) and 3 or 2
     CT.br, CT.by, CT.bx = {}, {}, {}
     local y = min(0.86 * CT.hL, max(0.3 * CT.hL, hy + 0.04))
@@ -4176,6 +4189,7 @@ local visitor = (function()
     hfpaint()
     if X.ground == "copper" then pen.accent = true end
     ink.push() ink.translate(ox, oy) ink.rotate(rot)
+    if not curled then ink.scale(1, -1) end
     ctbody() cthead()
     if X.horn == 1 then cthorn() end
     if X.tufts == 1 then cttufts() end
@@ -4348,7 +4362,7 @@ local visitor = (function()
             end
           end
           -- sculpture: ribs across the whorl where they stand 0.5 mm apart, or cords along it
-          if X.sculpture == "ribs" and size * 3.14159 / X.ribs > K(0.05) then
+          if X.sculpture == "ribs" and X.ribs > 0 and size * 3.14159 / X.ribs > K(0.05) then
             local nr = j < J and X.ribs or floor(X.ribs * (w.t1 - w.t0) / 360 + 0.5)
             for r = 1, nr do
               local bb = 1 + nediv(GSTEP * (2 * r - 1), 2 * nr)
@@ -4546,7 +4560,7 @@ local visitor = (function()
   -- moth), as TeX holds it; the visitor's unit on the page in cm is found as TeX finds it
   -- (the size in pt, then divided back), since it decides the level of detail. With pic
   -- (the pic's \flo@visitor), o.size is in pt already, in sp, the drawing in pt, and
-  -- o.draw (if given) is the drawing's seed, as \flo@visitorsetup takes it
+  -- o.draw (if given) is the drawing's seed, as \flo@vispicsetup takes it
   local DRAW = { bee = bee, fly = bee, odonate = odo, beetle = beetle, larva = caterpillar, snail = snail, bird = bird }
   local HALFCM = pm.sp("56.90552")              -- half a wingspan: pt in two cm, as TeX holds it
   local sampled = {}
@@ -4918,7 +4932,7 @@ local pic = (function()
   end
   -- \flo@drawstem, \flo@markstem
   local function drawstem()
-    local n = texint(R.pH, pm.sp("0.25"), 65536)
+    local n = max(2, texint(R.pH, pm.sp("0.25"), 65536))   -- two points at least, under 2.5 mm
     local pts = {}
     for k = 1, n do
       local y = R.pH * (k - 1) / (n - 1)
@@ -5213,8 +5227,9 @@ local pic = (function()
   -- \flo@garden: plants (seed, role) from one root, gH cm high, reaching about gW, walked
   -- once per layer; a pale ghost flower behind them
   local function garden(plants, gH, gW, ghost, season, traits)
-    ink.scale(28.45276)
     local np = #plants
+    if np == 0 then return end                  -- plants names no plant (TeX's error)
+    ink.scale(28.45276)
     R = { season = season, Np = np, H = {}, z = {}, w = {}, f = {}, nd = {}, ndn = {}, s = {}, r = {}, fore = 1,
       filling = false, traits = traits }
     for k, p in ipairs(plants) do R.s[k], R.r[k] = p[1], p[2] end
@@ -5296,7 +5311,7 @@ local pic = (function()
 end)()
 -- A pic of the TikZ library (\pic {florilegium <kind>={...}}), drawn with ink at the origin
 -- under ink's current transform, in pt: kind flower, leaf, v13 flower, v13 leaf,
--- inflorescence, plant, plants, fern or visitor; o as florilegium-organs.lua's M.pic takes it
+-- inflorescence, plant, plants, fern or visitor; o as M.tikz builds it
 -- (seed, role, draw; size and width in sp of pt; season and scale in sp; ghost; plants =
 -- { {seed, role}, ... })
 function M.pic(kind, o)
@@ -5345,15 +5360,29 @@ function M.tikz(kind, seed, role, draw, size, width, season, plants, ghost, scal
   if not checked then check(lib) end
   local o = { role = role, size = size, width = width, season = pm.sp(season), ghost = ghost == "true",
     scale = pm.sp(scale), seed = math.tointeger(tonumber(seed)) }
-  if traits and traits:match("%S") then
-    -- a trait the genome lacks, or a value it cannot draw: TeX's error, and the pic as sampled
-    local ok, err = pcall(species.fixes, traits, kind == "visitor")
-    if ok then o.traits = traits else tex.error(err) end
-  end
   if draw ~= "" then o.draw = math.tointeger(tonumber(draw)) end
   if kind == "plants" then
     o.plants = {}
     for s, r in plants:gmatch("([^/,]+)/([^,]*),") do o.plants[#o.plants + 1] = { math.tointeger(tonumber(s)), r } end
+  end
+  if traits and traits:match("%S") then
+    -- a trait the genome lacks, a value it cannot draw, or one the plant's kind cannot (a
+    -- fern's on a flowering plant, M.refused, which sampling raises): TeX's error, once,
+    -- and the pic as sampled, as the library's \flo@fixset and \flo@planfixcheck do
+    local ok, fix = pcall(species.fixes, traits, kind == "visitor")
+    local err = not ok and fix or nil
+    if ok and kind ~= "visitor" then
+      for _, p in ipairs(o.plants or { { o.seed, role } }) do
+        local drawn, e = pcall(species.sample, p[1], p[2], nil, fix)
+        if not drawn then ok, err = false, e break end
+        -- the fern pic draws a fern (\flo@fernpic)
+        if kind == "fern" and e.clade ~= "fern" then
+          ok, err = false, string.format("florilegium: the fern pic draws a fern, and plan=%s is a flowering plant's", e.plan)
+          break
+        end
+      end
+    end
+    if ok then o.traits = traits else tex.error(err) end
   end
   ink.set_ink(rgb(inkrgb))
   ink.set_accent(rgb(accrgb))

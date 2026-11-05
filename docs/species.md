@@ -40,11 +40,11 @@ A species can describe itself, and the playground writes its page text from thes
 The eight of the document seed 7:
 
 - A blue daisy head of nineteen rays alone on its stalk, for bees; lobed, narrow leaves; then small dry seeds.
-- A five-petalled blue rose in forked cymes, for bees; deeply cut, oval leaves; then capsules.
+- A five-petaled blue rose in forked cymes, for bees; deeply cut, oval leaves; then capsules.
 - A blue wheel of five lobes in a coiled cyme that uncurls, for bees; hairy, smooth-edged, oval leaves; then nutlets.
 - Tiny petal-less flowers in hanging catkins, pollinated by the wind; toothed, spoon-shaped leaves; then winged seeds.
 - A violet lily of six swept-back tepals along a raceme, for butterflies; smooth-edged, narrow leaves with parallel veins; then capsules.
-- A four-petalled nodding white rose in a flat-topped cluster, for flies and hoverflies; leaves of two pairs of toothed leaflets; then stone fruit.
+- A four-petaled nodding white rose in a flat-topped cluster, for flies and hoverflies; leaves of two pairs of toothed leaflets; then stone fruit.
 - A blue pea flower along a raceme, for bees; leaves of five pairs of smooth-edged leaflets, climbing by tendrils; then pods.
 - A white two-lipped flower in a dense spike, for bees; toothed, narrow leaves, in pairs; then nutlets.
 
@@ -111,7 +111,8 @@ a ladybird climbs a stem.
 *300 dpi. A snail on a main stem, and a ladybird climbing another.*
 
 A page has about three visitors, as in v1.3, from a random stream of
-their own, so `novisitors` leaves the plants exactly as they were.
+their own, so a page that no visitor came to is exactly the page `novisitors` draws; where a
+visitor does come, it takes room the plants would have grown into.
 
 ## Seasons and headings
 
@@ -151,7 +152,7 @@ own under pdfLaTeX (see [the TikZ library](tikz.md)).
 
 ## One seed, one species, in Lua or TikZ
 
-Both sides draw from pgf's own random generator, which `florilegium-ink.lua` replays exactly.
+Both sides draw from pgf's own random generator, which `florilegium-pgfmath.lua` replays exactly.
 Every choice is a whole-number draw, and a trait that is a real number is the very number
 pgfmath computes from its draw, so `\florilegiumspecies{7}{hero}` in TikZ and
 `species.sample(7, "hero")` in Lua find the same species (`tools/tikzcheck.lua` compares their
@@ -178,7 +179,7 @@ and the papers below.
   real flowers draw many visitors (C. B. Fenster and others, *Pollination syndromes and floral
   specialization*, Annual Review of Ecology, Evolution, and Systematics 35, 2004).
 - A snail's shell is the coiled tube of D. M. Raup, *Geometric analysis of shell coiling:
-  general problems* (Journal of Paleontology 40, 1966), its ring placed as S. Okabe and
+  general problems* (Journal of Paleontology 40, 1966), its ring placed as T. Okabe and
   J. Yoshimura reparameterize Raup's model in *Optimal designs of mollusk shells from bivalves
   to snails* (Scientific Reports 7, 2017), with the spire lower for a fast-widening coil, the
   negative relation they report. It is drawn from its whorls' edges, the simpler method for

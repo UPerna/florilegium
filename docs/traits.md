@@ -83,8 +83,8 @@ This page is written by `tools/tikztables.lua` from `florilegium-species.lua`.
 | `tone` | a number from 0.26 to 0.5 |
 | `ground` | `copper`, `dark`, `ink`, `pale` |
 | `pose` | `closed`, `cross`, `curl`, `flat`, `fly`, `folded`, `glide`, `hover`, `loop`, `open`, `perch`, `rest`, `spread`, `straight`, `tent`, `visit`, `walk` |
-| `apex` | `angular`, `falcate`, `none`, `pointed`, `rounded` |
-| `wingedge` | `none`, `scalloped`, `smooth`, `toothed` |
+| `apex` | `angular`, `falcate`, `pointed`, `rounded` |
+| `wingedge` | `scalloped`, `smooth`, `toothed` |
 | `tails` | a whole number from 0 to 2 |
 | `basal` | a whole number from 0 to 1 |
 | `central` | `band`, `none`, `spots` |
@@ -95,33 +95,33 @@ This page is written by `tools/tikztables.lua` from `florilegium-species.lua`.
 | `parafocal` | a whole number from 0 to 1 |
 | `lunules` | a whole number from 0 to 2 |
 | `veins` | a whole number from 0 to 1 |
-| `antenna` | `clubbed`, `comb`, `elbowed`, `feathery`, `none`, `short`, `thread` |
+| `antenna` | `clubbed`, `comb`, `elbowed`, `feathery`, `short`, `thread` |
 | `bands` | a whole number from 0 to 8 |
 | `hair` | a number from 0 to 1 |
 | `pollen` | a whole number from 0 to 1 |
-| `build` | a number from 0 to 0.9 |
+| `build` | a number from 0.1 to 0.9 |
 | `paletail` | a whole number from 0 to 1 |
-| `tint` | `clear`, `none`, `tinted` |
+| `tint` | `clear`, `tinted` |
 | `stigma` | a whole number from 0 to 1 |
-| `pattern` | `none`, `plain`, `spots`, `stripes` |
+| `pattern` | `plain`, `spots`, `stripes` |
 | `spots` | a whole number from 0 to 22 |
 | `spotsize` | a number from 0 to 0.2 |
 | `stripes` | `back`, `none`, `side` |
 | `tufts` | a whole number from 0 to 1 |
 | `horn` | a whole number from 0 to 1 |
-| `whorls` | a number from 0 to 6 |
-| `expansion` | a number from 0 to 3.2 |
-| `spire` | a number from 0 to 1.2 |
-| `hand` | `dextral`, `none`, `sinistral` |
+| `whorls` | a number from 3.5 to 6 |
+| `expansion` | a number from 1.6 to 3.2 |
+| `spire` | a number from 0.1 to 1.2 |
+| `hand` | `dextral`, `sinistral` |
 | `shellbands` | a whole number from 0 to 5 |
 | `lip` | a whole number from 0 to 1 |
-| `extension` | a number from 0 to 1 |
-| `bill` | `conical`, `curved`, `none`, `straight` |
+| `extension` | a number from 0.4 to 1 |
+| `bill` | `conical`, `curved`, `straight` |
 | `crest` | a whole number from 0 to 1 |
-| `tail` | a number from 0 to 0.5 |
-| `aperture` | a number from 0 to 1.3 |
-| `suture` | a number from 0 to 0.8 |
-| `sculpture` | `cords`, `none`, `ribs`, `smooth` |
+| `tail` | a number from 0.3 to 0.5 |
+| `aperture` | a number from 0.85 to 1.3 |
+| `suture` | a number from 0.15 to 0.8 |
+| `sculpture` | `cords`, `ribs`, `smooth` |
 | `ribs` | a whole number from 0 to 24 |
 | `opencoil` | a whole number from 0 to 1 |
 | `withdrawn` | a whole number from 0 to 1 |

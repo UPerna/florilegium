@@ -13,7 +13,7 @@
 local ink = require("florilegium-ink")
 local grow = require("florilegium-grow")
 local M = {}
-M.version = "2.0.0"                 -- the release; florilegium.lua checks that every file has the same
+M.version = "2.0.1"                 -- the release; florilegium.lua checks that every file has the same
 
 local sqrt, cos, sin, atan, pi, min, floor = math.sqrt, math.cos, math.sin, math.atan, math.pi, math.min, math.floor
 local rad = pi / 180
@@ -101,11 +101,25 @@ local function at(pts, f)
   return pts[n][1], pts[n][2], tx, ty, n
 end
 
+-- the score fits A4 with a 68 mm left margin; on any other page its edges are clipped
+-- at the text, so the first such page says why in the log (LuaLaTeX's; the SVG is silent)
+local warned = false
+local function check_paper(g)
+  if warned or not (luatexbase and luatexbase.module_warning) then return end
+  if g.colright < 6.2 or math.abs(g.ph - 29.7) > 0.5 then
+    warned = true
+    luatexbase.module_warning("florilegium", string.format("the authored margin is made for A4 with a 68 mm left margin;"
+      .. " this page's margin column is %.1f cm and its paper %.1f cm tall. Use the grown option to fit the garden to this page.",
+      g.colright, g.ph))
+  end
+end
+
 function M.page(g)
   local rng = ink.rng(g.seed * 7919 + 17)
   local jit = rng.fork()
   local F, own = grow.theme(g.theme)           -- the primitives: flora, or a theme's
   if own then return own(g, grow) end          -- a theme with a composition of its own
+  check_paper(g)
   ink.set_transform(ink.page_transform(g.mirror and g.pw))
   local function place(layer, x, y, a, fn)
     ink.layer(layer)
