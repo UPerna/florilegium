@@ -71,6 +71,8 @@ Successful commands and errors return JSON on stdout. Help is ordinary readable 
 
 Run `texlua tools/check-cli-core.lua` for the shared replay invariants. Run `python3 tools/clicheck.py` for the full public consumer suite, including every family, stored-instance replay, exports, physical page sizes, searchable micrography and failure/recovery cases. It writes evidence and exports under `build/cli/`. The native suite requires the symlink and signal cases on Linux.
 
+Recipe files use LF line endings, enforced by `.gitattributes`, so the example catalog's byte hashes also verify in Windows checkouts and source archives.
+
 The native consumer suite uses Poppler's `pdfinfo` and `pdftotext`. Its explicit `--local-pdf-reader` option uses pypdf for local QA when those tools are unavailable. The receipt records the reader used.
 
 Previously saved Escher witnesses retain their exact geometry, hashes and topology. Recomputed normalized turning-function diagnostics use a tolerance of `1e-12 * max(1, abs(value))`, matching the method's numerical policy. This accommodates the measured `5.6e-17` difference between the earlier native and Windows diagnostic arrays. The improving-witness condition and all combinatorial and geometry certificates still run.
