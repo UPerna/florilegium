@@ -29,8 +29,10 @@
 % follow), which changes nothing else. Applied only if that line is found as one of the
 % two forms pgf has written it in: 3.1.10 looks up \pgfmath@number\pgfmath@token, 3.1.12
 % \expandafter\pgfmath@number\expandafter\string\pgfmath@token (TeX Live 2026); each is
-% replaced by the same line with the test around it. Under another pgf nothing is changed,
-% and a page of plants may then fill pdfTeX's string pool.
+% replaced by the same line with the test around it. pgf's own fix (pgf-tikz/pgf#1489, after
+% 3.1.12) tests the name with \unless\ifcsname, which creates nothing: that line is left as
+% it is, without a warning. Under another pgf nothing is changed either, and a page of plants
+% may then fill pdfTeX's string pool.
 % The change is florilegium's, made at load time in documents that load this library; pgf's
 % files are not changed, and pgf's authors do not support it: report problems with it to
 % florilegium. pgf itself, unmodified, is at https://ctan.org/pkg/pgf (LPPL 1.3c or GPL 2).
@@ -53,6 +55,11 @@
 \def\flo@pgfpatchs@b#1\csname pgfmath@base@\expandafter\pgfmath@number\expandafter\string\pgfmath@token\endcsname\relax\flo@pgfpatch@end{\def\flo@tmpb{#1}}
 \def\flo@pgfpatchs@c#1#2{\def\pgfmath@parse@@number{#2%
   \csname pgfmath@base@\ifx\pgfmath@number\pgfmath@char@zero0\expandafter\string\pgfmath@token\else-\fi\endcsname\relax#1}}
+% pgf's fixed form: \flo@tmp is left nonempty if the scanner has it. Kept out of the
+% conditionals below, since TeX counts an \ifcsname in a skipped branch as an \if.
+\def\flo@pgffixed#1\unless\ifcsname pgfmath@base@#2\flo@pgfpatch@end{\def\flo@tmp{#2}}
+\def\flo@pgffixedtest{\expandafter\flo@pgffixed\pgfmath@parse@@number
+  \unless\ifcsname pgfmath@base@\flo@pgfpatch@end}
 \let\flo@tmp\pgfutil@empty
 \ifdefined\pgfmath@parse@@number
   \expandafter\flo@pgfpatch\pgfmath@parse@@number
@@ -61,9 +68,12 @@
     \expandafter\flo@pgfpatchs\pgfmath@parse@@number
       \csname pgfmath@base@\expandafter\pgfmath@number\expandafter\string\pgfmath@token\endcsname\relax\flo@pgfpatch@end
   \fi
+  \ifx\flo@tmp\pgfutil@empty
+    \flo@pgffixedtest
+  \fi
 \fi
-% neither form, or no scanner by that name: say so under pdfTeX, whose string pool is
-% fixed (LuaTeX's grows)
+% none of the three forms, or no scanner by that name: say so under pdfTeX, whose string
+% pool is fixed (LuaTeX's grows)
 \ifx\flo@tmp\pgfutil@empty\ifdefined\directlua\else
   \pgfutil@packagewarning{florilegium}{pgf \pgfversion's number scanner is not in a form
     this library knows, so it is left as it is; a page of plants may then fill pdfTeX's

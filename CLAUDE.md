@@ -188,7 +188,10 @@ is ~70 KB of path operators, a v1.3 page ~3 MB uncompressed, ~0.6 MB in the PDF;
   (the string pool fills under pdfLaTeX otherwise: "TeX capacity exceeded [pool size]" on the
   first strip). It matches pgf 3.1.10's form (TeX Live 2023) and 3.1.12's
   (`\expandafter\pgfmath@number\expandafter\string\pgfmath@token`, TeX Live 2026, CI's
-  latex-action), and warns under pdfTeX when it finds neither. Local checks run TeX Live 2023
+  latex-action), leaves pgf's own fix alone (`\unless\ifcsname`, pgf-tikz/pgf#1489, merged
+  2026-11-05 for the release after 3.1.12; `\flo@pgffixedtest`, defined outside any conditional
+  because a skipped branch would count its `\ifcsname`), and warns under pdfTeX when it finds
+  none of the three. Local checks run TeX Live 2023
   and only CI's `tikz` job sees the newest pgf: before a release, run that job in
   `ghcr.io/xu-cheng/texlive-alpine:latest` (`apk add poppler-utils`, `sh
   tools/tikzcheck-ci.sh`; `--cpuset-cpus=0-3` for the runner's four), as M8e did when this broke.

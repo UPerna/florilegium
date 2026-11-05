@@ -149,7 +149,9 @@ and under pdfLaTeX a few thousand coordinates fill the pool. The library changes
 it when it loads, so that the lookup behind the name is made only after a leading 0, the only
 place a base prefix can follow. Nothing else changes, and pgf's own files stay as they are.
 The change applies only if that line is found in one of the two forms pgf has written it in
-(pgf 3.1.10, and 3.1.12 in TeX Live 2026). Under another pgf the library leaves the scanner
-alone and says so in a warning under pdfLaTeX, where a page of plants may then stop with "TeX
-capacity exceeded, sorry [pool size]". Problems with the change belong to florilegium, not to
+(pgf 3.1.10, and 3.1.12 in TeX Live 2026). pgf has since fixed the scanner itself
+([pgf-tikz/pgf#1489](https://github.com/pgf-tikz/pgf/pull/1489), for the release after
+3.1.12), and with that pgf the library finds nothing to change and says nothing. Under any
+other pgf the library leaves the scanner alone and says so in a warning under pdfLaTeX, where
+a page of plants may then stop with "TeX capacity exceeded, sorry [pool size]". Problems with the change belong to florilegium, not to
 pgf's authors.
