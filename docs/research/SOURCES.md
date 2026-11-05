@@ -109,3 +109,9 @@ Stage06 blend audit: [W3C Compositing1 sections3.1/3.3/3.4.1](https://www.w3.org
 R21 (stage 13) documents the finite L-triomino substitution fixture. Natalie Priebe Frank, *A primer of substitution tilings of the Euclidean plane*, Expositiones Mathematicae (2008), section 2.1. [Author-hosted primary PDF](https://pages.vassar.edu/nafrank/files/2012/08/substitutions.pdf).
 
 R19a and R19b were recovered as the complete combined TU/e scan with a readable University of Illinois full-text mirror. See artifacts/receipts/14/primary-recovery.json for the exact digest and inspected sections.
+
+## Stage 29 host interfaces (retrieved 2026-11-05)
+
+- LaTeX Project, shipout hooks and interfaces, file v1.0r 2026-10-13, document 2026-11-03; sections 1.2 and 1.6: physical background origin, discard decision and read-only shipped-page counter. https://www.latex-project.org/help/documentation/ltshipout-doc.pdf
+- D. P. Carlisle / LaTeX Project, graphics bundle guide, 2026-05-17, section 4.4: PDF media boxes, positive uniform sizing and embedding. https://mirrors.ctan.org/macros/latex/required/graphics/grfguide.pdf
+- pypdf project, ContentStream source/API documentation inspected at 6.21.4; parsed operators, Form resources and current-transform stacks are used only by independent QA. Installed version is recorded in native evidence. https://pypdf.readthedocs.io/en/stable/_modules/pypdf/generic/_data_structures.html

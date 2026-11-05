@@ -124,6 +124,35 @@ jobs:
             build/cli-core/
             build/cli/
 
+  patterns-luatex:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: common semantic patterns in real LuaLaTeX documents
+        uses: xu-cheng/latex-action@v3
+        with:
+          root_file: folio-demo.tex
+          latexmk_use_lualatex: true
+          extra_system_packages: python3 py3-pillow py3-pypdf poppler-utils
+          post_compile: >-
+            texlua tools/check-pattern-tex.lua &&
+            python3 tools/pattern_tex_consumer.py
+      - name: make common-pattern verification files readable
+        if: always()
+        run: |
+          for folder in build/pattern-tex build/pattern-luatex; do
+            if [ -d "$folder" ]; then sudo chmod -R a+rX "$folder"; fi
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: florilegium-common-luatex
+          path: |
+            build/pattern-tex/
+            build/pattern-luatex/
+
   portable:
     runs-on: ubuntu-latest
     steps:
