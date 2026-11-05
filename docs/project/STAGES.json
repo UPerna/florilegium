@@ -851,7 +851,7 @@
       "acceptance_items": [
         "old documents still build, the new API drives actual semantic generators through the same core, text remains searchable where declared, and existing plus new consumer regressions pass. Reject unsupported options clearly; no successful compile may hide missing artwork behind an unreported fallback."
       ],
-      "observed_results": "Native run 42044636324 built and converged the five-page book, passed 35 adapter checks and the lookup regression, then correctly rejected background placement errors of 0.3 cm horizontally / 0.2 cm vertically. All native inline positions were independently measured within 0.00014 cm. The correction cancels inherited picture-origin offsets; foreground callout coordinates use the same physical convention. Local lookup regressions pass on both Lua versions. Book asset views trim only blank canvas beyond conservative paint bounds, preserving source designs; native text/visual recheck remains required.",
+      "observed_results": "Native 9201a57 produced the compact four-page book and passed all positive consumer gates, including nine measured placements (maximum error 0.000135785 cm), protected ink controls, searchable text, floats/spreads, four load orders and discarded-page identity. It correctly rejected an unknown asset; the test matcher then failed because TeX wrapped the word asset across lines. The repair matches complete expected phrases across whitespace, reads full failed-pass logs, requires compiler failure, and records failure-log hashes. Positive source behavior and all geometry tolerances are unchanged.",
       "evidence_paths": [
         "artifacts/receipts/29/core-local-lua53.json",
         "artifacts/receipts/29/core-local-lua54.json",
@@ -870,12 +870,15 @@
         "artifacts/receipts/29/book-view-crops.json",
         "artifacts/receipts/29/offset-native-rejected.json",
         "artifacts/receipts/29/host-offset-Lua-5.3.json",
-        "artifacts/receipts/29/host-offset-Lua-5.4.json"
+        "artifacts/receipts/29/host-offset-Lua-5.4.json",
+        "artifacts/receipts/29/offset-publication.json",
+        "artifacts/receipts/29/native-positive-9201.json",
+        "artifacts/receipts/29/diagnostic-native-rejected.json"
       ],
-      "tested_code_revision": "200db9a8bc209eb067f2d6e20c8b50dafb225cee",
-      "local_commit": "200db9a8bc209eb067f2d6e20c8b50dafb225cee",
-      "verified_remote_revision": "200db9a8bc209eb067f2d6e20c8b50dafb225cee",
-      "next_action": "Publish the offset correction as a guarded child of 200db9a, independently fetch/verify it, then rerun all exact-head CI. Native book already builds/converges, but the physical placement gate rejected inherited custom offsets. Preserve 0.01 cm tolerance. Verify corrected background/foreground origins, complete text after source-preserving canvas trims, mask controls, floats, spreads, load orders, failures, convergence, inherited PDF/portable jobs and final book visuals before stage 30."
+      "tested_code_revision": "9201a5731c494d111153d15c9937621529d18a02",
+      "local_commit": "9201a5731c494d111153d15c9937621529d18a02",
+      "verified_remote_revision": "9201a5731c494d111153d15c9937621529d18a02",
+      "next_action": "Publish the diagnostic-test repair as an ordinary child of 9201a57 and independently fetch/verify it. Rerun exact-head CI. Native positive book gates already pass: 9 placements at unchanged 0.01 cm, L-mask/control ink, full text, float/spread, 4 load orders, discarded-page identity and convergence. Complete all expected-failure/collision checks using full compiler logs, then verify inherited pdfs/portable jobs and final artifacts/visuals. Remain on 29 until every gate passes, then start 30 immediately."
     },
     {
       "id": "30",

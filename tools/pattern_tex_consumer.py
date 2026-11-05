@@ -27,6 +27,11 @@ def read(path):
     return json.loads(path.read_text(encoding='utf8'))
 
 
+def diagnostic_contains(error,message):
+    # TeX's print-line limit can split a word in the middle of a diagnostic.
+    return ''.join(message.casefold().split()) in ''.join(str(error).casefold().split())
+
+
 def main():
     digest,source=fingerprint();folder=ROOT/'build/pattern-luatex'/digest;folder.mkdir(parents=True,exist_ok=True)
     book=folder/'book';pdf=build(ROOT/'examples/patterns/book.tex',output_dir=book)
@@ -86,7 +91,7 @@ def main():
     # The callout is a real foreground word with independently measured PDF bounds.
     callout_bounds={k:float(callout[0].attrib[k])*2.54/72 for k in ('xMin','yMin','xMax','yMax')}
     assert .5<callout_bounds['xMin']<1.5,callout_bounds
-    load_order=[];negative=[]
+    load_order=[];negative=[];negative_evidence=[]
     recipe=(ROOT/'examples/patterns/hybrid.recipe').as_posix()
     for geometry_first in (False,True):
         for hyperref_first in (False,True):
@@ -105,10 +110,10 @@ def main():
     cases={
       'unknown-asset':(r'\florilegiumpatterninline{missing}','unknown asset'),
       'unknown-region':(r'\florilegiumpatternpage[region=invented]{p}','unsupported region'),
-      'unknown-control':(r'\florilegiumpatternpage[mirror=true]{p}','key'),
+      'unknown-control':(r'\florilegiumpatternpage[mirror=true]{p}','I do not know the key'),
       'fully-protected':(r'\florilegiumpatternpage[region=content,padding=0pt]{p}','fully protected'),
       'wrong-spread':(r'\setcounter{page}{42}\florilegiumpatternpage[region=page,spread=left,padding=0pt]{p}','actual even'),
-      'late-declaration':(rf'\florilegiumpatterndeclare{{late}}{{{recipe}}}','preamble'),
+      'late-declaration':(rf'\florilegiumpatterndeclare{{late}}{{{recipe}}}','Can be used only in preamble'),
       'missing-spread-partner':(r'First page.\clearpage\florilegiumpatternpage[region=page,spread=left,padding=0pt]{p}Left page.','no matching right'),
     }
     for name,(body,message) in cases.items():
@@ -116,21 +121,31 @@ def main():
         path.write_text(r'\documentclass{article}\usepackage[a5paper,margin=22mm]{geometry}\usepackage[grown,nomargin]{florilegium}'+rf'\florilegiumpatterndeclare{{p}}{{{recipe}}}'+r'\begin{document}Expected failure.'+body+r'\end{document}',encoding='utf8')
         try:build(path,output_dir=case/'out')
         except RuntimeError as error:
-            assert message.lower() in str(error).lower(),(name,str(error));negative.append(name)
+            assert str(error).startswith('lualatex failed;'),str(error)
+            failure_log=case/'out/source.pass-1.log';detail=failure_log.read_text(encoding='utf8')
+            assert diagnostic_contains(detail,message),(name,str(error));negative.append(name)
+            negative_evidence.append({'name':name,'compiler_status':'nonzero','expected_diagnostic':message,
+                'log_sha256':hashlib.sha256(failure_log.read_bytes()).hexdigest()})
         else:raise AssertionError('Invalid document compiled successfully: '+name)
     collision=folder/'order-0-0/out';collision_trace=read(collision/'source-patterns.json')
     occupied=collision/(collision_trace['inline'][0]['prefix']+'.pdf');occupied_bytes=b'Occupied verification file\n'
     occupied.write_bytes(occupied_bytes)
     try:build(folder/'order-0-0/source.tex',output_dir=collision)
-    except RuntimeError as error:assert 'existing generated filename has different bytes' in str(error),str(error)
+    except RuntimeError as error:
+        assert str(error).startswith('lualatex failed;'),str(error)
+        collision_log=collision/'source.pass-1.log'
+        assert diagnostic_contains(collision_log.read_text(encoding='utf8'),'existing generated filename has different bytes'),str(error)
     else:raise AssertionError('Existing different generated file was silently replaced')
     assert occupied.read_bytes()==occupied_bytes;negative.append('occupied-generated-file-preserved')
+    negative_evidence.append({'name':'occupied-generated-file-preserved','compiler_status':'nonzero',
+        'expected_diagnostic':'existing generated filename has different bytes','log_sha256':hashlib.sha256(collision_log.read_bytes()).hexdigest()})
     assert fingerprint()[0]==digest,'Source changed during native TeX acceptance'
     receipt={'schema_version':1,'source_digest':digest,'source_files':source,'runtime':{'pypdf':pypdf.__version__,'Pillow':PIL.__version__,
         'lualatex':subprocess.check_output(['lualatex','--version'],text=True).splitlines()[0]},
         'book_pages':len(reader.pages),'unique_generations':trace['unique_generations'],'physical_views':trace['physical_views'],
         'measurements':measured,'irregular_protected_ink':ink,'inline_pages':inline_pages,'searchable_micrography':True,
         'searchable_initial_folio':True,'spread_instance':left['instance_sha256'],'load_orders':load_order,'negative_cases':negative,
+        'negative_evidence':negative_evidence,
         'initial_passes':len(passes),'auxiliary_state':initial_state,'pattern_receipt_converged':True,'discarded_shipout_checked':True,
         'compiler_command_policy':'lualatex -no-shell-escape -halt-on-error -interaction=nonstopmode -recorder',
         'outputs':{'book.pdf':hashlib.sha256(pdf.read_bytes()).hexdigest(),'book-patterns.json':hashlib.sha256(trace_path.read_bytes()).hexdigest()}}
