@@ -15,6 +15,10 @@ local function intersection(a,b)
   if c[1]<c[3] and c[2]<c[4]then return c end
 end
 local function mapped(b,m)return {b[1]*m[1]+m[5],b[2]*m[4]+m[6],b[3]*m[1]+m[5],b[4]*m[4]+m[6]}end
+local function print_requirements(asset)
+  local options=asset.recipe.view.extensions and asset.recipe.view.extensions.document_planning.options or {}
+  return {minimum_stroke=options.minimum_stroke,minimum_text_size=options.minimum_text_size}
+end
 local function expanded(b,p)return {b[1]-p,b[2]-p,b[3]+p,b[4]+p}end
 local function available(crop,masks)
   local pieces={crop}
@@ -74,6 +78,23 @@ function M.new(host)
     local a=self:asset(name)
     return V.plan(a.result.scene,a.result.instance,a.result.view,a.definition),a
   end
+  function self:inline(name,width)
+    need(finite(width) and width>=0,'inline width must be finite and nonnegative')
+    local plan,asset=self:plan(name)
+    local natural=plan.bounds[3]-plan.bounds[1]
+    local scale=width>0 and width/natural or 1
+    local requirements=print_requirements(asset)
+    -- Compare in source units using the existing affine rounding guard. Positive
+    -- uniform inclusion scales both physical minima and their error bounds.
+    local source_units={}
+    for key,value in pairs(requirements)do source_units[key]=value/scale end
+    local valid,report=pcall(require('pattern_planner').check_render_requirements,plan,source_units)
+    need(valid,type(report)=='table' and report.message or tostring(report))
+    report=P.plain(report)
+    for key,value in pairs(report)do if type(value)=='number'then report[key]=value*scale end end
+    return plan,asset,{width=natural*scale,height=(plan.bounds[4]-plan.bounds[2])*scale,
+      scale=scale,print_requirements=report}
+  end
   function self:place(name,page,options)
     local a=self:asset(name);options=P.plain(options or {})
     local known={region=true,spread=true,protect_text=true,padding=true}
@@ -119,11 +140,7 @@ function M.new(host)
     local visible_area=available(crop,masks)
     local document=D.new({id='tex/page/'..page.index,unit='cm',frame={id='tex/physical-document',origin={0,0}},twoside=not not page.twoside,
       pages={page_data(page,'page/'..page.index,{0,0},masks)},spreads=P.array()})
-    local requirements={}
-    if a.recipe.view.extensions then
-      local original=a.recipe.view.extensions.document_planning.options
-      requirements.minimum_stroke=original.minimum_stroke;requirements.minimum_text_size=original.minimum_text_size
-    end
+    local requirements=print_requirements(a)
     local settings={id=a.result.instance.id..'/tex/'..H.value('tex/view',{transform=fit,crop=crop,masks=masks,
         source_view=H.sha256(P.serialize(a.recipe.view)),
         document=H.sha256(P.serialize(document)),label=page.label,logical_number=page.logical_number}),

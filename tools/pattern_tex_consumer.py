@@ -18,7 +18,7 @@ ROOT=Path(__file__).resolve().parents[1]
 def fingerprint():
     files=[*ROOT.glob('*.lua'),*ROOT.glob('*.sty'),*ROOT.glob('*.def'),
            *ROOT.glob('examples/patterns/*.tex'),*ROOT.glob('examples/patterns/*.recipe')]
-    files.extend(ROOT/'tools'/name for name in ('build.py','check-pattern-tex.lua','check-pattern-luatex-host.lua','pattern_tex_consumer.py','pattern_tex_pdf.py','tex-mask-control.lua'))
+    files.extend(ROOT/'tools'/name for name in ('build.py','check-pattern-tex.lua','check-pattern-luatex-host.lua','pattern_tex_consumer.py','pattern_tex_pdf.py','tex-mask-control.lua','tex-inline-constraints.lua'))
     values={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(files)}
     return hashlib.sha256(json.dumps(values,sort_keys=True).encode()).hexdigest(),values
 
@@ -107,7 +107,11 @@ def main():
     discarded=build(path,output_dir=case/'out');discarded_trace=read(case/'out/source-patterns.json')
     assert len(PdfReader(discarded).pages)==discarded_trace['actual_shipped_pages']==1
     assert discarded_trace['pages'][0]['geometry']['index']==1 and discarded_trace['pages'][0]['geometry']['logical_number']==2
+    subprocess.run(['texlua',str(ROOT/'tools/tex-inline-constraints.lua'),str(folder)],cwd=ROOT,check=True)
+    inline_constraints={name:(folder/f'{name}.recipe').as_posix() for name in ('inline-stroke-minimum','inline-text-minimum')}
     cases={
+      'inline-stroke-minimum':(r'\florilegiumpatterninline[1sp]{p}','actual transformed stroke is below'),
+      'inline-text-minimum':(r'\florilegiumpatterninline[1sp]{p}','actual transformed text size is below'),
       'unknown-asset':(r'\florilegiumpatterninline{missing}','unknown asset'),
       'unknown-region':(r'\florilegiumpatternpage[region=invented]{p}','unsupported region'),
       'unknown-control':(r'\florilegiumpatternpage[mirror=true]{p}','I do not know the key'),
@@ -118,7 +122,8 @@ def main():
     }
     for name,(body,message) in cases.items():
         case=folder/name;case.mkdir(exist_ok=True);path=case/'source.tex'
-        path.write_text(r'\documentclass{article}\usepackage[a5paper,margin=22mm]{geometry}\usepackage[grown,nomargin]{florilegium}'+rf'\florilegiumpatterndeclare{{p}}{{{recipe}}}'+r'\begin{document}Expected failure.'+body+r'\end{document}',encoding='utf8')
+        case_recipe=inline_constraints.get(name,recipe)
+        path.write_text(r'\documentclass{article}\usepackage[a5paper,margin=22mm]{geometry}\usepackage[grown,nomargin]{florilegium}'+rf'\florilegiumpatterndeclare{{p}}{{{case_recipe}}}'+r'\begin{document}Expected failure.'+body+r'\end{document}',encoding='utf8')
         try:build(path,output_dir=case/'out')
         except RuntimeError as error:
             assert str(error).startswith('lualatex failed;'),str(error)

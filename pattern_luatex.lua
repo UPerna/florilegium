@@ -71,14 +71,15 @@ function M.declare(name,path)
 end
 function M.begin_document()started=true end
 function M.use(name,width)
-  need(started,'inline patterns require the document body');local plan,asset=init():plan(name)
+  need(started,'inline patterns require the document body')
   need(type(width)=='number' and width>=0,'inline width must be nonnegative')
+  local plan,asset,physical=init():inline(name,width*CM)
   local pdf=V.pdf(plan);local key=H.value('tex/inline',{source=asset.environment.source.digest,pdf=H.sha256(pdf)})
   local prefix,hashes=persist(key,{pdf=pdf})
   local size=width>0 and ('[width='..B.pdf_number(width*CM)..'cm]') or ''
-  local actual_width=width>0 and width*CM or plan.bounds[3]-plan.bounds[1]
-  local actual_height=actual_width*(plan.bounds[4]-plan.bounds[2])/(plan.bounds[3]-plan.bounds[1])
-  inline[#inline+1]={name=name,prefix=prefix,hashes=hashes,width_sp=width,instance_sha256=asset.instance_sha256}
+  local actual_width,actual_height=physical.width,physical.height
+  inline[#inline+1]={name=name,prefix=prefix,hashes=hashes,width_sp=width,instance_sha256=asset.instance_sha256,
+    print_requirements=physical.print_requirements}
   F.mark('pattern_inline',{inline_ref=#inline,name=name,prefix=prefix,width=actual_width,height=actual_height})
   tex.sprint('\\includegraphics'..size..'{'..prefix..'.pdf}')
 end

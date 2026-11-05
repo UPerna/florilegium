@@ -6,6 +6,7 @@ local source={};for name in lfs.dir('.')do
 end
 local hashes={};for name,bytes in pairs(source)do hashes[name]=H.sha256(bytes)end
 hashes['tools/check-pattern-tex.lua']=H.sha256(read('tools/check-pattern-tex.lua'))
+hashes['tools/tex-inline-constraints.lua']=H.sha256(read('tools/tex-inline-constraints.lua'))
 for name in lfs.dir('examples/patterns')do
   if name:match('%.recipe$')then local path='examples/patterns/'..name;hashes[path]=H.sha256(read(path))end
 end
@@ -95,6 +96,18 @@ local expanded=adapter:place('minimum',page(8,31),{region='content',protect_text
 check(expanded.record.validation.print_requirements.minimum_stroke_lower_bound>=minimum*.9,'enlarged physical view lost source print requirements')
 reject(function()adapter:place('minimum',page(8,31),{region='outer'})end,'fitting must not silently violate the source minimum stroke')
 check(P.serialize(constrained.result.instance)==constrained.result.bytes.instance,'failed fit changed cached source instance')
+local _,_,inline=adapter:inline('minimum',0)
+check(inline.scale==1 and inline.print_requirements.minimum_stroke_lower_bound>=minimum*.9,'natural inline lost physical print minima')
+local _,_,larger=adapter:inline('minimum',inline.width*2)
+check(larger.print_requirements.minimum_stroke_lower_bound==inline.print_requirements.minimum_stroke_lower_bound*2,'inline print evidence must use physical units')
+reject(function()adapter:inline('minimum',inline.width/10)end,'inline shrinking must preserve declared stroke minimum')
+reject(function()adapter:inline('minimum',-1)end,'negative inline width accepted')
+reject(function()adapter:inline('minimum',0/0)end,'nonfinite inline width accepted')
+local text_recipe=dofile('tools/tex-inline-constraints.lua').text(.001)
+adapter:declare('text-minimum',require('pattern_recipe').encode(text_recipe))
+local _,_,text_inline=adapter:inline('text-minimum',0)
+check(text_inline.print_requirements.minimum_text_size_lower_bound>=.001,'natural inline text constraint was not checked')
+reject(function()adapter:inline('text-minimum',.000001)end,'inline shrinking must preserve declared text minimum')
 local receipt={source_digest=digest,checks=checks,outputs=outputs,unique_generations=adapter.generations,
   physical_views=adapter.views,source_files=hashes,shipped_index_test={physical=2,logical=41,label='XLI'},
   original_scene_selection_preserved=true,optimizer_at_shipout=false}
