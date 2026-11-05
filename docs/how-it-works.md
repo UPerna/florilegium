@@ -112,15 +112,17 @@ last frame is exactly the page. `make grow-6` renders one seed this way (`build/
 
 The seed comes from the page number, so page *n* always gets garden *n*, and every random
 choice draws from a stream that depends only on it. Visitors, the seasons' additions, the
-species and the fern each draw from a stream of their own, so turning one of them off leaves
-the rest of the page as it was. Reproducibility is what makes a document stable enough to
-typeset, and the same seed draws the same page byte for byte under LuaLaTeX, Lua 5.3, Lua 5.4
-and the browser.
+species and the fern each draw from a stream of their own, so none of them moves another's
+random choices. A page that no visitor came to is exactly the page `novisitors` draws, and
+where a visitor does come, it takes room the plants would have grown into. Reproducibility is
+what makes a document stable enough to typeset, and the same seed draws the same page byte for
+byte under LuaLaTeX, Lua 5.3, Lua 5.4 and the browser.
 
 ## Size and time
 
 A species page is about 5 MB of path operators, about 1 MB in the PDF, and adds about 1.2
-seconds to a LuaLaTeX run; a v1.3 page about 3 MB, 0.6 MB and 0.7 seconds. Output, not time, is
-the constraint, so coordinates are printed to a tenth of a point, a path used for a fill and a
-clip is written once, and small things are drawn with less detail (a petal under 1.2 mm has no
-mottle or pooled rim).
+seconds to a LuaLaTeX run; a v1.3 page about 3 MB, 0.6 MB and 0.7 seconds (time and PDF size
+from `make bench`, 2026-11-03, as in README's table). Output, not time, is the constraint, so
+coordinates are printed to a tenth of a point, a path used for a fill and a clip is written
+once, and small things are drawn with less detail (a petal under 1.2 mm has no mottle or pooled
+rim).

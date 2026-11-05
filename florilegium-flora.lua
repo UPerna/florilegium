@@ -692,7 +692,7 @@ function M.seedhead(rng, r, o)
   end
 end
 
--- a tapered logarithmic spiral, s = size (cm); starts at the origin, outer end
+-- a tapered spiral that tightens toward its inner end, s = size (cm); starts at the origin, outer end
 function M.tendril(rng, s)
   local pts = {}
   local turns = rng.range(1.6, 2.3)
@@ -739,6 +739,8 @@ end
 function M.hedera(rng, s, o)
   local c = (o and o.color) or ink.accent(0)
   ink.push() ink.scale(s)
+  -- the outline is the parametric heart curve that Wolfram MathWorld gives as "the first
+  -- parametric heart curve" (E. W. Weisstein, "Heart Curve", MathWorld)
   local pts = {}
   for i = 0, 47 do
     local t = i / 48 * 2 * pi

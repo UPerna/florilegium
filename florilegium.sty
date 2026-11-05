@@ -6,7 +6,8 @@
 %%
 %% LuaLaTeX only. The geometry of every petal, leaf and stem is computed in Lua
 %% (florilegium-ink.lua, florilegium-flora.lua, florilegium-native.lua) and written straight
-%% into the page as PDF path operators; TeX does no arithmetic. A page takes a few seconds.
+%% into the page as PDF path operators; TeX does none of the drawing's arithmetic. A page
+%% takes a few seconds.
 %%
 %% Usage
 %%   \usepackage{florilegium}          authored composition (hand-placed, florilegium-authored.lua)
@@ -82,10 +83,10 @@
 %% OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 %% SOFTWARE.
 %%
-\NeedsTeXFormat{LaTeX2e}
+\NeedsTeXFormat{LaTeX2e}[2020-10-01]
 \ProvidesPackage{florilegium}[2026/11/03 v2.0.0 procedural floral margin, Lua-drawn]
 \ifdefined\directlua\else
-  \PackageError{florilegium}{florilegium needs LuaLaTeX}{Compile with lualatex.}\fi
+  \PackageError{florilegium}{florilegium needs LuaLaTeX}{Compile with lualatex.}\endinput\fi
 \RequirePackage{tikz}
 \RequirePackage{eso-pic}
 
@@ -126,8 +127,11 @@
   tex.error("florilegium: florilegium.lua is from an earlier release than florilegium.sty",
     {"Copy florilegium.sty and every florilegium*.lua from one release."}) end}
 \ifflorilegium@visitors\else\directlua{florilegium.visitors = false}\fi
-\ifdefined\florilegium@density\directlua{florilegium.density = tonumber("\florilegium@density") or 1}\fi
-\ifdefined\florilegium@intensity\directlua{florilegium.intensity = tonumber("\florilegium@intensity") or 1}\fi
+%% a number that is not one warns in the log and takes the default (florilegium.lua: number)
+\ifdefined\florilegium@density
+  \directlua{florilegium.density = florilegium.number("density", "\luaescapestring{\florilegium@density}", 1)}\fi
+\ifdefined\florilegium@intensity
+  \directlua{florilegium.intensity = florilegium.number("intensity", "\luaescapestring{\florilegium@intensity}", 1)}\fi
 %% the theme: in the preamble for the whole document; in the text a mark, so that
 %% the theme changes from the page that the mark is on (florilegium.lua)
 \newcommand\florilegiumtheme[1]{%
@@ -159,16 +163,18 @@
   \flo@orn@size=\flo@orn@sz\relax
   \florilegium@colors
   \hbox to\flo@orn@size{\directlua{florilegium.ornament("\luaescapestring{#2}", \number\flo@orn@size,
-      "\luaescapestring{\flo@orn@ink}", "\luaescapestring{\flo@orn@acc}", \flo@orn@angle, "\luaescapestring{\flo@orn@seed}")}%
+      "\luaescapestring{\flo@orn@ink}", "\luaescapestring{\flo@orn@acc}",
+      florilegium.number("angle", "\luaescapestring{\flo@orn@angle}", 0), "\luaescapestring{\flo@orn@seed}")}%
     \hss\vrule height .85\flo@orn@size depth .15\flo@orn@size width 0pt}%
   \endgroup}
 
 %% ---------------------------------------------------------------- page seed
 \def\florilegium@seed{%
-  \directlua{tex.sprint(florilegium.seed(\number\value{page}\ifx\florilegiumseed\@empty\else, \florilegiumseed\fi))}}
+  \directlua{tex.sprint(florilegium.seed(\number\value{page}\ifx\florilegiumseed\@empty\else,
+    florilegium.number("\string\\florilegiumseed", "\luaescapestring{\florilegiumseed}", nil, "the page's own seed")\fi))}}
 
 %% ---------------------------------------------------------------- compositions
-\newcommand\margingarden{%
+\newcommand\florilegium@authoredgarden{%
 \begin{tikzpicture}[overlay]
   \florilegium@colors\florilegium@twoside
   \edef\flo@seed{\florilegium@seed}%
@@ -178,12 +184,13 @@
 %% where the text ends, measured in the same pass: \pagetotal is the height of
 %% the material already on the current page
 \def\flo@endpage{-1}\def\flo@endtotal{0pt}
-\newcommand\margingardengrown{%
+\newcommand\florilegium@growngarden{%
 \begin{tikzpicture}[overlay]
   \florilegium@colors\florilegium@twoside
   \edef\flo@seed{\florilegium@seed}%
-  \ifflorilegium@aging\ifdefined\flo@lastpage
-    \directlua{florilegium.auto_age(\number\value{page}, \flo@lastpage)}\fi\fi
+  % aging: the sheet's place among all the sheets of the last run, whatever the page numbers
+  \ifflorilegium@aging\ifnum\PreviousTotalPages>0
+    \directlua{florilegium.auto_age(\number\ReadonlyShipoutCounter, \PreviousTotalPages)}\fi\fi
   \ifnum\value{page}=\flo@endpage\relax
     \directlua{florilegium.grown(\flo@seed, 1, florilegium.geometry().ytop - \number\dimexpr\flo@endtotal\relax * 2.54 / (72.27 * 65536), \number\ShipoutBox)}%
   \else
@@ -206,28 +213,26 @@
     \let\flo@sect\@sect
     \def\@sect#1#2#3#4#5#6[#7]#8{\flo@sect{#1}{#2}{#3}{#4}{#5}{#6}[{#7}]{\florilegium@headmark{#2}#8}}}
 \fi
-\newcommand\florilegiumage[1]{\directlua{florilegium.age = #1}}
+\newcommand\florilegiumage[1]{\directlua{florilegium.age = florilegium.number("\string\\florilegiumage", "\luaescapestring{#1}", nil, "no age")}}
 
 %% a decorated initial: a square tile from the cap height of the first line to
 %% the baseline of line #1, the paragraph's first #1 lines indented beside it
+\newdimen\flo@ini@tile \newdimen\flo@ini@cap
 \newcommand\florilegiuminitial[2][4]{\par
-  \begingroup
-    \dimen@=\fontcharht\font`\H
-    \global\dimen1=\dimexpr\baselineskip*\numexpr#1-1\relax+\dimen@\relax
-    \global\dimen3=\dimen@
-  \endgroup
-  \hangindent=\dimexpr\dimen1+0.6em\relax \hangafter=-#1\relax
+  \global\flo@ini@cap=\fontcharht\font`\H
+  \global\flo@ini@tile=\dimexpr\baselineskip*\numexpr#1-1\relax+\flo@ini@cap\relax
+  \hangindent=\dimexpr\flo@ini@tile+0.6em\relax \hangafter=-#1\relax
   \noindent\florilegium@colors
-  \directlua{florilegium.initial("\luaescapestring{#2}", \number\dimen1, \number\hangindent, \number\dimen3)}%
+  \directlua{florilegium.initial("\luaescapestring{#2}", \number\flo@ini@tile, \number\hangindent, \number\flo@ini@cap)}%
   \llap{\directlua{florilegium.hidden(true)}#2\directlua{florilegium.hidden(false)}}%
   \ignorespaces}
 \newcommand\florilegiuminitialfont[1]{\directlua{florilegium.initial_font = "\luaescapestring{#1}"}}
 \ifflorilegium@aging
-  % the page count goes to the .aux; the next run reads it at \begin{document}
-  \AtEndDocument{%
-    \immediate\write\@auxout{\gdef\string\flo@lastpage{\number\value{page}}}%
-    \ifdefined\flo@lastpage\ifnum\flo@lastpage=\value{page}\else\flo@rerun\fi\else\flo@rerun\fi}
-  \def\flo@rerun{\PackageWarningNoLine{florilegium}{The page count changed. Rerun to get the aging right}}
+  % the kernel records the number of sheets in the .aux, and the next run reads it back
+  % (\PreviousTotalPages); after the last sheet, a run whose count changed asks for another
+  \AddToHook{enddocument/afterlastpage}{%
+    \ifnum\PreviousTotalPages=\ReadonlyShipoutCounter\else
+      \PackageWarningNoLine{florilegium}{The page count changed. Rerun to get the aging right}\fi}
 \fi
 
 %% growth animation (grown only; animation.tex, tools/animate.py): the pages
@@ -238,9 +243,9 @@
 %% ---------------------------------------------------------------- plumbing
 \ifflorilegium@margin
   \ifflorilegium@grown
-    \AddToShipoutPictureBG{\AtPageLowerLeft{\margingardengrown}}
+    \AddToShipoutPictureBG{\AtPageLowerLeft{\florilegium@growngarden}}
   \else
-    \AddToShipoutPictureBG{\AtPageLowerLeft{\margingarden}}
+    \AddToShipoutPictureBG{\AtPageLowerLeft{\florilegium@authoredgarden}}
   \fi
 \fi
 \endinput

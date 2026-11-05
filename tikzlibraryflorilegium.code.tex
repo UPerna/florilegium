@@ -115,20 +115,29 @@
 % lacks, or a value no plan (or kind) can draw, is an error: \flo@<ns>ok@<trait> holds its
 % names, the range of a number, and whether that number is real (the tables). \flo@fixns is
 % empty for a species, v for a visitor; clade and group follow from the plan and the kind.
-\def\flo@fixset#1#2{\def\flo@fixns{#1}\def\flo@fixlist{}\edef\flo@tmp{\noexpand\pgfkeys{/florilegium/fix,#2}}\flo@tmp}
+% A whole number is kept as one (7.0 and 07 as 7), as Lua keeps it. After an error the
+% species or visitor is sampled without any of the traits, and so is the rest of the pic
+% (\flo@o@traits emptied), as the Lua engine draws it.
+\newif\ifflo@fixbad
+\def\flo@fixset#1#2{\def\flo@fixns{#1}\def\flo@fixlist{}\flo@fixbadfalse
+  \edef\flo@tmp{\noexpand\pgfkeys{/florilegium/fix,#2}}\flo@tmp
+  \ifflo@fixbad\flo@fixclear\let\flo@o@traits\pgfutil@empty\fi}
 \def\flo@fixclear{\pgfutil@for\flo@t:=\flo@fixlist\do{\ifx\flo@t\pgfutil@empty\else
   \expandafter\let\csname flo@\flo@fixns fix@\flo@t\endcsname\flo@undefined\fi}\def\flo@fixlist{}}
 \pgfkeys{/florilegium/fix/.is family, /florilegium/fix/.unknown/.code={%
+  \edef\flo@fixval{#1}%
   \flo@fixcheck{\pgfkeyscurrentname}{#1}%
-  \expandafter\edef\csname flo@\flo@fixns fix@\pgfkeyscurrentname\endcsname{#1}%
+  \expandafter\let\csname flo@\flo@fixns fix@\pgfkeyscurrentname\endcsname\flo@fixval
   \edef\flo@fixlist{\flo@fixlist,\pgfkeyscurrentname}}}
 \def\flo@fixwhat{\ifx\flo@fixns\pgfutil@empty a species\else a visitor\fi}
 \def\flo@fixcheck#1#2{%
   \ifcsname flo@\flo@fixns ok@#1\endcsname
     \expandafter\expandafter\expandafter\flo@fixcheck@\csname flo@\flo@fixns ok@#1\endcsname{#1}{#2}%
   \else
+    \flo@fixbadtrue
     \pgfutil@packageerror{florilegium}{\flo@fixwhat\space has no trait `#1'}{docs/traits.md (and the
-      manual, florilegium-doc.pdf) lists every trait and what it may be.}%
+      manual, florilegium-doc.pdf) lists every trait and what it may be. Press return to
+      draw it as sampled, without the traits.}%
   \fi}
 % #1 the names, #2 #3 the range of a number (empty if none), #4 1 for a real number, #5 the
 % trait, #6 its value
@@ -144,14 +153,18 @@
         \ifdim\pgfmathresult pt>0pt \else\flo@yesfalse\fi
       \fi
     \fi\fi
-    \ifflo@yes\else
+    \ifflo@yes
+      \ifnum#4=1 \else\pgfmathtruncatemacro\flo@fixval{#6}\fi
+    \else
+      \flo@fixbadtrue
       \def\flo@tmp{#1}%
       \ifx\flo@t\pgfutil@empty\def\flo@fixmsg{one of #1}%
       \else
         \ifnum#4=1 \def\flo@fixmsg{a number from #2 to #3}\else\def\flo@fixmsg{a whole number from #2 to #3}\fi
         \ifx\flo@tmp\pgfutil@empty\else\edef\flo@fixmsg{one of #1, or \flo@fixmsg}\fi
       \fi
-      \pgfutil@packageerror{florilegium}{#5=#6 cannot be drawn: #5 is \flo@fixmsg}{}%
+      \pgfutil@packageerror{florilegium}{#5=#6 cannot be drawn: #5 is \flo@fixmsg}{Press
+        return to draw it as sampled, without the traits.}%
     \fi
   \fi}
 % digits, a point or a minus sign, and nothing else
@@ -167,24 +180,79 @@
 % ---------------------------------------------------------------- a species
 % Lehmer's generator answers seeds 1, 2, 3 ... with nearly proportional first values,
 % so the first two are thrown away, as in florilegium-species.lua (M.WARM)
+% A seed is a whole number from 1 to 2147483646, as pgf's generator takes it (pgfmanual,
+% "a pseudo-random integer between 1 and 2^31 - 1"); another is an error and seed 1 is drawn,
+% as the Lua engine does (\flo@badseed: #1 a macro holding the seed)
+\def\flo@badseed#1{\pgfutil@packageerror{florilegium}{A seed is a whole number from 1 to
+  2147483646, not #1}{Press return to draw seed 1}\def#1{1}}
+\def\flo@seedcheck{\ifnum\pgfmath@rnd@z<1 \flo@seedreset\else
+  \ifnum\pgfmath@rnd@z>2147483646 \flo@seedreset\fi\fi}
+\def\flo@seedreset{\flo@badseed\flo@seedval\pgfmathsetseed{1}}
 \def\florilegiumspecies{\pgfutil@ifnextchar[\flo@sample@species{\flo@sample@species[]}}
 \def\flo@sample@species[#1]#2#3{%
   \flo@fixset{}{#1}%
-  \pgfmathsetseed{#2}%
-  \pgfmathgeneratepseudorandomnumber\pgfmathgeneratepseudorandomnumber
-  \flo@set{seed}{#2}\flo@set{role}{#3}%
-  \edef\florilegiumspecieslog{seed=#2}%
-  \ifcsname flo@role@#3\endcsname\else
-    \pgfutil@packageerror{florilegium}{No plant has the role `#3'}{A plant's role is hero,
-      spray, monocot, any, or a body plan (rose, lily, pea, fern, ...); see docs/species.md.
-      Press return to draw one of role any}%
-    \flo@set{role}{any}%
+  \flo@sample@plan{#2}{#3}%
+  \flo@planfixcheck
+  \ifflo@planbad
+    \flo@fixclear\let\flo@o@traits\pgfutil@empty
+    \edef\flo@tmp{\noexpand\flo@sample@plan{\flo@get{seed}}{\flo@get{role}}}\flo@tmp
   \fi
-  \csname flo@role@\flo@get{role}\endcsname
-  \ifcsname flo@fix@plan\endcsname\edef\flo@val{\flo@fix@plan}\fi
   \flo@set{plan}{\flo@val}\flo@logT{plan}%
   \csname flo@plan@\flo@val\endcsname
   \flo@fixclear}
+% the seed, the role and the plan, into \flo@val
+\def\flo@sample@plan#1#2{%
+  \pgfmathsetseed{#1}\edef\flo@seedval{#1}\flo@seedcheck
+  \pgfmathgeneratepseudorandomnumber\pgfmathgeneratepseudorandomnumber
+  \flo@set{seed}{\flo@seedval}\flo@set{role}{#2}%
+  \edef\florilegiumspecieslog{seed=\flo@seedval}%
+  \ifcsname flo@role@#2\endcsname\else
+    \flo@roleerror{#2}%
+    \flo@set{role}{any}%
+  \fi
+  \csname flo@role@\flo@get{role}\endcsname
+  \ifcsname flo@fix@plan\endcsname\edef\flo@val{\flo@fix@plan}\fi}
+\def\flo@roleerror#1{\pgfutil@packageerror{florilegium}{No plant has the role `#1'}{A plant's
+  role is hero, spray, monocot, any, or a body plan (rose, lily, pea, fern, ...); see
+  docs/species.md. Press return to draw one of role any}}
+\def\flo@vroleerror#1{\pgfutil@packageerror{florilegium}{No visitor has the role `#1'}{A
+  visitor's role is bee, butterfly, moth, bird, beetle, fly, leaf, stem, perch, any, or a kind
+  (ladybird, snail, ...); see docs/species.md. Press return to draw one of role any}}
+% A fixed value that the plan's kind of plant cannot draw, as florilegium-species.lua's
+% M.refused finds it: a name only the fern draws (\flo@fernonly@<trait>) on a flowering
+% plant, or on a fern a leaf tip, edge or outline its frond has no table entry for
+% (\flo@fernok@<trait>). The first, in the order the traits are drawn, is an error; the
+% species is then sampled as without traits, and so is the rest of the pic. \flo@val is
+% the plan.
+\newif\ifflo@planbad
+\def\flo@planfixcheck{\flo@planbadfalse
+  \edef\flo@tmp{\noexpand\pgfutil@in@{,\flo@val,}{\flo@fernplans}}\flo@tmp
+  \ifpgfutil@in@\def\flo@pffern{1}\else\def\flo@pffern{0}\fi
+  \pgfutil@for\flo@pft:=\flo@traits\do{\ifflo@planbad\else
+    \ifcsname flo@fix@\flo@pft\endcsname\flo@planfixone\fi\fi}}
+\def\flo@planfixone{\edef\flo@pfv{\csname flo@fix@\flo@pft\endcsname}%
+  \ifnum\flo@pffern=1
+    \ifcsname flo@fernok@\flo@pft\endcsname
+      \edef\flo@tmp{\noexpand\pgfutil@in@{,\flo@pfv,}{,\csname flo@fernok@\flo@pft\endcsname,}}\flo@tmp
+      \ifpgfutil@in@\else
+        \flo@planbadtrue
+        \pgfutil@packageerror{florilegium}{\flo@pft=\flo@pfv\space is a flowering plant's; a
+          fern's \flo@pft\space is one of \csname flo@fernok@\flo@pft\endcsname}{Press return
+          to draw it as sampled, without the traits.}%
+      \fi
+    \fi
+  \else
+    \ifcsname flo@fernonly@\flo@pft\endcsname
+      \expandafter\expandafter\expandafter\flo@planfixfl\csname flo@fernonly@\flo@pft\endcsname
+    \fi
+  \fi}
+\def\flo@planfixfl#1#2{%
+  \edef\flo@tmp{\noexpand\pgfutil@in@{,\flo@pfv,}{,#1,}}\flo@tmp
+  \ifpgfutil@in@
+    \flo@planbadtrue
+    \pgfutil@packageerror{florilegium}{\flo@pft=\flo@pfv\space is a fern's; a flowering plant's
+      \flo@pft\space is one of #2}{Press return to draw it as sampled, without the traits.}%
+  \fi}
 
 % ---------------------------------------------------------------- a visitor
 % A visitor (a butterfly, a bee, a snail ...) is sampled as a plant is, its kind first,
@@ -206,14 +274,12 @@
 \def\florilegiumvisitor{\pgfutil@ifnextchar[\flo@sample@visitor{\flo@sample@visitor[]}}
 \def\flo@sample@visitor[#1]#2#3{%
   \flo@fixset{v}{#1}%
-  \pgfmathsetseed{#2}%
+  \pgfmathsetseed{#2}\edef\flo@seedval{#2}\flo@seedcheck
   \pgfmathgeneratepseudorandomnumber\pgfmathgeneratepseudorandomnumber
-  \flo@xset{seed}{#2}\flo@xset{role}{#3}%
-  \edef\florilegiumspecieslog{seed=#2}%
+  \flo@xset{seed}{\flo@seedval}\flo@xset{role}{#3}%
+  \edef\florilegiumspecieslog{seed=\flo@seedval}%
   \ifcsname flo@vrole@#3\endcsname\else
-    \pgfutil@packageerror{florilegium}{No visitor has the role `#3'}{A visitor's role is
-      bee, butterfly, moth, bird, beetle, fly, leaf, stem, perch, any, or a kind (ladybird,
-      snail, ...); see docs/species.md. Press return to draw one of role any}%
+    \flo@vroleerror{#3}%
     \flo@xset{role}{any}%
   \fi
   \csname flo@vrole@\flo@xget{role}\endcsname
@@ -295,9 +361,7 @@
   \pgfpathclose}
 
 % ---------------------------------------------------------------- color
-% tone t in [0,1] of the ink (#3 = flo@ink) or the accent (flo@accent): 0 darkest, 1
-% palest; below 0.3 mixed with black, above it with white
-% tone #2 of the ink's ramp, or of the accent's when #3 is flo@accent
+% tone #2 (0 darkest, 1 palest) of the ink's ramp, or of the accent's when #3 is flo@accent
 \def\flo@tone#1#2#3{%
   \def\flo@tmp{#3}\def\flo@tmpb{flo@accent}%
   \ifx\flo@tmp\flo@tmpb\let\flo@savedramp\flo@rampname\def\flo@rampname{flo@aramp}%
@@ -663,7 +727,7 @@
 % stand the current frame upright on the page (+y up), keeping its origin, its scale (the
 % geometric mean of its axes') and its handedness: for flowers with an up and a down, an
 % iris or an orchid, whichever way their stalk points. (No determinant: pgfmath overflows
-% above 16384.) Its temporaries are its own: Lua's code calls it too, and knows nothing of them
+% above 16384.) Its temporaries (\flo@ura to \flo@ury) are its own.
 \def\flo@upright{%
   \pgfgettransformentries\flo@ura\flo@urb\flo@urc\flo@urd\flo@urx\flo@ury
   \flo@calc\flo@urp{veclen(\flo@ura,\flo@urb)}\flo@calc\flo@urq{veclen(\flo@urc,\flo@urd)}%
@@ -721,7 +785,7 @@
   \edef\flo@tufm{#2}\ifx\flo@tufm\pgfutil@empty\edef\flo@tufm{\flo@get{form}}\fi
   \def\flo@tua{0.1}\def\flo@tub{0.24}\def\flo@tuc{1.3}\def\flo@tuw{0}\def\flo@tue{0}\def\flo@tuh{0}%
   \def\flo@tuL{0.85}\def\flo@tut{0.14}\def\flo@tusep{1}%
-  \flo@range\flo@tuf{0.06}{0.12}\flo@calc\flo@tun{int(\flo@get{merosity}/2+1.5)}\flo@sym\flo@tubd{0.08}%
+  \flo@range\flo@tuf{0.06}{0.12}\flo@calc\flo@tun{int(\flo@get{merosity}/2+1.5)}\ifnum\flo@tun=1 \def\flo@tun{0}\fi\flo@sym\flo@tubd{0.08}%
   \def\flo@tmp{campanulate}\ifx\flo@tufm\flo@tmp
     \def\flo@tua{0.06}\def\flo@tub{0}\def\flo@tuh{0.26}\def\flo@tue{0.07}\flo@calc\flo@tuf{0.35*\flo@tuf}\fi
   \def\flo@tmp{urceolate}\ifx\flo@tufm\flo@tmp
@@ -1246,8 +1310,8 @@
   \flo@fdraw}
 
 % a panicle: a raceme whose branches are racemes, an axis of #1 cm bending a little, its
-% branches on alternate sides, shorter toward the top, each ending in a flower with more
-% on short stalks along it (and on the lowest, small forks of two when the species
+% branches on alternate sides, shorter toward the top, each ending in a flower with one to
+% three more on short stalks along it (one more on the lower branches when the species
 % branches twice); the lowest open first
 \def\flo@panicleunit#1{%
   \edef\flo@bst{\flo@ust}\edef\flo@clL{#1}\flo@stone\def\flo@fnum{0}%
@@ -1322,7 +1386,8 @@
 
 % a corymb: stalks from along a short axis, the lower the longer, that bring their
 % flowers up to one flat top #1 cm high; the outermost open first, the middle last
-\def\flo@corymbunit#1{%
+\def\flo@corymbunit#1{\ifdim#1pt=0pt \else\flo@corymbunit@{#1}\fi}% none at length 0 (its width divides)
+\def\flo@corymbunit@#1{%
   \edef\flo@bst{\flo@ust}\edef\flo@clL{#1}\flo@stone\def\flo@fnum{0}%
   \flo@calc\flo@clfd{min(0.6,0.3*\flo@fd)}%
   \flo@calc\flo@clm{int(max(3,min(9,min(\flo@get{count},2.6/\flo@clfd))))}%
@@ -1624,7 +1689,7 @@
   \flo@calc\flo@tx{(\flo@sxa-\flo@sx)/\flo@t}\flo@calc\flo@ty{0.1/\flo@t}%
   \flo@stemx{#1}}
 \def\flo@drawstem{%
-  \pgfmathtruncatemacro\flo@sn{\flo@pH/0.25+1}%
+  \pgfmathtruncatemacro\flo@sn{max(2,\flo@pH/0.25+1)}% two points at least, under 2.5 mm
   \flo@loop{stp}\flo@Gd{1}{\flo@sn}{%
     \flo@calc\flo@t{\flo@pH*(\the\flo@Gd-1)/(\flo@sn-1)}\flo@stemx\flo@t
     \flo@put{\the\flo@Gd}{\flo@sx}{\flo@t}}%
@@ -1634,10 +1699,11 @@
   \flo@loop{mks}\flo@Gd{1}{\flo@msn}{%
     \flo@calc\flo@my{0.6*\the\flo@Gd-0.3}\flo@stemx\flo@my\flo@room1\flo@sx\flo@my{0.2}}}
 
-% ---------------------------------------------------------------- a plant, in three passes
-% A garden's walk takes every plant through three passes, as florilegium-grow.lua grows
-% the margin: 1. stems and the inflorescence at each top, 2. leaves, 3. branches to where
-% there is room. Each plant keeps its layout stream from pass to pass.
+% ---------------------------------------------------------------- a plant, in four passes
+% A garden's walk takes every plant through four passes, as florilegium-grow.lua grows
+% the margin: 1. stems and the inflorescence at each top, 2. leaves, 3. branches from the
+% nodes, 4. more branches wherever there is room (three rounds). Each plant keeps its
+% layout stream from pass to pass.
 % the plant \flo@Ga's parameters and stream
 \def\flo@plantsetup{%
   \flo@calc\flo@root{(\the\flo@Ga-2)*0.25}\flo@calc\flo@pc{(\the\flo@Ga-2)*0.35}%
@@ -1862,7 +1928,8 @@
   seed/.store in=\flo@o@seed, role/.store in=\flo@o@role, size/.store in=\flo@o@size,
   draw/.store in=\flo@o@draw, season/.store in=\flo@o@season,
   plants/.store in=\flo@o@plants, width/.store in=\flo@o@width, ghost/.is if=flo@ghost,
-  engine/.store in=\flo@o@engine, scale/.store in=\flo@o@scale, traits/.store in=\flo@o@traits,
+  engine/.is choice, engine/auto/.code=\def\flo@o@engine{auto}, engine/lua/.code=\def\flo@o@engine{lua},
+  engine/tikz/.code=\def\flo@o@engine{tikz}, scale/.store in=\flo@o@scale, traits/.store in=\flo@o@traits,
   seed=1, role=any, size=2cm, draw=, season=0.75, plants=, width=6cm, ghost=true, engine=auto, scale=1,
   traits=}
 % engine=lua: florilegium-native.lua draws the pic straight into the picture with the same
@@ -1897,11 +1964,19 @@
 \def\flo@luapic#1#2{%
   \pgfkeys{/florilegium,#2}\flo@picrgb
   \flo@intof\flo@luaseed\flo@o@seed
+  \ifnum\flo@luaseed<1 \flo@badseed\flo@luaseed\else\ifnum\flo@luaseed>2147483646 \flo@badseed\flo@luaseed\fi\fi
+  \def\flo@luakind{#1}\def\flo@t{visitor}%
+  \ifx\flo@luakind\flo@t
+    \ifcsname flo@vrole@\flo@o@role\endcsname\else\flo@vroleerror{\flo@o@role}\def\flo@o@role{any}\fi
+  \else
+    \ifcsname flo@role@\flo@o@role\endcsname\else\flo@roleerror{\flo@o@role}\def\flo@o@role{any}\fi
+  \fi
   \ifx\flo@o@draw\pgfutil@empty\let\flo@luadraw\pgfutil@empty\else\flo@intof\flo@luadraw\flo@o@draw\fi
   \pgfmathparse{\flo@o@season}\let\flo@luaseason\pgfmathresult
   \pgfmathparse{\flo@o@scale}\let\flo@luascale\pgfmathresult
   \let\flo@luaplants\pgfutil@empty
-  \ifx\flo@o@plants\pgfutil@empty\else
+  \def\flo@t{plants}%
+  \ifx\flo@luakind\flo@t
     \expandafter\flo@parseplants\expandafter{\flo@o@plants}%
     \flo@loop{lua}\flo@i{1}{\flo@Np}{%
       \edef\flo@luaplants{\flo@luaplants\csname flo@pp@s\the\flo@i\endcsname/\csname flo@pp@r\the\flo@i\endcsname,}}%
@@ -1921,6 +1996,7 @@
 \def\flo@picsetup#1{%
   \pgfkeys{/florilegium,#1}\flo@colors\flo@intof\flo@o@seed\flo@o@seed
   \edef\flo@tmp{\noexpand\florilegiumspecies[\flo@o@traits]{\flo@o@seed}{\flo@o@role}}\flo@tmp
+  \edef\flo@o@seed{\flo@get{seed}}\edef\flo@o@role{\flo@get{role}}% as the sampler settled them
   \ifx\flo@o@draw\pgfutil@empty
     \edef\flo@o@draw{\the\numexpr\ifnum\flo@o@seed=2147483646 1\else\flo@o@seed+1\fi\relax}\fi
   \flo@drawseed\flo@o@draw
@@ -1945,15 +2021,37 @@
   \flo@kindof\pgfmathparse{\flo@o@season}\let\flo@season\pgfmathresult\def\flo@ulate{0}%
   \flo@sym\flo@t{0.08}\flo@calc\flo@ust{1.2*\flo@season-\flo@ulate+\flo@t+\flo@get{phenology}}%
   \flo@unitdraw{\flo@o@scale}}}}}
-% the list plants={seed/role, ...} into \flo@pp@s<k>, \flo@pp@r<k>, k = 1..\flo@Np
-\def\flo@parseplants#1{\flo@Np=0 \flo@parseplant#1,\relax/\relax,}
-\def\flo@parseplant#1/#2,{%
-  \ifx\relax#1\else
-    \advance\flo@Np by1
-    \pgfmathtruncatemacro\flo@t{#1}\expandafter\let\csname flo@pp@s\the\flo@Np\endcsname\flo@t
-    \edef\flo@t{\zap@space#2 \@empty}\expandafter\let\csname flo@pp@r\the\flo@Np\endcsname\flo@t
+% the list plants={seed/role, ...} into \flo@pp@s<k>, \flo@pp@r<k>, k = 1..\flo@Np: an
+% empty item (a trailing comma) is skipped; an item without /role, and a fern (it grows
+% from its crown: the fern pic), are errors and left out; a seed or a role the samplers
+% would refuse is an error, and seed 1 or role any is drawn
+\let\flo@endplants\relax\def\flo@endmark{\flo@endplants}
+\def\flo@parseplants#1{\flo@Np=0 \flo@parseplant#1,\flo@endplants,%
+  \ifnum\flo@Np=0 \pgfutil@packageerror{florilegium}{plants names no plant}{Write
+    plants={3/rose, 17/umbellifer}. The pic is left out}\fi}
+\def\flo@parseplant#1,{%
+  \edef\flo@q{\zap@space#1 \@empty}%
+  \ifx\flo@q\flo@endmark\else
+    \ifx\flo@q\pgfutil@empty\else\expandafter\flo@parseplant@\flo@q/\flo@endplants/\relax\fi
     \expandafter\flo@parseplant
   \fi}
+\def\flo@parseplant@#1/#2/#3\relax{%
+  \def\flo@q{#2}\def\flo@tmp{fern}%
+  \ifx\flo@q\flo@endmark
+    \pgfutil@packageerror{florilegium}{A plant in plants is seed/role, not `#1'}{Write
+      plants={3/rose, 17/umbellifer}. The plant `#1' is left out}%
+  \else\ifx\flo@q\flo@tmp
+    \pgfutil@packageerror{florilegium}{A fern grows from its crown, not on a stem: draw
+      #1/fern with the fern pic}{\string\pic\space{florilegium fern={seed=#1}} draws it. The
+      fern is left out of plants}%
+  \else
+    \advance\flo@Np by1
+    \pgfmathtruncatemacro\flo@t{#1}%
+    \ifnum\flo@t<1 \flo@badseed\flo@t\else\ifnum\flo@t>2147483646 \flo@badseed\flo@t\fi\fi
+    \expandafter\let\csname flo@pp@s\the\flo@Np\endcsname\flo@t
+    \ifcsname flo@role@#2\endcsname\def\flo@t{#2}\else\flo@roleerror{#2}\def\flo@t{any}\fi
+    \expandafter\let\csname flo@pp@r\the\flo@Np\endcsname\flo@t
+  \fi\fi}
 % the plants \flo@pp.. from one root at the origin, the first \flo@gH cm tall, within
 % \flo@gW cm; a pale flower of the first behind them when \flo@gghost is true. Walked once
 % per layer: the ghost, stems, leaves, sprays, flowers
@@ -2020,7 +2118,7 @@
   \pgfmathsetlength\pgf@x{\flo@o@size}\flo@calc\flo@gH{\pgf@x/28.45276}%
   \pgfmathsetlength\pgf@x{\flo@o@width}\flo@calc\flo@gW{\pgf@x/28.45276}%
   \edef\flo@gghost{\ifflo@ghost true\else false\fi}%
-  \flo@garden}}}}
+  \ifnum\flo@Np>0 \flo@garden\fi}}}}
 
 % ================================================================ v1.3's hand
 % florilegium-flora.lua's petal, heart and flower, line for line in pgfmath: the same
@@ -2377,8 +2475,13 @@
   \flo@calc\flo@t{0.0883024619*\flo@ir+0.2817188376*\flo@ig+0.6299787005*\flo@ib}\flo@cbrt\flo@is\flo@t
   \flo@calc\flo@iA{1.9779984951*\flo@il-2.4285922050*\flo@im+0.4505937099*\flo@is}%
   \flo@calc\flo@iB{0.0259040371*\flo@il+0.7827717662*\flo@im-0.8086757660*\flo@is}%
-  \flo@calc\flo@hue{atan2(\flo@iB,\flo@iA)}%
-  \flo@calc\flo@ck{max(0.15,min(1.3,veclen(\flo@iA,\flo@iB)/0.175))}%
+  % a gray (chroma under 1e-4) has no hue: hue 0 and a gray ramp, as florilegium-ink.lua; the
+  % hue from a and b times 1000, since fpu's atan2 snaps to an axis while |y| < 0.001
+  \flo@calc\flo@t{veclen(\flo@iA,\flo@iB)}%
+  \ifdim\flo@t pt<0.0001pt \def\flo@hue{0}\def\flo@ck{0}\else
+    \flo@calc\flo@hue{atan2(1000*\flo@iB,1000*\flo@iA)}%
+    \flo@calc\flo@ck{max(0.15,min(1.3,veclen(\flo@iA,\flo@iB)/0.175))}%
+  \fi
   \flo@loop{ramp}\flo@ka{0}{100}{%
     \flo@calc\flo@rt{\the\flo@ka/100}%
     \def\flo@rs{0}%
@@ -2496,8 +2599,8 @@
 \def\flo@hk{0}
 % A curled tip, as the reference's leaves curl: beyond \flo@hv the spine turns \flo@hth
 % degrees along a circle, toward the side the leaf bends, as tight as the blade allows
-% (its radius at least twice the half-width there), so a narrow leaf hooks right over and
-% shows its underside while a broad one only bends its tip aside; none under 35 degrees.
+% (its radius at least 1.8 times the half-width there), so a narrow leaf hooks right over and
+% shows its underside while a broad one only bends its tip aside; none of 45 degrees or less.
 % Draws: its length, its turn
 \def\flo@hookset{%
   \flo@range\flo@hl{0.25}{0.4}\flo@calc\flo@hv{1-\flo@hl}\flo@shw\flo@hv
@@ -2515,7 +2618,7 @@
 \def\flo@lhook#1{\flo@calc\flo@hph{((#1)-\flo@hv)/\flo@hl*\flo@hth}%
   \flo@calc\flo@sx{\flo@hpx+\flo@hr*(sin(\flo@hph)*\flo@htx+(1-cos(\flo@hph))*\flo@hnx)}%
   \flo@calc\flo@sy{\flo@hpy+\flo@hr*(sin(\flo@hph)*\flo@hty+(1-cos(\flo@hph))*\flo@hny)}}
-% the curl's underside, where it turns past 100 degrees: the blade from just past the curl's
+% the curl's underside, where it turns past 95 degrees: the blade from just past the curl's
 % middle to the tip, drawn again over it from the same margin samples, paler, its midrib
 % white and its edge dark
 \def\flo@hookunder{%
@@ -2755,6 +2858,7 @@
   \def\flo@lmk{0}\def\flo@mn{0}\def\flo@ltk{0.8}\def\flo@ldep{0}\edef\flo@lmn{\flo@get{leafmargin}}%
   \ifx\flo@lmover\pgfutil@empty\else\let\flo@lmn\flo@lmover\fi
   \ifdim\flo@ldepth pt>0pt\else\ifcsname flo@lm@\flo@lmn\endcsname\csname flo@lm@\flo@lmn\endcsname\fi\fi
+  \ifnum\flo@lmk=2 \ifnum\flo@get{teeth}<1 \def\flo@lmk{0}\def\flo@ltk{0.8}\fi\fi% no teeth: smooth
   \ifnum\flo@lmk<2
     \ifnum\flo@lmk=1 \flo@int\flo@lwn{3}{5}\flo@calc\flo@ldep{(0.05+\flo@get{dissection})*\flo@lW*2.4}\fi
     \flo@loop{smg}\flo@kb{0}{\flo@bn}{%
@@ -3746,9 +3850,9 @@
   \let\flo@rampname\flo@savedramp
   \flo@vtone{flo@c}{0.2}\flo@vfill{flo@c}{0.9}{0}{\pgfpathcircle{\flo@P{0.014}{0.009}}{0.009pt}%
     \pgfpathcircle{\flo@P{-0.012}{0.013}}{0.009pt}\pgfpathcircle{\flo@P{-0.002}{-0.015}}{0.009pt}}}
-% the leaf of the species along +y, length 1: flora's leaf (lobed or toothed), a strap
-% leaf for parallel veins, leaflets (flora's leaflet) for a compound leaf, a fern's frond;
-% #1 its length on the page in pt
+% the leaf of the species along +y, length 1: its simple leaf (\flo@sleaf, lobed or toothed),
+% a strap leaf for parallel veins, its leaflets (\flo@sleaflet) on a rachis for a compound
+% leaf, a fern's frond; #1 its length on the page in pt
 \def\flo@leaf#1{%
   \edef\flo@lfpt{#1}\def\flo@shd{0}%
   \ifx\flo@lsd\pgfutil@empty\else\edef\flo@t{\flo@get{attachment}}\def\flo@tmp{sheathing}%
@@ -4223,11 +4327,12 @@
 % angular, falcate: hooked, pointed: a hawkmoth's narrow swept wing); a scalloped or
 % toothed edge gets three points between each two along the outer margin, every other one
 % drawn toward the root; a tail hangs from the hindwing, or two thread tails. Inside each
-% wing, as flora paints one: the wash and mottle, then the groundplan's systems (Nijhout
-% 1991): a dark wash at the base, a central band or a row of spots with a discal spot on
-% the cell, at the border a dark band, a row of spots or of eyespots with one to three
-% rings (and an arc outside each), pale lunules along the edge; the pooled rim; white
-% veins from the root and pale spots at the rim. Poses: open; a moth's flat or tent (its
+% wing, as flora paints one: the wash and mottle, then the groundplan's systems (the
+% nymphalid groundplan of Schwanwitsch 1924 and Süffert 1927): a dark wash at the base, a
+% central band or a row of spots with a discal spot on the cell, at the border a dark
+% band, a row of spots or of eyespots with one to three rings (and an arc outside each),
+% pale lunules along the edge; the pooled rim; white veins from the root and pale spots at
+% the rim. Poses: open; a moth's flat or tent (its
 % forewings swept back over the hindwings); closed (one side seen from the side, the
 % underside paler, the legs gripping); hover (a hawkmoth's wings a blur).
 \newcount\flo@Wa \newcount\flo@Wb \newcount\flo@Wc \newcount\flo@Wd
@@ -4461,9 +4566,9 @@
   \flo@loop{wgan}\flo@Wb{1}{2}{%
     \ifnum\flo@wgsides=1 \def\flo@sx{1}\else\ifnum\flo@Wb=1 \def\flo@sx{-1}\else\def\flo@sx{1}\fi\fi
     \edef\flo@t{\flo@xget{antenna}}%
-    \def\flo@tmp{clubbed}\ifx\flo@t\flo@tmp\flo@range\flo@ex{0.22}{0.3}\flo@range\flo@ey{0.78}{0.9}\fi
-    \def\flo@tmp{thread}\ifx\flo@t\flo@tmp\flo@range\flo@ex{0.26}{0.36}\flo@range\flo@ey{0.72}{0.88}\fi
-    \def\flo@tmp{feathery}\ifx\flo@t\flo@tmp\flo@range\flo@ex{0.24}{0.32}\flo@range\flo@ey{0.62}{0.72}\fi
+    \def\flo@tmp{clubbed}\ifx\flo@t\flo@tmp\flo@range\flo@ex{0.22}{0.3}\flo@range\flo@ey{0.78}{0.9}\else
+    \def\flo@tmp{feathery}\ifx\flo@t\flo@tmp\flo@range\flo@ex{0.24}{0.32}\flo@range\flo@ey{0.62}{0.72}\else
+    \flo@range\flo@ex{0.26}{0.36}\flo@range\flo@ey{0.72}{0.88}\fi\fi% a thread, and any other kind's feeler
     \ifnum\flo@wgsides=1 \ifnum\flo@Wb=2 \flo@calc\flo@ex{\flo@ex*0.8}\flo@calc\flo@ey{\flo@ey*0.95}\fi\fi
     \flo@calc\flo@ex{\flo@sx*\flo@ex}\flo@calc\flo@xa{\flo@sx*0.02}\flo@calc\flo@xb{\flo@sx*0.05}%
     \flo@calc\flo@xc{\flo@ex*0.6}\flo@calc\flo@yc{\flo@ey*0.9}%
@@ -4846,6 +4951,7 @@
   \edef\flo@bgk{\flo@xget{kind}}\edef\flo@bgpose{\flo@xget{pose}}\edef\flo@bgground{\flo@xget{ground}}%
   \edef\flo@bgt{\flo@xget{tone}}\def\flo@bgpt{0.74}%
   \def\flo@tmp{dark}\ifx\flo@bgground\flo@tmp\flo@calc\flo@bgt{\flo@bgt-0.12}\fi
+  \def\flo@tmp{pale}\ifx\flo@bgground\flo@tmp\flo@calc\flo@bgt{min(0.78,\flo@bgt+0.32)}\fi% fixed: paler, as a butterfly's
   \def\flo@tmp{copper}\ifx\flo@bgground\flo@tmp\def\flo@rampname{flo@aramp}\def\flo@bgpt{0.6}\fi
   % proportions: the abdomen (its half-width from the build), the thorax, head, wings, legs;
   % the tones of the abdomen, thorax, head, the hair and the pale bands
@@ -5237,16 +5343,16 @@
   \def\flo@tmp{dark}\ifx\flo@btground\flo@tmp
     \def\flo@tmp{ladybird}\ifx\flo@btk\flo@tmp\flo@vaccent{flo@c}{0}\else\flo@vtone{flo@c}{0.8}\fi
   \else\flo@vtone{flo@c}{0.04}\fi}
-% feelers of the side: a thread, a club, a comb
+% feelers of the side: a thread, a club, a comb (another kind's, fixed, as a thread)
 \def\flo@btfeeler{%
   \edef\flo@t{\flo@xget{antenna}}%
   \flo@calc\flo@xa{0.35*\flo@bthx}\flo@calc\flo@ya{\flo@bthy+0.6*\flo@bthr}%
-  \def\flo@tmp{thread}\ifx\flo@t\flo@tmp\flo@range\flo@xb{0.1}{0.14}\flo@range\flo@yb{0.1}{0.14}%
-    \flo@range\flo@xc{0.2}{0.28}\flo@range\flo@yc{0.24}{0.32}\fi
   \def\flo@tmp{clubbed}\ifx\flo@t\flo@tmp\flo@range\flo@xb{0.06}{0.08}\flo@range\flo@yb{0.06}{0.08}%
-    \flo@range\flo@xc{0.1}{0.13}\flo@range\flo@yc{0.12}{0.15}\fi
+    \flo@range\flo@xc{0.1}{0.13}\flo@range\flo@yc{0.12}{0.15}\else
   \def\flo@tmp{comb}\ifx\flo@t\flo@tmp\flo@range\flo@xb{0.08}{0.1}\flo@range\flo@yb{0.08}{0.1}%
-    \flo@range\flo@xc{0.16}{0.2}\flo@range\flo@yc{0.18}{0.22}\fi
+    \flo@range\flo@xc{0.16}{0.2}\flo@range\flo@yc{0.18}{0.22}\else
+  \flo@range\flo@xb{0.1}{0.14}\flo@range\flo@yb{0.1}{0.14}% a thread, and any other kind's feeler
+    \flo@range\flo@xc{0.2}{0.28}\flo@range\flo@yc{0.24}{0.32}\fi\fi
   \flo@calc\flo@xb{\flo@xa+\flo@xb*\flo@btfs}\flo@calc\flo@yb{\flo@ya+\flo@yb*\flo@btfs}%
   \flo@calc\flo@xc{\flo@xa+\flo@xc*\flo@btfs}\flo@calc\flo@yc{\flo@ya+\flo@yc*\flo@btfs}%
   \flo@vstroke{flo@c}{\flo@btw}{1}{0}{\pgfpathmoveto{\flo@P\flo@xa\flo@ya}\pgfpathlineto{\flo@P\flo@xb\flo@yb}%
@@ -5347,7 +5453,8 @@
 % ---------------------------------------------------------------- caterpillars
 % A caterpillar on its host leaf, in units of its length: the leaf along +y from the
 % origin, its right edge bitten where the caterpillar feeds; the caterpillar seen from the
-% side along that edge, its belly toward the leaf, its head toward the leaf's tip. The body
+% side along that edge, its belly toward the leaf (curled, lying on it), its head toward
+% the leaf's tip. The body
 % is thirteen segments along a spine that the pose bends: nearly straight, arched in a
 % loop (a looper, legs only at both ends) or curled in a C. True legs on the three
 % segments behind the head, prolegs on the 5th to 8th from the tail and the last; a pale
@@ -5545,9 +5652,15 @@
   \def\flo@hfL{1.5}\def\flo@hfW{0.36}\flo@sym\flo@hfbend{0.12}\def\flo@hft{0.66}%
   \flo@hfw{0.1}\flo@calc\flo@ctox{\flo@hfx+\flo@h}\flo@calc\flo@ctoy{0.1*\flo@hfL}%
   \flo@hfw{0.62}\flo@calc\flo@t{atan2(0.62*\flo@hfL-\flo@ctoy,\flo@hfx+\flo@h-\flo@ctox)}%
-  \def\flo@tmp{curl}\ifx\flo@ctpose\flo@tmp\edef\flo@ctrot{\flo@t}\else
-    \flo@calc\flo@ctrot{\flo@t-atan2(\csname flo@ctY26\endcsname,\csname flo@ctX26\endcsname)}\fi
-  \flo@calc\flo@cthy{\flo@ctoy+\csname flo@ctX26\endcsname*sin(\flo@ctrot)+\csname flo@ctY26\endcsname*cos(\flo@ctrot)}%
+  % straight or looping, the body is mirrored across its axis (y to -y, after the turn),
+  % so its legs hold the edge and its back is turned away from the leaf, tail to head
+  % along the edge; curled, it lies on the leaf from its tail, its legs turned in
+  \def\flo@tmp{curl}\ifx\flo@ctpose\flo@tmp\edef\flo@ctrot{\flo@t}\def\flo@ctmy{1}%
+    \flo@calc\flo@cthy{\flo@ctoy+\csname flo@ctX26\endcsname*sin(\flo@ctrot)+\csname flo@ctY26\endcsname*cos(\flo@ctrot)}%
+  \else\def\flo@ctmy{-1}%
+    \flo@calc\flo@ctrot{\flo@t+atan2(\csname flo@ctY26\endcsname,\csname flo@ctX26\endcsname)}%
+    \flo@calc\flo@cthy{\flo@ctoy+\csname flo@ctX26\endcsname*sin(\flo@ctrot)-(\csname flo@ctY26\endcsname)*cos(\flo@ctrot)}%
+  \fi
   \flo@chance{0.5}\ifflo@yes\def\flo@hfnb{3}\else\def\flo@hfnb{2}\fi
   \flo@calc\flo@t{min(0.86*\flo@hfL,max(0.3*\flo@hfL,\flo@cthy+0.04))}%
   \flo@loop{hfbs}\flo@Wa{1}{\flo@hfnb}{%
@@ -5561,7 +5674,7 @@
   \flo@hfoutline\flo@hfpaint
   % the caterpillar, in the copper if its ground is
   \def\flo@tmp{copper}\ifx\flo@ctground\flo@tmp\def\flo@rampname{flo@aramp}\fi
-  \begin{pgfscope}\pgftransformshift{\flo@P\flo@ctox\flo@ctoy}\pgftransformrotate{\flo@ctrot}%
+  \begin{pgfscope}\pgftransformshift{\flo@P\flo@ctox\flo@ctoy}\pgftransformrotate{\flo@ctrot}\ifnum\flo@ctmy=-1 \pgftransformyscale{-1}\fi
     \flo@ctbody\flo@cthead
     \ifnum\flo@xget{horn}=1 \flo@cthorn\fi
     \ifnum\flo@xget{tufts}=1 \flo@cttufts\fi
@@ -5712,6 +5825,7 @@
   \fi\fi
   \edef\flo@gssc@{\flo@xget{sculpture}}\def\flo@tmp{ribs}%
   \ifx\flo@gssc@\flo@tmp
+    \ifnum\flo@xget{ribs}>0 % ribs only when there are some (a fixed ribs=0 is smooth)
     \flo@calc\flo@t{\flo@gsz*3.14159/\flo@xget{ribs}}%
     \ifdim\flo@t pt>0.05pt
       \ifnum\flo@gsj<\flo@gsJ\space\edef\flo@gsnr{\flo@xget{ribs}}%
@@ -5721,7 +5835,7 @@
         \flo@vtone{flo@c}{0.05}\flo@calc\flo@t{0.25*\flo@gslw}%
         \flo@vstroke{flo@c}{\flo@t}{0.3}{1}{\pgfpathmoveto{\flo@P{\flo@gsgx S\flo@gj\flo@gsk@}{\flo@gsgy S\flo@gj\flo@gsk@}}%
           \pgfpathlineto{\flo@P{\flo@gsgx O\flo@gj\flo@gsk@}{\flo@gsgy O\flo@gj\flo@gsk@}}}}%
-    \fi
+    \fi\fi
   \else\def\flo@tmp{cords}\ifx\flo@gssc@\flo@tmp
     \ifdim\flo@gsz pt>0.25pt
       \flo@loop{gscd}\flo@gsq{1}{3}{%
@@ -5979,6 +6093,7 @@
 \def\flo@vispicsetup#1{%
   \pgfkeys{/florilegium,#1}\flo@colors\flo@intof\flo@o@seed\flo@o@seed
   \edef\flo@tmp{\noexpand\florilegiumvisitor[\flo@o@traits]{\flo@o@seed}{\flo@o@role}}\flo@tmp
+  \edef\flo@o@seed{\flo@xget{seed}}\edef\flo@o@role{\flo@xget{role}}% as the sampler settled them
   \ifx\flo@o@draw\pgfutil@empty
     \edef\flo@o@draw{\the\numexpr\ifnum\flo@o@seed=2147483646 1\else\flo@o@seed+1\fi\relax}\fi
   \flo@drawseed\flo@o@draw

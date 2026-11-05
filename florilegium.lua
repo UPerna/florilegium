@@ -63,7 +63,7 @@ function M.geometry()
     g.mirror = true
     g.textleft, g.textright = g.pw - g.textright, g.pw - g.textleft
   end
-  g.ytop = g.ph - inch - cm("topmargin") - cm("headheight") - cm("headsep")
+  g.ytop = g.ph - inch - tex.voffset * SP_CM - cm("topmargin") - cm("headheight") - cm("headsep")
   g.ybot = g.ytop - cm("textheight")
   g.colright = g.textleft - 0.4
   g.headrule = g.ytop + cm("headsep") - 0.1
@@ -77,6 +77,22 @@ function M.colors(ir, ig, ib, ar, ag, ab)
   current = { ir, ig, ib, ar, ag, ab }
   ink.set_ink(ir, ig, ib)
   ink.set_accent(ar, ag, ab)
+end
+
+-- a number the user wrote (density=, intensity=, an ornament's angle=, \florilegiumseed,
+-- \florilegiumage): its value, or, when it is not a number, the default, with a warning
+-- in the log (once for each text) that says what was used instead (`instead`, or the default)
+local warned = {}
+function M.number(key, text, default, instead)
+  local v = tonumber(text)
+  if v then return v end
+  local msg = string.format(key:sub(1, 1) == "\\" and "%s{%s} is not a number; using %s" or "%s=%s is not a number; using %s",
+    key, text, instead or tostring(default))
+  if not warned[msg] and luatexbase and luatexbase.module_warning then
+    warned[msg] = true
+    luatexbase.module_warning("florilegium", msg)
+  end
+  return default
 end
 
 -- one rng per page; primitives drawn from TeX fork it in call order
@@ -142,12 +158,21 @@ local ORNAMENT = {
   sparkle = { 0.5, 0.5, 0.3, 0 }, rosette = { 0.5, 0.5, 0.38, 0 }, hedera = { 0.45, 0.62, 0.36, 0 },
 }
 local function hex(h) return tonumber(h:sub(1, 2), 16) / 255, tonumber(h:sub(3, 4), 16) / 255, tonumber(h:sub(5, 6), 16) / 255 end
+-- an ornament's ink= or accent=: six hex digits, or "" for the current color; anything
+-- else is an error, and the ornament keeps the current color
+local function hexkey(key, h)
+  if h == "" or h:match("^%x%x%x%x%x%x$") then return h end
+  tex.error("florilegium: " .. key .. "=" .. h .. " is not six hex digits, like 5B2A1F",
+    { "The ornament is drawn in the current " .. key .. " color." })
+  return ""
+end
 local nornament = 0
 function M.ornament(name, size, inkhex, acchex, angle, seed)
   local F = primitives()
   local fn = F[name]
   if type(fn) ~= "function" then tex.error("florilegium: unknown primitive '" .. tostring(name) .. "'") return end
   nornament = nornament + 1
+  inkhex, acchex = hexkey("ink", inkhex), hexkey("accent", acchex)
   -- the k-th ornament of the document always gets the same shape, unless a seed
   -- is given; seed=random gives a new one every time the document is built
   local s

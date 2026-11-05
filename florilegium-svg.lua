@@ -184,12 +184,21 @@ end
 -- (degrees, counterclockwise), color (#rrggbb), opacity }, mirrored as florilegium.lua
 -- mirrors it for TikZ; stats, what grew (florilegium-grow.lua: motifs, counts by motif, stems,
 -- cells; nil for the authored page and the math theme).
+-- an option that is a number: its value, the default when it is not given, an error
+-- when it is given and is not a number
+local function number(o, key, default, what)
+  if o[key] == nil then return default end
+  return tonumber(o[key]) or error("florilegium: " .. key .. " is " .. what .. ", not '" .. tostring(o[key]) .. "'", 0)
+end
+
 function M.page(o)
   o = o or {}
   for k, v in pairs(DEFAULTS) do if o[k] == nil then o[k] = v end end
   local paper = type(o.paper) == "table" and o.paper or PAPERS[o.paper]
   if not paper then error("florilegium: unknown paper '" .. tostring(o.paper) .. "'", 0) end
-  local page = floor(tonumber(o.page) or 1)
+  local page = floor(number(o, "page", 1, "a whole number"))
+  local density = number(o, "density", 1, "a number from 0 to 1")
+  local intensity = number(o, "intensity", 1, "a number from 0 to 1")
   local pw, ph = M.sp(paper[1]), M.sp(paper[2])
   local L, R, T, B = M.sp(o.left), M.sp(o.right), M.sp(o.top), M.sp(o.bottom)
   local hh, hs, inch = M.sp(o.headheight), M.sp(o.headsep), M.sp("1in")
@@ -204,7 +213,7 @@ function M.page(o)
   }
   local streams = {}
   local saved = { tex = tex, node = node, luatexbase = luatexbase, texio = texio }
-  tex = { dimen = dimen, count = { [0] = page }, hoffset = 0, sprint = function() end,
+  tex = { dimen = dimen, count = { [0] = page }, hoffset = 0, voffset = 0, sprint = function() end,
     error = function(m) error(m, 0) end }
   luatexbase = { registernumber = function() return 0 end }
   node = { new = function() return {} end, write = function(n) streams[#streams + 1] = n.data end,
@@ -230,8 +239,8 @@ function M.page(o)
     end
     fl.age = age
     fl.theme = (o.theme ~= "" and o.theme ~= "flora") and o.theme or nil
-    fl.density = tonumber(o.density) or 1
-    fl.intensity = tonumber(o.intensity) or 1
+    fl.density = density
+    fl.intensity = intensity
     fl.visitors = o.visitors ~= false
     fl.bleed = o.bleed and M.sp(o.bleed) * 2.54 / (72.27 * 65536) or 0
     local g = fl.geometry()

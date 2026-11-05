@@ -1,8 +1,8 @@
 %% text-sharing.tex -- shared closing section
 \subsubsection{Building and sharing}
 
-The package is \texttt{florilegium.sty} with twelve Lua files beside it. Of these,
-\texttt{florilegium.lua} is the glue to \TeX. The names of the other eleven begin with
+The package is \texttt{florilegium.sty} with thirteen Lua files beside it. Of these,
+\texttt{florilegium.lua} is the glue to \TeX. The names of the other twelve begin with
 \texttt{florilegium-}, because \TeX\ finds a file by its bare name, the document's folder
 first, and a generic name would lose to a file of the author's own. After the prefix come
 \texttt{ink} (geometry, color and PDF output), \texttt{flora} (the hand-designed primitives),
@@ -11,7 +11,8 @@ few numbers taken from \TeX's arithmetic), \texttt{authored} and \texttt{grow} (
 compositions), \texttt{initial} (the decorated initials), and two themes with the figures one
 of them draws from (\texttt{theme-geometric}, the same plant cut from flat shapes;
 \texttt{theme-math}, figures, symbols and equations cascading down the margin;
-\texttt{figures}). Two more files, \texttt{tikzlibraryflorilegium.code.tex} and its tables,
+\texttt{figures}), and \texttt{svg}, which draws the same page as SVG without \TeX. Two more
+files, \texttt{tikzlibraryflorilegium.code.tex} and its tables,
 are the TikZ library, which draws the species in pure TikZ. The package needs Lua\LaTeX\ and
 one compilation, at about a second per page. To share it, the three routes that work are, in
 increasing order of effort: paste the files into a blank Overleaf project with the compiler set

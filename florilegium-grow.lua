@@ -1,4 +1,4 @@
--- florilegium-grow.lua -- the grown composition of florilegium (LuaLaTeX only).
+-- florilegium-grow.lua -- the grown composition of florilegium.
 -- Copyright (c) 2026 Kevin Raymond. MIT License: see LICENSE or florilegium.sty.
 --
 -- A plant, not a packing. Everything grows from one root in the bottom-left
@@ -326,7 +326,7 @@ end
 -- ---------------------------------------------------------------- animation timing
 -- Every step of the growth is an event: a stem that grows at a constant
 -- speed, or a motif that opens. An event either belongs to a phase (stems,
--- ghost, branch, fill, accent, tail) or starts at a fraction `at` of its
+-- ghost, marks, branch, fall, fill, accent, tail) or starts at a fraction `at` of its
 -- parent's growth, e.g. a leaf when the stem tip passes its node. Times are
 -- seconds of a nominal timeline; florilegium.lua spreads the frames over it.
 local T_START, T_STEMS = 0.4, 3.6           -- an empty margin, then the tallest stem takes 3.6 s

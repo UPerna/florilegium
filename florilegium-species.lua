@@ -447,6 +447,8 @@ function M.sample(seed, role, log, fix)
   local sp = { seed = seed, role = role or "any" }
   sp.plan = draw(M.roleplans(sp.role), rng, sp)
   if fix.plan ~= nil then sp.plan = fix.plan end
+  local refused = M.refused(sp.plan, fix)
+  if refused then error(refused, 0) end
   if log then log("plan", sp.plan) end
   for i = 2, #M.TRAITS do
     local t = M.TRAITS[i]
@@ -543,7 +545,7 @@ local function flower_words(sp)
   end
   local some = sp.merovar > 0 and "mostly " or ""
   if f == "rotate" and sp.fused == 1 then return a_(c) .. " wheel of " .. some .. n_(parts) .. " lobes" end
-  return a_(some .. n_(parts) .. "-petalled " .. c) .. (f == "rosaceous" and " rose" or " wheel")
+  return a_(some .. n_(parts) .. "-petaled " .. c) .. (f == "rosaceous" and " rose" or " wheel")
 end
 
 local function leaf_words(sp)
@@ -843,7 +845,8 @@ local function collect(d, acc)
 end
 local VALUES = {}
 -- trait -> { names = {name = true}, lo, hi, real }: what fixing it may give, for plants
--- (visitor false) or visitors
+-- (visitor false) or visitors. A visitor's trait takes only the kinds that draw it: a kind
+-- without a shell holds a placeholder (VNONE) that no drawing of a shell can take
 function M.values(visitor)
   local key = visitor and "v" or "p"
   if VALUES[key] then return VALUES[key] end
@@ -855,7 +858,7 @@ function M.values(visitor)
       for _, x in ipairs(visitor and M.VKINDS or M.PLANS) do acc.names[x.name] = true end
     else
       for _, x in ipairs(visitor and M.VKINDS or M.PLANS) do
-        collect(visitor and M.vdist(x.name, t) or M.dist(x.name, t), acc)
+        if not visitor then collect(M.dist(x.name, t), acc) elseif x.d[t] then collect(x.d[t], acc) end
       end
     end
     out[t] = acc
@@ -864,6 +867,58 @@ function M.values(visitor)
   assert(out[first])
   VALUES[key] = out
   return out
+end
+-- A fixed value that the other kind of plant draws, but not this one: a name only the fern
+-- draws (syndrome=none, inflo=none, compound=frond, ...) fixed on a flowering plant, or, on
+-- a fern, a leaf tip, edge or outline that its frond has no table entry for (FROND). M.refused
+-- gives the error for the first such trait, in draw order, or nil; M.sample raises it once
+-- the plan is known, and the TikZ library (\flo@planfixcheck) refuses the same values from
+-- the tables M.tex writes.
+local FROND = { leafapex = true, leafmargin = true, outline = true }
+local KINDVALUES
+local function kindvalues()
+  if KINDVALUES then return KINDVALUES end
+  local fern, flowering = {}, {}
+  for i = 2, #M.TRAITS do
+    local t = M.TRAITS[i]
+    local a, b = { names = {} }, { names = {} }
+    for _, p in ipairs(M.PLANS) do collect(M.dist(p.name, t), p.clade == "fern" and a or b) end
+    fern[t], flowering[t] = a.names, b.names
+  end
+  KINDVALUES = { fern = fern, flowering = flowering }
+  return KINDVALUES
+end
+local function namelist(set)
+  local names = {}
+  for name in pairs(set) do names[#names + 1] = name end
+  table.sort(names)
+  return names
+end
+-- for M.tex: the traits that have names only the fern draws, those names and the flowering
+-- plant's; the frond's own names for the traits it reads through tables
+function M.kindvalues()
+  local kv, fernonly, frond = kindvalues(), {}, {}
+  for i = 2, #M.TRAITS do
+    local t = M.TRAITS[i]
+    local only = {}
+    for name in pairs(kv.fern[t]) do if not kv.flowering[t][name] then only[name] = true end end
+    if next(only) and t ~= "clade" then fernonly[#fernonly + 1] = { t, namelist(only), namelist(kv.flowering[t]) } end
+    if FROND[t] then frond[#frond + 1] = { t, namelist(kv.fern[t]) } end
+  end
+  return fernonly, frond
+end
+function M.refused(plan, fix)
+  local kv, fern = kindvalues(), PLAN[plan].clade == "fern"
+  for i = 2, #M.TRAITS do
+    local t, v = M.TRAITS[i], fix[M.TRAITS[i]]
+    if type(v) == "string" then
+      if fern and FROND[t] and not kv.fern[t][v] then
+        return fmt("florilegium: %s=%s is a flowering plant's; a fern's %s is one of %s", t, v, t, concat(namelist(kv.fern[t]), ", "))
+      elseif not fern and not kv.flowering[t][v] and kv.fern[t][v] then
+        return fmt("florilegium: %s=%s is a fern's; a flowering plant's %s is one of %s", t, v, t, concat(namelist(kv.flowering[t]), ", "))
+      end
+    end
+  end
 end
 -- "trait=value, ..." as a table of fixed traits, each value as the sampler holds it (a name,
 -- a whole number, or a real number to the scaled point, as TeX reads it); an unknown trait
@@ -1058,6 +1113,18 @@ function M.tex()
       .. concat(body, "%\n  ") .. "}"
   end
   vtex = false
+  -- a value the plan's kind of plant cannot draw (M.refused): the fern's plans; per trait,
+  -- the names only the fern draws and the flowering plant's; the frond's own names
+  local fernplans = {}
+  for _, p in ipairs(M.PLANS) do if p.clade == "fern" then fernplans[#fernplans + 1] = p.name end end
+  out[#out + 1] = "\\def\\flo@fernplans{," .. concat(fernplans, ",") .. ",}"
+  local fernonly, frond = M.kindvalues()
+  for _, x in ipairs(fernonly) do
+    out[#out + 1] = fmt("\\expandafter\\def\\csname flo@fernonly@%s\\endcsname{{%s}{%s}}", x[1], concat(x[2], ","), concat(x[3], ","))
+  end
+  for _, x in ipairs(frond) do
+    out[#out + 1] = fmt("\\expandafter\\def\\csname flo@fernok@%s\\endcsname{%s}", x[1], concat(x[2], ","))
+  end
   -- what a fixed trait may be (\florilegiumspecies[...], \florilegiumvisitor[...]): its
   -- names, the range of a number (empty if none), 1 if that number is real
   for _, vis in ipairs({ false, true }) do

@@ -857,7 +857,7 @@ FAM.dodeca = truncation(DODECA, ICOSA, 1 / (2 + PHI), "5,3", "3,5")
 FAM.dodeca.title = function() return "from the dodecahedron to its dual" end
 
 FAM.knots = {
-  values = { { 3, 1 }, { 5, 3 }, { 7, 5 }, { 9, 6 } },              -- T(2,q) and its place in plate's list
+  values = { { 3, 1 }, { 5, 3 }, { 7, 5 }, { 9, 6 } },              -- T(2,q) and its index in KNOTS
   pick = function(L) return { L.range(0, 360) } end,
   title = function() return "torus knots" end,
   label = function(v) return string.format("$T_{2,%d}$", v[1]) end,

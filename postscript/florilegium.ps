@@ -840,6 +840,8 @@ florilegium begin
 /hedera { 8 dict begin /o exch def /s exch def /rng exch def   % rng s o -> x y
   /c o /color { 0 accent } optp def
   ipush s dup scale
+  % the outline is the parametric heart curve that Wolfram MathWorld gives as "the first
+  % parametric heart curve" (E. W. Weisstein, "Heart Curve", MathWorld)
   /pts [ 0 1 47 { 48 div 360 mul /t exch def
       /x 16 t sin dup dup mul mul mul def
       /y 13 t cos mul 5 2 t mul cos mul sub 2 3 t mul cos mul sub 4 t mul cos sub def

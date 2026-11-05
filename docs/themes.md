@@ -19,12 +19,14 @@ the unthemed margin.
 ## Geometric
 
 `theme=geometric` is v1.3's plant cut from flat shapes (`florilegium-theme-geometric.lua`). It
-grows exactly as v1.3's flowers do, and only the drawing changes. The stems run straight
-between their nodes, the leaves are kites and toothed polygons folded into a light and a dark
-facet with straight white veins, the flowers are rosettes of rhombi or layered star polygons,
-the tendrils square spirals, the bird and the butterfly low-poly. The colors are flat tones of
-the ink, with no wash, and crystals (Platonic solids, flat-shaded like cut stones) grow among
-the flowers. A page is about a tenth of the size of a painted one.
+grows by v1.3's loop from v1.3's motifs, so the plant is v1.3's and the drawing is new; the
+crystals among them take some of the room, so a seed's layout is not quite v1.3's. The stems
+run straight between their nodes, the leaves are kites and toothed polygons folded into a light
+and a dark facet with straight white veins, the flowers are rosettes of rhombi or layered star
+polygons, the tendrils square spirals, the bird and the butterfly low-poly. The colors are flat
+tones of the ink, with no wash, and crystals (Platonic solids, flat-shaded like cut stones) grow
+among the flowers. A page's margin is about a tenth of the size of a v1.3 page's in the PDF, and a
+sixteenth of a species page's (`florilegium-grow.tex`, measured 2026-11-05).
 
 <img src="../gallery/geometric.png" alt="a page with the geometric theme" width="500">
 
@@ -52,13 +54,14 @@ whatever space the page leaves, like the garden; `density` sets how much there i
 ## Writing a theme
 
 A theme returns its primitives by name, with the same arguments and frame as the ones they
-replace (`flower(rng, s)` centered on its origin, `sprig(rng, L)` from its base along +y, ...),
-and a function that may reweight the motif rows and add new ones:
+replace (`flower(rng, s)` centered on its origin, `sprig(rng, L)` from its base along +y,
+`leaf(rng, o)` one unit long along +y, scaled by its caller, ...), and a function that may
+reweight the motif rows and add new ones:
 
 ```lua
 -- florilegium-theme-<name>.lua
 return {
-  flora = { flower = function(rng, s) ... end, leaf = function(rng, L, o) ... end },
+  flora = { flower = function(rng, s) ... end, leaf = function(rng, o) ... end },
   motifs = function(rows, F) ... return rows end,
 }
 ```

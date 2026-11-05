@@ -106,7 +106,9 @@ local function rgb_to_oklch(r, g, b)
   local L = 0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s
   local A = 1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s
   local B = 0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s
-  return L, sqrt(A * A + B * B), atan(B, A) / rad
+  local C = sqrt(A * A + B * B)
+  if C < 1e-4 then return L, C, 0 end          -- a gray has no hue (its a and b are rounding noise)
+  return L, C, atan(B, A) / rad
 end
 
 -- OKLCH -> sRGB; nil when out of gamut
@@ -144,6 +146,8 @@ local STOPS = {   -- t, L, C, hue drift
   { 1.00, 0.92, 0.030, -8 },
 }
 local REF_C = 0.175                        -- the chroma of the default ink at the cobalt stop
+-- the ramp's chroma against the default ink's; a gray ink (or accent) gets a gray ramp
+local function chroma_of(C) return C < 1e-4 and 0 or math.max(0.15, math.min(1.3, C / REF_C)) end
 local ramp = {}                            -- 101 precomputed "r g b" strings
 local hue, chroma_k = 263, 1
 local lift = 0                             -- ghost mode: tone t -> t + (1-t)*lift
@@ -167,7 +171,7 @@ end
 -- set the hue from the document color `ink` (r,g,b in 0..1)
 function M.set_ink(r, g, b)
   local _, C, h = rgb_to_oklch(r, g, b)
-  hue, chroma_k = h, math.max(0.15, math.min(1.3, C / REF_C))
+  hue, chroma_k = h, chroma_of(C)
   build_ramp()
 end
 M.set_ink(0x24 / 255, 0x56 / 255, 0xC4 / 255)
@@ -199,7 +203,7 @@ function M.in_accent(fn)
   if accent_key ~= key then
     local h0, c0 = hue, chroma_k
     local _, C, h = rgb_to_oklch(accent[1], accent[2], accent[3])
-    ramp, hue, chroma_k = {}, h, math.max(0.15, math.min(1.3, C / REF_C))
+    ramp, hue, chroma_k = {}, h, chroma_of(C)
     build_ramp()
     accent_ramp, accent_key, hue, chroma_k = ramp, key, h0, c0
   end
@@ -283,9 +287,15 @@ function M.track(on)
   clipped = 0
   return b
 end
--- 0.1 bp (0.035 mm) is finer than any printer resolves
+-- 0.1 bp (0.035 mm) is finer than any printer resolves. A coordinate that is not a finite
+-- number (a division by zero somewhere in a drawing) would be written as nan or inf, which
+-- no PDF reader parses: it stops the drawing with an error instead
+local HUGE = math.huge
 local function P(x, y)
   local px, py = T[1] * x + T[3] * y + T[5], T[2] * x + T[4] * y + T[6]
+  if px ~= px or py ~= py or px == HUGE or px == -HUGE or py == HUGE or py == -HUGE then
+    error(fmt("florilegium: a drawing produced a coordinate that is not a number (%s, %s)", px, py), 0)
+  end
   if box and clipped == 0 then
     if px < box[1] then box[1] = px end
     if py < box[2] then box[2] = py end
@@ -481,7 +491,7 @@ function M.sample(f, n, v0, v1)
   return out
 end
 
--- quadratic and cubic Bézier evaluators, returning functions of v
+-- a cubic Bézier evaluator, returning a function of v
 function M.bezier3(x0, y0, x1, y1, x2, y2, x3, y3)
   return function(v)
     local u = 1 - v
