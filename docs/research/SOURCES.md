@@ -128,3 +128,12 @@ R19a and R19b were recovered as the complete combined TU/e scan with a readable 
 - pypdf documentation6.21.4, content-only transformations and explicit media/crop boxes: measured-frame registration retains actual book clipping and foreground paint. Retrieved2026-11-06. https://pypdf.readthedocs.io/en/stable/user/cropping-and-transforming.html
 
 - pypdf documentation6.21.4, TextStringObject.original_bytes and ByteStringObject serialization: preserve raw font character codes during hidden-text filtering. Retrieved2026-11-06. https://pypdf.readthedocs.io/en/stable/_modules/pypdf/generic/_base.html
+
+## Stage31 browser host sources
+
+- Wasmoon official repository and npm1.16.0 package API/source, source87c783a8d0bf65afeda933fa47d8dc996be53bb3: LuaFactory, traceAllocations, setMemoryMax, decorateFunction receiveThread/receiveArgsQuantity and raw lua_tolstring binding. https://github.com/ceifa/wasmoon
+- Lua pinned upstream header be908a7d4d8130264ad67c5789169769f824c5d1: source version and exact license. https://github.com/lua/lua/blob/be908a7d4d8130264ad67c5789169769f824c5d1/lua.h
+- Fengari official integer semantics; measured compact browser candidate fails the actual existing int64 guard. https://github.com/fengari-lua/fengari
+- hash-wasm4.12.0 official README/API and bundled C source373b796205ab55fb4a657374dad6ea589bf75815: synchronous IHasher Uint8Array operations and licenses. https://github.com/Daninet/hash-wasm
+- MDN Worker.terminate and IndexedDB Using IndexedDB: cancellation and transaction complete/abort behavior, exercised in actual browser. https://developer.mozilla.org/en-US/docs/Web/API/Worker/terminate and https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB
+- MDN structured clone algorithm: transferable buffers and supported types. https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm

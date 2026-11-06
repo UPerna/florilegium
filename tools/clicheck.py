@@ -115,6 +115,11 @@ def main():
                 assert extracted.split()==expected.split(),"CLI micrography lost searchable text"
             for suffix in ("pdf","svg"):
                 shutil.copyfile(bundle/("pattern."+suffix),destination/(row["id"]+"."+suffix))
+            if row["id"] in ("micrography","decobrush"):
+                numerical=destination/"numerical"/row["id"]
+                numerical.mkdir(parents=True,exist_ok=True)
+                for name in ("instance.json","pattern.pdf","pattern.svg"):
+                    shutil.copyfile(bundle/name,numerical/name)
             if row["id"]=="escher":
                 cache=destination/"solver-cache"
                 if cache.exists():
