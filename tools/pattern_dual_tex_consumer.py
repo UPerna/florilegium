@@ -196,11 +196,15 @@ def main():
     lua_folder, lua = consumer.main('lua')
     xe_folder, xe = consumer.main('xe')
     comparison = compare_books(lua_folder, xe_folder, folder)
+    comparison_receipt = {'source_digest': digest, 'source_files': source, 'comparison': comparison,
+                          'scope': 'Native book comparison complete; build-fault and inherited gates remain separate'}
+    (folder / 'book-comparison.json').write_text(json.dumps(comparison_receipt, indent=2) + '\n', encoding='utf8')
     failures = build_cases(folder / 'build-faults')
     assert {'auxiliaries-lua', 'auxiliaries-xe', 'first-pass-lua', 'first-pass-xe', 'empty-output-lua', 'empty-output-xe',
             'recipe-stale-xe', 'font-stale-xe', 'renderer-stale-xe', 'scene-corruption-xe', 'font-fallback-lua', 'font-fallback-xe'} <= failures.keys()
     assert fingerprint() == (digest, source), 'Native verification did not restore its temporary source mutation'
     receipt = {'schema_version': 1, 'source_digest': digest, 'source_files': source,
+               'book_comparison_sha256': hashlib.sha256((folder / 'book-comparison.json').read_bytes()).hexdigest(),
                'engines': {'lua': lua['runtime'], 'xe': xe['runtime']}, 'comparison': comparison, 'build_cases': failures,
                'per_engine_consumers': {engine: hashlib.sha256((path / 'receipt.json').read_bytes()).hexdigest()
                                         for engine, path in (('lua', lua_folder), ('xe', xe_folder))},

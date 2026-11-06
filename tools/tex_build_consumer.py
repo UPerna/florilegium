@@ -141,8 +141,19 @@ def build_cases(folder):
         empty_source = case / 'empty.tex'
         empty_source.write_text(r'\documentclass{article}\usepackage[nomargin]{florilegium}\begin{document}\setbox0=\hbox{No shipped page.}\end{document}', encoding='utf8')
         shutil.copyfile(pdf, empty / 'source.pdf')
+        seeded_pdf = file_hash(empty / 'source.pdf')
         missing = expect_failure(empty_source, engine, empty, 'missing or incomplete')
-        assert missing['passes'][-1]['compiler_exit'] == 0 and not (empty / 'source.pdf').exists()
+        # LuaTeX 1.24 can leave a new zero-byte file when no page ships.
+        # The gate is failed acceptance and removal of the valid old PDF;
+        # an empty diagnostic artifact is not a completed document.
+        rejected = empty / 'source.pdf'
+        assert missing['passes'][-1]['compiler_exit'] == 0
+        assert not rejected.exists() or rejected.stat().st_size == 0
+        assert not rejected.exists() or file_hash(rejected) != seeded_pdf
+        missing['seeded_old_pdf_sha256'] = seeded_pdf
+        missing['rejected_output'] = {'exists': rejected.exists(),
+            'bytes': rejected.stat().st_size if rejected.exists() else None,
+            'sha256': file_hash(rejected) if rejected.exists() else None}
         result['empty-output-' + engine] = missing
 
     source, recipe = common_source(folder / 'recipe-stale-xe'); out = source.parent / 'out'
