@@ -113,6 +113,17 @@ async function main(){
    await page.setViewportSize({width:1400,height:1000});
    await collect(page,'recovery',['Undo/redo keeps validated instances','Refresh preserves unapplied draft, history and accepted instance','Portable workspace output bytes checked against native replay','Forged vector with matching attacker digest rejected by native replay','Malformed import preserves previous work','New edit supersedes running generation and delayed recipe import','Fresh native worker renders while network is offline','Keyboard navigation and 390px responsive layout']);
   },
+  async partial(page){
+   await select(page,'family','mosaic');await fill(page,'parameter-count',30);await fill(page,'parameter-tile_size',2);await fill(page,'parameter-min_scale',1);
+   const first=await click(page,'generate');
+   const packing=await page.evaluate(()=>JSON.parse(new TextDecoder().decode(patternStudio.state.result.assets['instance.json'])).extensions.mosaic.packing);
+   assert.equal(packing.status,'partial_packing');assert(packing.tiles.length>0&&packing.rejected.length>0);
+   assert.match(await page.locator('#state').textContent(),/Partial packing/);assert.match(await page.locator('#validity').textContent(),/Partial packing/);
+   assert.match(await page.locator('#construction').textContent(),new RegExp(packing.rejected.length+' rejected'));
+   await select(page,'profile','monochrome');const styled=await click(page,'apply');assert.equal(instance(styled),instance(first));
+   assert.match(await page.locator('#state').textContent(),/Partial packing/);
+   await collect(page,'partial-packing',['Native partial packing is shown explicitly rather than advertised as complete packing','Native placed/rejected/coverage and solver status are visible','Paint revision preserves partial construction and its status']);
+  },
   async page_controls(page){
    await select(page,'family','periodic');const original=await click(page,'generate');
    await select(page,'profile','monochrome');const gray=await click(page,'apply');

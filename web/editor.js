@@ -7,6 +7,32 @@ window.runtimeReady = client.load();
 let loaded, catalog, recipe, result = null, history = [], cursor = -1, drafts = {}, epoch = 0, pending = false;
 let navigation = {zoom:1,x:0,y:0}, drag = null, saveChain = Promise.resolve(), database;
 const parameterInputs = new Map(), inputEditors = new Map();
+const nativeSummaries = new WeakMap();
+function nativeSummary(value) {
+  if(nativeSummaries.has(value))return nativeSummaries.get(value);
+  const instance=jsonAsset(value,'instance.json'),details=[];let label='Complete';
+  for(const[family,payload]of Object.entries(instance.extensions??{})){
+    if(!payload||typeof payload!=='object')continue;
+    if(payload.packing&&typeof payload.packing.status==='string'){
+      const packing=payload.packing,detail={family,kind:'packing',status:packing.status};
+      if(Array.isArray(packing.tiles))detail.placed=packing.tiles.length;
+      if(Array.isArray(packing.rejected))detail.rejected=packing.rejected.length;
+      if(Number.isFinite(packing.coverage))detail.coverage=packing.coverage;
+      details.push(detail);
+      if(packing.status==='partial_packing')label='Partial packing';
+      if(packing.status==='empty_packing')label='Empty packing';
+    }
+    if(payload.solver&&typeof payload.solver.status==='string')details.push({family,kind:'solver',status:payload.solver.status});
+  }
+  const text=details.map(item=>{
+    let message=title(item.kind)+': '+title(item.status);
+    if(item.placed!==undefined)message+=' · '+item.placed+' placed';
+    if(item.rejected!==undefined)message+=' · '+item.rejected+' rejected';
+    if(item.coverage!==undefined)message+=' · '+(100*item.coverage).toFixed(1)+'% coverage';
+    return message;
+  }).join('. ');
+  const summary={label,details,text:text||'Native construction validated.'};nativeSummaries.set(value,summary);return summary;
+}
 function message(text, error = null) {
   $('state').textContent = text; $('error').hidden = !error; $('error').textContent = error?.message ?? '';
 }
@@ -175,7 +201,7 @@ async function apply(generate=false){
     const record=jsonAsset(value,'record.json');if(record.status!=='complete')throw Error('Pattern is '+record.status+': '+pretty(record.diagnostics));
     safeSvg(value.assets['pattern.svg']);
     value.structural_input_sha256=structuralDigest;
-    result=value;remember();display();persist();message('Complete · '+(command==='render'?'existing structure preserved':'structure generated and validated'));
+    result=value;remember();display();persist();message(nativeSummary(value).label+' · '+(command==='render'?'existing structure preserved':'structure generated and validated'));
   }catch(error){if(token!==epoch)return;message(error.code==='cancelled'?'Cancelled · previous work preserved':'Failed · previous work preserved',error);$('validity').textContent='Failed edit · previous preview';persist();}
 }
 function replayFiles(value){const files={};for(const[name,bytes]of Object.entries(value.assets))if(['recipe.json','instance.json','record.json','instance-format.json'].includes(name)||name.startsWith('block-'))files[name]=bytes;return files;}
@@ -192,10 +218,11 @@ function safeSvg(bytes){
 function display(){
   if(result?.assets['pattern.svg']){$('art').replaceChildren(safeSvg(result.assets['pattern.svg']));document.querySelector('.empty').hidden=true;}
   else{$('art').replaceChildren();document.querySelector('.empty').hidden=false;}
-  if(result){const record=jsonAsset(result,'record.json');$('validity').textContent=record.status+' · '+recipe.view.validity;
+  if(result){const record=jsonAsset(result,'record.json'),construction=nativeSummary(result);$('validity').textContent=(construction.label==='Complete'?record.status:construction.label+' · validated')+' · '+recipe.view.validity;
+    $('construction').textContent=construction.text;
     $('diagnostics').textContent=pretty({status:record.status,mathematics:recipe.definition.assumptions,validation:record.validation,diagnostics:record.diagnostics,
-      source_digest:result.source_digest,instance_sha256:result.manifest.find(x=>x.name==='instance.json')?.sha256,lineage:record.lineage,statistics:result.stats});}
-  else{$('validity').textContent='Not generated';$('diagnostics').textContent='No validated instance yet.';}
+      construction:construction.details,source_digest:result.source_digest,instance_sha256:result.manifest.find(x=>x.name==='instance.json')?.sha256,lineage:record.lineage,statistics:result.stats});}
+  else{$('validity').textContent='Not generated';$('construction').textContent='';$('diagnostics').textContent='No validated instance yet.';}
   transform();enableExports(Boolean(result&&result.source_digest===loaded.manifest.source_digest&&decode(result.assets['recipe.json'])===JSON.stringify(recipe)));
   // Native canonical JSON is not JavaScript's insertion-order serialization.
   if(result&&result.source_digest===loaded.manifest.source_digest)enableExports(JSON.stringify(jsonAsset(result,'recipe.json'))===JSON.stringify(recipe));

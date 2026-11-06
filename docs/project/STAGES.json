@@ -1185,7 +1185,7 @@
       "acceptance_items": [
         "these tasks work through the shared implementation, no menu contains placeholder capabilities, stale worker results cannot overwrite current state, errors are actionable and saved work reloads faithfully. Record browser evidence and remaining compatibility limits."
       ],
-      "observed_results": "Stages00–31 passed; stage32 in progress. work/stage32 HEAD bd11eefd36d21104ad46cbdde2684401ec6ee9b8 (accepted31); remote draftPR2 stillbd11; no32CI/publishedacceptance yet. Complete working editor and shared native edits/revision/paint paths implemented. Local Lupa2.8 Lua5.3 and5.4 eachpassed17revision+17oldCLIcore+78nativeeditor/planner/color/strictJSON checks. Actual Edge156 combined editor suite passed10outputcases at source8b05: gray/palette documentborder, authoredCelticstrandend, anchoredPenrose+Spectrecrops preservinginstance, exemplarimport, microgram, maze+solution, recovery andzoomedcanvaspoint/maskediting. IndependentPDF/XML inspection passedall10 physicalunits/vector/gray/searchabletextchecks. Later scoped latest-source H passedpage-controls preservingexactviewIDs/options forunrelatedpaint, nativepage-size-only fullcrop, explicitgeneration, Micrographyunsupportedcontrols omission and390px fontwrap; independentlyinspected2vectors. Latest-source I passedmeaningful importedexemplar primitive-thickness change withactualsynthesizedSVGdifference; independentlyinspecteditsvector. Earlier exemplar test changed ignoredidfields andwas insufficient foralteredsynthesis; preservedhistoricalreceipts withexplicitreviewnote andstrongerIproof. Strongrecoverycoversrefreshdraft+history, undo/redo, savedvectornative-replayrejectsforgeryevenwithattacker-recomputedhash, malformedimports, stalegeneration+delayedimport, offlinenativefreshworkers, keyboard/390px. Screenshotsforrequiredtasksandlatestmobile/exemplar visuallyreviewed. receipts32/local-editor.json +combined/page-controls/exemplar-geometry rawreceipts/vectors +local-evidence-archive.json bindscopes; fullrawoutputs/Florilegium_Stage32_Editor_Local_Evidence.zip andolderDevelopment_Evidence.zip preservedoutsideGit. Complete32coreharness(runtime.html), all31family/adversarialgates preserved, editorcheck.cjs/editor_vectors.py andnewnativeLua checks integratedCI/artifacts. docs/browser-editor.md documentsactualcontrols, profiles, userworkbackup, limits andlocalstaticlaunch. NoSite/deployment/release/merge. NEXT preparediff/sourcekit andrawatomicpublicationbasedbd11, verifyfulltreeandallprotected29/30/31rawhashes/binaries/modes/history, thenall5exact32headCIjobs/downloadedartifactsbefore32passes. Currentpreview8768server90311restartedonlyafterconfirmedrefused/deadoldhandle. Priorprocesses49072/95947terminal; theirreceiptsauthoritative. No userblocker/agents. Stage33 carriedsource-newline/integer-label notes stillUNRUN. Finish32 thencontinue33–39 automatically.",
+      "observed_results": "Stage32 IN PROGRESS. Firstcandidatecc23 independentlypublished/836blobs+26binary+172priorhashesverified; nativeCI59 common/dual/portablepassed, otherjobsobservedpending. FirstcandidateNOTaccepted: realnativeMosaicpartial_packing (1placed29rejected) was labeledComplete. Isolated work/stage32-status-repair HEADcc23 preservesallolderdirtyandverifiedcheckouts. Fixreadsactualnativepacking/solverstatus, countsandcoverage; labelsPartial/Emptyseparatelyfrombuildvalidation. Newrealbrowserpartialcasefailsagainstfirstcandidateandpassesagainstrepair; sameinstancepreservedaftergraystyle. Exemplar andMicrography rerunpassed; independentPDF/XML inspection3outputspassed; screenshotsvisuallyreviewed. NoLua, geometry, solver, validator, paintorbaselinechange. Current10oldeditorworkflows+newpartial=11workflows/13outputcasesaremandatoryCI. Nativeall5mustpassatrepairhead; oldgreen59isnotacceptance. Allissued29/30/31hashesprotected. Evidencepartial-status-finding/before/after/vectors/repairJSON plusold32nativepublicationreceiptsimportedraw. Fullrawbefore/afteroutputsarchiveoutputs/Florilegium_Stage32_Partial_Status_Evidence.zip. NEXTpublishrepairguardedagainstcc23, independentlyfetch/modes/binaries/fulltree/archive/bundle, runall5exactrepairheadCIandverifyallcurrentartifacts; then32acceptanceand33–39. Noagents/userblocker/merge/release/deploy/Siteregistration.",
       "evidence_paths": [
         "artifacts/receipts/32/stage31-checkpoint-import.json",
         "artifacts/receipts/32/revision-local.json",
@@ -1193,13 +1193,18 @@
         "artifacts/receipts/32/cli-revision-local.json",
         "artifacts/receipts/32/research.json",
         "artifacts/receipts/32/local-editor.json",
-        "artifacts/receipts/32/local-evidence-archive.json"
+        "artifacts/receipts/32/local-evidence-archive.json",
+        "artifacts/receipts/32/partial-status-finding.json",
+        "artifacts/receipts/32/partial-status-before.json",
+        "artifacts/receipts/32/partial-status-after.json",
+        "artifacts/receipts/32/partial-status-vectors.json",
+        "artifacts/receipts/32/partial-status-repair.json"
       ],
-      "tested_code_revision": "working/266e1507b3c11dedd06ae2a02f6ea62fca06fa474a843e39e664568ac6cf95d8",
-      "local_commit": null,
-      "verified_remote_revision": null,
-      "next_action": "Prepare sourcekit and stage32 guarded rawUTF8 publication manifest preserving everyissued29/30/31 hash; createGitblobs/tree/commit parentbd11, expected-head branchupdate. OrdinaryGitfetchindependentfulltree/history/binary/mode/evidencechecks andZIP/bundle. Pollall5exact32headnative/browserCIjobs, downloadandverifycurrentartifacts, repairfailureswithoutwaivingoldgates. Onlythen32acceptance; begin33 andcontinue39. NativeTeX andcurrentexact-head allcasesnotyetrun; localbrowserproofisnotCIacceptance.",
-      "source_base_revision": "bd11eefd36d21104ad46cbdde2684401ec6ee9b8"
+      "tested_code_revision": "working/status-repair",
+      "local_commit": "cc23ebe635039e1495e212708ec41e8e8b3745a4",
+      "verified_remote_revision": "cc23ebe635039e1495e212708ec41e8e8b3745a4",
+      "next_action": "Finish repairpublication fromcc23 and atomicbranchlease. Do notrerunbd11candidatepublisher. Derivecurrentexpectedsource, listcurrentrepairrun, downloadactualnative/browserartifacts andverifyalloldgatesplusnewpartialstatuscase13outputs/11workflows, native17+78checks, realvectors/screens. PreserveunacceptedCI59history; no32passbeforeallmandatoryrepairgates. Then33–39automatically.",
+      "source_base_revision": "cc23ebe635039e1495e212708ec41e8e8b3745a4"
     },
     {
       "id": "33",
