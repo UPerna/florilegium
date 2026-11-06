@@ -124,3 +124,5 @@ R19a and R19b were recovered as the complete combined TU/e scan with a readable 
 - Web2c 2026, 3.2 Common options, recorder: Recorder captures opened input/output paths; jobname controls the fls basename. https://tug.org/texinfohtml/web2c.html
 - 6.4.2/dev, January 2026, kpsewhich --format; supported file formats: The explicit opentype fonts and truetype fonts format names match the existing Lua font lookup; no shell quoting is required in argument arrays. https://tug.org/texinfohtml/kpathsea.html
 - pypdf documentation 6.21.4, Using a visitor: decoded text fragments and user/text transforms; native runtime version is recorded separately. https://pypdf.readthedocs.io/en/stable/user/extract-text.html
+
+- pypdf documentation6.21.4, content-only transformations and explicit media/crop boxes: measured-frame registration retains actual book clipping and foreground paint. Retrieved2026-11-06. https://pypdf.readthedocs.io/en/stable/user/cropping-and-transforming.html

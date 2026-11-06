@@ -5,7 +5,9 @@ from pathlib import Path
 import subprocess
 import unicodedata
 from PIL import Image, ImageChops, ImageDraw, ImageFilter
-from pypdf import PdfReader
+from pypdf import PdfReader, PdfWriter
+from pypdf.generic import RectangleObject
+from pattern_tex_pdf import forms, locate
 import pattern_tex_consumer as consumer
 from tex_build_consumer import build_cases
 
@@ -97,6 +99,34 @@ def page_image(pdf, page, prefix):
     return Image.open(str(prefix) + '.png').convert('RGB')
 
 
+def registered_inline(reader, page_number, source, prefix):
+    """Register actual page paint, retaining its clips and foreground occlusion.
+
+    Placement is checked independently. Engine PDF serializers round page
+    translations differently; rasterizing on those slightly different grids
+    can flip antialias pixels even for identical imported drawing commands.
+    Only a positive uniform inclusion transform may be undone here.
+    """
+    original = reader.pages[page_number - 1]
+    measured = locate(forms(reader, original), source)
+    m = measured['matrix']
+    assert m[0] > 0 and m[3] > 0 and abs(m[0] - m[3]) < 1e-8, ('Nonuniform inline inclusion', m)
+    assert abs(m[1]) < 1e-8 and abs(m[2]) < 1e-8, ('Rotated/reflected inline inclusion', m)
+    scale = m[0]
+    registration = (1 / scale, 0, 0, 1 / scale, -m[4] / scale, -m[5] / scale)
+    writer = PdfWriter()
+    page = writer.add_page(original)
+    page.add_transformation(registration)
+    box = PdfReader(source).pages[0].mediabox
+    page.mediabox = RectangleObject(box)
+    page.cropbox = RectangleObject(box)
+    destination = Path(str(prefix) + '.pdf')
+    writer.write(destination)
+    mask = color_mask(page_image(destination, 1, prefix))
+    return mask, {'actual_form_matrix': list(m), 'registration_matrix': list(registration),
+                  'source_box_bp': list(map(float, box)), 'actual_book_page_paint_retained': True}
+
+
 def compare_books(lua_folder, xe_folder, folder):
     books = [lua_folder / 'book', xe_folder / 'book']
     traces = [consumer.read(book / 'book-patterns.json') for book in books]
@@ -149,9 +179,12 @@ def compare_books(lua_folder, xe_folder, folder):
             compare_data(boxes[0], boxes[1], f'page/{page_number}/inline/{index}', numerical)
             paths = [book / (item['prefix'] + '.pdf') for book, item in zip(books, pair)]
             assert paths[0].read_bytes() == paths[1].read_bytes(), (pair[0]['name'], 'shared inline PDF/font resources changed')
-            union = [min(x[0] for x in boxes), min(x[1] for x in boxes), max(x[2] for x in boxes), max(x[3] for x in boxes)]
-            crops = [mask.crop(bounds_pixels(union, mask.size, media, padding=1)) for mask in masks]
-            raster.append(compare_masks(*crops, f'actual-page/{page_number}/inline/{pair[0]["name"]}'))
+            registered = [registered_inline(reader, page_number, source,
+                          folder / f'{engine}-page-{page_number}-inline-{index}')
+                          for engine, reader, source in zip(('lua', 'xe'), readers, paths)]
+            check = compare_masks(*(x[0] for x in registered), f'actual-page/{page_number}/inline/{pair[0]["name"]}')
+            check['measured_frame_registration'] = [x[1] for x in registered]
+            raster.append(check)
     return {'source_scenes_and_instances': source_scenes, 'drawing_numeric_differences': numerical,
             'coordinate_tolerance_cm': COORDINATE_TOLERANCE, 'actual_book_raster_checks': raster,
             'complete_extracted_letters_and_reading_order_equal': True,

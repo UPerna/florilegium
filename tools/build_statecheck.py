@@ -59,6 +59,7 @@ def main():
             receipt = json.loads((folder / "case-build.json").read_text(encoding="utf8"))
             if mode == "stable":
                 assert failure is None and receipt["status"] == "complete" and receipt["accepted_pass"] == compiler.calls == 2
+                assert receipt['passes'][-1]['compiler_inputs'][str(source)] == driver.file_hash(source), 'UTF-8 filename was silently omitted from input tracking'
             elif mode in {"missing-pdf", "partial-pdf"}:
                 assert failure and "missing or incomplete" in failure and receipt["status"] == "failed"
                 if mode == "missing-pdf":

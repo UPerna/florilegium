@@ -22,7 +22,7 @@ def state(folder, name, engine):
     files.add(folder / (name + "-patterns.json"))
     recorder = folder / (name + ".fls")
     if recorder.is_file():
-        for line in recorder.read_text(errors="replace").splitlines():
+        for line in recorder.read_text(encoding="utf8", errors="replace").splitlines():
             if line.startswith(("OUTPUT ", "INPUT ")):
                 path = Path(line.split(" ", 1)[1])
                 if not path.is_absolute():
@@ -47,7 +47,7 @@ def compiler_inputs(folder, name):
     if not recorder.is_file():
         return {}
     paths = set()
-    for line in recorder.read_text(errors="replace").splitlines():
+    for line in recorder.read_text(encoding="utf8", errors="replace").splitlines():
         if not line.startswith("INPUT "):
             continue
         p = Path(line[6:])

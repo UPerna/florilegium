@@ -36,7 +36,13 @@
       "version": "documentation6.21.4",
       "sections": "Using a visitor",
       "use": "Text visitors expose decoded fragments and user/text matrices; fragments may combine operators, so hidden text is filtered at ContentStream operators before visible-initial verification."
+    },
+    {
+      "url": "https://pypdf.readthedocs.io/en/stable/user/cropping-and-transforming.html",
+      "version": "documentation6.21.4",
+      "sections": "Scaling the content only; explicit media/crop boxes",
+      "use": "Register actual page paint by inverse measured positive uniform Form transform while retaining clips and foreground occlusion; independent placement checks remain mandatory."
     }
   ],
-  "status": "Primary API references inspected; native adapter and convergence gates remain unrun."
+  "status": "Initial native consumers passed both engines; dual raster failure diagnosed and repaired locally; revised exact-head native suite remains pending."
 }
