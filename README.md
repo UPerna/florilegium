@@ -3,6 +3,7 @@
 [![build](https://github.com/kevinraymond/florilegium/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/kevinraymond/florilegium/actions/workflows/build.yml)
 [![playground](https://github.com/kevinraymond/florilegium/actions/workflows/pages.yml/badge.svg?branch=main)](https://kevinraymond.github.io/florilegium/)
 [![release](https://img.shields.io/github/v/release/kevinraymond/florilegium?color=2456c4)](https://github.com/kevinraymond/florilegium/releases/latest)
+[![CTAN](https://img.shields.io/ctan/v/florilegium?color=2456c4)](https://ctan.org/pkg/florilegium)
 [![license](https://img.shields.io/github/license/kevinraymond/florilegium?color=2456c4)](LICENSE)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/kevinraymond/florilegium/badge)](https://scorecard.dev/viewer/?uri=github.com/kevinraymond/florilegium)
 
@@ -18,6 +19,7 @@ the text leaves free.*
 
 **[Try it in your browser](https://kevinraymond.github.io/florilegium/)** ·
 [download the package and the PDFs](https://github.com/kevinraymond/florilegium/releases/latest) ·
+[on CTAN](https://ctan.org/pkg/florilegium) ·
 [documentation](#documentation)
 
 ## Origin
