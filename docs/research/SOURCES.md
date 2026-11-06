@@ -115,3 +115,12 @@ R19a and R19b were recovered as the complete combined TU/e scan with a readable 
 - LaTeX Project, shipout hooks and interfaces, file v1.0r 2026-10-13, document 2026-11-03; sections 1.2 and 1.6: physical background origin, discard decision and read-only shipped-page counter. https://www.latex-project.org/help/documentation/ltshipout-doc.pdf
 - D. P. Carlisle / LaTeX Project, graphics bundle guide, 2026-05-17, section 4.4: PDF media boxes, positive uniform sizing and embedding. https://mirrors.ctan.org/macros/latex/required/graphics/grfguide.pdf
 - pypdf project, ContentStream source/API documentation inspected at 6.21.4; parsed operators, Form resources and current-transform stacks are used only by independent QA. Installed version is recorded in native evidence. https://pypdf.readthedocs.io/en/stable/_modules/pypdf/generic/_data_structures.html
+
+## Stage 30 external host and convergence (retrieved 2026-11-06)
+
+- 2025-02-11, 8.1 Geometry; 8.5 File handling: XeTeX uses pdfsavepos/pdflastxpos/pdflastypos; Unicode and group-delimited filenames. https://ctan.math.illinois.edu/info/xetexref/xetex-reference.pdf
+- 2026-10-13 v1.0r, Information counters; shipout/background: Read-only actual shipped index after discard decision, and physical background picture placement. https://raw.githubusercontent.com/latex3/latex2e/develop/base/ltshipout.dtx
+- 2026-06-01 v1.2w, include and @include file handling: Included chapters use separate auxiliary files; main aux alone cannot establish convergence. https://raw.githubusercontent.com/latex3/latex2e/develop/base/ltfiles.dtx
+- Web2c 2026, 3.2 Common options, recorder: Recorder captures opened input/output paths; jobname controls the fls basename. https://tug.org/texinfohtml/web2c.html
+- 6.4.2/dev, January 2026, kpsewhich --format; supported file formats: The explicit opentype fonts and truetype fonts format names match the existing Lua font lookup; no shell quoting is required in argument arrays. https://tug.org/texinfohtml/kpathsea.html
+- pypdf documentation 6.21.4, Using a visitor: decoded text fragments and user/text transforms; native runtime version is recorded separately. https://pypdf.readthedocs.io/en/stable/user/extract-text.html

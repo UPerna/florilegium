@@ -51,6 +51,6 @@ Generated files live in the build directory. `florilegium-pattern-HASH.*` files 
 
 `texlua tools/check-pattern-tex.lua` checks the engine-neutral adapter. `python3 tools/pattern_tex_consumer.py` compiles the actual book and load-order/failure cases, measures imported PDF Form transforms, checks protected pixels against unmasked controls, inspects searchable text and verifies included-file plus pattern-state convergence. Native QA uses Poppler, Pillow and pypdf; pypdf is a verification dependency, not a production generator dependency.
 
-The new common API currently requires LuaLaTeX. Existing XeLaTeX commands keep working; new common commands fail explicitly until the external common adapter is installed.
+The common API also has an external XeLaTeX adapter. Use `tools/build.py --engine xe`; its dependency and convergence checks are required to finish the external passes. See [XeLaTeX patterns and build evidence](XELATEX-PATTERNS.md) for the record protocol, diagnostics and verification scope.
 
 Primary host references inspected 2026-11-05: [LaTeX shipout hooks](https://www.latex-project.org/help/documentation/ltshipout-doc.pdf), v1.0r, sections 1.2/1.6; [graphics bundle guide](https://mirrors.ctan.org/macros/latex/required/graphics/grfguide.pdf), 2026-05-17, section 4.4. The independent parser uses [pypdf ContentStream](https://pypdf.readthedocs.io/en/stable/_modules/pypdf/generic/_data_structures.html), inspected at documentation version 6.21.4; the receipt records the installed QA version.

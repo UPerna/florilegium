@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_stage": "29",
+  "current_stage": "30",
   "prompt_sha256": "8D25740D944FC98943FD005737BD825215CFCF6F894218790E140EDE8EE3F09E",
   "stages": [
     {
@@ -846,12 +846,12 @@
     {
       "id": "29",
       "title": "LuaLaTeX document integration",
-      "status": "in_progress",
+      "status": "passed",
       "prerequisites": "28",
       "acceptance_items": [
         "old documents still build, the new API drives actual semantic generators through the same core, text remains searchable where declared, and existing plus new consumer regressions pass. Reject unsupported options clearly; no successful compile may hide missing artwork behind an unreported fallback."
       ],
-      "observed_results": "The b2ec native common job passed, its four-page book independently passed nine positions, searchable text, L-mask controls, four load orders and eight failure cases, and all pages passed visual review. Portable source kit: 605 manifest hashes, 604 canonical Git files, one explicitly reviewed regenerated book preview, all 111 CLI sources exact; extracted kit generated/replayed identical instance/PDF/SVG. Audit then found source-declared print minima were rechecked for page fitting but omitted during inline scaling. Repair reuses the existing planner validator in source units for positive uniform scale, records physical evidence, and adds stroke/text shrink failures; 42 adapter checks and actual host fallback passed on both Lua 5.3 and 5.4 at source 43f74f22b177613d857262d021f960604a003b94396cf637860ccc088bc13415; final native rerun pending. All b2ec native jobs passed, with 44 native CLI exports identical to stage 28, 82 planner checks and 17 CLI core checks verified.",
+      "observed_results": "Common semantic LuaLaTeX API, 42 adapter checks, actual host fallback, complete four-page included-chapter book, nine physical positions, ten invalid-input/collision failures, text/protection/load-order/discard/convergence gates, all inherited CI and source-kit consumer verification passed.",
       "evidence_paths": [
         "artifacts/receipts/29/core-local-lua53.json",
         "artifacts/receipts/29/core-local-lua54.json",
@@ -877,27 +877,43 @@
         "artifacts/receipts/29/common-native-verification.json",
         "artifacts/receipts/29/portable-native-verification.json",
         "artifacts/receipts/29/packaged-cli-local.json",
-        "artifacts/receipts/29/inline-constraint-repair.json"
+        "artifacts/receipts/29/inline-constraint-repair.json",
+        "artifacts/receipts/29/inline-publication.json",
+        "artifacts/receipts/29/ci-inline-final.json",
+        "artifacts/receipts/29/inline-final-head-and-pr.json",
+        "artifacts/receipts/29/inline-common-native-verification.json",
+        "artifacts/receipts/29/inline-portable-native-verification.json",
+        "artifacts/receipts/29/inherited-inline-native-verification.json",
+        "artifacts/receipts/29/acceptance.json"
       ],
-      "tested_code_revision": "b2ec1c6cfb2287545da3437bbd1f42df150276c7",
-      "local_commit": "b2ec1c6cfb2287545da3437bbd1f42df150276c7",
-      "verified_remote_revision": "b2ec1c6cfb2287545da3437bbd1f42df150276c7",
-      "next_action": "Finish stage 29 inline print-minimum repair in work/stage29-inline. Local 42-check adapter and actual host fallback regressions passed on Lua 5.3 and 5.4 at source 43f74f22b177613d857262d021f960604a003b94396cf637860ccc088bc13415. Publish intended files as a guarded child of b2ec1c6, independently fetch/tree-verify, run exact-head native CI. Require 42 core checks, all ten expected-failure/collision cases, all positive book gates and inherited pdfs/portable success. Current b2ec native positive+eight negatives and portable passed, but its inline scaling gap prevents acceptance. Do not begin 30 until final exact-head evidence passes."
+      "tested_code_revision": "3e49627f01651ede39c56f5c6e9ef41bcc0230fe",
+      "local_commit": "3e49627f01651ede39c56f5c6e9ef41bcc0230fe",
+      "verified_remote_revision": "3e49627f01651ede39c56f5c6e9ef41bcc0230fe",
+      "next_action": "Begin stage 30; preserve all existing work and publication boundaries."
     },
     {
       "id": "30",
       "title": "XeLaTeX portability and convergent external builds",
-      "status": "pending",
+      "status": "in_progress",
       "prerequisites": "29",
       "acceptance_items": [
         "the documented dual-engine suite includes all newly required document capabilities, convergence and stale-rebuild failures are exercised, and the output in each engine is independently complete. Hosted-editor limitations remain explicit unless actually tested there. New backend work must preserve the verified standalone shared renderer."
       ],
-      "observed_results": null,
-      "evidence_paths": null,
-      "tested_code_revision": null,
-      "local_commit": null,
-      "verified_remote_revision": null,
-      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+      "observed_results": "Stage 30 implementation is ready for first native CI in work/stage30 at isolated HEAD 3e49627. Common XeTeX records and shared-core host, versioned dependency/output evidence, safe metadata replacement, bounded build convergence, both-engine native consumer, complete dual comparison/failure suite, docs and patterns-dual CI job are implemented. Fixed-source local checks passed: 42 shared-adapter assertions and actual Lua host fallback on Lua 5.3/5.4 (source49c15e...), 119 external-record/hash/publication assertions on both versions, and current build-control fault checks at2307b7d0... . Oracle self-checks reject a missing actual glyph component despite only0.002836 global ink difference, and reject hidden-A/visible-B text as proof of a painted A. Python syntax and diff checks passed. Native TeX/CI is UNRUN. Prepare a raw-byte-preserving publication manifest, preserving the issued stage29 checkpoint receipt hashes (no newline normalization). Publish a guarded ordinary child of current remote3e49627; independently fetch and verify parent/tree/all changed bytes and inherited modes/binaries. Compute source fingerprints and monitor all exact-head jobs, especially patterns-dual. Download and independently verify actual native artifacts, compare both books and inspect visuals, investigate/repair native failures. Do not accept30 or start31 until every mandatory gate passes. Preserve all other dirty checkouts; do not rerun begin-stage30.py.",
+      "evidence_paths": [
+        "artifacts/receipts/30/record-adapter-Lua-5.4.json",
+        "artifacts/receipts/30/record-adapter-Lua-5.3.json",
+        "artifacts/receipts/30/build-control-development.json",
+        "artifacts/receipts/30/shared-core-lua53.json",
+        "artifacts/receipts/30/shared-core-lua54.json",
+        "artifacts/receipts/30/lua-host-Lua-5.4.json",
+        "artifacts/receipts/30/lua-host-Lua-5.3.json",
+        "artifacts/receipts/30/research.json"
+      ],
+      "tested_code_revision": "3e49627f01651ede39c56f5c6e9ef41bcc0230fe",
+      "local_commit": "3e49627f01651ede39c56f5c6e9ef41bcc0230fe",
+      "verified_remote_revision": "3e49627f01651ede39c56f5c6e9ef41bcc0230fe",
+      "next_action": "Stage 30 implementation is ready for first native CI in work/stage30 at isolated HEAD 3e49627. Common XeTeX records and shared-core host, versioned dependency/output evidence, safe metadata replacement, bounded build convergence, both-engine native consumer, complete dual comparison/failure suite, docs and patterns-dual CI job are implemented. Fixed-source local checks passed: 42 shared-adapter assertions and actual Lua host fallback on Lua 5.3/5.4 (source49c15e...), 119 external-record/hash/publication assertions on both versions, and current build-control fault checks at2307b7d0... . Oracle self-checks reject a missing actual glyph component despite only0.002836 global ink difference, and reject hidden-A/visible-B text as proof of a painted A. Python syntax and diff checks passed. Native TeX/CI is UNRUN. Prepare a raw-byte-preserving publication manifest, preserving the issued stage29 checkpoint receipt hashes (no newline normalization). Publish a guarded ordinary child of current remote3e49627; independently fetch and verify parent/tree/all changed bytes and inherited modes/binaries. Compute source fingerprints and monitor all exact-head jobs, especially patterns-dual. Download and independently verify actual native artifacts, compare both books and inspect visuals, investigate/repair native failures. Do not accept30 or start31 until every mandatory gate passes. Preserve all other dirty checkouts; do not rerun begin-stage30.py."
     },
     {
       "id": "31",

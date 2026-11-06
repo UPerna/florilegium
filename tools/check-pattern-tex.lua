@@ -10,7 +10,7 @@ hashes['tools/tex-inline-constraints.lua']=H.sha256(read('tools/tex-inline-const
 for name in lfs.dir('examples/patterns')do
   if name:match('%.recipe$')then local path='examples/patterns/'..name;hashes[path]=H.sha256(read(path))end
 end
-for _,name in ipairs({'periodic','micrography','gothic-spatial'})do
+for _,name in ipairs({'periodic','micrography','gothic-spatial','penrose'})do
   local path='examples/cli/'..name..'.recipe';hashes[path]=H.sha256(read(path))
 end
 local digest=H.value('tex/check-source',hashes)

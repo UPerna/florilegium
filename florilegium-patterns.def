@@ -22,12 +22,7 @@
     \directlua{florilegium_patterns.background(\number\ReadonlyShipoutCounter)}\fi}
   \AddToHook{enddocument/afterlastpage}{\ifflo@patternsactive\directlua{florilegium_patterns.finish()}\fi}
 \else
-  \def\flo@patternunsupported{\PackageError{florilegium}{Common pattern API requires the LuaLaTeX adapter}{Use LuaLaTeX for these new commands.}}
-  \newcommand\florilegiumpatterninput[2]{\flo@patternunsupported}
-  \newcommand\florilegiumpatterndeclare[2]{\flo@patternunsupported}
-  \NewDocumentCommand\florilegiumpatterninline{O{0pt} m}{\flo@patternunsupported}
-  \NewDocumentCommand\florilegiumpatterndivider{O{.75\linewidth} m}{\flo@patternunsupported}
-  \NewDocumentCommand\florilegiumpatternpage{O{} m}{\flo@patternunsupported}
+  \input{florilegium-patterns-xetex.def}
 \fi
 \@onlypreamble\florilegiumpatterninput
 \@onlypreamble\florilegiumpatterndeclare

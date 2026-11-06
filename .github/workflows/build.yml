@@ -155,6 +155,38 @@ jobs:
             build/pattern-luatex-host/
             build/pattern-luatex/
 
+  patterns-dual:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: shared semantic patterns and bounded builds in both native engines
+        uses: xu-cheng/latex-action@v3
+        with:
+          root_file: folio-demo.tex
+          latexmk_use_lualatex: true
+          extra_system_packages: python3 py3-pillow py3-pypdf poppler-utils
+          post_compile: >-
+            texlua tools/check-pattern-xetex.lua &&
+            python3 tools/build_statecheck.py &&
+            python3 tools/pattern_dual_tex_consumer.py
+      - name: preserve dual-engine verification evidence
+        if: always()
+        run: |
+          for folder in build/pattern-xetex build/pattern-luatex build/pattern-dual build/build-control; do
+            if [ -d "$folder" ]; then sudo chmod -R a+rX "$folder"; fi
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: florilegium-common-dual
+          path: |
+            build/pattern-xetex/
+            build/pattern-luatex/
+            build/pattern-dual/
+            build/build-control/
+
   portable:
     runs-on: ubuntu-latest
     steps:
