@@ -4,7 +4,7 @@ const $ = id => document.getElementById(id), decode = bytes => new TextDecoder('
 const clone = value => structuredClone(value), pretty = value => JSON.stringify(value, null, 2);
 const client = window.patternClient = new PatternWorkerClient('./');
 window.runtimeReady = client.load();
-let loaded, catalog, recipe, result = null, history = [], cursor = -1, drafts = {}, epoch = 0, pending = false;
+let loaded, catalog, recipe, recipeDigest, result = null, history = [], cursor = -1, drafts = {}, epoch = 0, pending = false;
 let navigation = {zoom:1,x:0,y:0}, drag = null, saveChain = Promise.resolve(), database;
 const parameterInputs = new Map(), inputEditors = new Map();
 const nativeSummaries = new WeakMap();
@@ -46,6 +46,7 @@ function enableExports(ready) {
   $('pdf-save').disabled = !ready || !result?.assets['pattern.pdf'];
   $('network-save').hidden = !ready || !result?.assets['network.json'];
 }
+function isCurrentResult(){return Boolean(result&&result.source_digest===loaded.manifest.source_digest&&result.manifest.find(row=>row.name==='recipe.json')?.sha256===recipeDigest);}
 function captureDrafts() {
   const values = {};
   for (const el of document.querySelectorAll('#settings input,#settings select,#settings textarea,#inputs')) {
@@ -184,12 +185,13 @@ async function apply(generate=false){
     const prepared=await run('validate',{'recipe.json':JSON.stringify(recipe)},{edits:readEdits()},token);
     const candidate=jsonAsset(prepared,'recipe.json'),receipt=jsonAsset(prepared,'edit-receipt.json');
     const currentResult=result;
-    recipe=candidate;drafts={};remember();buildForm();persist();
+    recipe=candidate;recipeDigest=jsonAsset(prepared,'report.json').recipe_sha256;drafts={};remember();buildForm();persist();
     const structuralDigest=jsonAsset(prepared,'report.json').structural_input_sha256;
     const structuralChange=receipt.structural_change||(currentResult&&currentResult.structural_input_sha256!==structuralDigest);
     if(!generate&&(!currentResult||structuralChange)){
+      display();
       message(structuralChange?'Validated structural change · select Generate structure':'Recipe validated · select Generate structure');
-      $('validity').textContent='Validated recipe · preview from previous result';return;
+      $('validity').textContent=result?'Previous preview · Generate structure':'Validated recipe · not generated';return;
     }
     const files={'recipe.json':JSON.stringify(recipe)};let command='generate',extras={};
     if(!generate&&currentResult){
@@ -218,14 +220,15 @@ function safeSvg(bytes){
 function display(){
   if(result?.assets['pattern.svg']){$('art').replaceChildren(safeSvg(result.assets['pattern.svg']));document.querySelector('.empty').hidden=true;}
   else{$('art').replaceChildren();document.querySelector('.empty').hidden=false;}
-  if(result){const record=jsonAsset(result,'record.json'),construction=nativeSummary(result);$('validity').textContent=(construction.label==='Complete'?record.status:construction.label+' · validated')+' · '+recipe.view.validity;
-    $('construction').textContent=construction.text;
-    $('diagnostics').textContent=pretty({status:record.status,mathematics:recipe.definition.assumptions,validation:record.validation,diagnostics:record.diagnostics,
+  if(result){const record=jsonAsset(result,'record.json'),construction=nativeSummary(result),previewRecipe=jsonAsset(result,'recipe.json');
+    $('validity').textContent=isCurrentResult()?(construction.label==='Complete'?record.status:construction.label+' · validated')+' · '+previewRecipe.view.validity:'Previous preview · Generate structure';
+    $('construction').textContent=(isCurrentResult()?'':'Current recipe awaits generation; showing the previous validated construction. ')+construction.text;
+    $('diagnostics').textContent=pretty({status:record.status,mathematics:previewRecipe.definition.assumptions,validation:record.validation,diagnostics:record.diagnostics,
       construction:construction.details,source_digest:result.source_digest,instance_sha256:result.manifest.find(x=>x.name==='instance.json')?.sha256,lineage:record.lineage,statistics:result.stats});}
   else{$('validity').textContent='Not generated';$('construction').textContent='';$('diagnostics').textContent='No validated instance yet.';}
-  transform();enableExports(Boolean(result&&result.source_digest===loaded.manifest.source_digest&&decode(result.assets['recipe.json'])===JSON.stringify(recipe)));
-  // Native canonical JSON is not JavaScript's insertion-order serialization.
-  if(result&&result.source_digest===loaded.manifest.source_digest)enableExports(JSON.stringify(jsonAsset(result,'recipe.json'))===JSON.stringify(recipe));
+  // The actual Lua canonical recipe digest decides result identity. JavaScript
+  // object key order never substitutes for the core's recipe encoding.
+  transform();enableExports(isCurrentResult());
 }
 function transform(){const svg=$('art').firstElementChild;if(svg){
   const box=svg.viewBox.baseVal,ratio=box.width/box.height,w=$('art').clientWidth,h=$('art').clientHeight;
@@ -273,7 +276,7 @@ async function importWorkspace(value,restore=false,token=++epoch){
   const accepted=await verifiedResult(value.result,token);
   if(token!==epoch)throw Error('Import superseded by a newer edit');
   if(accepted){const validation=await run('validate',{'recipe.json':decode(accepted.assets['recipe.json'])},{},token);accepted.structural_input_sha256=jsonAsset(validation,'report.json').structural_input_sha256;}
-  recipe=clone(value.recipe);result=accepted;drafts=value.drafts??{};
+  recipe=clone(value.recipe);recipeDigest=jsonAsset(validated,'report.json').recipe_sha256;result=accepted;drafts=value.drafts??{};
   // Imported history is not trusted evidence. The current instance is validated;
   // keep the previous local workspace as the undo point and import atomically.
   if(restore&&Array.isArray(value.history)&&value.history.length>0&&value.history.length<=12&&Number.isInteger(value.cursor)&&value.cursor>=0&&value.cursor<value.history.length){
@@ -283,6 +286,7 @@ async function importWorkspace(value,restore=false,token=++epoch){
   if(!Number.isFinite(navigation.zoom)||navigation.zoom<.1||navigation.zoom>20||![navigation.x,navigation.y].every(Number.isFinite))navigation={zoom:1,x:0,y:0};
   buildForm();display();persist();message('Workspace restored · saved instance validated');
   if(Object.keys(drafts).length){enableExports(false);message('Workspace restored · unapplied settings preserved');}
+  else if(result&&!isCurrentResult())message('Workspace restored · recipe changes need Generate structure');
 }
 $('settings').addEventListener('input',changed);$('inputs').addEventListener('input',changed);
 for(const fileLabel of document.querySelectorAll('label.button')){fileLabel.tabIndex=0;fileLabel.setAttribute('role','button');fileLabel.onkeydown=event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();fileLabel.querySelector('input[type=file]').click();}};}
@@ -293,9 +297,10 @@ $('family').onchange=()=>{invalidate();recipe=JSON.parse(loaded.bundle.examples[
 for(const[id,offset]of[['undo',-1],['redo',1]])$(id).onclick=async()=>{
   invalidate();const token=epoch,target=cursor+offset;
   try{const entry=clone(history[target]);if(!entry)throw Error('No history entry in that direction');
-    await run('validate',{'recipe.json':JSON.stringify(entry.recipe)},{},token);
+    const validated=await run('validate',{'recipe.json':JSON.stringify(entry.recipe)},{},token);
     const accepted=await verifiedResult(entry.result,token);if(token!==epoch)return;
-    cursor=target;recipe=entry.recipe;result=accepted;drafts={};buildForm();display();persist();message('History restored · instance validated');
+    cursor=target;recipe=entry.recipe;recipeDigest=jsonAsset(validated,'report.json').recipe_sha256;result=accepted;drafts={};buildForm();display();persist();message('History restored · instance validated');
+    if(result&&!isCurrentResult())message('History restored · recipe changes need Generate structure');
   }catch(error){if(token===epoch)message('History could not be restored · current work preserved',error);}
 };
 $('border').onclick=()=>{const b=$('crop').value.split(',').map(Number),w=b[2]-b[0],h=b[3]-b[1];$('regions').value=pretty([{bounds:[b[0]+w*.2,b[1]+h*.2,b[2]-w*.2,b[3]-h*.2]}]);changed();};

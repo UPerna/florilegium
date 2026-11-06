@@ -1185,7 +1185,7 @@
       "acceptance_items": [
         "these tasks work through the shared implementation, no menu contains placeholder capabilities, stale worker results cannot overwrite current state, errors are actionable and saved work reloads faithfully. Record browser evidence and remaining compatibility limits."
       ],
-      "observed_results": "Stage32 IN PROGRESS. Firstcandidatecc23 independentlypublished/836blobs+26binary+172priorhashesverified; nativeCI59 common/dual/portablepassed, otherjobsobservedpending. FirstcandidateNOTaccepted: realnativeMosaicpartial_packing (1placed29rejected) was labeledComplete. Isolated work/stage32-status-repair HEADcc23 preservesallolderdirtyandverifiedcheckouts. Fixreadsactualnativepacking/solverstatus, countsandcoverage; labelsPartial/Emptyseparatelyfrombuildvalidation. Newrealbrowserpartialcasefailsagainstfirstcandidateandpassesagainstrepair; sameinstancepreservedaftergraystyle. Exemplar andMicrography rerunpassed; independentPDF/XML inspection3outputspassed; screenshotsvisuallyreviewed. NoLua, geometry, solver, validator, paintorbaselinechange. Current10oldeditorworkflows+newpartial=11workflows/13outputcasesaremandatoryCI. Nativeall5mustpassatrepairhead; oldgreen59isnotacceptance. Allissued29/30/31hashesprotected. Evidencepartial-status-finding/before/after/vectors/repairJSON plusold32nativepublicationreceiptsimportedraw. Fullrawbefore/afteroutputsarchiveoutputs/Florilegium_Stage32_Partial_Status_Evidence.zip. NEXTpublishrepairguardedagainstcc23, independentlyfetch/modes/binaries/fulltree/archive/bundle, runall5exactrepairheadCIandverifyallcurrentartifacts; then32acceptanceand33–39. Noagents/userblocker/merge/release/deploy/Siteregistration.",
+      "observed_results": "Stages00–31passed;32inprogress. Current unpublished typed/canonical repair basedef55779 inwork/stage32-edit-type-repair. Strictnativeobject/arraycontainers andedit-command/typeguards fixsilentfalseinputloss; Lua53/54 each17revision+17oldCLIcore+92nativeeditorchecks passed. ActualbeforecasesfailoldEF; currentbrowserstructuralrefresh, invalideditrecovery, strongrecovery andpartialpackingpassed; independent4vectorPDF/XMLchecks passed. NativecanonicalrecipeSHAcontrolsview/exportidentity; pendingstructuralrecipeclearlylabelsoldpreviewafterrefresh/history; reorderedJSONkeysloadcurrentcorrectly. Allprior32qualitygatesretained; currentmandatoryeditor13workflows/15outputs. Prior59/60candidatesunacceptedforconfirmedUI/inputdefects evenifgreen; theirnative/artifactproofspreserved. Need guardedpublicationparentef55, fullindependentGitverification, newall5exactheadCI/currentartifacts/native17+92/15editoroutputs before32acceptance. Preserveallolderworktrees/172issued29–31rawhashes. Noagents/userblocker/merge/release/deploy/Site. Then33–39automatically.",
       "evidence_paths": [
         "artifacts/receipts/32/stage31-checkpoint-import.json",
         "artifacts/receipts/32/revision-local.json",
@@ -1200,11 +1200,11 @@
         "artifacts/receipts/32/partial-status-vectors.json",
         "artifacts/receipts/32/partial-status-repair.json"
       ],
-      "tested_code_revision": "working/status-repair",
-      "local_commit": "cc23ebe635039e1495e212708ec41e8e8b3745a4",
-      "verified_remote_revision": "cc23ebe635039e1495e212708ec41e8e8b3745a4",
-      "next_action": "Finish repairpublication fromcc23 and atomicbranchlease. Do notrerunbd11candidatepublisher. Derivecurrentexpectedsource, listcurrentrepairrun, downloadactualnative/browserartifacts andverifyalloldgatesplusnewpartialstatuscase13outputs/11workflows, native17+78checks, realvectors/screens. PreserveunacceptedCI59history; no32passbeforeallmandatoryrepairgates. Then33–39automatically.",
-      "source_base_revision": "cc23ebe635039e1495e212708ec41e8e8b3745a4"
+      "tested_code_revision": "working/edit-type-native-canonical",
+      "local_commit": "ef55779a121317ccd9a909c5d4e84b94d368122a",
+      "verified_remote_revision": "ef55779a121317ccd9a909c5d4e84b94d368122a",
+      "next_action": "Prepareandpublishcurrenttyped/canonicalrepairfromef55,independentlyfetch/tree/binary/mode/history/sourceZIP/bundleverify;derivecurrentcommon109/dual113/CLI115inputhashes. Runall5exactnewheadCIjobs anddownloadactualartifacts. Editorreviewrequires15outputs/13workflows/native17+92/root87. Old60native3passesarenotacceptancefornewLua. Preservefailurefixturesandrawproofs. Then32acceptanceand33–39.",
+      "source_base_revision": "ef55779a121317ccd9a909c5d4e84b94d368122a"
     },
     {
       "id": "33",

@@ -5,6 +5,15 @@ local reg=R.new();local d=require('pattern_periodic').register(reg)
 local env=Q.environment({revision='working/editor-prepare',files={construction=source,style={},view={},renderer={}}},{lua=_VERSION,host=PATTERN_TEST_HOST or'texlua/editor-prepare'},{id=V.VERSION,version='1'})
 local first=Q.execute(base,reg,env);assert(first.record.status=='complete',P.serialize(first.record.diagnostics))
 local checks=0;local function check(ok,why)assert(ok,why);checks=checks+1 end
+for _,name in ipairs{'parameters','inputs','style'}do
+ for _,value in ipairs{false,P.array()}do local edit={schema_version=1};edit[name]=value;check(not pcall(E.apply,base,edit),'non-object edit ignored:'..name)end
+end
+for _,name in ipairs{'crop','protected_regions','page_size'}do
+ for _,value in ipairs{false,{}}do local edit={schema_version=1};edit[name]=value;check(not pcall(E.apply,base,edit),'non-array edit ignored:'..name)end
+end
+local touched=false;local host={read=function()touched=true;return Q.encode(base)end}
+check(not pcall(require('pattern_cli_core').dispatch,{schema_version=1,command='validate',edits=false},host)and not touched,'false edits bypassed native request validation')
+check(not pcall(require('pattern_cli_core').dispatch,{schema_version=1,command='capabilities',edits={schema_version=1}},host)and not touched,'unsupported edit command silently ignored intent')
 local Parse=require('pattern_parse');local large='{"payload":"'..string.rep('x',2*1024*1024)..'"}'
 check(not pcall(Parse.decode,large),'recipe byte guard was weakened for editor instances')
 check(#Parse.instance(large).payload==2*1024*1024,'instance transport did not admit bounded large payload')

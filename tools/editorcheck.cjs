@@ -113,6 +113,38 @@ async function main(){
    await page.setViewportSize({width:1400,height:1000});
    await collect(page,'recovery',['Undo/redo keeps validated instances','Refresh preserves unapplied draft, history and accepted instance','Portable workspace output bytes checked against native replay','Forged vector with matching attacker digest rejected by native replay','Malformed import preserves previous work','New edit supersedes running generation and delayed recipe import','Fresh native worker renders while network is offline','Keyboard navigation and 390px responsive layout']);
   },
+  async structural_refresh(page){
+   await select(page,'family','periodic');const first=await click(page,'generate');await fill(page,'seed',8);await click(page,'apply');
+   assert.match(await page.locator('#state').textContent(),/Validated structural change/);assert.equal(instance(await state(page)),instance(first));
+   await page.evaluate(()=>patternStudio.saved);await page.reload();await page.waitForFunction(()=>window.studioReady);await page.evaluate(()=>studioReady);
+   assert.equal((await state(page)).recipe.design.seed,8);assert.equal(instance(await state(page)),instance(first));assert.equal(await page.locator('#svg-save').isDisabled(),true);
+   assert.match(await page.locator('#validity').textContent(),/Previous preview/);assert.match(await page.locator('#state').textContent(),/Generate structure/);
+   const generated=await click(page,'generate');assert.notEqual(instance(generated),instance(first));assert.equal(await page.locator('#svg-save').isEnabled(),true);
+   const event=page.waitForEvent('download');await page.locator('#save').click();const download=await event,portable=path.join(output,'structural-refresh-workspace.json');await download.saveAs(portable);
+   const data=JSON.parse(fs.readFileSync(portable,'utf8'));data.recipe=Object.fromEntries(Object.entries(data.recipe).reverse());
+   await page.locator('#open').setInputFiles({name:'reordered-workspace.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(data))});
+   await page.waitForFunction(()=>document.querySelector('#state').textContent.startsWith('Workspace restored')||!document.querySelector('#error').hidden,{},{timeout:310000});await idle(page);
+   assert.equal(instance(await state(page)),instance(generated));assert.equal(await page.locator('#svg-save').isEnabled(),true,'Native canonical recipe identity was replaced with JavaScript key order');
+   await collect(page,'structural-refresh',['Applied structural change survives refresh with previous preview explicitly labeled','Current recipe remains pending until explicit generation','Native canonical recipe digest handles reordered workspace object keys without false stale status']);
+  },
+  async invalid_edits(page){
+   await select(page,'family','periodic');const first=await click(page,'generate');
+   await page.locator('summary').filter({hasText:'Page & protected regions'}).click();
+   async function rejected(pattern){
+    await page.locator('#apply').click();await page.waitForFunction(()=>!patternStudio.state.pending&&!document.querySelector('#state').textContent.startsWith('Working'),{},{timeout:310000});
+    assert.match(await page.locator('#state').textContent(),/Failed/);assert.match(await page.locator('#error').textContent(),pattern);
+    assert.equal(instance(await state(page)),instance(first));
+   }
+   await fill(page,'regions','false');await rejected(/protected_regions.*array/);assert.equal(await page.locator('#regions').inputValue(),'false');
+   await page.evaluate(()=>patternStudio.saved);await page.reload();await page.waitForFunction(()=>window.studioReady);await page.evaluate(()=>studioReady);
+   assert.equal(await page.locator('#regions').inputValue(),'false');assert.equal(instance(await state(page)),instance(first));
+   await page.locator('summary').filter({hasText:'Page & protected regions'}).click();
+   await fill(page,'regions','{}');await rejected(/protected_regions.*array/);assert.equal(await page.locator('#regions').inputValue(),'{}');
+   await fill(page,'regions','[]');await click(page,'apply');
+   await page.locator('summary').filter({hasText:'Recipe & data'}).click();await fill(page,'inputs','false');await rejected(/inputs.*object/);assert.equal(await page.locator('#inputs').inputValue(),'false');
+   await fill(page,'inputs','{}');await click(page,'apply');
+   await collect(page,'invalid-edit-recovery',['False and object-valued rectangle drafts are rejected by shared native typing','Invalid draft survives validation failure and refresh','False input-map draft is rejected and preserved','Last accepted instance is retained and correction recovers real vectors']);
+  },
   async partial(page){
    await select(page,'family','mosaic');await fill(page,'parameter-count',30);await fill(page,'parameter-tile_size',2);await fill(page,'parameter-min_scale',1);
    const first=await click(page,'generate');

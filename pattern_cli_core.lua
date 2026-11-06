@@ -43,6 +43,8 @@ local function request(data)
   for k in pairs(data) do assert(fields[k],"cli-request-field:"..tostring(k)) end
   assert(data.previous_recipe==nil or data.previous_recipe==true,"cli-previous-recipe-flag")
   assert(not data.previous_recipe or data.command=="render" or data.command=="replay","cli-previous-recipe-command")
+  assert(data.edits==nil or type(data.edits)=="table","cli-edits-object")
+  assert(data.edits==nil or data.command=="validate"or data.command=="generate"or data.command=="render"or data.command=="replay","cli-edits-command")
   local formats=data.formats or {"pdf","svg"}
   assert(type(formats)=="table" and #formats<=2,"cli-formats")
   local seen={}

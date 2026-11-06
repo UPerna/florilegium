@@ -16,7 +16,14 @@ local function document_input(document)
 end
 function M.apply(recipe,edit)
  local previous=Q.new(recipe);local q=P.plain(previous);edit=P.plain(edit)
+ assert(type(edit)=='table'and getmetatable(edit).__jsontype=='object','recipe edit must be an object')
  assert(edit.schema_version==1,'recipe edit schema_version1 required');fields(edit)
+ for _,key in ipairs{'parameters','inputs','style'}do
+  if edit[key]~=nil then assert(type(edit[key])=='table'and getmetatable(edit[key]).__jsontype=='object','recipe edit '..key..' requires an object')end
+ end
+ for _,key in ipairs{'crop','protected_regions','page_size'}do
+  if edit[key]~=nil then assert(type(edit[key])=='table'and getmetatable(edit[key]).__jsontype=='array','recipe edit '..key..' requires an array')end
+ end
  if edit.parameters then merge(q.design.parameters,edit.parameters)end
  if edit.inputs then merge(q.design.inputs,edit.inputs)end
  if edit.style then merge(q.design.style,edit.style)end
