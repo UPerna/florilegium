@@ -31,6 +31,7 @@ function M.new(data)
   assert(t.kind=="recipe" and t.schema_version==1,"unsupported recipe kind/version; explicit migration required")
   assert(type(t.id)=="string" and #t.id>0 and #t.id<=256,"recipe stable ID required")
   local d=P.definition(t.definition);local s=P.specification(t.design,d)
+  require("pattern_output_style").split(s.style)
   keys(t.definition.transforms,"metric_constrained reflection uniform_scale","definition.transforms")
   keys(t.design.document,"unit bounds protected_regions","design.document")
   keys(t.view,"unit transform crop protected_regions derived validity projection extensions","recipe.view")
@@ -83,6 +84,11 @@ end
 local function construction_design(recipe)
   local s=P.plain(recipe.design);s.style={};return s
 end
+function M.structural_digest(recipe)
+  local q=M.new(recipe)
+  return H.value("recipe/structural-input",{definition=P.plain(q.definition),design=construction_design(q),
+    dimension=q.dimension,dependencies=P.plain(q.dependencies.construction)})
+end
 function M.cache_keys(recipe,environment,options)
   local q=M.new(recipe);local e=P.plain(environment)
   assert(type(e.source)=="table" and type(e.source.files)=="table" and type(e.runtime)=="table" and type(e.renderer)=="table","validated environment required")
@@ -117,16 +123,28 @@ local function execute(recipe,registry,environment,options,cached)
       return verified[name]
     end})
   local recipe_digest=H.sha256(M.encode(q))
+  local previous_recipe=cached and cached.previous_recipe and M.new(cached.previous_recipe) or nil
   local result,problem
   local parent_record,cached_sha
   if cached then
     local ok,value=pcall(function()
       parent_record=P.build_record(P.plain(cached.record))
+      local body=P.plain(parent_record);body.id=nil;body.kind=nil;body.schema_version=nil
+      assert(parent_record.id=="build/"..H.value("build/record-body",body),"cached build record body digest mismatch")
+      if previous_recipe then
+        assert(P.serialize(previous_recipe.definition)==P.serialize(q.definition)
+          and previous_recipe.dimension==q.dimension,"revision definition or dimension changed")
+        assert(P.serialize(construction_design(previous_recipe))==P.serialize(construction_design(q)),
+          "style/view revision changed structural design; generate a new instance")
+        assert(P.serialize(previous_recipe.dependencies.construction)==P.serialize(q.dependencies.construction),
+          "style/view revision changed construction dependencies")
+      end
+      local parent_recipe_digest=previous_recipe and H.sha256(M.encode(previous_recipe)) or recipe_digest
       assert(parent_record.status=="complete","cached build is incomplete")
       cached_sha=H.sha256(P.serialize(cached.instance))
       local recipe_match,instance_match=false,false
       for _,item in ipairs(parent_record.inputs) do
-        recipe_match=recipe_match or item.kind=="recipe" and item.sha256==recipe_digest
+        recipe_match=recipe_match or item.kind=="recipe" and item.sha256==parent_recipe_digest
       end
       for _,item in ipairs(parent_record.outputs) do
         instance_match=instance_match or item.kind=="instance" and item.sha256==cached_sha
@@ -162,7 +180,7 @@ local function execute(recipe,registry,environment,options,cached)
   if cached and result then
     inputs[#inputs+1]={kind="stored_instance",sha256=cached_sha}
     inputs[#inputs+1]={kind="parent_build_record",sha256=H.sha256(P.serialize(parent_record))}
-    record.lineage[1]={role="validated-instance-replay",parent_ref=parent_record.id,instance_sha256=cached_sha,
+    record.lineage[1]={role=previous_recipe and "validated-style-view-revision" or "validated-instance-replay",parent_ref=parent_record.id,instance_sha256=cached_sha,
       source=P.plain(parent_record.source)}
   end
   local accepted
@@ -171,17 +189,19 @@ local function execute(recipe,registry,environment,options,cached)
       assert(result.instance.frame.dimension==q.dimension,"generated dimension differs from recipe")
       phase="lowering"
       local v,scene,planned
+      local family_style,output_profile=require("pattern_output_style").split(q.design.style)
       if q.view.extensions then
         local planner=require("pattern_planner");local input=planner.recipe_view_inputs(q.definition,q.design,q.view,q.dimension)
         local diagnostic;planned,diagnostic=planner.view(result.instance,result.definition,input.document,input.page_id,input.profile,input.options,context)
         if not planned then error({code=diagnostic.code,message=table.concat(P.plain(diagnostic.diagnostics),"; ")},0)end
-        local lowered;lowered,diagnostic=planner.lower(registry,q.definition.id,result.instance,result.definition,planned,q.design.style,context)
+        local lowered;lowered,diagnostic=planner.lower(registry,q.definition.id,result.instance,result.definition,planned,family_style,context)
         if not lowered then error({code=diagnostic.code,message=table.concat(P.plain(diagnostic.diagnostics),"; ")},0)end
         v,scene=lowered.view,lowered.scene
       else
         v=P.plain(q.view);v.id=result.instance.id.."/view";v.instance_ref=result.instance.id
-        v=P.view(v,result.instance,result.definition);scene=registry:lower(q.definition.id,result.instance,v,q.design.style,context)
+        v=P.view(v,result.instance,result.definition);scene=registry:lower(q.definition.id,result.instance,v,family_style,context)
       end
+      if output_profile and output_profile.mode~="source"then scene=P.scene(require("pattern_output_style").apply(scene,output_profile,context),result.instance,v,result.definition)end
       local ib,sb=P.serialize(result.instance),P.serialize(scene)
       outputs[1]={kind="instance",sha256=H.sha256(ib),semantic_sha256=H.value("instance",result.instance),bytes=#ib}
       outputs[2]={kind="scene",sha256=H.sha256(sb),semantic_sha256=H.value("scene",scene),bytes=#sb}
@@ -212,5 +232,10 @@ function M.execute(recipe,registry,environment,options)
 end
 function M.replay(recipe,instance,record,registry,environment,options)
   return execute(recipe,registry,environment,options,{instance=instance,record=record})
+end
+-- Explicit new view/style, checked against the exact prior recipe and build.
+-- Structural edits use execute(); this path never calls the generator.
+function M.revise(recipe,previous,instance,record,registry,environment,options)
+  return execute(recipe,registry,environment,options,{instance=instance,record=record,previous_recipe=previous})
 end
 return M

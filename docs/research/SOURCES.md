@@ -137,3 +137,7 @@ R19a and R19b were recovered as the complete combined TU/e scan with a readable 
 - hash-wasm4.12.0 official README/API and bundled C source373b796205ab55fb4a657374dad6ea589bf75815: synchronous IHasher Uint8Array operations and licenses. https://github.com/Daninet/hash-wasm
 - MDN Worker.terminate and IndexedDB Using IndexedDB: cancellation and transaction complete/abort behavior, exercised in actual browser. https://developer.mozilla.org/en-US/docs/Web/API/Worker/terminate and https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB
 - MDN structured clone algorithm: transferable buffers and supported types. https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm
+
+## Stage 32 editor APIs (retrieved 2026-11-06)
+
+The editor reuses the existing native family/planner algorithms. Official API references and exact sections/use are recorded in `artifacts/receipts/32/research.json`: MDN SVG getScreenCTM/DOMPoint, File API, IndexedDB transaction completion, DOMParser XML/error handling, Pointer Events/capture and W3C accessible control grouping. UI geometry is input-coordinate mapping, not a second pattern generator. Font, exemplar and maze profiles retain the native families' declared limits.

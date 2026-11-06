@@ -39,8 +39,10 @@ end
 local function request(data)
   assert(type(data)=="table" and data.schema_version==1,"cli-request-version")
   local fields={schema_version=true,command=true,family=true,formats=true,limits=true,dependencies=true,
-    instance_transport=true}
+    instance_transport=true,previous_recipe=true,edits=true}
   for k in pairs(data) do assert(fields[k],"cli-request-field:"..tostring(k)) end
+  assert(data.previous_recipe==nil or data.previous_recipe==true,"cli-previous-recipe-flag")
+  assert(not data.previous_recipe or data.command=="render" or data.command=="replay","cli-previous-recipe-command")
   local formats=data.formats or {"pdf","svg"}
   assert(type(formats)=="table" and #formats<=2,"cli-formats")
   local seen={}
@@ -62,7 +64,7 @@ function M.dispatch(data,host)
     outputs["report.json"]=P.serialize({schema_version=1,cli=M.VERSION,families=list,
       commands={"capabilities","schema","validate","generate","validate-instance","render","replay","batch","diagnose"},
       formats={"pdf","svg"},recipe_schema_version=1,instance_schema_version=1,
-      input_limit_bytes=2*1024*1024,optional_providers="Declared by each family's schema and recipe"})
+      input_limit_bytes=2*1024*1024,recipe_edits={schema_version=1,flag="edits",planner_preserved=true},output_profiles={"source","monochrome","palette"},view_style_revision={flag="previous_recipe",previous_file="previous-recipe.json",structural_generation=false},optional_providers="Declared by each family's schema and recipe"})
     return outputs
   end
   if command=="schema" then
@@ -79,12 +81,16 @@ function M.dispatch(data,host)
     return outputs
   end
   local recipe=Q.decode(host.read("recipe.json"))
+  if data.edits then
+    local receipt;recipe,receipt=require("pattern_editor").apply(recipe,data.edits)
+    outputs["edit-receipt.json"]=P.serialize(receipt);outputs["recipe.json"]=Q.encode(recipe)
+  end
   local registry,definition=M.registry(recipe.definition.id)
   assert(P.serialize(definition)==P.serialize(recipe.definition),"cli-definition-version-mismatch")
   registry:check_specification(definition.id,recipe.design)
   if command=="validate" then
     outputs["report.json"]=P.serialize({schema_version=1,status="complete",family=definition.id,
-      recipe_sha256=H.sha256(Q.encode(recipe)),checks={"Recipe schema, registered definition and family input preconditions"}})
+      recipe_sha256=H.sha256(Q.encode(recipe)),structural_input_sha256=Q.structural_digest(recipe),checks={"Recipe schema, registered definition and family input preconditions"}})
     return outputs
   end
   assert(command=="generate" or command=="replay" or command=="render" or command=="validate-instance",
@@ -109,9 +115,14 @@ function M.dispatch(data,host)
         and recipe.definition.id:match("^botanical/legacy%-"),"cli-instance-transport")
       instance=require("pattern_botanical_legacy").decode_bundle(host.read("instance.json"),
         function(sha) return host.read("block-"..sha..".json") end,definition)
-    else instance=Parse.decode(host.read("instance.json")) end
-    result=Q.replay(recipe,instance,Parse.decode(host.read("record.json")),
-      registry,environment,{limits=data.limits})
+    else instance=Parse.instance(host.read("instance.json")) end
+    if data.previous_recipe then
+      result=Q.revise(recipe,Q.decode(host.read("previous-recipe.json")),instance,Parse.decode(host.read("record.json")),
+        registry,environment,{limits=data.limits})
+    else
+      result=Q.replay(recipe,instance,Parse.decode(host.read("record.json")),
+        registry,environment,{limits=data.limits})
+    end
   end
   outputs["record.json"]=P.serialize(result.record)
   if result.record.status~="complete" then

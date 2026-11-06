@@ -37,3 +37,12 @@ Stage 29 implementation. Cache actual recipe-generated, structurally validated i
 Stage 29 follow-up: fix Lua multi-result propagation in fallback recipe lookup. Share the existing physical render-requirement validator between original planner lowering and fitted TeX views, preserving calculations and tolerances; source constraints cannot silently disappear after scale changes. The native book remains unaccepted until its exact-head consumer and inherited jobs pass.
 
 Stage 29 physical-origin correction. Native PDF Form measurements showed background shifts equal to custom hoffset and negative voffset. Cancel these at picture placement, while retaining offsets in actual text geometry. Inline marks already agree with independent PDF locations within 0.00014 cm. Keep the 0.01 cm acceptance tolerance. The book trims vertical blank canvas using conservative transformed path/control-point/stroke bounds; construction designs and all artwork stay intact.
+
+
+## Stage31 shared browser core — accepted
+
+Wasmoon1.16.0 preserves required int64/binary64; actual Fengari-web0.1.4 fails the existing integer guard. Pin both runtime bytes/licenses and hash-wasm4.12.0 for the measured SHA bottleneck, using a binary-safe raw Lua string pointer/length callback. Geometry, validation and rendering remain shared Lua. Bound messages, Lua allocations and work; abort/cancel without geometry truncation. Atomic immutable browser cache captures caller bytes/metadata before any asynchronous digest. Native-process solvers are explicitly unavailable; bounded Lua solvers and validated instances replay. See BROWSER-RUNTIME.md and receipts31.
+
+## Stage 32 — native-backed local studio (CI pending)
+
+Keep all geometry in the shared Lua worker. Native planner-preserving edit intents distinguish structural regeneration from checked stored-instance view/style revisions. Output profiles recolor actual native paint, including encoded symbols; recipe admission limits remain separate from larger bounded instance transport. Browser autosave and history use IndexedDB transactions; portable workspaces verify saved output against native replay. Expose only implemented controls and exports. Keep runtime verification separate from editor UI and preserve the prior native/browser suites. Local receipts cover actual tasks, failure recovery and independent vector inspection; exact published-head native/browser CI remains mandatory.

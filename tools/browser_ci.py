@@ -37,10 +37,14 @@ def main():
  handler=functools.partial(http.server.SimpleHTTPRequestHandler,directory=str(web))
  server=http.server.ThreadingHTTPServer(('127.0.0.1',0),handler);thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
  try:
-  common=['--url',f'http://127.0.0.1:{server.server_port}/','--playwright',args.playwright]
+  common=['--url',f'http://127.0.0.1:{server.server_port}/runtime.html','--playwright',args.playwright]
   if args.executable:common+=['--executable',args.executable]
   subprocess.run(['node',str(ROOT/'tools/browsercheck.cjs'),*common,'--reference',str(native),'--native-sources',str(guard),'--python',sys.executable],cwd=ROOT,check=True,timeout=1800)
   subprocess.run(['node',str(ROOT/'tools/browser-adversarial.cjs'),*common],cwd=ROOT,check=True,timeout=300)
+  editor_common=['--url',f'http://127.0.0.1:{server.server_port}/','--playwright',args.playwright]
+  if args.executable:editor_common+=['--executable',args.executable]
+  subprocess.run(['node',str(ROOT/'tools/editorcheck.cjs'),*editor_common],cwd=ROOT,check=True,timeout=2400)
+  subprocess.run([sys.executable,str(ROOT/'tools/editor_vectors.py'),str(ROOT/'build/editor-check')],cwd=ROOT,check=True,timeout=120)
  finally:server.shutdown();server.server_close()
  print('Native-bound browser family/adversarial/sourcekit gates passed',digest)
 if __name__=='__main__':main()

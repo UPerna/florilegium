@@ -80,6 +80,8 @@ jobs:
             texlua tools/collectioncheck.lua &&
             python3 tools/collection_oracle.py &&
             texlua tools/check-cli-core.lua &&
+            texlua tools/check-editor-revision.lua &&
+            texlua tools/check-editor-prepare.lua &&
             python3 tools/clicheck.py &&
             texlua tools/layoutcheck.lua &&
             texlua tools/spacecheck.lua &&
@@ -122,6 +124,8 @@ jobs:
             build/gothic/
             build/collection/
             build/cli-core/
+            build/editor-revision/
+            build/editor-prepare/
             build/cli/
 
   patterns-luatex:
@@ -259,6 +263,7 @@ jobs:
           name: florilegium-browser
           path: |
             build/browser-check/
+            build/editor-check/
             build/web/assets.json
           if-no-files-found: error
 

@@ -67,7 +67,7 @@ export class PatternWorkerClient {
       this.pending = job;
       (async () => {
         shape(options); shape(controls);
-        const allowed = new Set(['command', 'family', 'formats', 'limits', 'dependencies', 'instance_transport', 'files']);
+        const allowed = new Set(['command', 'family', 'formats', 'limits', 'dependencies', 'instance_transport', 'previous_recipe', 'edits', 'files']);
         if (!options || Object.keys(options).some(key => !allowed.has(key)) || !COMMANDS.has(options.command)) throw failure('invalid_input', 'Unsupported browser request');
         const instruction_limit = controls.instructionLimit ?? 16000000000;
         const watchdog = controls.watchdogMs ?? 300000;
@@ -76,7 +76,7 @@ export class PatternWorkerClient {
             !Number.isSafeInteger(watchdog) || watchdog < 1 || watchdog > 300000 ||
             !Number.isSafeInteger(memory_limit) || memory_limit < 2 * 1024 * 1024 || memory_limit > 256 * 1024 * 1024) throw failure('invalid_input', 'Invalid execution bound');
         const request = {schema_version: 1, command: options.command, input_files: []}, files = [];
-        for (const name of ['family', 'formats', 'limits', 'dependencies', 'instance_transport']) if (options[name] !== undefined) request[name] = options[name];
+        for (const name of ['family', 'formats', 'limits', 'dependencies', 'instance_transport', 'previous_recipe', 'edits']) if (options[name] !== undefined) request[name] = options[name];
         let total = 0;
         for (const [name, value] of Object.entries(options.files ?? {})) {
           if (!/^[A-Za-z0-9_.-]{1,160}$/.test(name)) throw failure('invalid_input', 'Input filename is not admitted');

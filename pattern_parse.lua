@@ -2,8 +2,10 @@
 -- dkjson decodes only already-validated quoted strings (including escape spelling).
 local P,J=require("pattern"),require("pattern_json")
 local M={}
-function M.decode(text)
-  assert(type(text)=="string" and #text<=2*1024*1024,"recipe JSON exceeds 2 MiB limit")
+local function decode(text,instance)
+  local bytes=instance and 32*1024*1024 or 2*1024*1024
+  local node_limit=instance and 1000000 or 100000
+  assert(type(text)=="string" and #text<=bytes,instance and "instance JSON exceeds 32 MiB limit" or "recipe JSON exceeds 2 MiB limit")
   assert(utf8.len(text),"recipe JSON is not UTF-8")
   local at,nodes=1,0
   local function fail(why) error("recipe JSON byte "..at..": "..why,0) end
@@ -34,7 +36,7 @@ function M.decode(text)
   end
   local value
   value=function(depth)
-    nodes=nodes+1;if depth>60 or nodes>100000 then fail("nesting/node budget exceeded") end
+    nodes=nodes+1;if depth>60 or nodes>node_limit then fail("nesting/node budget exceeded") end
     ws();local ch=text:sub(at,at)
     if ch=='"' then return quoted()
     elseif ch=='{' or ch=='[' then
@@ -80,4 +82,9 @@ function M.decode(text)
   local out=value(0);ws();if at<=#text then fail("trailing input") end
   return P.plain(out)
 end
+-- Input type selects a fixed admission profile; callers cannot supply arbitrary
+-- limits. Recipes/requests retain their original smaller limits. Both routes
+-- enforce the same strict grammar, duplicate-key, nonfinite and depth checks.
+function M.decode(text)return decode(text,false)end
+function M.instance(text)return decode(text,true)end
 return M

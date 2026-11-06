@@ -16,7 +16,7 @@ function M.session(source,runtime)
     outputs=nil
     local data=Parse.decode(text)
     assert(type(data)=='table'and data.schema_version==1 and commands[data.command],'browser request version/command')
-    for key in pairs(data)do assert(key=='schema_version'or key=='command'or key=='family'or key=='formats'or key=='limits'or key=='dependencies'or key=='instance_transport'or key=='input_files','browser request field:'..tostring(key))end
+    for key in pairs(data)do assert(key=='schema_version'or key=='command'or key=='family'or key=='formats'or key=='limits'or key=='dependencies'or key=='instance_transport'or key=='previous_recipe'or key=='edits'or key=='input_files','browser request field:'..tostring(key))end
     local total,seen=0,{}
     for _,item in ipairs(data.input_files or{})do
       assert(type(item.name)=='string'and not seen[item.name]and type(item.bytes)=='number'and H.is_digest(item.sha256),'browser input descriptor')

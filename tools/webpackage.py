@@ -3,7 +3,7 @@ import base64,hashlib,json,pathlib,shutil
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 def package(destination=None):
     out=pathlib.Path(destination or ROOT/'build/web');out.mkdir(parents=True,exist_ok=True)
-    for name in ('index.html','client.js','worker.js','cache.js'):
+    for name in ('index.html','runtime.html','editor.js','editor.css','client.js','worker.js','cache.js'):
         shutil.copyfile(ROOT/'web'/name,out/name)
     vendor=ROOT/'web/vendor/wasmoon-1.16.0'
     runtime_manifest=json.loads((ROOT/'web/vendor/manifest.json').read_text(encoding='utf8'))
@@ -24,7 +24,7 @@ def package(destination=None):
     source={p.name:p.read_bytes().decode('utf8')for p in sorted(ROOT.glob('*.lua'))}
     examples={p.name:p.read_bytes().decode('utf8')for p in sorted((ROOT/'examples/cli').iterdir())if p.suffix in('.recipe','.json')}
     bridge_files={name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest()for name in
-                  ('web/client.js','web/worker.js','web/cache.js','tools/webpackage.py','web/vendor/manifest.json','web/vendor/hash-manifest.json')}
+                  ('web/client.js','web/worker.js','web/cache.js','web/editor.js','web/editor.css','web/index.html','web/runtime.html','tools/webpackage.py','web/vendor/manifest.json','web/vendor/hash-manifest.json')}
     bridge_digest=hashlib.sha256(json.dumps(bridge_files,sort_keys=True).encode()).hexdigest()
     bundle={'schema_version':1,'source':source,'examples':examples,'bridge_files':bridge_files,
             'runtime':'wasmoon-1.16.0/lua54/browser-v1/hash-wasm-4.12.0/'+bridge_digest}

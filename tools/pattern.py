@@ -211,6 +211,14 @@ def prepare(args):
         files[f"dependency-{len(names)}.bin"] = read(path, MAX_ARTIFACT)
     request = {"schema_version": VERSION, "command": args.command, "formats": args.format,
                "dependencies": names}
+    if getattr(args, "updated_recipe", None):
+        if args.command not in ("render", "replay"):
+            raise CLIError("An updated recipe requires render or replay.")
+        files["previous-recipe.json"] = files["recipe.json"]
+        files["recipe.json"] = read(args.updated_recipe)
+        request["previous_recipe"] = True
+    if getattr(args, "edit_file", None):
+        request["edits"] = decode(read(args.edit_file))
     if "instance-format.json" in files:
         request["instance_transport"] = decode(files["instance-format.json"])["schema"]
     if args.command == "schema":
@@ -432,8 +440,10 @@ def parser():
     schema.add_argument("family")
     validate = commands.add_parser("validate", help="Validate a data recipe and family input preconditions.")
     validate.add_argument("recipe", type=Path)
+    validate.add_argument("--edit-file", type=Path, help="Apply versioned editor intent through the native planner.")
     generate = commands.add_parser("generate", help="Generate and validate an instance, then export its views.")
     generate.add_argument("recipe", type=Path)
+    generate.add_argument("--edit-file", type=Path, help="Apply versioned editor intent through the native planner.")
     generate.add_argument("--output", type=Path, required=True)
     for name in ("render", "replay", "validate-instance"):
         command = commands.add_parser(name, help="Validate a stored output and use its cached instance.")
@@ -444,6 +454,7 @@ def parser():
         command.add_argument("--record", type=Path)
         if name != "validate-instance":
             command.add_argument("--output", type=Path, required=True)
+            command.add_argument("--updated-recipe", type=Path, help="Apply style/view changes to the verified stored instance; structural edits are rejected.")
     batches = commands.add_parser("batch", help="Build all items and persist individual outcomes.")
     batches.add_argument("manifest", type=Path)
     batches.add_argument("--output", type=Path, required=True)
