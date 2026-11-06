@@ -6,7 +6,7 @@ import shutil
 import subprocess
 import unicodedata
 from pypdf import PdfReader
-from pypdf.generic import ContentStream, NameObject
+from pypdf.generic import ContentStream, NameObject, TextStringObject, ByteStringObject, ArrayObject
 from build import ROOT, build, file_hash
 
 
@@ -64,6 +64,16 @@ def painted_large_a(pdf):
     painted = []; reader = PdfReader(pdf)
     showing = {b'Tj', b'TJ', b"'", b'"'}
 
+    def original_glyph_bytes(value):
+        # A PDF text-show string contains font character codes, not Unicode.
+        # Some pypdf versions autodetect a two-byte CID string as text and
+        # re-encode it differently when the filtered stream is serialized.
+        if isinstance(value, TextStringObject):
+            return ByteStringObject(value.original_bytes)
+        if isinstance(value, ArrayObject):
+            return ArrayObject([original_glyph_bytes(item) for item in value])
+        return value
+
     def check_forms(resources, seen, depth=0):
         assert depth < 16
         for ref in resources.get('/XObject', {}).get_object().values() if '/XObject' in resources else ():
@@ -94,6 +104,8 @@ def painted_large_a(pdf):
             # pypdf can combine adjacent fragments across a Tr change. Remove
             # nonpainting show operators before decoding, not after its visitor.
             if operator not in showing or mode not in (3, 7):
+                if operator in showing:
+                    operands = [original_glyph_bytes(item) for item in operands]
                 visible.append((operands, operator))
         assert not stack
         stream.operations = visible

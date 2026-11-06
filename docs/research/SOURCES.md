@@ -126,3 +126,5 @@ R19a and R19b were recovered as the complete combined TU/e scan with a readable 
 - pypdf documentation 6.21.4, Using a visitor: decoded text fragments and user/text transforms; native runtime version is recorded separately. https://pypdf.readthedocs.io/en/stable/user/extract-text.html
 
 - pypdf documentation6.21.4, content-only transformations and explicit media/crop boxes: measured-frame registration retains actual book clipping and foreground paint. Retrieved2026-11-06. https://pypdf.readthedocs.io/en/stable/user/cropping-and-transforming.html
+
+- pypdf documentation6.21.4, TextStringObject.original_bytes and ByteStringObject serialization: preserve raw font character codes during hidden-text filtering. Retrieved2026-11-06. https://pypdf.readthedocs.io/en/stable/_modules/pypdf/generic/_base.html

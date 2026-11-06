@@ -6,7 +6,7 @@ import subprocess
 import unicodedata
 from PIL import Image, ImageChops, ImageDraw, ImageFilter
 from pypdf import PdfReader, PdfWriter
-from pypdf.generic import RectangleObject
+from pypdf.generic import RectangleObject, DecodedStreamObject, NameObject
 from pattern_tex_pdf import forms, locate
 import pattern_tex_consumer as consumer
 from tex_build_consumer import build_cases
@@ -108,6 +108,7 @@ def registered_inline(reader, page_number, source, prefix):
     Only a positive uniform inclusion transform may be undone here.
     """
     original = reader.pages[page_number - 1]
+    assert int(original.get('/Rotate', 0)) % 360 == 0, 'Rotated book pages require a separately measured frame'
     measured = locate(forms(reader, original), source)
     m = measured['matrix']
     assert m[0] > 0 and m[3] > 0 and abs(m[0] - m[3]) < 1e-8, ('Nonuniform inline inclusion', m)
@@ -116,15 +117,28 @@ def registered_inline(reader, page_number, source, prefix):
     registration = (1 / scale, 0, 0, 1 / scale, -m[4] / scale, -m[5] / scale)
     writer = PdfWriter()
     page = writer.add_page(original)
-    page.add_transformation(registration)
+    # Wrap the original decoded page bytes without parsing/re-encoding its
+    # text-show strings. Older pypdf serializers can change two-byte CIDs.
+    stream = DecodedStreamObject()
+    matrix = ' '.join(format(value, '.17g') for value in registration)
+    original_bytes = original.get_contents().get_data()
+    crop = original.cropbox
+    clip = ' '.join(format(float(value), '.17g') for value in
+                    (crop.left, crop.bottom, crop.width, crop.height)) + ' re W n\n'
+    registered_bytes = ('q\n' + matrix + ' cm\n' + clip).encode('ascii') + original_bytes + b'\nQ\n'
+    stream.set_data(registered_bytes)
+    page[NameObject('/Contents')] = writer._add_object(stream)
     box = PdfReader(source).pages[0].mediabox
     page.mediabox = RectangleObject(box)
     page.cropbox = RectangleObject(box)
     destination = Path(str(prefix) + '.pdf')
     writer.write(destination)
+    assert PdfReader(destination).pages[0].get_contents().get_data() == registered_bytes, 'Registration changed page paint bytes'
     mask = color_mask(page_image(destination, 1, prefix))
     return mask, {'actual_form_matrix': list(m), 'registration_matrix': list(registration),
-                  'source_box_bp': list(map(float, box)), 'actual_book_page_paint_retained': True}
+                  'source_box_bp': list(map(float, box)), 'actual_book_page_paint_retained': True,
+                  'original_page_content_sha256': hashlib.sha256(original_bytes).hexdigest(),
+                  'original_page_content_bytes_preserved': True, 'original_page_clip_bp': list(map(float, crop))}
 
 
 def compare_books(lua_folder, xe_folder, folder):

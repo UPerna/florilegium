@@ -899,7 +899,7 @@
       "acceptance_items": [
         "the documented dual-engine suite includes all newly required document capabilities, convergence and stale-rebuild failures are exercised, and the output in each engine is independently complete. Hosted-editor limitations remain explicit unless actually tested there. New backend work must preserve the verified standalone shared renderer."
       ],
-      "observed_results": "Stages00–29 passed; stage30 in progress. Revision6be6efc independently verified and native run42194177533 passed patterns-luatex and portable. Dual native consumers and revised semantic/vector/text/position/raster comparisons passed. Lua auxiliary-churn and first-pass cases executed, then the empty-output-lua fixture overstrictly required absent PDF; actual LuaTeX1.24 leaves a zero-byte file, correctly rejected by the build driver (compiler exit0, failed receipt, no accepted pass). Repair keeps rejection mandatory, verifies zero bytes/absence and no survival of seeded old PDF, and retains the completed book-comparison evidence before later fault checks. No production acceptance gate weakened. Remaining native faults UNRUN. Publish guarded child6be6efc, verify raw files/tree/source archive, run all exact-head native jobs, inspect artifacts and repair ordinary failures. Accept30 only after all gates pass; then continue31–39 automatically.",
+      "observed_results": "Stages00–29 passed;30 remains in progress. Latest published818c888 run42195933816 passed Lua consumer and portable/source-kit gates, independently verified (106 consumer input files,9 placements,10 rejection logs,42 adapter checks;653 package hashes and extracted CLI byte replay). Dual passed both consumers, complete semantic/vector/text/position/raster book comparison and ten build cases, then falsely rejected actual visible native CID initial because the QA stream filter re-encoded two-byte font codes. Byte repair preserves original character-code bytes; actual native A now decodes at61.16pt and deliberately hidden actual CID A is rejected, alongside all three earlier ASCII controls. Raster registration now wraps exact original page bytes and retains the original page crop; all8 actual-book checks passed, stream/foreground/page-edge clipping controls rejected, and missing small glyph remains rejected below global pixel limit. No production engine or acceptance threshold changed. Publish guarded child818c888, verify exact raw bytes/tree/source archive, complete all exact-head native jobs and inspect current artifacts/visuals. Do not accept30 until all mandatory gates pass, then continue31–39 automatically.",
       "evidence_paths": [
         "artifacts/receipts/30/actual-book-raster-replay.json",
         "artifacts/receipts/30/build-control-development.json",
@@ -914,12 +914,26 @@
         "artifacts/receipts/30/shared-core-lua53.json",
         "artifacts/receipts/30/shared-core-lua54.json",
         "artifacts/receipts/30/utf8-input-diagnosis.json",
-        "artifacts/receipts/30/empty-output-native-diagnosis.json"
+        "artifacts/receipts/30/repair-publication.json",
+        "artifacts/receipts/30/stage30-repair-source-archive.json",
+        "artifacts/receipts/30/ci-repair-current.json",
+        "artifacts/receipts/30/empty-output-native-diagnosis.json",
+        "artifacts/receipts/30/fault-repair-publication.json",
+        "artifacts/receipts/30/stage30-fault-repair-source-archive.json",
+        "artifacts/receipts/30/ci-stage30-fault-repair-current.json",
+        "artifacts/receipts/30/repair-common-native-verification.json",
+        "artifacts/receipts/30/stage30-fault-repair-common-native-verification.json",
+        "artifacts/receipts/30/stage30-fault-repair-portable-verification.json",
+        "artifacts/receipts/30/cid-native-diagnosis.json",
+        "artifacts/receipts/30/cid-visibility-controls.json",
+        "artifacts/receipts/30/byte-preserved-book-replay.json",
+        "artifacts/receipts/30/byte-preserved-registration-controls.json",
+        "artifacts/receipts/30/raster-oracle-byte-repair.json"
       ],
-      "tested_code_revision": "6be6efcb7286a1beadb4c1c5a56f2ad115f2f6a1",
-      "local_commit": "3e49627f01651ede39c56f5c6e9ef41bcc0230fe",
-      "verified_remote_revision": "6be6efcb7286a1beadb4c1c5a56f2ad115f2f6a1",
-      "next_action": "Stages00–29 passed; stage30 in progress. Revision6be6efc independently verified and native run42194177533 passed patterns-luatex and portable. Dual native consumers and revised semantic/vector/text/position/raster comparisons passed. Lua auxiliary-churn and first-pass cases executed, then the empty-output-lua fixture overstrictly required absent PDF; actual LuaTeX1.24 leaves a zero-byte file, correctly rejected by the build driver (compiler exit0, failed receipt, no accepted pass). Repair keeps rejection mandatory, verifies zero bytes/absence and no survival of seeded old PDF, and retains the completed book-comparison evidence before later fault checks. No production acceptance gate weakened. Remaining native faults UNRUN. Publish guarded child6be6efc, verify raw files/tree/source archive, run all exact-head native jobs, inspect artifacts and repair ordinary failures. Accept30 only after all gates pass; then continue31–39 automatically."
+      "tested_code_revision": "818c88890f4fb2c33deb308eeebfc949c6e14870",
+      "local_commit": "818c88890f4fb2c33deb308eeebfc949c6e14870",
+      "verified_remote_revision": "818c88890f4fb2c33deb308eeebfc949c6e14870",
+      "next_action": "Stages00–29 passed;30 remains in progress. Latest published818c888 run42195933816 passed Lua consumer and portable/source-kit gates, independently verified (106 consumer input files,9 placements,10 rejection logs,42 adapter checks;653 package hashes and extracted CLI byte replay). Dual passed both consumers, complete semantic/vector/text/position/raster book comparison and ten build cases, then falsely rejected actual visible native CID initial because the QA stream filter re-encoded two-byte font codes. Byte repair preserves original character-code bytes; actual native A now decodes at61.16pt and deliberately hidden actual CID A is rejected, alongside all three earlier ASCII controls. Raster registration now wraps exact original page bytes and retains the original page crop; all8 actual-book checks passed, stream/foreground/page-edge clipping controls rejected, and missing small glyph remains rejected below global pixel limit. No production engine or acceptance threshold changed. Publish guarded child818c888, verify exact raw bytes/tree/source archive, complete all exact-head native jobs and inspect current artifacts/visuals. Do not accept30 until all mandatory gates pass, then continue31–39 automatically."
     },
     {
       "id": "31",

@@ -42,7 +42,13 @@
       "version": "documentation6.21.4",
       "sections": "Scaling the content only; explicit media/crop boxes",
       "use": "Register actual page paint by inverse measured positive uniform Form transform while retaining clips and foreground occlusion; independent placement checks remain mandatory."
+    },
+    {
+      "url": "https://pypdf.readthedocs.io/en/stable/_modules/pypdf/generic/_base.html",
+      "version": "documentation6.21.4; native/local runtime versions separately recorded",
+      "sections": "TextStringObject.original_bytes; ByteStringObject.write_to_stream",
+      "use": "Preserve font character-code bytes when filtering invisible text; do not re-encode CID strings as Unicode. The actual native CID PDF reproduces the older parser/serializer behavior."
     }
   ],
-  "status": "Initial native consumers passed both engines; dual raster failure diagnosed and repaired locally; revised exact-head native suite remains pending."
+  "status": "Native consumers, book comparison and ten build cases passed at818c888 before false visibility rejection; exact-head byte repair native suite remains pending."
 }
