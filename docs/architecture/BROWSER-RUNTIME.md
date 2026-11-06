@@ -79,7 +79,7 @@ assets load, including cancellation/restart. Actual browser offline mode tests
 fresh workers. Native-process solver providers are explicitly unavailable;
 bounded pure-Lua solvers and independently validated supplied instances can replay.
 
-IndexedDB stores complete immutable bundles in an atomic readwrite transaction.
+IndexedDB captures a private structured clone before any asynchronous digest, then stores complete immutable bundles in an atomic readwrite transaction. A caller buffer/manifest mutation during save is exercised: the original captured bytes remain readable. The initial candidate failed this race and remains unaccepted; the repair preserves the initial corruption evidence.
 Concurrent identical puts reuse one record; conflicting contents abort and retain
 the original. Reads recheck binary hashes and metadata/source/cache identity.
 Corrupt, empty or partial bundles fail. Cache availability is optional; choosing

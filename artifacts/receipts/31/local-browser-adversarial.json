@@ -1,12 +1,12 @@
 {
   "status": "passed",
-  "source_digest": "2dce2b2737db1b62a527dceb0f66eb690ad65e2b519ce34123b29d0935ce9501",
+  "source_digest": "b1d53687559ff3503bc5ff5411d9e0b8a7c6807cdc13149819c24887e85ae901",
   "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
   "checks": [
     {
       "name": "capabilities",
       "status": "passed",
-      "elapsed_ms": 185.10000002384186,
+      "elapsed_ms": 159.5,
       "evidence": {
         "commands": [
           "capabilities",
@@ -20,13 +20,13 @@
         ],
         "optional_providers": "Pure Lua bounded search is available; native-process solvers are unavailable. Verified supplied solver caches and precomputed instances may replay.",
         "stats": {
-          "instructions": 80000,
-          "lua_memory_bytes": 3713575,
+          "instructions": 70000,
+          "lua_memory_bytes": 3721469,
           "profile": {
             "hash_bytes": 1327,
             "hash_calls": 1,
             "hash_instructions": 0,
-            "instructions": 80000
+            "instructions": 70000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -43,7 +43,7 @@
     {
       "name": "production-host-sha-prng-canonical-conformance",
       "status": "passed",
-      "elapsed_ms": 194.30000001192093,
+      "elapsed_ms": 145.5999999642372,
       "evidence": {
         "trusted_test_instrumentation": true,
         "actual_production_worker_sha_callback": true,
@@ -148,13 +148,13 @@
         "prng_values": 10,
         "canonical_numeric_utf8": true,
         "stats": {
-          "instructions": 80000,
-          "lua_memory_bytes": 6102703,
+          "instructions": 70000,
+          "lua_memory_bytes": 6110597,
           "profile": {
             "hash_bytes": 1199812,
             "hash_calls": 25,
             "hash_instructions": 0,
-            "instructions": 80000
+            "instructions": 70000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -189,7 +189,7 @@
     {
       "name": "client-invalid-filename",
       "status": "passed",
-      "elapsed_ms": 0.09999996423721313,
+      "elapsed_ms": 0.10000002384185791,
       "evidence": {
         "code": "invalid_input",
         "message": "Input filename is not admitted"
@@ -198,7 +198,7 @@
     {
       "name": "client-input-bytes",
       "status": "passed",
-      "elapsed_ms": 60.90000003576279,
+      "elapsed_ms": 37.30000001192093,
       "evidence": {
         "code": "budget_exhausted",
         "message": "Input byte/file budget"
@@ -207,7 +207,7 @@
     {
       "name": "client-input-file-count",
       "status": "passed",
-      "elapsed_ms": 21.19999998807907,
+      "elapsed_ms": 28.5,
       "evidence": {
         "code": "budget_exhausted",
         "message": "Input byte/file budget"
@@ -216,7 +216,7 @@
     {
       "name": "client-depth",
       "status": "passed",
-      "elapsed_ms": 0.30000001192092896,
+      "elapsed_ms": 0.3999999761581421,
       "evidence": {
         "code": "budget_exhausted",
         "message": "Message object/depth budget exceeded"
@@ -225,7 +225,7 @@
     {
       "name": "client-object-count",
       "status": "passed",
-      "elapsed_ms": 23.299999952316284,
+      "elapsed_ms": 28,
       "evidence": {
         "code": "budget_exhausted",
         "message": "Message object/depth budget exceeded"
@@ -234,7 +234,7 @@
     {
       "name": "client-cycle",
       "status": "passed",
-      "elapsed_ms": 0.20000004768371582,
+      "elapsed_ms": 0.19999998807907104,
       "evidence": {
         "code": "invalid_input",
         "message": "Cyclic or aliased message objects"
@@ -243,7 +243,7 @@
     {
       "name": "client-host-limits",
       "status": "passed",
-      "elapsed_ms": 0.19999998807907104,
+      "elapsed_ms": 0.10000002384185791,
       "evidence": {
         "code": "invalid_input",
         "message": "Invalid execution bound"
@@ -252,7 +252,7 @@
     {
       "name": "actual-worker-malformed-recipe",
       "status": "passed",
-      "elapsed_ms": 152.30000001192093,
+      "elapsed_ms": 153.80000001192093,
       "evidence": {
         "code": "invalid_input",
         "message": "recipe JSON byte 11: expected JSON value"
@@ -261,7 +261,7 @@
     {
       "name": "actual-worker-instruction-limit",
       "status": "passed",
-      "elapsed_ms": 145.29999995231628,
+      "elapsed_ms": 130,
       "evidence": {
         "code": "budget_exhausted",
         "message": "Deterministic Lua instruction budget exhausted"
@@ -270,7 +270,7 @@
     {
       "name": "actual-worker-memory-limit",
       "status": "passed",
-      "elapsed_ms": 91.30000001192093,
+      "elapsed_ms": 80.09999996423721,
       "evidence": {
         "code": "memory_budget",
         "message": "Error: [string \"local source={}...\"]:18363: not enough memory"
@@ -279,7 +279,7 @@
     {
       "name": "actual-worker-watchdog",
       "status": "passed",
-      "elapsed_ms": 5.300000011920929,
+      "elapsed_ms": 3.899999976158142,
       "evidence": {
         "code": "timeout",
         "message": "Browser watchdog aborted; no result was accepted"
@@ -288,7 +288,7 @@
     {
       "name": "actual-worker-object-budget",
       "status": "passed",
-      "elapsed_ms": 267.10000002384186,
+      "elapsed_ms": 245.39999997615814,
       "evidence": {
         "code": "construction_failed",
         "message": "construction budget exhausted: objects"
@@ -297,7 +297,7 @@
     {
       "name": "actual-worker-budget-above-cap",
       "status": "passed",
-      "elapsed_ms": 166.0999999642372,
+      "elapsed_ms": 141,
       "evidence": {
         "code": "invalid_input",
         "message": "pattern_browser.lua:32: browser execution budget not admitted:objects"
@@ -306,7 +306,7 @@
     {
       "name": "actual-worker-cancel-during-core",
       "status": "passed",
-      "elapsed_ms": 123.19999998807907,
+      "elapsed_ms": 125,
       "evidence": {
         "code": "cancelled",
         "message": "Generation cancelled"
@@ -315,7 +315,7 @@
     {
       "name": "actual-worker-supersede",
       "status": "passed",
-      "elapsed_ms": 114.40000003576279,
+      "elapsed_ms": 138.20000004768372,
       "evidence": {
         "generation": 19
       }
@@ -323,7 +323,7 @@
     {
       "name": "actual-worker-protocol-version",
       "status": "passed",
-      "elapsed_ms": 13.199999988079071,
+      "elapsed_ms": 14.799999952316284,
       "evidence": {
         "schema_version": 1,
         "type": "error",
@@ -338,7 +338,7 @@
     {
       "name": "actual-worker-request-identity",
       "status": "passed",
-      "elapsed_ms": 114.30000001192093,
+      "elapsed_ms": 122.60000002384186,
       "evidence": {
         "schema_version": 1,
         "type": "error",
@@ -353,7 +353,7 @@
     {
       "name": "actual-worker-unknown-message",
       "status": "passed",
-      "elapsed_ms": 121.69999998807907,
+      "elapsed_ms": 120.80000001192093,
       "evidence": {
         "schema_version": 1,
         "type": "error",
@@ -368,7 +368,7 @@
     {
       "name": "actual-worker-file-count-mismatch",
       "status": "passed",
-      "elapsed_ms": 140.89999997615814,
+      "elapsed_ms": 109.5,
       "evidence": {
         "schema_version": 1,
         "type": "error",
@@ -383,7 +383,7 @@
     {
       "name": "actual-worker-input-digest",
       "status": "passed",
-      "elapsed_ms": 136.4000000357628,
+      "elapsed_ms": 101.39999997615814,
       "evidence": {
         "schema_version": 1,
         "type": "error",
@@ -404,7 +404,7 @@
     {
       "name": "client-out-of-order-injected-stale",
       "status": "passed",
-      "elapsed_ms": 1.899999976158142,
+      "elapsed_ms": 2,
       "evidence": {
         "controlled_protocol_injection": true
       }
@@ -412,7 +412,7 @@
     {
       "name": "client-supersede-during-asynchronous-output-digest",
       "status": "passed",
-      "elapsed_ms": 147.4000000357628,
+      "elapsed_ms": 107.60000002384186,
       "evidence": {
         "code": "superseded",
         "message": "Replaced by a newer generation",
@@ -424,7 +424,7 @@
     {
       "name": "client-injected-invalid-empty",
       "status": "passed",
-      "elapsed_ms": 0.9000000357627869,
+      "elapsed_ms": 0.8999999761581421,
       "evidence": {
         "code": "invalid_response",
         "message": "Invalid output metadata"
@@ -433,7 +433,7 @@
     {
       "name": "client-injected-invalid-offset",
       "status": "passed",
-      "elapsed_ms": 0.7999999523162842,
+      "elapsed_ms": 0.6000000238418579,
       "evidence": {
         "code": "invalid_response",
         "message": "Invalid asset chunk"
@@ -442,7 +442,7 @@
     {
       "name": "client-injected-invalid-resource",
       "status": "passed",
-      "elapsed_ms": 0.6000000238418579,
+      "elapsed_ms": 0.5,
       "evidence": {
         "code": "invalid_response",
         "message": "Invalid resource evidence"
@@ -451,18 +451,19 @@
     {
       "name": "immutable-cache-atomic-reuse-conflict-tamper",
       "status": "passed",
-      "elapsed_ms": 13.300000011920929,
+      "elapsed_ms": 10.699999988079071,
       "evidence": {
         "concurrent_one_reused": true,
         "conflict_preserved_original": true,
         "corrupt_read_rejected": true,
-        "bound_identity_rejected": true
+        "bound_identity_rejected": true,
+        "caller_mutation_snapshot_preserved": true
       }
     },
     {
       "name": "actual-worker-recovers-after-failures",
       "status": "passed",
-      "elapsed_ms": 134.30000001192093,
+      "elapsed_ms": 106.10000002384186,
       "evidence": {
         "generation": 26
       }
@@ -475,19 +476,19 @@
           {
             "bytes": 1327,
             "name": "report.json",
-            "sha256": "78a5b6b175c2e864bc4f8ddc9d4c8647025d8d4b34a7be5c21819dc9450cfd53"
+            "sha256": "c9bb4cb2f7fe64b25ce972d6b1360a75e0f1303751aa0dc222846cc99798f0e6"
           }
         ],
         "second": [
           {
             "bytes": 1327,
             "name": "report.json",
-            "sha256": "78a5b6b175c2e864bc4f8ddc9d4c8647025d8d4b34a7be5c21819dc9450cfd53"
+            "sha256": "c9bb4cb2f7fe64b25ce972d6b1360a75e0f1303751aa0dc222846cc99798f0e6"
           }
         ]
       }
     }
   ],
   "browser": "156.0.4314.58",
-  "test_sha256": "d65d4b733df0062a5322e1f059fea282c8e43a509d853c7256d492f04d47894b"
+  "test_sha256": "cb479fb029008a0819236db0549544a917cbae0919c8ee97f84197c6a00297a4"
 }

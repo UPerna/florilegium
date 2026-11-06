@@ -34,6 +34,8 @@ export class ImmutableResultCache {
     return sha256(new TextEncoder().encode(JSON.stringify({manifest: value.manifest, source_digest: value.source_digest ?? null, cache_key: value.cache_key ?? null})));
   }
   async put(key, value) {
+    // Capture caller-owned buffers/metadata before any asynchronous digest yields.
+    value = structuredClone(value);
     if (value.cache_key !== undefined && key !== value.cache_key) throw Error('Cache key mismatch');
     const digest = await this.validate(value), database = await this.open();
     return new Promise((resolve, reject) => {

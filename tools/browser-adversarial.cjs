@@ -102,6 +102,10 @@ async function main() {
     const name='stage31-'+crypto.randomUUID(),cache=new ImmutableResultCache(name),bytes=new Uint8Array([0,255,128,1]);
     const value={schema_version:1,manifest:[{name:'x.bin',bytes:4,sha256:await sha256(bytes)}],assets:{'x.bin':bytes}};
     try{
+     const mutable=structuredClone(value),saving=cache.put('captured',mutable);
+     mutable.assets['x.bin'][0]=99;mutable.manifest[0].name='changed.bin';
+     await saving;const captured=await cache.get('captured');
+     assert(captured.assets['x.bin'][0]===0 && captured.manifest[0].name==='x.bin','Caller mutation corrupted asynchronous save');
      const concurrent=await Promise.all([cache.put('same',value),cache.put('same',value)]);
      assert(concurrent.filter(x=>x.reused).length===1,'Concurrent transaction failed');
      assert((await cache.get('same')).assets['x.bin'][1]===255,'Binary cache damaged');
@@ -111,7 +115,7 @@ async function main() {
      const bound=structuredClone(value);bound.source_digest=loaded.manifest.source_digest;bound.cache_key=await sha256(new TextEncoder().encode(bound.source_digest+'\n'+JSON.stringify(bound.manifest)));
      await cache.put(bound.cache_key,bound);await rejects(cache.put('wrong',bound));
      const db=await cache.open();await new Promise((resolve,reject)=>{const tx=db.transaction('results','readwrite'),s=tx.objectStore('results'),r=s.get('same');r.onsuccess=()=>{r.result.value.assets['x.bin'][0]=33;s.put(r.result,'same')};tx.oncomplete=resolve;tx.onabort=()=>reject(tx.error)});
-     await rejects(cache.get('same'));return {concurrent_one_reused:true,conflict_preserved_original:true,corrupt_read_rejected:true,bound_identity_rejected:true};
+     await rejects(cache.get('same'));return {concurrent_one_reused:true,conflict_preserved_original:true,corrupt_read_rejected:true,bound_identity_rejected:true,caller_mutation_snapshot_preserved:true};
     }finally{cache.close();indexedDB.deleteDatabase(name)}
    });
    await check('actual-worker-recovers-after-failures',async()=>{const v=await patternClient.execute({command:'capabilities'});assert(v.manifest.length>0,'Empty recovery');return {generation:v.generation}});

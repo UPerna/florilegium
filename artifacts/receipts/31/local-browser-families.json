@@ -4,7 +4,7 @@
   "runtime": {
     "browser": "156.0.4314.58",
     "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
-    "source_digest": "2dce2b2737db1b62a527dceb0f66eb690ad65e2b519ce34123b29d0935ce9501",
+    "source_digest": "b1d53687559ff3503bc5ff5411d9e0b8a7c6807cdc13149819c24887e85ae901",
     "source_files": {
       "authored.lua": "580aada625dcbde607eae5883d1f30400cbe2bd44c98e19ebb786f6a09c9c33e",
       "flora.lua": "d1ac3820f5507c2f8294d6e078e27a7045dee370f8f3298680c7ce0d38762274",
@@ -99,11 +99,11 @@
   },
   "families": {
     "botanical-panel": {
-      "source_digest": "2dce2b2737db1b62a527dceb0f66eb690ad65e2b519ce34123b29d0935ce9501",
+      "source_digest": "b1d53687559ff3503bc5ff5411d9e0b8a7c6807cdc13149819c24887e85ae901",
       "id": "botanical-panel",
       "family": "botanical/asymmetric-garden",
       "generated": {
-        "elapsed_ms": 11490.900000035763,
+        "elapsed_ms": 12235.599999964237,
         "manifest": [
           {
             "bytes": 941621,
@@ -128,7 +128,7 @@
           {
             "bytes": 10146,
             "name": "record.json",
-            "sha256": "e7f1ddea5b23f5a840ea31bb3e91b4c769852d9f61279190b44ef90e59cd6b3b"
+            "sha256": "9369b41f7a9aaada5d30f92d0d9e5d7fe73131624fa9e83509a9bff053f6c75b"
           },
           {
             "bytes": 927003,
@@ -142,13 +142,13 @@
           }
         ],
         "stats": {
-          "instructions": 469470000,
+          "instructions": 469440000,
           "lua_memory_bytes": 21179614,
           "profile": {
             "hash_bytes": 15675821,
             "hash_calls": 289,
             "hash_instructions": 0,
-            "instructions": 469470000
+            "instructions": 469440000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -169,7 +169,7 @@
       "differences": [],
       "status": "passed",
       "replayed": {
-        "elapsed_ms": 10658.699999988079,
+        "elapsed_ms": 12553.699999988079,
         "manifest": [
           {
             "bytes": 941621,
@@ -194,7 +194,7 @@
           {
             "bytes": 18377,
             "name": "record.json",
-            "sha256": "8a91480b170cc3f4130252be2faa43e4b5e97d9505754bc3de9846e0d7330abd"
+            "sha256": "6b01d6f41fdad09be094345531af54cd4c5e4a5496cb609c0b40f99e2ce30f2f"
           },
           {
             "bytes": 927003,
@@ -208,13 +208,13 @@
           }
         ],
         "stats": {
-          "instructions": 477840000,
+          "instructions": 477870000,
           "lua_memory_bytes": 22118681,
           "profile": {
             "hash_bytes": 16582404,
             "hash_calls": 264,
             "hash_instructions": 0,
-            "instructions": 477840000
+            "instructions": 477870000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -226,14 +226,15 @@
           },
           "host_digest": "37e5bbc775e40b3c0496eae930aaf84fd61b779839e383ccbe2eb22ace46b0ba"
         }
-      }
+      },
+      "comparison": "Native and own replay byte exact"
     },
     "periodic": {
-      "source_digest": "2dce2b2737db1b62a527dceb0f66eb690ad65e2b519ce34123b29d0935ce9501",
+      "source_digest": "b1d53687559ff3503bc5ff5411d9e0b8a7c6807cdc13149819c24887e85ae901",
       "id": "periodic",
       "family": "tiling/periodic",
       "generated": {
-        "elapsed_ms": 3739.800000011921,
+        "elapsed_ms": 3662.699999988079,
         "manifest": [
           {
             "bytes": 715232,
@@ -258,7 +259,7 @@
           {
             "bytes": 10194,
             "name": "record.json",
-            "sha256": "8b0bf01a2b4aed224e8a43cf04358cb878c1df18db9de7ab1dbc56fcda6d438c"
+            "sha256": "95d3cef0cd123afdd7930237eba651527e55b6a63193e15078b25db7f2c66455"
           },
           {
             "bytes": 5038,
@@ -272,13 +273,13 @@
           }
         ],
         "stats": {
-          "instructions": 129010000,
+          "instructions": 128940000,
           "lua_memory_bytes": 10581639,
           "profile": {
             "hash_bytes": 5429682,
             "hash_calls": 202,
             "hash_instructions": 0,
-            "instructions": 129010000
+            "instructions": 128940000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -299,7 +300,7 @@
       "differences": [],
       "status": "passed",
       "replayed": {
-        "elapsed_ms": 5467.5,
+        "elapsed_ms": 4962.800000011921,
         "manifest": [
           {
             "bytes": 715232,
@@ -324,7 +325,7 @@
           {
             "bytes": 18429,
             "name": "record.json",
-            "sha256": "412c06a6f369213b7c8621b3f1a95e9e83644ba72821ff1313e2798b1f82a268"
+            "sha256": "dd7d8127e1d6027a1d90ffbdd9ef0ff83f2f36dda0a21ce7eef6ecb299c63343"
           },
           {
             "bytes": 5038,
@@ -338,13 +339,13 @@
           }
         ],
         "stats": {
-          "instructions": 165230000,
+          "instructions": 165280000,
           "lua_memory_bytes": 6955910,
           "profile": {
             "hash_bytes": 6897621,
             "hash_calls": 209,
             "hash_instructions": 0,
-            "instructions": 165230000
+            "instructions": 165280000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -356,14 +357,15 @@
           },
           "host_digest": "37e5bbc775e40b3c0496eae930aaf84fd61b779839e383ccbe2eb22ace46b0ba"
         }
-      }
+      },
+      "comparison": "Native and own replay byte exact"
     },
     "celtic": {
-      "source_digest": "2dce2b2737db1b62a527dceb0f66eb690ad65e2b519ce34123b29d0935ce9501",
+      "source_digest": "b1d53687559ff3503bc5ff5411d9e0b8a7c6807cdc13149819c24887e85ae901",
       "id": "celtic",
       "family": "strand/celtic",
       "generated": {
-        "elapsed_ms": 640.5,
+        "elapsed_ms": 612.1000000238419,
         "manifest": [
           {
             "bytes": 9757,
@@ -388,7 +390,7 @@
           {
             "bytes": 10019,
             "name": "record.json",
-            "sha256": "f520bc71f424e81634e20f4a4308de15a0369e4b39e48f5e065466f3fadcf523"
+            "sha256": "8565f6658d7b48769bca34a038d63a77172e5bcb17f5e18b6bb45ee2b5a2c9fd"
           },
           {
             "bytes": 5164,
@@ -402,13 +404,13 @@
           }
         ],
         "stats": {
-          "instructions": 16190000,
+          "instructions": 16180000,
           "lua_memory_bytes": 4448493,
           "profile": {
             "hash_bytes": 1887900,
             "hash_calls": 193,
             "hash_instructions": 0,
-            "instructions": 16190000
+            "instructions": 16180000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -429,7 +431,7 @@
       "differences": [],
       "status": "passed",
       "replayed": {
-        "elapsed_ms": 664.8000000119209,
+        "elapsed_ms": 573.5,
         "manifest": [
           {
             "bytes": 9757,
@@ -454,7 +456,7 @@
           {
             "bytes": 18249,
             "name": "record.json",
-            "sha256": "f5bd189b1cd5cfa40c0450504358e936907d719a950e2c5c8fcf7004111bd134"
+            "sha256": "f5aff5f4e43e4e91f6bf4aaf4084c8fb2306d94660c12dcdb811f170cb53bd88"
           },
           {
             "bytes": 5164,
@@ -468,13 +470,13 @@
           }
         ],
         "stats": {
-          "instructions": 15830000,
-          "lua_memory_bytes": 6156027,
+          "instructions": 15780000,
+          "lua_memory_bytes": 6154035,
           "profile": {
             "hash_bytes": 1944751,
             "hash_calls": 201,
             "hash_instructions": 0,
-            "instructions": 15830000
+            "instructions": 15780000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -486,14 +488,15 @@
           },
           "host_digest": "37e5bbc775e40b3c0496eae930aaf84fd61b779839e383ccbe2eb22ace46b0ba"
         }
-      }
+      },
+      "comparison": "Native and own replay byte exact"
     },
     "islamic": {
-      "source_digest": "2dce2b2737db1b62a527dceb0f66eb690ad65e2b519ce34123b29d0935ce9501",
+      "source_digest": "b1d53687559ff3503bc5ff5411d9e0b8a7c6807cdc13149819c24887e85ae901",
       "id": "islamic",
       "family": "ornament/islamic-pic",
       "generated": {
-        "elapsed_ms": 2112.100000023842,
+        "elapsed_ms": 1747.8999999761581,
         "manifest": [
           {
             "bytes": 393022,
@@ -518,7 +521,7 @@
           {
             "bytes": 9779,
             "name": "record.json",
-            "sha256": "aa9ed175eab2e8055db34cb34f2b91b1b64036981545f529d08bb02917d0760c"
+            "sha256": "37affc0d43dbe05a21b383e1758cb4d11297a9781175c2c2ee647e3c102854a5"
           },
           {
             "bytes": 25144,
@@ -532,13 +535,13 @@
           }
         ],
         "stats": {
-          "instructions": 65040000,
-          "lua_memory_bytes": 20844936,
+          "instructions": 65160000,
+          "lua_memory_bytes": 20844972,
           "profile": {
             "hash_bytes": 3111804,
             "hash_calls": 192,
             "hash_instructions": 0,
-            "instructions": 65040000
+            "instructions": 65160000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -559,7 +562,7 @@
       "differences": [],
       "status": "passed",
       "replayed": {
-        "elapsed_ms": 2789.199999988079,
+        "elapsed_ms": 2291.5,
         "manifest": [
           {
             "bytes": 393022,
@@ -584,7 +587,7 @@
           {
             "bytes": 18009,
             "name": "record.json",
-            "sha256": "ecf12847ceb5a4821e6126eb11613f15b961103ec8040419f4381cb397329496"
+            "sha256": "9a79750f6bf4662520c8b97de748d3652ad505bed488844880794c0f1a16bfd0"
           },
           {
             "bytes": 25144,
@@ -598,13 +601,13 @@
           }
         ],
         "stats": {
-          "instructions": 72580000,
+          "instructions": 72730000,
           "lua_memory_bytes": 21525164,
           "profile": {
             "hash_bytes": 3934313,
             "hash_calls": 198,
             "hash_instructions": 0,
-            "instructions": 72580000
+            "instructions": 72730000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -616,14 +619,15 @@
           },
           "host_digest": "37e5bbc775e40b3c0496eae930aaf84fd61b779839e383ccbe2eb22ace46b0ba"
         }
-      }
+      },
+      "comparison": "Native and own replay byte exact"
     },
     "freeform": {
-      "source_digest": "2dce2b2737db1b62a527dceb0f66eb690ad65e2b519ce34123b29d0935ce9501",
+      "source_digest": "b1d53687559ff3503bc5ff5411d9e0b8a7c6807cdc13149819c24887e85ae901",
       "id": "freeform",
       "family": "ornament/islamic-freeform",
       "generated": {
-        "elapsed_ms": 1590.300000011921,
+        "elapsed_ms": 1143.800000011921,
         "manifest": [
           {
             "bytes": 109427,
@@ -648,7 +652,7 @@
           {
             "bytes": 10336,
             "name": "record.json",
-            "sha256": "68a4e9f1c8a20c6ce494dc6d8bf301cfb7989bacd327d0cd1bc8f04c2ee36a24"
+            "sha256": "6708f119e14f07679bf070cd50caa00aea575123fe2e486e84571299384d515a"
           },
           {
             "bytes": 79085,
@@ -662,13 +666,13 @@
           }
         ],
         "stats": {
-          "instructions": 30830000,
-          "lua_memory_bytes": 6363968,
+          "instructions": 30850000,
+          "lua_memory_bytes": 6363932,
           "profile": {
             "hash_bytes": 2546462,
             "hash_calls": 190,
             "hash_instructions": 10000,
-            "instructions": 30830000
+            "instructions": 30850000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -689,7 +693,7 @@
       "differences": [],
       "status": "passed",
       "replayed": {
-        "elapsed_ms": 1985.9000000357628,
+        "elapsed_ms": 1529.8999999761581,
         "manifest": [
           {
             "bytes": 109427,
@@ -714,7 +718,7 @@
           {
             "bytes": 18567,
             "name": "record.json",
-            "sha256": "c8eec2837ad52d3564aeba189774f505ed8e3c171a04def70d37baa2a850481e"
+            "sha256": "5471786fd3a9853eed35323d4c21a62979898fbdc72f645dbf6289fe3ef20fa3"
           },
           {
             "bytes": 79085,
@@ -728,13 +732,13 @@
           }
         ],
         "stats": {
-          "instructions": 36720000,
+          "instructions": 36820000,
           "lua_memory_bytes": 6492399,
           "profile": {
             "hash_bytes": 2803288,
             "hash_calls": 198,
-            "hash_instructions": 0,
-            "instructions": 36720000
+            "hash_instructions": 10000,
+            "instructions": 36820000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -746,14 +750,15 @@
           },
           "host_digest": "37e5bbc775e40b3c0496eae930aaf84fd61b779839e383ccbe2eb22ace46b0ba"
         }
-      }
+      },
+      "comparison": "Native and own replay byte exact"
     },
     "substitution": {
-      "source_digest": "2dce2b2737db1b62a527dceb0f66eb690ad65e2b519ce34123b29d0935ce9501",
+      "source_digest": "b1d53687559ff3503bc5ff5411d9e0b8a7c6807cdc13149819c24887e85ae901",
       "id": "substitution",
       "family": "tiling/finite-substitution",
       "generated": {
-        "elapsed_ms": 3703.899999976158,
+        "elapsed_ms": 4268.600000023842,
         "manifest": [
           {
             "bytes": 508397,
@@ -778,7 +783,7 @@
           {
             "bytes": 10941,
             "name": "record.json",
-            "sha256": "08f34900c2572134c4ce63bff1fbc2f3be8cd9bd5c4fafb8b39ae4635fb176c7"
+            "sha256": "ee72e174b861c0899dad3d41ce623411c74103d1a1008b9918c40bb386976a26"
           },
           {
             "bytes": 20117,
@@ -792,13 +797,13 @@
           }
         ],
         "stats": {
-          "instructions": 112850000,
+          "instructions": 112390000,
           "lua_memory_bytes": 24809455,
           "profile": {
             "hash_bytes": 4450565,
             "hash_calls": 196,
             "hash_instructions": 0,
-            "instructions": 112850000
+            "instructions": 112390000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -819,7 +824,7 @@
       "differences": [],
       "status": "passed",
       "replayed": {
-        "elapsed_ms": 5100.800000011921,
+        "elapsed_ms": 3983.600000023842,
         "manifest": [
           {
             "bytes": 508397,
@@ -844,7 +849,7 @@
           {
             "bytes": 19171,
             "name": "record.json",
-            "sha256": "9c6344b7198063cb39f6fad3df149ba82b51b09aa3023122759dc22bc0c949a0"
+            "sha256": "a8e7da30a2355068afef366b3f3fa8b06aa18b62d5f6edbc12090b9b0f9377c9"
           },
           {
             "bytes": 20117,
@@ -858,13 +863,13 @@
           }
         ],
         "stats": {
-          "instructions": 137840000,
+          "instructions": 138010000,
           "lua_memory_bytes": 25618406,
           "profile": {
             "hash_bytes": 5506104,
             "hash_calls": 202,
             "hash_instructions": 0,
-            "instructions": 137840000
+            "instructions": 138010000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -876,14 +881,15 @@
           },
           "host_digest": "37e5bbc775e40b3c0496eae930aaf84fd61b779839e383ccbe2eb22ace46b0ba"
         }
-      }
+      },
+      "comparison": "Native and own replay byte exact"
     },
     "penrose": {
-      "source_digest": "2dce2b2737db1b62a527dceb0f66eb690ad65e2b519ce34123b29d0935ce9501",
+      "source_digest": "b1d53687559ff3503bc5ff5411d9e0b8a7c6807cdc13149819c24887e85ae901",
       "id": "penrose",
       "family": "tiling/penrose-p3",
       "generated": {
-        "elapsed_ms": 11004.599999964237,
+        "elapsed_ms": 11505.199999988079,
         "manifest": [
           {
             "bytes": 1934859,
@@ -908,7 +914,7 @@
           {
             "bytes": 11740,
             "name": "record.json",
-            "sha256": "1edb944fd2fa56b734e13f4f1c235ea6b13e4370c625521f8eda9acb57f5c726"
+            "sha256": "435e5e8dde42ce9453ac44c888db594a00d23d11c3c37401f23b034ad2683ae8"
           },
           {
             "bytes": 75286,
@@ -922,13 +928,13 @@
           }
         ],
         "stats": {
-          "instructions": 396620000,
+          "instructions": 398050000,
           "lua_memory_bytes": 11511221,
           "profile": {
             "hash_bytes": 11856132,
             "hash_calls": 196,
             "hash_instructions": 0,
-            "instructions": 396620000
+            "instructions": 398050000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -949,7 +955,7 @@
       "differences": [],
       "status": "passed",
       "replayed": {
-        "elapsed_ms": 12044.199999988079,
+        "elapsed_ms": 13424.699999988079,
         "manifest": [
           {
             "bytes": 1934859,
@@ -974,7 +980,7 @@
           {
             "bytes": 19971,
             "name": "record.json",
-            "sha256": "257c7484be09a89140cc6993147bd362b25b8f649ae3f1bb57ea201be6ba354f"
+            "sha256": "da043fedf007bd39c69fae638be21e4c7f08e2738653127dbb93b28eb1dcd1c2"
           },
           {
             "bytes": 75286,
@@ -988,13 +994,13 @@
           }
         ],
         "stats": {
-          "instructions": 487950000,
+          "instructions": 486940000,
           "lua_memory_bytes": 13747796,
           "profile": {
             "hash_bytes": 15765653,
             "hash_calls": 202,
             "hash_instructions": 0,
-            "instructions": 487950000
+            "instructions": 486940000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -1006,14 +1012,15 @@
           },
           "host_digest": "37e5bbc775e40b3c0496eae930aaf84fd61b779839e383ccbe2eb22ace46b0ba"
         }
-      }
+      },
+      "comparison": "Native and own replay byte exact"
     },
     "spectre": {
-      "source_digest": "2dce2b2737db1b62a527dceb0f66eb690ad65e2b519ce34123b29d0935ce9501",
+      "source_digest": "b1d53687559ff3503bc5ff5411d9e0b8a7c6807cdc13149819c24887e85ae901",
       "id": "spectre",
       "family": "tiling/spectre",
       "generated": {
-        "elapsed_ms": 2509.5,
+        "elapsed_ms": 3109,
         "manifest": [
           {
             "bytes": 443202,
@@ -1038,7 +1045,7 @@
           {
             "bytes": 11929,
             "name": "record.json",
-            "sha256": "35bdc11a2989ba8268f055fd9ce65918ea7530aee608bb3986b656f41c0055e2"
+            "sha256": "4744765a7c3135e966d73715b49741f919aab62d95045f53529b76d251e7cebe"
           },
           {
             "bytes": 53564,
@@ -1052,13 +1059,13 @@
           }
         ],
         "stats": {
-          "instructions": 103230000,
+          "instructions": 103090000,
           "lua_memory_bytes": 24214799,
           "profile": {
             "hash_bytes": 4329626,
             "hash_calls": 198,
             "hash_instructions": 0,
-            "instructions": 103230000
+            "instructions": 103090000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -1079,7 +1086,7 @@
       "differences": [],
       "status": "passed",
       "replayed": {
-        "elapsed_ms": 3219.399999976158,
+        "elapsed_ms": 5020.699999988079,
         "manifest": [
           {
             "bytes": 443202,
@@ -1104,7 +1111,7 @@
           {
             "bytes": 20160,
             "name": "record.json",
-            "sha256": "a5cb7ea8cb81ae54fd056113093539c2b00fb52136480d8e4fc7f5d4de6b3c8f"
+            "sha256": "1c14025caab039ebdcd0615d2d1ca72df64d8746e9ae156426d0fdfcab83dc4b"
           },
           {
             "bytes": 53564,
@@ -1118,13 +1125,13 @@
           }
         ],
         "stats": {
-          "instructions": 124700000,
+          "instructions": 124940000,
           "lua_memory_bytes": 24958413,
           "profile": {
             "hash_bytes": 5238953,
             "hash_calls": 203,
-            "hash_instructions": 10000,
-            "instructions": 124700000
+            "hash_instructions": 0,
+            "instructions": 124940000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -1136,14 +1143,15 @@
           },
           "host_digest": "37e5bbc775e40b3c0496eae930aaf84fd61b779839e383ccbe2eb22ace46b0ba"
         }
-      }
+      },
+      "comparison": "Native and own replay byte exact"
     },
     "beenker": {
-      "source_digest": "2dce2b2737db1b62a527dceb0f66eb690ad65e2b519ce34123b29d0935ce9501",
+      "source_digest": "b1d53687559ff3503bc5ff5411d9e0b8a7c6807cdc13149819c24887e85ae901",
       "id": "beenker",
       "family": "tiling/ammann-beenker",
       "generated": {
-        "elapsed_ms": 6667.099999964237,
+        "elapsed_ms": 8045.600000023842,
         "manifest": [
           {
             "bytes": 1178516,
@@ -1168,7 +1176,7 @@
           {
             "bytes": 11481,
             "name": "record.json",
-            "sha256": "ab6fcbfbb02271c5efb8fd675e92a3f9b60fd0444b43e072c3bf23fff1b1c1e1"
+            "sha256": "de7a6d7853d9f42c05594d285b60d302ff49e2bd1acbfa9fb9b6bd37525d3a79"
           },
           {
             "bytes": 77196,
@@ -1182,13 +1190,13 @@
           }
         ],
         "stats": {
-          "instructions": 279120000,
+          "instructions": 279780000,
           "lua_memory_bytes": 7992326,
           "profile": {
             "hash_bytes": 8145437,
             "hash_calls": 203,
             "hash_instructions": 0,
-            "instructions": 279120000
+            "instructions": 279780000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -1209,7 +1217,7 @@
       "differences": [],
       "status": "passed",
       "replayed": {
-        "elapsed_ms": 8230.099999964237,
+        "elapsed_ms": 9073.199999988079,
         "manifest": [
           {
             "bytes": 1178516,
@@ -1234,7 +1242,7 @@
           {
             "bytes": 19715,
             "name": "record.json",
-            "sha256": "7134ae4c1b3438b715336c6142c3d8596cdacb8e05c12301cf977918eab52168"
+            "sha256": "11e6675229564aa0d4f2f4692f26dea9e98d5cb6594ce73ad159a8be5962f35f"
           },
           {
             "bytes": 77196,
@@ -1248,13 +1256,13 @@
           }
         ],
         "stats": {
-          "instructions": 336020000,
+          "instructions": 335700000,
           "lua_memory_bytes": 29156918,
           "profile": {
             "hash_bytes": 10541948,
             "hash_calls": 209,
             "hash_instructions": 0,
-            "instructions": 336020000
+            "instructions": 335700000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -1266,14 +1274,15 @@
           },
           "host_digest": "37e5bbc775e40b3c0496eae930aaf84fd61b779839e383ccbe2eb22ace46b0ba"
         }
-      }
+      },
+      "comparison": "Native and own replay byte exact"
     },
     "completion": {
-      "source_digest": "2dce2b2737db1b62a527dceb0f66eb690ad65e2b519ce34123b29d0935ce9501",
+      "source_digest": "b1d53687559ff3503bc5ff5411d9e0b8a7c6807cdc13149819c24887e85ae901",
       "id": "completion",
       "family": "tiling/marked-square-completion",
       "generated": {
-        "elapsed_ms": 330.5,
+        "elapsed_ms": 360.10000002384186,
         "manifest": [
           {
             "bytes": 13098,
@@ -1298,7 +1307,7 @@
           {
             "bytes": 10280,
             "name": "record.json",
-            "sha256": "65e3685d7b1661fc84a47db48f6fa5ceb062afd4f645f3c89ddba07f08a999b9"
+            "sha256": "85c243926b060d90f7eb2eb78ada137533ad246d287e4a7bd06b246cf0dfd3cd"
           },
           {
             "bytes": 15446,
@@ -1313,7 +1322,7 @@
         ],
         "stats": {
           "instructions": 6180000,
-          "lua_memory_bytes": 5605664,
+          "lua_memory_bytes": 5605724,
           "profile": {
             "hash_bytes": 1935014,
             "hash_calls": 196,
@@ -1339,7 +1348,7 @@
       "differences": [],
       "status": "passed",
       "replayed": {
-        "elapsed_ms": 362.9000000357628,
+        "elapsed_ms": 471.80000001192093,
         "manifest": [
           {
             "bytes": 13098,
@@ -1364,7 +1373,7 @@
           {
             "bytes": 18514,
             "name": "record.json",
-            "sha256": "add4ebe9c05985466501b01c5f74c708559f91ab5bbca136c520a3992d0e4bde"
+            "sha256": "f640c77802bc525a191e79318e2ca82d22604e9e2e1328a164a432738bb4e450"
           },
           {
             "bytes": 15446,
@@ -1378,13 +1387,13 @@
           }
         ],
         "stats": {
-          "instructions": 8070000,
-          "lua_memory_bytes": 7904255,
+          "instructions": 8100000,
+          "lua_memory_bytes": 7886418,
           "profile": {
             "hash_bytes": 1996012,
             "hash_calls": 201,
             "hash_instructions": 0,
-            "instructions": 8070000
+            "instructions": 8100000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -1396,14 +1405,15 @@
           },
           "host_digest": "37e5bbc775e40b3c0496eae930aaf84fd61b779839e383ccbe2eb22ace46b0ba"
         }
-      }
+      },
+      "comparison": "Native and own replay byte exact"
     },
     "tracery": {
-      "source_digest": "2dce2b2737db1b62a527dceb0f66eb690ad65e2b519ce34123b29d0935ce9501",
+      "source_digest": "b1d53687559ff3503bc5ff5411d9e0b8a7c6807cdc13149819c24887e85ae901",
       "id": "tracery",
       "family": "ornament/gothic-tracery",
       "generated": {
-        "elapsed_ms": 444.30000001192093,
+        "elapsed_ms": 518.1999999880791,
         "manifest": [
           {
             "bytes": 13237,
@@ -1428,7 +1438,7 @@
           {
             "bytes": 10165,
             "name": "record.json",
-            "sha256": "da0e58cadc32d29a67540164bb3cc6b13664e59cac5f8135e1061803af3a9ad7"
+            "sha256": "858a858d413ba23e442e70f3e47738162a3c7d6f184e2054c9e1f7709196e8d6"
           },
           {
             "bytes": 13430,
@@ -1442,13 +1452,13 @@
           }
         ],
         "stats": {
-          "instructions": 9820000,
-          "lua_memory_bytes": 4184563,
+          "instructions": 9830000,
+          "lua_memory_bytes": 4184551,
           "profile": {
             "hash_bytes": 1945950,
             "hash_calls": 194,
             "hash_instructions": 0,
-            "instructions": 9820000
+            "instructions": 9830000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -1469,7 +1479,7 @@
       "differences": [],
       "status": "passed",
       "replayed": {
-        "elapsed_ms": 450.10000002384186,
+        "elapsed_ms": 506.30000001192093,
         "manifest": [
           {
             "bytes": 13237,
@@ -1494,7 +1504,7 @@
           {
             "bytes": 18398,
             "name": "record.json",
-            "sha256": "d857a03551ae0668c656d9d1a10a414a4be000fd2b98d9d73dd4323c3da09fe6"
+            "sha256": "a6915c94fc91e62c55c77abe1ff631b12d99e1b0f951a68ab553586af022a2f7"
           },
           {
             "bytes": 13430,
@@ -1508,13 +1518,13 @@
           }
         ],
         "stats": {
-          "instructions": 11830000,
+          "instructions": 11810000,
           "lua_memory_bytes": 6330772,
           "profile": {
             "hash_bytes": 2009808,
             "hash_calls": 201,
             "hash_instructions": 0,
-            "instructions": 11830000
+            "instructions": 11810000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -1526,14 +1536,15 @@
           },
           "host_digest": "37e5bbc775e40b3c0496eae930aaf84fd61b779839e383ccbe2eb22ace46b0ba"
         }
-      }
+      },
+      "comparison": "Native and own replay byte exact"
     },
     "escher": {
-      "source_digest": "2dce2b2737db1b62a527dceb0f66eb690ad65e2b519ce34123b29d0935ce9501",
+      "source_digest": "b1d53687559ff3503bc5ff5411d9e0b8a7c6807cdc13149819c24887e85ae901",
       "id": "escher",
       "family": "tiling/escherization",
       "generated": {
-        "elapsed_ms": 6321.100000023842,
+        "elapsed_ms": 8675.399999976158,
         "manifest": [
           {
             "bytes": 369407,
@@ -1558,7 +1569,7 @@
           {
             "bytes": 10830,
             "name": "record.json",
-            "sha256": "c79a415bdebba22f40fdf7569a4585dcc1c7450d1f1ecf4522ec562f805b9ae1"
+            "sha256": "6c82d9f35648f12581f34ca023c45d5dc12a50bc5309e7dc29c2e3b684e057e5"
           },
           {
             "bytes": 55319,
@@ -1572,13 +1583,13 @@
           }
         ],
         "stats": {
-          "instructions": 344010000,
-          "lua_memory_bytes": 9691568,
+          "instructions": 344060000,
+          "lua_memory_bytes": 24265248,
           "profile": {
             "hash_bytes": 3182559,
             "hash_calls": 199,
             "hash_instructions": 0,
-            "instructions": 344010000
+            "instructions": 344060000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -1599,7 +1610,7 @@
       "differences": [],
       "status": "passed",
       "replayed": {
-        "elapsed_ms": 2735.100000023842,
+        "elapsed_ms": 3320.399999976158,
         "manifest": [
           {
             "bytes": 369407,
@@ -1624,7 +1635,7 @@
           {
             "bytes": 19059,
             "name": "record.json",
-            "sha256": "36b685e773df6567b2a60c7262cfd2347c4e6953ed482ace08c4b161ca3d78cc"
+            "sha256": "f68e827211db34ab8536d80af1b7704d7c906517e9404e2c7880697b7d76c492"
           },
           {
             "bytes": 55319,
@@ -1638,13 +1649,13 @@
           }
         ],
         "stats": {
-          "instructions": 94230000,
+          "instructions": 94240000,
           "lua_memory_bytes": 7476014,
           "profile": {
             "hash_bytes": 3958664,
             "hash_calls": 201,
             "hash_instructions": 0,
-            "instructions": 94230000
+            "instructions": 94240000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -1656,14 +1667,15 @@
           },
           "host_digest": "37e5bbc775e40b3c0496eae930aaf84fd61b779839e383ccbe2eb22ace46b0ba"
         }
-      }
+      },
+      "comparison": "Native and own replay byte exact"
     },
     "mosaic": {
-      "source_digest": "2dce2b2737db1b62a527dceb0f66eb690ad65e2b519ce34123b29d0935ce9501",
+      "source_digest": "b1d53687559ff3503bc5ff5411d9e0b8a7c6807cdc13149819c24887e85ae901",
       "id": "mosaic",
       "family": "mosaic/hausner",
       "generated": {
-        "elapsed_ms": 2715.5,
+        "elapsed_ms": 2854.199999988079,
         "manifest": [
           {
             "bytes": 74067,
@@ -1688,7 +1700,7 @@
           {
             "bytes": 16760,
             "name": "record.json",
-            "sha256": "24b9467c448a0c57ed11690e2560bdbe267259c2301e7f5207c0d0b2c9f86a1f"
+            "sha256": "9a13438694e57e2f4c0ce7e8d7a93b2654f600fb44bb20e80937a11debbf70ab"
           },
           {
             "bytes": 46375,
@@ -1702,13 +1714,13 @@
           }
         ],
         "stats": {
-          "instructions": 143900000,
-          "lua_memory_bytes": 7945557,
+          "instructions": 143940000,
+          "lua_memory_bytes": 5090370,
           "profile": {
             "hash_bytes": 2286210,
             "hash_calls": 194,
             "hash_instructions": 0,
-            "instructions": 143900000
+            "instructions": 143940000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -1729,7 +1741,7 @@
       "differences": [],
       "status": "passed",
       "replayed": {
-        "elapsed_ms": 1235.0999999642372,
+        "elapsed_ms": 1420,
         "manifest": [
           {
             "bytes": 74067,
@@ -1754,7 +1766,7 @@
           {
             "bytes": 24991,
             "name": "record.json",
-            "sha256": "32d815d75b80b66a1a433b51fb5f6b48454ec314b976c8dd7cc9b445735d835c"
+            "sha256": "94753c7633bc851a375cc7ee0449dc45854fe8cac729930ba777c720b3c20062"
           },
           {
             "bytes": 46375,
@@ -1768,13 +1780,13 @@
           }
         ],
         "stats": {
-          "instructions": 37690000,
-          "lua_memory_bytes": 5189744,
+          "instructions": 37760000,
+          "lua_memory_bytes": 5189780,
           "profile": {
             "hash_bytes": 2473559,
             "hash_calls": 199,
-            "hash_instructions": 0,
-            "instructions": 37690000
+            "hash_instructions": 10000,
+            "instructions": 37760000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -1786,14 +1798,15 @@
           },
           "host_digest": "37e5bbc775e40b3c0496eae930aaf84fd61b779839e383ccbe2eb22ace46b0ba"
         }
-      }
+      },
+      "comparison": "Native and own replay byte exact"
     },
     "stroke": {
-      "source_digest": "2dce2b2737db1b62a527dceb0f66eb690ad65e2b519ce34123b29d0935ce9501",
+      "source_digest": "b1d53687559ff3503bc5ff5411d9e0b8a7c6807cdc13149819c24887e85ae901",
       "id": "stroke",
       "family": "stroke/fields-and-examples",
       "generated": {
-        "elapsed_ms": 6442.100000023842,
+        "elapsed_ms": 7915.699999988079,
         "manifest": [
           {
             "bytes": 108541,
@@ -1818,7 +1831,7 @@
           {
             "bytes": 9766,
             "name": "record.json",
-            "sha256": "636a56f4f0c2b23824ab217cd73b749f3258ec328535b2a12a5f3ae64e3cd90f"
+            "sha256": "873497be7d83ecdd1738fce0d4cfbdde073659b938e97cefd3fb9422453f2925"
           },
           {
             "bytes": 64017,
@@ -1832,13 +1845,13 @@
           }
         ],
         "stats": {
-          "instructions": 429010000,
+          "instructions": 429020000,
           "lua_memory_bytes": 8860137,
           "profile": {
             "hash_bytes": 2443719,
             "hash_calls": 191,
             "hash_instructions": 0,
-            "instructions": 429010000
+            "instructions": 429020000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -1859,7 +1872,7 @@
       "differences": [],
       "status": "passed",
       "replayed": {
-        "elapsed_ms": 1178.6000000238419,
+        "elapsed_ms": 1390.7999999523163,
         "manifest": [
           {
             "bytes": 108541,
@@ -1884,7 +1897,7 @@
           {
             "bytes": 17996,
             "name": "record.json",
-            "sha256": "2dff3d3711dca6f5fae7549bd7606a5aa5ba5788946a49f5a486b72cd3deab61"
+            "sha256": "63e7dbdabe4cd114a7d4bd1316eb4c9bdf68e02d3db4cdd31b22877f03c9fa06"
           },
           {
             "bytes": 64017,
@@ -1898,13 +1911,13 @@
           }
         ],
         "stats": {
-          "instructions": 24250000,
-          "lua_memory_bytes": 9268481,
+          "instructions": 24270000,
+          "lua_memory_bytes": 9268517,
           "profile": {
             "hash_bytes": 2696945,
             "hash_calls": 198,
-            "hash_instructions": 10000,
-            "instructions": 24250000
+            "hash_instructions": 0,
+            "instructions": 24270000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -1916,14 +1929,15 @@
           },
           "host_digest": "37e5bbc775e40b3c0496eae930aaf84fd61b779839e383ccbe2eb22ace46b0ba"
         }
-      }
+      },
+      "comparison": "Native and own replay byte exact"
     },
     "maze": {
-      "source_digest": "2dce2b2737db1b62a527dceb0f66eb690ad65e2b519ce34123b29d0935ce9501",
+      "source_digest": "b1d53687559ff3503bc5ff5411d9e0b8a7c6807cdc13149819c24887e85ae901",
       "id": "maze",
       "family": "maze/image-guided",
       "generated": {
-        "elapsed_ms": 4416.800000011921,
+        "elapsed_ms": 3027.5,
         "manifest": [
           {
             "bytes": 483787,
@@ -1948,7 +1962,7 @@
           {
             "bytes": 9892,
             "name": "record.json",
-            "sha256": "aa96d89d7a8132cbeb7e9d4e264aac406580803c61a0fad5146fcc0cd253e279"
+            "sha256": "dcdcb57c599b808badb53c4070b429a3219478aef58f22df9f7e679e1274bc6e"
           },
           {
             "bytes": 128573,
@@ -1962,13 +1976,13 @@
           }
         ],
         "stats": {
-          "instructions": 94690000,
+          "instructions": 94540000,
           "lua_memory_bytes": 9268737,
           "profile": {
             "hash_bytes": 3964461,
             "hash_calls": 1587,
-            "hash_instructions": 0,
-            "instructions": 94690000
+            "hash_instructions": 10000,
+            "instructions": 94540000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -1989,7 +2003,7 @@
       "differences": [],
       "status": "passed",
       "replayed": {
-        "elapsed_ms": 3570.300000011921,
+        "elapsed_ms": 3352.100000023842,
         "manifest": [
           {
             "bytes": 483787,
@@ -2014,7 +2028,7 @@
           {
             "bytes": 18123,
             "name": "record.json",
-            "sha256": "323e6b94fc03e8370cfe7c3675d42288f292334984b2b4e8af54a619077f6932"
+            "sha256": "473ba4111222c3c99c32b3b0420458017f978f17f33f200cbece4a88c76366a1"
           },
           {
             "bytes": 128573,
@@ -2028,13 +2042,13 @@
           }
         ],
         "stats": {
-          "instructions": 103610000,
+          "instructions": 103860000,
           "lua_memory_bytes": 14973506,
           "profile": {
             "hash_bytes": 4922824,
             "hash_calls": 895,
             "hash_instructions": 0,
-            "instructions": 103610000
+            "instructions": 103860000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -2046,14 +2060,15 @@
           },
           "host_digest": "37e5bbc775e40b3c0496eae930aaf84fd61b779839e383ccbe2eb22ace46b0ba"
         }
-      }
+      },
+      "comparison": "Native and own replay byte exact"
     },
     "micrography": {
-      "source_digest": "2dce2b2737db1b62a527dceb0f66eb690ad65e2b519ce34123b29d0935ce9501",
+      "source_digest": "b1d53687559ff3503bc5ff5411d9e0b8a7c6807cdc13149819c24887e85ae901",
       "id": "micrography",
       "family": "text/digital-micrography",
       "generated": {
-        "elapsed_ms": 10309.900000035763,
+        "elapsed_ms": 8315.699999988079,
         "manifest": [
           {
             "bytes": 296700,
@@ -2078,7 +2093,7 @@
           {
             "bytes": 10128,
             "name": "record.json",
-            "sha256": "f5f61eb73c9e51800077749a7ceac168fc5e3cbdad246b283b34ec68a1cef0ef"
+            "sha256": "94bbe40f54ec0104e6075fc9654a0aca9b86d305ed279155699d3154363eeebc"
           },
           {
             "bytes": 162439,
@@ -2092,13 +2107,13 @@
           }
         ],
         "stats": {
-          "instructions": 318530000,
+          "instructions": 318590000,
           "lua_memory_bytes": 10158767,
           "profile": {
             "hash_bytes": 4412734,
             "hash_calls": 196,
             "hash_instructions": 0,
-            "instructions": 318530000
+            "instructions": 318590000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -2152,7 +2167,7 @@
         }
       },
       "replayed": {
-        "elapsed_ms": 8094.199999988079,
+        "elapsed_ms": 8538,
         "manifest": [
           {
             "bytes": 296700,
@@ -2177,7 +2192,7 @@
           {
             "bytes": 18358,
             "name": "record.json",
-            "sha256": "7a3a3831838ec80f5acedd038e48d21c1e5be92ebca636d574f05b2c1051225e"
+            "sha256": "8856a7137a10303a2086db9650abc04c9469f822adc86e75d0809a0c2602734b"
           },
           {
             "bytes": 162439,
@@ -2191,13 +2206,13 @@
           }
         ],
         "stats": {
-          "instructions": 228230000,
+          "instructions": 228250000,
           "lua_memory_bytes": 16295672,
           "profile": {
             "hash_bytes": 4928617,
             "hash_calls": 202,
             "hash_instructions": 0,
-            "instructions": 228230000
+            "instructions": 228250000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -2213,11 +2228,11 @@
       "comparison": "Strict structural/binary64-roundoff comparison; own replay exact"
     },
     "decobrush": {
-      "source_digest": "2dce2b2737db1b62a527dceb0f66eb690ad65e2b519ce34123b29d0935ce9501",
+      "source_digest": "b1d53687559ff3503bc5ff5411d9e0b8a7c6807cdc13149819c24887e85ae901",
       "id": "decobrush",
       "family": "decoration/decobrush",
       "generated": {
-        "elapsed_ms": 2670.699999988079,
+        "elapsed_ms": 1929.5,
         "manifest": [
           {
             "bytes": 146712,
@@ -2242,7 +2257,7 @@
           {
             "bytes": 9718,
             "name": "record.json",
-            "sha256": "3e23e35e086e1478a63a8f94e8921a56dcabc8030b9e2645be8cffca2c4155ea"
+            "sha256": "a59b2e6c047270d4a92d343fa41dff10546cb20c1476132bfb5faf190e8cfa58"
           },
           {
             "bytes": 12639,
@@ -2257,7 +2272,7 @@
         ],
         "stats": {
           "instructions": 79540000,
-          "lua_memory_bytes": 9936494,
+          "lua_memory_bytes": 9936422,
           "profile": {
             "hash_bytes": 2312882,
             "hash_calls": 191,
@@ -2316,7 +2331,7 @@
         }
       },
       "replayed": {
-        "elapsed_ms": 1091.5,
+        "elapsed_ms": 1089.300000011921,
         "manifest": [
           {
             "bytes": 146712,
@@ -2341,7 +2356,7 @@
           {
             "bytes": 17949,
             "name": "record.json",
-            "sha256": "09d8c202440d5ceda3e90cbf4fd35834a7bc39418e813d00807aad9df8e3a8b4"
+            "sha256": "ea9a0656a1478d21b8a5558dc25cae08db24b2d12f8f6c21ea9512a7ef4be409"
           },
           {
             "bytes": 12639,
@@ -2355,13 +2370,13 @@
           }
         ],
         "stats": {
-          "instructions": 22430000,
+          "instructions": 22450000,
           "lua_memory_bytes": 10383767,
           "profile": {
             "hash_bytes": 2641188,
             "hash_calls": 198,
             "hash_instructions": 0,
-            "instructions": 22430000
+            "instructions": 22450000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -2377,11 +2392,11 @@
       "comparison": "Strict structural/binary64-roundoff comparison; own replay exact"
     },
     "gothic-spatial": {
-      "source_digest": "2dce2b2737db1b62a527dceb0f66eb690ad65e2b519ce34123b29d0935ce9501",
+      "source_digest": "b1d53687559ff3503bc5ff5411d9e0b8a7c6807cdc13149819c24887e85ae901",
       "id": "gothic-spatial",
       "family": "gothic/spatial-ogee",
       "generated": {
-        "elapsed_ms": 751.0999999642372,
+        "elapsed_ms": 557.3000000119209,
         "manifest": [
           {
             "bytes": 52118,
@@ -2411,7 +2426,7 @@
           {
             "bytes": 9814,
             "name": "record.json",
-            "sha256": "5ff923d51b937bcbf1544d60b8a575f7a8f5651a8da075a83f7052bdd2ea3025"
+            "sha256": "23df10dc418b15a910b601e554ddd6e5c39a7099539dd669b5cd744c9ff21470"
           },
           {
             "bytes": 14879,
@@ -2425,13 +2440,13 @@
           }
         ],
         "stats": {
-          "instructions": 9770000,
-          "lua_memory_bytes": 10244706,
+          "instructions": 9780000,
+          "lua_memory_bytes": 10244502,
           "profile": {
             "hash_bytes": 2084816,
             "hash_calls": 192,
             "hash_instructions": 0,
-            "instructions": 9770000
+            "instructions": 9780000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -2452,7 +2467,7 @@
       "differences": [],
       "status": "passed",
       "replayed": {
-        "elapsed_ms": 990.3000000119209,
+        "elapsed_ms": 645.6999999880791,
         "manifest": [
           {
             "bytes": 52118,
@@ -2482,7 +2497,7 @@
           {
             "bytes": 18045,
             "name": "record.json",
-            "sha256": "f41300cec74e939f7624adb9c1737736ad3237118c5b24e57e27a248f6a873a6"
+            "sha256": "6a0f9a87c4471cc6eec8f8f37f00ca2bd662c756591a5291e145e34d3800be89"
           },
           {
             "bytes": 14879,
@@ -2496,13 +2511,13 @@
           }
         ],
         "stats": {
-          "instructions": 13370000,
+          "instructions": 13380000,
           "lua_memory_bytes": 10596200,
           "profile": {
             "hash_bytes": 2225597,
             "hash_calls": 199,
             "hash_instructions": 0,
-            "instructions": 13370000
+            "instructions": 13380000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -2514,14 +2529,15 @@
           },
           "host_digest": "37e5bbc775e40b3c0496eae930aaf84fd61b779839e383ccbe2eb22ace46b0ba"
         }
-      }
+      },
+      "comparison": "Native and own replay byte exact"
     },
     "inline": {
-      "source_digest": "2dce2b2737db1b62a527dceb0f66eb690ad65e2b519ce34123b29d0935ce9501",
+      "source_digest": "b1d53687559ff3503bc5ff5411d9e0b8a7c6807cdc13149819c24887e85ae901",
       "id": "inline",
       "family": "collection/ornament",
       "generated": {
-        "elapsed_ms": 1159.300000011921,
+        "elapsed_ms": 941.1000000238419,
         "manifest": [
           {
             "bytes": 86986,
@@ -2546,7 +2562,7 @@
           {
             "bytes": 9744,
             "name": "record.json",
-            "sha256": "2b329e9722edd0e161eccd777968c9e7e317cc90079b76e992e13b1f1a014539"
+            "sha256": "2ad37f99fa5c0ef6f876ccd2835076b5f6d7f268cdb20ec2254d7e4fda6318a3"
           },
           {
             "bytes": 87420,
@@ -2560,13 +2576,13 @@
           }
         ],
         "stats": {
-          "instructions": 15000000,
-          "lua_memory_bytes": 6376654,
+          "instructions": 14980000,
+          "lua_memory_bytes": 11281015,
           "profile": {
             "hash_bytes": 2490155,
             "hash_calls": 190,
-            "hash_instructions": 10000,
-            "instructions": 15000000
+            "hash_instructions": 0,
+            "instructions": 14980000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -2587,7 +2603,7 @@
       "differences": [],
       "status": "passed",
       "replayed": {
-        "elapsed_ms": 1294,
+        "elapsed_ms": 1301.699999988079,
         "manifest": [
           {
             "bytes": 86986,
@@ -2612,7 +2628,7 @@
           {
             "bytes": 17978,
             "name": "record.json",
-            "sha256": "2a5e958ddfea3502eced245f734b9b9dadcece405078aea007f19c425c9d4cc5"
+            "sha256": "d07f7da74ebe7ded43531ed7fecf10533e022957e8b3d45a0243c5ff52b7a214"
           },
           {
             "bytes": 87420,
@@ -2626,13 +2642,13 @@
           }
         ],
         "stats": {
-          "instructions": 19200000,
+          "instructions": 19180000,
           "lua_memory_bytes": 6428814,
           "profile": {
             "hash_bytes": 2700922,
             "hash_calls": 198,
             "hash_instructions": 0,
-            "instructions": 19200000
+            "instructions": 19180000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -2644,14 +2660,15 @@
           },
           "host_digest": "37e5bbc775e40b3c0496eae930aaf84fd61b779839e383ccbe2eb22ace46b0ba"
         }
-      }
+      },
+      "comparison": "Native and own replay byte exact"
     },
     "hat": {
-      "source_digest": "2dce2b2737db1b62a527dceb0f66eb690ad65e2b519ce34123b29d0935ce9501",
+      "source_digest": "b1d53687559ff3503bc5ff5411d9e0b8a7c6807cdc13149819c24887e85ae901",
       "id": "hat",
       "family": "tiling/hat",
       "generated": {
-        "elapsed_ms": 2010.7999999523163,
+        "elapsed_ms": 2340.5,
         "manifest": [
           {
             "bytes": 225316,
@@ -2676,7 +2693,7 @@
           {
             "bytes": 10620,
             "name": "record.json",
-            "sha256": "180135a402d01054a41db9956f72a29207f185f97c32baa49487e46f1c2778f3"
+            "sha256": "5627895da9af8407217a01789f7337f5c0e1c569b4a3e3136cbc32bd4bbeb116"
           },
           {
             "bytes": 84624,
@@ -2690,13 +2707,13 @@
           }
         ],
         "stats": {
-          "instructions": 54380000,
+          "instructions": 54180000,
           "lua_memory_bytes": 11448849,
           "profile": {
             "hash_bytes": 2899949,
             "hash_calls": 195,
             "hash_instructions": 0,
-            "instructions": 54380000
+            "instructions": 54180000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -2717,7 +2734,7 @@
       "differences": [],
       "status": "passed",
       "replayed": {
-        "elapsed_ms": 2453.099999964237,
+        "elapsed_ms": 2292.599999964237,
         "manifest": [
           {
             "bytes": 225316,
@@ -2742,7 +2759,7 @@
           {
             "bytes": 18852,
             "name": "record.json",
-            "sha256": "b4a596bac891ea1bfb7ddb0688d1d0ace12d1152e7e7c979db5b9437ca23fd35"
+            "sha256": "3de0a3e4cf41f9196068fa4ce83c9a3d6e2aaf97481f8bb8772008c04f5941b0"
           },
           {
             "bytes": 84624,
@@ -2756,13 +2773,13 @@
           }
         ],
         "stats": {
-          "instructions": 62890000,
+          "instructions": 62960000,
           "lua_memory_bytes": 23138395,
           "profile": {
             "hash_bytes": 3386865,
             "hash_calls": 200,
             "hash_instructions": 0,
-            "instructions": 62890000
+            "instructions": 62960000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -2774,14 +2791,15 @@
           },
           "host_digest": "37e5bbc775e40b3c0496eae930aaf84fd61b779839e383ccbe2eb22ace46b0ba"
         }
-      }
+      },
+      "comparison": "Native and own replay byte exact"
     },
     "botanical-authored": {
-      "source_digest": "2dce2b2737db1b62a527dceb0f66eb690ad65e2b519ce34123b29d0935ce9501",
+      "source_digest": "b1d53687559ff3503bc5ff5411d9e0b8a7c6807cdc13149819c24887e85ae901",
       "id": "botanical-authored",
       "family": "botanical/legacy-authored",
       "generated": {
-        "elapsed_ms": 153993.80000001192,
+        "elapsed_ms": 131686.80000001192,
         "manifest": [
           {
             "bytes": 17530,
@@ -3486,7 +3504,7 @@
           {
             "bytes": 9858,
             "name": "record.json",
-            "sha256": "3cac6643f71a7091b8310a5d95808a490ce8db07f1b2d25dab243f10bd7405b1"
+            "sha256": "65e457df987b7509214c400ecacf2831287ff8a2b0f6c0ad42ad30e2ead88410"
           },
           {
             "bytes": 8721165,
@@ -3500,13 +3518,13 @@
           }
         ],
         "stats": {
-          "instructions": 4753440000,
+          "instructions": 4752410000,
           "lua_memory_bytes": 73545466,
           "profile": {
             "hash_bytes": 140321535,
             "hash_calls": 6649,
-            "hash_instructions": 50000,
-            "instructions": 4753440000
+            "hash_instructions": 40000,
+            "instructions": 4752410000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -3527,7 +3545,7 @@
       "differences": [],
       "status": "passed",
       "replayed": {
-        "elapsed_ms": 179162.19999998808,
+        "elapsed_ms": 137377,
         "manifest": [
           {
             "bytes": 17530,
@@ -4232,7 +4250,7 @@
           {
             "bytes": 18091,
             "name": "record.json",
-            "sha256": "7214ec810a9f1a9845e26b564df6f523302107135117da81a793aa5864a24779"
+            "sha256": "37ddf1ed8e9f6f5adeb0127d47b8ceba0e5aad4994018a63fef9d289e3e1f09b"
           },
           {
             "bytes": 8721165,
@@ -4246,13 +4264,13 @@
           }
         ],
         "stats": {
-          "instructions": 5111950000,
+          "instructions": 5111720000,
           "lua_memory_bytes": 82867805,
           "profile": {
             "hash_bytes": 161975823,
             "hash_calls": 6926,
-            "hash_instructions": 40000,
-            "instructions": 5111950000
+            "hash_instructions": 20000,
+            "instructions": 5111720000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -4264,14 +4282,15 @@
           },
           "host_digest": "37e5bbc775e40b3c0496eae930aaf84fd61b779839e383ccbe2eb22ace46b0ba"
         }
-      }
+      },
+      "comparison": "Native and own replay byte exact"
     },
     "botanical-grown": {
-      "source_digest": "2dce2b2737db1b62a527dceb0f66eb690ad65e2b519ce34123b29d0935ce9501",
+      "source_digest": "b1d53687559ff3503bc5ff5411d9e0b8a7c6807cdc13149819c24887e85ae901",
       "id": "botanical-grown",
       "family": "botanical/legacy-grown",
       "generated": {
-        "elapsed_ms": 44193.69999998808,
+        "elapsed_ms": 35308.69999998808,
         "manifest": [
           {
             "bytes": 64846,
@@ -4471,7 +4490,7 @@
           {
             "bytes": 9857,
             "name": "record.json",
-            "sha256": "a128337ca7d75e2de488b0f5878dfdcfe14c8dd07613acfa35467f8a7eeeeade"
+            "sha256": "190bb7c37162fdb5b7b53784a39cb81489dc390615343665145fd51d4412f743"
           },
           {
             "bytes": 2326319,
@@ -4485,13 +4504,13 @@
           }
         ],
         "stats": {
-          "instructions": 1290800000,
-          "lua_memory_bytes": 30138895,
+          "instructions": 1290910000,
+          "lua_memory_bytes": 21137577,
           "profile": {
             "hash_bytes": 38674706,
             "hash_calls": 2129,
-            "hash_instructions": 20000,
-            "instructions": 1290800000
+            "hash_instructions": 0,
+            "instructions": 1290910000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -4512,7 +4531,7 @@
       "differences": [],
       "status": "passed",
       "replayed": {
-        "elapsed_ms": 47164.10000002384,
+        "elapsed_ms": 37136.10000002384,
         "manifest": [
           {
             "bytes": 64846,
@@ -4712,7 +4731,7 @@
           {
             "bytes": 18090,
             "name": "record.json",
-            "sha256": "aea7d0938d383a5f82f6cf6720e41758a65e98903105e88aba3f71c3fd22cda8"
+            "sha256": "4fbc31f7f2aebf779c840f1e695c494f8e2ff769743dcfe6c908526af3aeb61d"
           },
           {
             "bytes": 2326319,
@@ -4726,13 +4745,13 @@
           }
         ],
         "stats": {
-          "instructions": 1359220000,
+          "instructions": 1359290000,
           "lua_memory_bytes": 21236112,
           "profile": {
             "hash_bytes": 44488650,
             "hash_calls": 2204,
-            "hash_instructions": 0,
-            "instructions": 1359220000
+            "hash_instructions": 10000,
+            "instructions": 1359290000
           },
           "host_identity": {
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -4744,7 +4763,8 @@
           },
           "host_digest": "37e5bbc775e40b3c0496eae930aaf84fd61b779839e383ccbe2eb22ace46b0ba"
         }
-      }
+      },
+      "comparison": "Native and own replay byte exact"
     }
   },
   "comparison": "Native byte hashes for20 families; two libm-sensitive families use independently bounded binary64 comparison of instances/SVG/PDF and exact structure/text/resources; all22 own replays byte exact",
