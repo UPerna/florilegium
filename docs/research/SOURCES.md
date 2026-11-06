@@ -141,3 +141,8 @@ R19a and R19b were recovered as the complete combined TU/e scan with a readable 
 ## Stage 32 editor APIs (retrieved 2026-11-06)
 
 The editor reuses the existing native family/planner algorithms. Official API references and exact sections/use are recorded in `artifacts/receipts/32/research.json`: MDN SVG getScreenCTM/DOMPoint, File API, IndexedDB transaction completion, DOMParser XML/error handling, Pointer Events/capture and W3C accessible control grouping. UI geometry is input-coordinate mapping, not a second pattern generator. Font, exemplar and maze profiles retain the native families' declared limits.
+
+
+## Stage33 checking paths (retrieved 2026-11-06)
+
+Lua5.4 Reference Manual, section3.1 Lexical Conventions: https://www.lua.org/manual/5.4/manual.html#3.1 . Long literals normalize newline forms and discard an immediate first newline; quoted literals support up to three decimal escape digits. Production worker now uses fixed-width decimal escapes for controls, quote and backslash. Actual production tests compare original raw UTF8 SHA256s after Lua transport. Existing family primary-source methods and numerical bounds are unchanged; strengthened Micrography validation reconstructs its admitted finite field/layout, with independent Python energy/geometry checking.

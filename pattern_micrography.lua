@@ -4,6 +4,7 @@ local M={VERSION="digital-micrography-monotone-v1"}
 local font_digest="9b9f100958cca036fcc3102719c91ba3804a362ebc215d5ecc16d6f38d9add69"
 local font_resource_digest="29c4e364cd81b53416894f8b9f363a0ac0c76abb3c2aadff0dfd7f24c300c9a6"
 local abs,min,max,sqrt=math.abs,math.min,math.max,math.sqrt
+local function finite(n)return type(n)=='number'and n==n and abs(n)<math.huge end
 
 local function stop(code,receipt)
   error({code="micrography_"..code,message="Micrography: "..code,solver=receipt},0)
@@ -228,10 +229,56 @@ local function field_samples(field,q)
   return {representation="samples",domain={bounds=q.bounds},samples=samples}
 end
 
-local function validate(x)
+-- Reconstruct the claimed field/layout. Continuous leaves admit only the same
+-- binary64 roundoff bound used by the independent native/browser checker;
+-- connectivity, labels, spans, indices and unknown leaves remain exact.
+local continuous={
+  '^field/points/%d+/[12]$','^field/vectors/%d+/[12]$',
+  '^field/residual$','^field/min_representation_x$','^field/max_representation_x$',
+  '^field/labels/attraction_scale$','^field/labels/energy$',
+  '^field/labels/all_aligned$','^field/labels/none_aligned$',
+  '^field/labels/edges/%d+/3$','^field/labels/samples/%d+/attraction$',
+  '^field/labels/samples/%d+/point/[12]$','^field/labels/samples/%d+/tangent/[12]$',
+  '^field/labels/samples/%d+/opposite/%d+/distance$','^field/labels/samples/%d+/opposite/%d+/alignment$',
+  '^positions/%d+/glyphs/%d+/offset/[12]$','^positions/%d+/glyphs/%d+/rotation$',
+  '^streamlines/%d+/points/%d+/[12]$','^streamlines/%d+/arc/%d+$',
+  '^streamlines/%d+/length$','^streamlines/%d+/max_curvature$',
+  '^solver/field_residual$','^solver/objective$'}
+continuous[#continuous+1]='^structure/field/samples/%d+/point/[12]$'
+continuous[#continuous+1]='^structure/field/samples/%d+/vector/[12]$'
+local function reconstructed(actual,expected,path)
+  assert(type(actual)==type(expected),'micrography-reconstruction-type:'..path)
+  if type(expected)=='table'then
+    for k,v in pairs(expected)do reconstructed(actual[k],v,path..'/'..tostring(k))end
+    for k in pairs(actual)do assert(expected[k]~=nil,'micrography-reconstruction-key:'..path)end
+  elseif type(expected)=='number'then
+    assert(finite(actual),'micrography-reconstruction-nonfinite:'..path)
+    if actual~=expected then
+      local permitted=false;for _,pattern in ipairs(continuous)do if path:match(pattern)then permitted=true;break end end
+      assert(permitted and abs(actual-expected)<=min(1e-10,32*2^-52*max(1,abs(actual),abs(expected))),
+        'micrography-reconstruction-value:'..path)
+    end
+  else assert(actual==expected,'micrography-reconstruction-value:'..path)end
+end
+local function validate(x,context)
   local e=x.extensions.micrography
   local t=x.structures.text
-  assert(P.serialize(field_samples(e.field,e.request))==P.serialize(x.structures.field),"micrography-field-reconstruction")
+  local q=e.request
+  assert(H.value('micrography/font-resource',q.font)==font_resource_digest,'micrography-font-resource-integrity')
+  -- Admitted requests have a bounded quadrilateral mesh and bounded solver.
+  local parameters={};for key,rule in pairs(M.definition().parameters)do
+    local v=q[key];assert(finite(v)and v>=rule.minimum and v<=rule.maximum and (rule.type~='integer'or v%1==0),'micrography-request-range:'..key);parameters[key]=v
+  end
+  local normalized=input({parameters=parameters,inputs={panel=q.panel,text=q.text,font=q.font,fixed=q.fixed},constraints={},document={bounds=q.bounds,protected_regions=P.array()}})
+  assert(P.serialize(normalized)==P.serialize(q),'micrography-request-normalization')
+  local field=F.solve(q.panel,q.size,q.omega,q.fixed,12,q.iterations,context and function(n)context:consume('operations',n)end)
+  reconstructed(e.field,field,'field')
+  local groups,source_clusters=shape(q.text,q.font)
+  local text,positions,streamlines,solver=layout(q,field,groups,source_clusters)
+  reconstructed(e.positions,positions,'positions');reconstructed(e.streamlines,streamlines,'streamlines')
+  reconstructed(e.solver,solver,'solver');reconstructed(e.clusters,source_clusters,'clusters')
+  reconstructed(t,text,'text')
+  reconstructed(x.structures.field,field_samples(e.field,e.request),'structure/field')
   local clusters={}
   local next_cluster=1
   local cmap={}
@@ -258,7 +305,8 @@ local function validate(x)
   end
   assert(table.concat(clusters)==e.request.text and next_cluster==#e.clusters+1,"micrography-text-conservation")
   return {ok=true,solver=P.plain(e.solver),checks={"Pinned grapheme-to-glyph and run order verified",
-    "Doubled-angle samples reconstructed","Glyph envelopes contained in the source panel"}}
+    "Doubled-angle samples reconstructed","Field, boundary labels, mesh references and complete layout reconstructed",
+    "Glyph envelopes contained in the source panel"}}
 end
 
 local function lower(x,v,style)

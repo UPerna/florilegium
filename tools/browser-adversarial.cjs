@@ -11,7 +11,8 @@ async function main() {
   const lengths=[0,1,2,3,54,55,56,57,63,64,65,66,119,120,127,128,129,255,256,257,65535,65536,65537,1000000];
   const vectors=lengths.map(n=>{const bytes=Buffer.from(Array.from({length:n},(_,i)=>i%256));return {bytes:n,sha256:crypto.createHash('sha256').update(bytes).digest('hex')}});
   const probe="local H,P,R=require('pattern_hash'),require('pattern'),require('pattern_random');assert(tostring(math.maxinteger)=='9223372036854775807'and #string.pack('n',1)==8,'int64/binary64');local raw='';for i=0,255 do raw=raw..string.char(i)end;"+vectors.map(v=>"assert(H.sha256(raw:rep("+Math.floor(v.bytes/256)+")..raw:sub(1,"+(v.bytes%256)+"))=='"+v.sha256+"','binary SHA vector "+v.bytes+"');").join('')+"local r=R.new(1);for _,n in ipairs{16807,282475249,1622650073,984943658,1144108930,470211272,101027544,1457850878,1458777923,2007237709}do assert(r.next_integer()==n,'PRNG vector')end;assert(P.serialize({unicode='Ω',number=0.1,integer=9007199254740991})==[=[{\"integer\":9007199254740991,\"number\":0.10000000000000001,\"unicode\":\"Ω\"}]=],'canonical numeric/Unicode vector');";
-  const receipt = await page.evaluate(async({probe,vectors})=>{
+  const nativeMicro=args['native-micrography']?fs.readFileSync(args['native-micrography'],'utf8'):null;
+  const receipt = await page.evaluate(async({probe,vectors,nativeMicro})=>{
    const {PatternWorkerClient,ImmutableResultCache} = await import('./client.js');
    const {sha256} = await import('./cache.js');
    const loaded = await runtimeReady, reports=[];
@@ -36,6 +37,52 @@ async function main() {
     return {trusted_test_instrumentation:true,actual_production_worker_sha_callback:true,binary_vectors:vectors,prng_values:10,canonical_numeric_utf8:true,stats:result.stats};
    });
    await check('client-invalid-command',()=>rejects(patternClient.execute({command:'shell'}),'invalid_input'));
+   if(nativeMicro)await check('actual-native-micrography-cross-runtime-structural-validation',async()=>{
+    const client=new PatternWorkerClient('./'), instrumented=structuredClone(loaded.bundle);
+    // Trusted fixture enters at the real family-validation API, without forging
+    // a browser build record or changing the native instance bytes.
+    const quote=value=>'"'+value.replace(/[\x00-\x1f\x7f"\\]/g,c=>'\\'+c.charCodeAt(0).toString(10).padStart(3,'0'))+'"';
+    instrumented.source['stage33_native_micro.lua']=`return function()
+local P,R,C,Parse=require('pattern'),require('pattern_registry'),require('pattern_cli_core'),require('pattern_parse')
+local x=Parse.instance(${quote(nativeMicro)})
+local reg=C.registry('text/digital-micrography')
+local function ctx()return R.context({source={revision='native-fixture-cross-runtime'},seed=x.provenance.seed,frame=x.frame,limits={objects=100000,operations=48000000,bytes=67108864}})end
+reg:validate('text/digital-micrography',x,ctx())
+for _,mutate in ipairs{
+function(a)a.extensions.micrography.positions[1].line=1-2^-53 end,
+function(a)a.extensions.micrography.field.triangles[1][1]=999999 end,
+function(a)local v=a.extensions.micrography.field.labels.samples[1];v.label=1-v.label end
+}do local bad=P.plain(x);mutate(bad);assert(not pcall(reg.validate,reg,'text/digital-micrography',bad,ctx()),'native fixture corruption accepted')end
+reg:validate('text/digital-micrography',x,ctx())
+end`;
+    const marker='function M.session(source,runtime)';assert(instrumented.source['pattern_browser.lua'].includes(marker),'Native session instrumentation marker missing');
+    instrumented.source['pattern_browser.lua']=instrumented.source['pattern_browser.lua'].replace(marker,marker+"\nrequire('stage33_native_micro')()\n");
+    client.load=async()=>({...loaded,bundle:instrumented});
+    const result=await client.execute({command:'capabilities'});assert(result.manifest.length>0,'Cross-runtime validation incomplete');
+    return {native_instance_sha256:await sha256(new TextEncoder().encode(nativeMicro)),production_worker:true,actual_family_validator:true,controlled_corruptions_detected:3,original_preserved:true,scope:'Native instance structural validation; no forged browser build record or cross-version build-record replay claim'};
+   });
+   await check('raw-module-transport-leading-newline-crlf-controls',async()=>{
+    const client=new PatternWorkerClient('./'), instrumented=structuredClone(loaded.bundle);
+    // Change trusted test inputs, never their expected hashes after transport.
+    // Capabilities constructs a real shared-core session in the production worker.
+    for(const name of Object.keys(instrumented.source))
+      instrumented.source[name]='\n'+instrumented.source[name].replace(/\r?\n/g,'\r\n');
+    instrumented.source['stage33_transport.lua']='\n-- delimiters ]=] ]==] " \\ Ω\r\nreturn "transport\\0009\\013\\010"\r';
+    const marker='function M.session(source,runtime)';
+    assert(instrumented.source['pattern_browser.lua'].includes(marker),'Session instrumentation marker missing');
+    const transportNames=Object.keys(instrumented.source).filter(name=>name!=='pattern_browser.lua');
+    let assertions="\nlocal hash=require('pattern_hash');";
+    for(const name of transportNames){
+      const expected=await sha256(new TextEncoder().encode(instrumented.source[name]));
+      assertions+="assert(hash.sha256(source['"+name+"'])=='"+expected+"','raw-source-sha:"+name+"');";
+    }
+    assertions+="assert(require('stage33_transport')=='transport'..string.char(0)..'9'..string.char(13,10),'control literal semantics');\n";
+    instrumented.source['pattern_browser.lua']=instrumented.source['pattern_browser.lua'].replace(marker,marker+assertions);
+    client.load=async()=>({...loaded,bundle:instrumented});
+    const result=await client.execute({command:'capabilities'});
+    assert(result.manifest.length>0,'Raw source transport execution incomplete');
+    return {production_worker:true,raw_source_sha256_checks:transportNames.length,leading_newline:true,crlf:true,literal_carriage_return:true,delimiter_quote_backslash_unicode:true,embedded_nul_followed_by_digit:true};
+   });
    await check('client-unknown-field',()=>rejects(patternClient.execute({command:'capabilities',script:'evil'}),'invalid_input'));
    await check('client-invalid-filename',()=>rejects(patternClient.execute({command:'generate',files:{'../escape':'x'}}),'invalid_input'));
    await check('client-input-bytes',()=>rejects(patternClient.execute({command:'generate',files:{'recipe.json':new Uint8Array(32*1024*1024+1)}}),'budget_exhausted'));
@@ -120,7 +167,7 @@ async function main() {
    });
    await check('actual-worker-recovers-after-failures',async()=>{const v=await patternClient.execute({command:'capabilities'});assert(v.manifest.length>0,'Empty recovery');return {generation:v.generation}});
    return {status:'passed',source_digest:loaded.manifest.source_digest,user_agent:navigator.userAgent,checks:reports};
-  }, {probe,vectors});
+  }, {probe,vectors,nativeMicro});
   // A fresh worker still runs when all network requests are unavailable after load.
   await context.setOffline(true);
   const offline=await page.evaluate(async()=>{const a=await patternClient.execute({command:'capabilities'});patternClient.cancel();const b=await patternClient.execute({command:'capabilities'});return {first:a.manifest,second:b.manifest}});

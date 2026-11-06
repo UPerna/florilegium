@@ -12,6 +12,27 @@ NUM=re.compile(r'[-+]?(?:\d*\.\d+|\d+\.?\d*)(?:[eE][-+]?\d+)?')
 GEOMETRY_ATTRS={'d','points','transform','x','y','x1','x2','y1','y2','cx','cy','r','rx','ry','width','height','viewBox','stroke-width','stroke-miterlimit'}
 ALLOWED={'micrography':('/extensions/micrography/positions/','/extensions/micrography/streamlines/','/extensions/micrography/field/','/structures/field/samples/'),
          'decobrush':('/extensions/decobrush/contours/','/extensions/decobrush/field/')}
+# Leaf schemas, rather than subtree membership, distinguish continuous geometry
+# from line/span/node/triangle/piece identities. Unknown fields remain exact.
+CONTINUOUS={
+ 'micrography': tuple(re.compile(p) for p in (
+  r'/extensions/micrography/positions/\d+/glyphs/\d+/(?:offset/[01]|rotation)',
+  r'/extensions/micrography/streamlines/\d+/(?:points/\d+/[01]|arc/\d+|length|max_curvature)',
+  r'/extensions/micrography/field/(?:points|vectors)/\d+/[01]',
+  r'/extensions/micrography/field/(?:residual|min_representation_x|max_representation_x)',
+  r'/extensions/micrography/field/labels/(?:attraction_scale|energy|none_aligned|all_aligned|omega)',
+  r'/extensions/micrography/field/labels/samples/\d+/(?:attraction|(?:point|opposite|tangent)/[01])',
+  r'/extensions/micrography/field/labels/samples/\d+/opposite/\d+/(?:distance|alignment)',
+  r'/extensions/micrography/field/labels/edges/\d+/2',
+  r'/structures/field/samples/\d+/(?:point|vector)/[01]')),
+ 'decobrush': tuple(re.compile(p) for p in (
+  r'/extensions/decobrush/contours/\d+/\d+/[01]',
+  r'/extensions/decobrush/field/grid/\d+/(?:x|y|source/(?:distance|u|v))',
+  r'/extensions/decobrush/field/match_cost',
+  r'/extensions/decobrush/field/deformation/\d+/(?:min_jacobian|min_stretch|max_stretch|residual)',
+  r'/extensions/decobrush/field/matches/\d+/(?:fit|join)',
+  r'/extensions/decobrush/field/matches/\d+/mesh/(?:points|rest)/\d+/[01]',
+  r'/extensions/decobrush/field/matches/\d+/mesh/evidence/(?:min_jacobian|min_stretch|max_stretch|residual)'))}
 class Comparator:
  def __init__(self):self.compared=0;self.differences=0;self.maximum=0.;self.max_relative_roundoff=0.
  def number(self,a,b,where,allow=True):
@@ -25,7 +46,7 @@ class Comparator:
  def data(self,a,b,where='',family=None):
   if isinstance(a,bool)or isinstance(b,bool):assert a is b,where
   elif isinstance(a,(int,float))and isinstance(b,(int,float)):
-   permit=not(isinstance(a,int)and isinstance(b,int))and(family is None or any(where.startswith(p)for p in ALLOWED[family]))
+   permit=not(isinstance(a,int)and isinstance(b,int))and family in CONTINUOUS and any(p.fullmatch(where)for p in CONTINUOUS[family])
    self.number(a,b,where,permit)
   elif isinstance(a,dict)and isinstance(b,dict):
    assert a.keys()==b.keys(),('Object keys',where)

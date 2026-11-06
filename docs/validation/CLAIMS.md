@@ -71,3 +71,8 @@ Actual Edge156 task receipts and independent PDF/XML inspection are in `artifact
 Stage32 follow-up status audit rejected the first candidate for incomplete UI status reporting: native partial mosaic packing was displayed as Complete. The repair exposes actual native packing/solver outcomes and adds a real failing-before/passing-after browser case. Native CI59 evidence remains historical; stage32 acceptance requires the repaired revision and all existing gates.
 
 A final stage32 input/recovery audit also rejected the partial-status candidate for ignored false edit containers and stale-preview reporting after an applied structural edit was restored. Native typing and canonical-digest UI identity now have failing-before/passing-after evidence. Current local native preparation checks total92; all previous gates remain mandatory, plus15browseroutputcases/13workflows. No stage32acceptance has been issued.
+
+
+## Stage32 accepted; stage33 adversarial verification in progress
+
+Stage32 passed at b4b6bed11e73298191f844574b41d4bc56935e39, run42254490411, all5requiredjobs,13editorworkflows/15vectorcases and88issued evidence hashes. This supersedes earlier stage32 pending notes while retaining their rejected candidates. Stage33 has confirmed and repaired checking/source-transport/Micrography validation defects; see ADVERSARIAL-33.md and receipts33 for actual before/after scope. Stage33 publication, current nativeCI and artifact acceptance remain mandatory and pending. No release/merge/deployment occurred.

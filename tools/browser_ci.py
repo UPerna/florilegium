@@ -40,7 +40,10 @@ def main():
   common=['--url',f'http://127.0.0.1:{server.server_port}/runtime.html','--playwright',args.playwright]
   if args.executable:common+=['--executable',args.executable]
   subprocess.run(['node',str(ROOT/'tools/browsercheck.cjs'),*common,'--reference',str(native),'--native-sources',str(guard),'--python',sys.executable],cwd=ROOT,check=True,timeout=1800)
-  subprocess.run(['node',str(ROOT/'tools/browser-adversarial.cjs'),*common],cwd=ROOT,check=True,timeout=300)
+  native_micro=native.parent/'numerical/micrography/instance.json'
+  assert hashlib.sha256(native_micro.read_bytes()).hexdigest()==json.loads(native.read_text(encoding='utf8'))['families']['micrography']['artifacts']['instance.json']
+  subprocess.run(['node',str(ROOT/'tools/browser-adversarial.cjs'),*common,'--native-micrography',str(native_micro)],cwd=ROOT,check=True,timeout=300)
+  subprocess.run([sys.executable,str(ROOT/'tools/parity_adversarial.py')],cwd=ROOT,check=True,timeout=60)
   editor_common=['--url',f'http://127.0.0.1:{server.server_port}/','--playwright',args.playwright]
   if args.executable:editor_common+=['--executable',args.executable]
   subprocess.run(['node',str(ROOT/'tools/editorcheck.cjs'),*editor_common],cwd=ROOT,check=True,timeout=2400)

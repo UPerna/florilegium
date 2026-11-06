@@ -82,6 +82,8 @@ jobs:
             texlua tools/check-cli-core.lua &&
             texlua tools/check-editor-revision.lua &&
             texlua tools/check-editor-prepare.lua &&
+            texlua tools/adversarialcheck.lua &&
+            python3 tools/adversarial_oracle.py &&
             python3 tools/clicheck.py &&
             texlua tools/layoutcheck.lua &&
             texlua tools/spacecheck.lua &&
@@ -126,6 +128,7 @@ jobs:
             build/cli-core/
             build/editor-revision/
             build/editor-prepare/
+            build/adversarial/
             build/cli/
 
   patterns-luatex:
@@ -264,6 +267,7 @@ jobs:
           path: |
             build/browser-check/
             build/editor-check/
+            build/adversarial/
             build/web/assets.json
           if-no-files-found: error
 

@@ -8,9 +8,11 @@ function send(type, payload = {}, transfers = []) {
     generation: job?.generation ?? null, ...payload}, transfers);
 }
 function luaString(value) {
-  let eq = '=';
-  while (value.includes(']' + eq + ']')) eq += '=';
-  return '[' + eq + '[' + value + ']' + eq + ']';
+  // Lua long literals discard an initial newline and normalize CR/LF.
+  // Fixed-width decimal escapes preserve the exact UTF-8 source bytes,
+  // including controls followed by digits, without changing source hashes.
+  return '"' + value.replace(/[\x00-\x1f\x7f"\\]/g,
+    character => '\\' + character.charCodeAt(0).toString(10).padStart(3, '0')) + '"';
 }
 function errorCode(message) {
   if (/memory|allocat/i.test(message)) return 'memory_budget';

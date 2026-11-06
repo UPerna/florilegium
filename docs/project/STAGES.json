@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_stage": "32",
+  "current_stage": "33",
   "prompt_sha256": "8D25740D944FC98943FD005737BD825215CFCF6F894218790E140EDE8EE3F09E",
   "stages": [
     {
@@ -1180,49 +1180,265 @@
     {
       "id": "32",
       "title": "build the pattern editor around real capabilities",
-      "status": "in_progress",
+      "status": "passed",
       "prerequisites": "31",
       "acceptance_items": [
         "these tasks work through the shared implementation, no menu contains placeholder capabilities, stale worker results cannot overwrite current state, errors are actionable and saved work reloads faithfully. Record browser evidence and remaining compatibility limits."
       ],
-      "observed_results": "Stages00–31passed;32inprogress. Current unpublished typed/canonical repair basedef55779 inwork/stage32-edit-type-repair. Strictnativeobject/arraycontainers andedit-command/typeguards fixsilentfalseinputloss; Lua53/54 each17revision+17oldCLIcore+92nativeeditorchecks passed. ActualbeforecasesfailoldEF; currentbrowserstructuralrefresh, invalideditrecovery, strongrecovery andpartialpackingpassed; independent4vectorPDF/XMLchecks passed. NativecanonicalrecipeSHAcontrolsview/exportidentity; pendingstructuralrecipeclearlylabelsoldpreviewafterrefresh/history; reorderedJSONkeysloadcurrentcorrectly. Allprior32qualitygatesretained; currentmandatoryeditor13workflows/15outputs. Prior59/60candidatesunacceptedforconfirmedUI/inputdefects evenifgreen; theirnative/artifactproofspreserved. Need guardedpublicationparentef55, fullindependentGitverification, newall5exactheadCI/currentartifacts/native17+92/15editoroutputs before32acceptance. Preserveallolderworktrees/172issued29–31rawhashes. Noagents/userblocker/merge/release/deploy/Site. Then33–39automatically.",
+      "observed_results": {
+        "shared_lua_editor": true,
+        "actual_registry_families": 22,
+        "actual_editor_workflows": 13,
+        "actual_editor_output_cases": 15,
+        "native_revision_checks": 17,
+        "native_preparation_color_parser_type_checks": 92,
+        "native_root_files_bound": 87,
+        "structural_generation_explicit": true,
+        "view_style_revisions_preserve_instances": true,
+        "native_planner_context_retained": true,
+        "native_partial_and_solver_status_visible": true,
+        "invalid_draft_and_refresh_history_preserved": true,
+        "native_recipe_identity_and_stale_preview_labels_verified": true,
+        "workspace_vector_forgery_rejected_by_native_replay": true,
+        "offline_fresh_workers_and_stale_result_prevention": true,
+        "keyboard_and390px_layouts_verified": true,
+        "downloaded_pdf_svg_bytes_match_actual_worker": true,
+        "independent_vector_and_actual_pdf_visual_review": true,
+        "native_browser_families": 22,
+        "native_byte_exact_families": [
+          "botanical-panel",
+          "periodic",
+          "celtic",
+          "islamic",
+          "freeform",
+          "substitution",
+          "penrose",
+          "spectre",
+          "beenker",
+          "completion",
+          "tracery",
+          "escher",
+          "mosaic",
+          "stroke",
+          "maze",
+          "gothic-spatial",
+          "inline",
+          "hat",
+          "botanical-authored",
+          "botanical-grown"
+        ],
+        "strict_native_numerical_comparisons": [
+          {
+            "family": "micrography",
+            "comparison": {
+              "numeric_values_compared": 92451,
+              "roundoff_differences": 3412,
+              "maximum_absolute_difference": 2.220446049250313e-15,
+              "maximum_fraction_of_roundoff_bound": 0.1969856468378289,
+              "bound": "min(1e-10,32*binary64_epsilon*max(1,abs(a),abs(b))); integer identities/text/order/topology/non-geometric fields exact"
+            }
+          },
+          {
+            "family": "decobrush",
+            "comparison": {
+              "numeric_values_compared": 7431,
+              "roundoff_differences": 1,
+              "maximum_absolute_difference": 5.551115123125783e-17,
+              "maximum_fraction_of_roundoff_bound": 0.0078125,
+              "bound": "min(1e-10,32*binary64_epsilon*max(1,abs(a),abs(b))); integer identities/text/order/topology/non-geometric fields exact"
+            }
+          }
+        ],
+        "own_byte_exact_replays": 22,
+        "adversarial_checks": 32,
+        "actual_linux_browser": "151.0.7922.34",
+        "actual_windows_browser": "Edge156.0.4314.58",
+        "source_kit_files": 857,
+        "browser_kit_assets": 16,
+        "native_books_faults_and_legacy44exports_preserved": true,
+        "full_git_blobs_verified": 871,
+        "binary_assets_preserved": 26,
+        "issued_prior_hashes_preserved": 172
+      },
       "evidence_paths": [
-        "artifacts/receipts/32/stage31-checkpoint-import.json",
-        "artifacts/receipts/32/revision-local.json",
         "artifacts/receipts/32/browser-revision-development.json",
+        "artifacts/receipts/32/ci-before-final.json",
+        "artifacts/receipts/32/ci-current.json",
+        "artifacts/receipts/32/ci-final.json",
+        "artifacts/receipts/32/ci-first-candidate.json",
+        "artifacts/receipts/32/ci-visual-review.json",
         "artifacts/receipts/32/cli-revision-local.json",
-        "artifacts/receipts/32/research.json",
+        "artifacts/receipts/32/development-a-border-failure.json",
+        "artifacts/receipts/32/development-b-border-receipt.json",
+        "artifacts/receipts/32/development-b-knot-receipt.json",
+        "artifacts/receipts/32/development-b-penrose-receipt.json",
+        "artifacts/receipts/32/development-b-receipt.json",
+        "artifacts/receipts/32/development-b-spectre-receipt.json",
+        "artifacts/receipts/32/development-b-vector-inspection.json",
+        "artifacts/receipts/32/development-c-exemplar-receipt.json",
+        "artifacts/receipts/32/development-c-microgram-failure.json",
+        "artifacts/receipts/32/development-d-maze-receipt.json",
+        "artifacts/receipts/32/development-d-microgram-receipt.json",
+        "artifacts/receipts/32/development-d-receipt.json",
+        "artifacts/receipts/32/development-d-recovery-receipt.json",
+        "artifacts/receipts/32/development-d-vector-inspection.json",
+        "artifacts/receipts/32/development-e-canvas-failure.json",
+        "artifacts/receipts/32/development-e-recovery-receipt.json",
+        "artifacts/receipts/32/development-f-canvas-failure.json",
+        "artifacts/receipts/32/development-g-canvas-receipt.json",
+        "artifacts/receipts/32/development-g-receipt.json",
+        "artifacts/receipts/32/development-index.json",
+        "artifacts/receipts/32/edit-type-after.json",
+        "artifacts/receipts/32/edit-type-before.json",
+        "artifacts/receipts/32/edit-type-final-partial-vectors.json",
+        "artifacts/receipts/32/edit-type-final-partial.json",
+        "artifacts/receipts/32/edit-type-finding.json",
+        "artifacts/receipts/32/edit-type-local-core.json",
+        "artifacts/receipts/32/edit-type-publication.json",
+        "artifacts/receipts/32/edit-type-repair.json",
+        "artifacts/receipts/32/edit-type-source-kit-local.json",
+        "artifacts/receipts/32/edit-type-vectors.json",
+        "artifacts/receipts/32/local-editor-combined-vectors.json",
+        "artifacts/receipts/32/local-editor-combined.json",
+        "artifacts/receipts/32/local-editor-exemplar-geometry-vectors.json",
+        "artifacts/receipts/32/local-editor-exemplar-geometry.json",
+        "artifacts/receipts/32/local-editor-page-controls-vectors.json",
+        "artifacts/receipts/32/local-editor-page-controls.json",
         "artifacts/receipts/32/local-editor.json",
         "artifacts/receipts/32/local-evidence-archive.json",
-        "artifacts/receipts/32/partial-status-finding.json",
-        "artifacts/receipts/32/partial-status-before.json",
+        "artifacts/receipts/32/native-dual-verification-stage32-edit-type-repair.json",
+        "artifacts/receipts/32/native-dual-verification-stage32-status-repair.json",
+        "artifacts/receipts/32/native-dual-verification-stage32.json",
         "artifacts/receipts/32/partial-status-after.json",
+        "artifacts/receipts/32/partial-status-before.json",
+        "artifacts/receipts/32/partial-status-finding.json",
+        "artifacts/receipts/32/partial-status-repair.json",
         "artifacts/receipts/32/partial-status-vectors.json",
-        "artifacts/receipts/32/partial-status-repair.json"
+        "artifacts/receipts/32/pr-final.json",
+        "artifacts/receipts/32/pre-type-ci-current.json",
+        "artifacts/receipts/32/publication.json",
+        "artifacts/receipts/32/research.json",
+        "artifacts/receipts/32/revision-local.json",
+        "artifacts/receipts/32/source-kit-local.json",
+        "artifacts/receipts/32/stage31-checkpoint-import.json",
+        "artifacts/receipts/32/stage32-common-artifact.json",
+        "artifacts/receipts/32/stage32-common-native-verification.json",
+        "artifacts/receipts/32/stage32-dual-artifact.json",
+        "artifacts/receipts/32/stage32-edit-type-repair-browser-artifact.json",
+        "artifacts/receipts/32/stage32-edit-type-repair-browser-verification.json",
+        "artifacts/receipts/32/stage32-edit-type-repair-common-artifact.json",
+        "artifacts/receipts/32/stage32-edit-type-repair-common-native-verification.json",
+        "artifacts/receipts/32/stage32-edit-type-repair-dual-artifact.json",
+        "artifacts/receipts/32/stage32-edit-type-repair-editor-verification.json",
+        "artifacts/receipts/32/stage32-edit-type-repair-inherited-native-verification.json",
+        "artifacts/receipts/32/stage32-edit-type-repair-pdfs-artifact.json",
+        "artifacts/receipts/32/stage32-edit-type-repair-portable-artifact.json",
+        "artifacts/receipts/32/stage32-edit-type-repair-portable-verification.json",
+        "artifacts/receipts/32/stage32-edit-type-repair-source-archive.json",
+        "artifacts/receipts/32/stage32-portable-artifact.json",
+        "artifacts/receipts/32/stage32-portable-verification.json",
+        "artifacts/receipts/32/stage32-source-archive.json",
+        "artifacts/receipts/32/stage32-status-repair-common-artifact.json",
+        "artifacts/receipts/32/stage32-status-repair-common-native-verification.json",
+        "artifacts/receipts/32/stage32-status-repair-dual-artifact.json",
+        "artifacts/receipts/32/stage32-status-repair-inherited-native-verification.json",
+        "artifacts/receipts/32/stage32-status-repair-pdfs-artifact.json",
+        "artifacts/receipts/32/stage32-status-repair-portable-artifact.json",
+        "artifacts/receipts/32/stage32-status-repair-portable-verification.json",
+        "artifacts/receipts/32/stage32-status-repair-source-archive.json",
+        "artifacts/receipts/32/status-repair-publication.json",
+        "artifacts/receipts/32/status-repair-source-kit-local.json",
+        "artifacts/receipts/32/structural-refresh-before.json",
+        "artifacts/receipts/32/acceptance.json"
       ],
-      "tested_code_revision": "working/edit-type-native-canonical",
-      "local_commit": "ef55779a121317ccd9a909c5d4e84b94d368122a",
-      "verified_remote_revision": "ef55779a121317ccd9a909c5d4e84b94d368122a",
-      "next_action": "Prepareandpublishcurrenttyped/canonicalrepairfromef55,independentlyfetch/tree/binary/mode/history/sourceZIP/bundleverify;derivecurrentcommon109/dual113/CLI115inputhashes. Runall5exactnewheadCIjobs anddownloadactualartifacts. Editorreviewrequires15outputs/13workflows/native17+92/root87. Old60native3passesarenotacceptancefornewLua. Preservefailurefixturesandrawproofs. Then32acceptanceand33–39.",
-      "source_base_revision": "ef55779a121317ccd9a909c5d4e84b94d368122a"
+      "tested_code_revision": "b4b6bed11e73298191f844574b41d4bc56935e39",
+      "local_commit": "b4b6bed11e73298191f844574b41d4bc56935e39",
+      "verified_remote_revision": "b4b6bed11e73298191f844574b41d4bc56935e39",
+      "next_action": "Beginstage33immediatelyfromverifiedB4isolatedcheckout. Importissued32evidenceasrawbytes+acceptance,protectallpriorhashes. Readgoverning/AGENTS/stage33/prereqsandactualacceptanceclaims. Designindependentclaim-by-claimfalsification,realcorruption/metamorphicchecks andminimalfixtures;carryexplicitunrun31source-newline/integer-labelnotes. Noswarmclaimwithoutdelegation;noagentsauthorized. Resolveconfirmedreleaseblockers,allnative/browser/sourcekitgates,currentpublication/artifacts,andcontinue34–39automatically. NomergereleaseSite/deploybefore39.",
+      "source_base_revision": "ef55779a121317ccd9a909c5d4e84b94d368122a",
+      "latest_native": {
+        "revision": "b4b6bed11e73298191f844574b41d4bc56935e39",
+        "run": 42254490411,
+        "jobs_passed": [
+          "patterns-luatex",
+          "patterns-dual",
+          "portable",
+          "pdfs",
+          "browser"
+        ],
+        "verified_artifacts": [
+          "stage32-edit-type-repair-common-native-verification.json",
+          "native-dual-verification-stage32-edit-type-repair.json",
+          "stage32-edit-type-repair-portable-verification.json"
+        ],
+        "mandatory_remaining": [],
+        "accepted": true
+      },
+      "execution_paused_by_user": false,
+      "resumed_by_user": true,
+      "last_pause_note": "Agent paused by user; stage32 remains in_progress, PDF/browser acceptance checks unfinished. Resume run42254490411 at B4b6bed11e73298191f844574b41d4bc56935e39 without restarting live/completed jobs."
     },
     {
       "id": "33",
       "title": "adversarial geometry, topology and reproducibility checks",
-      "status": "pending",
+      "status": "in_progress",
       "prerequisites": "32",
       "acceptance_items": [
         "a claim-by-claim report contains observed evidence, counterexamples/fixes and residual uncertainty. All release-blocking structural, reproducibility and data-loss failures are resolved. Optional delegation is used only if explicitly authorized by the active user/instructions; single-agent work must not be represented as an independent swarm."
       ],
-      "observed_results": null,
-      "evidence_paths": null,
+      "observed_results": {
+        "confirmed_findings": [
+          "near-integer semantic differences escaped comparator",
+          "Lua source transport normalized raw bytes",
+          "Micrography validator accepted corrupt field mesh/labels and noninteger line",
+          "cross-runtime trigonometric field samples were unnecessarily exact"
+        ],
+        "local_evidence": {
+          "receipt-Lua-5.3.json": {
+            "path": "artifacts/receipts/33/local-receipt-Lua-5.3.json",
+            "sha256": "fc350e72a1610f4b1a196d327abcfdbf5794098b0d41b7fa020b5115d2899cba"
+          },
+          "receipt-Lua-5.4.json": {
+            "path": "artifacts/receipts/33/local-receipt-Lua-5.4.json",
+            "sha256": "2bda6c604b2a53436f808a7b7ff80f59dc2259abc502e08e4a071611bd342226"
+          },
+          "independent-oracle.json": {
+            "path": "artifacts/receipts/33/local-independent-oracle.json",
+            "sha256": "76cb503f36d5cc432cf6a558bbf31bbb7d355e062917530eda3fc9bcf30f23ed"
+          },
+          "parity.json": {
+            "path": "artifacts/receipts/33/local-parity.json",
+            "sha256": "f03d2907e4abe1ca2661dd0f4332785f2fbb9ee867e3ec76783858e84589e2aa"
+          },
+          "cross-native32-Lua-5.4.json": {
+            "path": "artifacts/receipts/33/local-cross-native32-Lua-5.4.json",
+            "sha256": "661bdf77b4a4be9ae60504d2f836d23ee3e7b64dac7476135e103d38d716e399"
+          },
+          "browser": {
+            "path": "artifacts/receipts/33/local-browser-adversarial.json",
+            "sha256": "8615137fb808856b8e8cf92c27ddd928190d2b1958be5b582b92171b2a2cdcfd",
+            "source_digest": "9374ca795b9efb2744d5fce25a694148ee0750998adab6ce14b9fc08b9cbfb7b"
+          }
+        },
+        "mandatory_remaining": [
+          "current-source affected local checks",
+          "publication verification",
+          "all5exact-head native jobs",
+          "actual artifact verification",
+          "acceptance receipt"
+        ]
+      },
+      "evidence_paths": [
+        "artifacts/receipts/33/checkpoint-import.json"
+      ],
       "tested_code_revision": null,
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance.",
+      "next_action": "Stage33 in progress: implementation repairs completed for continuous-leaf parity checking, raw Lua source transport, and Micrography field/labels/mesh/layout reconstruction; accepted native32 Micrography instance also validates cross-runtime within the unchanged continuous roundoff bound. Local development evidence exists (40 four-family checks,8 instance corruptions independently detected,54 near-integer controls,33 real Edge adversarial checks); each receipt retains its actual tested source digest and runtime. Native exact-revision publication/CI/artifacts remain mandatory. Next finish current-source local affected checks, inspect full diff, publish raw bytes with stale-head protection, independently fetch/verify all blobs/modes/history/binaries and260 prior evidence hashes, run all5native jobs, verify actual artifacts and issue acceptance only after all pass. Then immediately34–39. No merge/release/deploy before39.",
       "carried_review_notes": [
         "artifacts/receipts/31/adversarial-followup.json: explicitly unrun near-integer semantic-label and leading-newline/CRLF source-transport controls; design/falsify during33; current shipped sources satisfy observed LF profile."
-      ]
+      ],
+      "source_base_revision": "b4b6bed11e73298191f844574b41d4bc56935e39"
     },
     {
       "id": "34",
