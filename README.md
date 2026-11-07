@@ -1,6 +1,6 @@
-# Florilegium
+# Patternfolio
 
-Florilegium generates vector patterns for pages and books. Make a Penrose tiling, weave a Celtic border, lay out an Islamic star pattern, turn text into micrography, or grow a botanical margin. The command line, browser studio, and LuaLaTeX and XeLaTeX adapters share the same Lua generators. Export PDF and SVG, or keep the recipe and result folder to reproduce a design.
+Patternfolio generates vector patterns for pages and books. Make a Penrose tiling, weave a Celtic border, lay out an Islamic star pattern, turn text into micrography, or grow a botanical margin. The command line, browser studio, and LuaLaTeX and XeLaTeX adapters share the same Lua generators. Export PDF and SVG, or keep the recipe and result folder to reproduce a design.
 
 The 22-pattern platform shown here is available as a release candidate. The default branch contains the original floral package. [Pattern platform PR](https://github.com/UPerna/florilegium/pull/2) · [Original floral package guide](https://github.com/kevinraymond/florilegium/blob/main/README.md)
 
