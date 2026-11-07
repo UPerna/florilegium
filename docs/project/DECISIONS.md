@@ -59,3 +59,8 @@ Profile before optimizing: the measured pure-Lua SHA hot path justifies a privat
 
 
 Stage34 actual studio probe exposed seed edits leaving legacy_geometry.seed stale. The native editor synchronizes the two known legacy family host packets with the validated design seed. Both actual authored/grown generation and exact replay are exercised by a12check native regression; focused Edge pending-edit/cancel checks pass. Earlier27case/54bounds browser successes remain inside the honestly failed full receipt; exact-headCI must repeat the complete suite. Earlier local performance source manifests are retained verbatim, not relabelled after this edit-path repair.
+
+
+## Stage35 export review begins
+
+Reuse actual accepted nativeCLI/PDF/SVG outputs and exactsource-bound recipes,then create explicitlylabelled diagnostic/aesthetic variants through the sharedLua contracts. Separate objective integrity/alpha/topology checks from visible design judgment. Preserve every issued receipt and original fixture; do not refresh baselines automatically. Office/import/physicalprint compatibility stays unclaimed until tested.

@@ -89,3 +89,8 @@ Actual Lua53/54 tests pass1245 bounded-hash checks,15 packing/analytic/corruptio
 
 
 Stage34 local27case native matrix and3alternating before/after pairs passed before the later floral edit-path repair. Local browser27cases/54bounds passed, but its full attempt failed at actual studio cancellation after changing the floral seed. The cause was a stale native host seed, now synchronized by pattern_editor.lua. Focused Edge editing/cancellation passes with seed102 and zero accepted cancelled outputs; native authored/grown generation/replay checks12pass in both Lua53and54. Full exact-head native/browserCI remains mandatory and pending. Working receipts explicitly distinguish these source versions and the focused probe from a full-suite pass.
+
+
+## Stage34 accepted
+
+Stage34 passed at8a7f34fa3d84068d6ef98b0c8b3ecf84909abb5f/build64/run42325240115,all5requiredcurrentjobs and actualartifacts. Verified27native/27browser workloads,54+54bounds,1245cache/15packing/12floralseed checks,3local before/afterpairs,22native/browser parity/replays,13editorworkflows,complete1159filekit and44unchangedCLIexports. All1423Gitblobs/26binaries/modes/history and297priorissued hashes verified;492new34evidence hashes frozen. Firstcandidate5B/run63rejected at CIartifactpath mismatch,retained and repairedbefore acceptance. Earlierlocalmeasurements retain actualsource provenance; byte-identical90executable inputs bound toaccepted8A withoutclaimingfreshlocal8Aexecution. Defaultlimits remain measured-device-specific; no mobile/Pi/Office/physicalprint claim. Full35visual/exportquality remains mandatory.

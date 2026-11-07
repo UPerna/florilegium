@@ -1,5 +1,5 @@
 {
-  "revision": "5b0e739d2ac7905c555c3a40f2b3501233153df1",
+  "revision": "8a7f34fa3d84068d6ef98b0c8b3ecf84909abb5f",
   "status": "scope_verified",
   "source_kit_receipt_selection": "tools/package.py explicitly selects JSON-only receipt records",
   "prior_issued_hashes_in_canonical_archive": 297,
