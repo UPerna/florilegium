@@ -28,7 +28,7 @@ Scaling exposed false rejection of a valid 60-spoke packing: naive normalized an
 
 Floral sizes are quarter, half and full A4 linear dimensions, fixed density 0.3 and consistently scaled canonical host geometry. An earlier full-A4 small-labelled case at density 0.2 passed in 98.996 seconds for the whole child; it remains exploratory evidence. Revised inputs measure physical page-area scaling.
 
-Knot grids have 3, 5 and 8 vertices per side spaced 2 cm apart. The initial 1 cm fixture failed ribbon clearance; no clearance tolerance or smoothing implementation was changed. Packing uses hexagonal triangular disks of 7, 19 and 61 circles. Substitution depths are 2/3/4; projection areas 2×2, 4×3 and 8×6 cm. Optimization uses 24/120/360 steps; mosaic targets 24/96/192 objects. Text has 119/419/1349 characters; example synthesis uses 4/12/24 subdivisions and 9/17/33 rows. Exact recipes and hashes are retained.
+Knot grids have 3, 5 and 8 vertices per side spaced 2 cm apart. The initial 1 cm fixture failed ribbon clearance; no clearance tolerance or smoothing implementation was changed. Packing uses hexagonal triangular disks of 7, 19 and 61 circles. Substitution depths are 2/3/4; projection areas 2×2, 4×3 and 8×6 cm. Optimization uses 24/120/360 steps; mosaic targets 24/96/192 objects. Text has 123/433/1394 characters; example synthesis uses 4/12/24 subdivisions and 9/17/33 rows. Exact recipes and hashes are retained.
 
 The initial large text panel was 13×18 cm and rejected as `micrography-field-not-horizontal-monotone`. That failure and exact recipe are retained. The large benchmark now uses a 26×14 cm panel with the same text length, exercising text scaling within the admitted field profile rather than loosening its validity requirement.
 

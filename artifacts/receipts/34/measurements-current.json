@@ -28,6 +28,18 @@
       "bytes": 320
     },
     {
+      "path": "measurements/performance/circle-packing-large-matrix-v3-candidate.stderr.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/circle-packing-large-matrix-v3-candidate.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "measurements/performance/circle-packing-large-matrix-v3-candidate.stdout.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/circle-packing-large-matrix-v3-candidate.stdout.log",
+      "sha256": "b9621abca6b5435ac0e6a13dd4c408a369d8e09faf3b58ad47d371ffd41e8a7a",
+      "bytes": 320
+    },
+    {
       "path": "measurements/performance/circle-packing-medium-matrix-v1-candidate.stderr.log",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/circle-packing-medium-matrix-v1-candidate.stderr.log",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -49,6 +61,18 @@
       "path": "measurements/performance/circle-packing-medium-matrix-v2-candidate.stdout.log",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/circle-packing-medium-matrix-v2-candidate.stdout.log",
       "sha256": "2e616f88d5d7ded8801bbaf1163b544963b550186fcef5c600b205567e3f7ae1",
+      "bytes": 319
+    },
+    {
+      "path": "measurements/performance/circle-packing-medium-matrix-v3-candidate.stderr.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/circle-packing-medium-matrix-v3-candidate.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "measurements/performance/circle-packing-medium-matrix-v3-candidate.stdout.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/circle-packing-medium-matrix-v3-candidate.stdout.log",
+      "sha256": "c8b068a98c7e03cba6e931062659aac971977371688a19c61a3548d06426c1b6",
       "bytes": 319
     },
     {
@@ -76,6 +100,18 @@
       "bytes": 315
     },
     {
+      "path": "measurements/performance/circle-packing-small-matrix-v3-candidate.stderr.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/circle-packing-small-matrix-v3-candidate.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "measurements/performance/circle-packing-small-matrix-v3-candidate.stdout.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/circle-packing-small-matrix-v3-candidate.stdout.log",
+      "sha256": "73e27f9cc01e952f145a64ccf7b875ee9dbeca7b99c6b775178b21dcfbc7d81a",
+      "bytes": 315
+    },
+    {
       "path": "measurements/performance/example-synthesis-large-matrix-v1-candidate.stderr.log",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/example-synthesis-large-matrix-v1-candidate.stderr.log",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -97,6 +133,18 @@
       "path": "measurements/performance/example-synthesis-large-matrix-v2-candidate.stdout.log",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/example-synthesis-large-matrix-v2-candidate.stdout.log",
       "sha256": "aac7e14cf4d84a338bb659d168f8559fc5a12963b489a47c128a9514b3780ad5",
+      "bytes": 325
+    },
+    {
+      "path": "measurements/performance/example-synthesis-large-matrix-v3-candidate.stderr.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/example-synthesis-large-matrix-v3-candidate.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "measurements/performance/example-synthesis-large-matrix-v3-candidate.stdout.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/example-synthesis-large-matrix-v3-candidate.stdout.log",
+      "sha256": "06a479db6699f30937cecb42788fe337d21155f3d57b12809bb619047669c5d0",
       "bytes": 325
     },
     {
@@ -124,6 +172,18 @@
       "bytes": 327
     },
     {
+      "path": "measurements/performance/example-synthesis-medium-matrix-v3-candidate.stderr.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/example-synthesis-medium-matrix-v3-candidate.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "measurements/performance/example-synthesis-medium-matrix-v3-candidate.stdout.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/example-synthesis-medium-matrix-v3-candidate.stdout.log",
+      "sha256": "62d96ce22b00cfe19457c527918b222b17c60e55af1534eb669921e255a60b9f",
+      "bytes": 327
+    },
+    {
       "path": "measurements/performance/example-synthesis-small-matrix-v1-candidate.stderr.log",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/example-synthesis-small-matrix-v1-candidate.stderr.log",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -145,6 +205,18 @@
       "path": "measurements/performance/example-synthesis-small-matrix-v2-candidate.stdout.log",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/example-synthesis-small-matrix-v2-candidate.stdout.log",
       "sha256": "eeed30e2483f48f95e12f163acd73ee8bb6de3012952900c7bf5050ac19b3d2e",
+      "bytes": 324
+    },
+    {
+      "path": "measurements/performance/example-synthesis-small-matrix-v3-candidate.stderr.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/example-synthesis-small-matrix-v3-candidate.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "measurements/performance/example-synthesis-small-matrix-v3-candidate.stdout.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/example-synthesis-small-matrix-v3-candidate.stdout.log",
+      "sha256": "0b00ee0fb194a6e17c7c207f556320501b593d0767488c5662ae7b9d4745d27e",
       "bytes": 324
     },
     {
@@ -184,6 +256,18 @@
       "bytes": 316
     },
     {
+      "path": "measurements/performance/floral-growth-large-matrix-v3-candidate.stderr.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/floral-growth-large-matrix-v3-candidate.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "measurements/performance/floral-growth-large-matrix-v3-candidate.stdout.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/floral-growth-large-matrix-v3-candidate.stdout.log",
+      "sha256": "c58f7b2202eaa3250332cd7a536480eecdf1bb964ba0cb26ed6dddb058589d42",
+      "bytes": 316
+    },
+    {
       "path": "measurements/performance/floral-growth-medium-matrix-v1-candidate.stderr.log",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/floral-growth-medium-matrix-v1-candidate.stderr.log",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -208,6 +292,18 @@
       "bytes": 319
     },
     {
+      "path": "measurements/performance/floral-growth-medium-matrix-v3-candidate.stderr.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/floral-growth-medium-matrix-v3-candidate.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "measurements/performance/floral-growth-medium-matrix-v3-candidate.stdout.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/floral-growth-medium-matrix-v3-candidate.stdout.log",
+      "sha256": "5db2c375e895cae8722c57196c42247e3d95d66ef3ab29860b46b4585d3d2234",
+      "bytes": 319
+    },
+    {
       "path": "measurements/performance/floral-growth-small-matrix-v1-candidate.stderr.log",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/floral-growth-small-matrix-v1-candidate.stderr.log",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -229,6 +325,18 @@
       "path": "measurements/performance/floral-growth-small-matrix-v2-candidate.stdout.log",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/floral-growth-small-matrix-v2-candidate.stdout.log",
       "sha256": "e19fe3897b2e905539c44f9826614e28e2e8f50b076b204a050d97fd0de10a56",
+      "bytes": 312
+    },
+    {
+      "path": "measurements/performance/floral-growth-small-matrix-v3-candidate.stderr.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/floral-growth-small-matrix-v3-candidate.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "measurements/performance/floral-growth-small-matrix-v3-candidate.stdout.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/floral-growth-small-matrix-v3-candidate.stdout.log",
+      "sha256": "c10d0d314acf8698f4b683cedb6392a3efad8de5db9fce4b18f1241e7bee1dd7",
       "bytes": 312
     },
     {
@@ -280,6 +388,18 @@
       "bytes": 312
     },
     {
+      "path": "measurements/performance/knot-topology-large-matrix-v3-candidate.stderr.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/knot-topology-large-matrix-v3-candidate.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "measurements/performance/knot-topology-large-matrix-v3-candidate.stdout.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/knot-topology-large-matrix-v3-candidate.stdout.log",
+      "sha256": "794cb90c46d1856e90ad22d19493fb725e3fda795c122d74db13787de7e14b97",
+      "bytes": 312
+    },
+    {
       "path": "measurements/performance/knot-topology-large-scaled-preflight-candidate.stderr.log",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/knot-topology-large-scaled-preflight-candidate.stderr.log",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -316,6 +436,18 @@
       "bytes": 315
     },
     {
+      "path": "measurements/performance/knot-topology-medium-matrix-v3-candidate.stderr.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/knot-topology-medium-matrix-v3-candidate.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "measurements/performance/knot-topology-medium-matrix-v3-candidate.stdout.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/knot-topology-medium-matrix-v3-candidate.stdout.log",
+      "sha256": "7deae251026ed87a881b7f06828b57a0ab1c0da909a79365aad5e4f61251d872",
+      "bytes": 315
+    },
+    {
       "path": "measurements/performance/knot-topology-medium-scaled-preflight-candidate.stderr.log",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/knot-topology-medium-scaled-preflight-candidate.stderr.log",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -349,6 +481,18 @@
       "path": "measurements/performance/knot-topology-small-matrix-v2-candidate.stdout.log",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/knot-topology-small-matrix-v2-candidate.stdout.log",
       "sha256": "6e6e43abd96b797b06aa0dc39abc9b8eba27dae4c57a550bf5016762e453975b",
+      "bytes": 312
+    },
+    {
+      "path": "measurements/performance/knot-topology-small-matrix-v3-candidate.stderr.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/knot-topology-small-matrix-v3-candidate.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "measurements/performance/knot-topology-small-matrix-v3-candidate.stdout.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/knot-topology-small-matrix-v3-candidate.stdout.log",
+      "sha256": "5686c1d2cf1d4cb0f2ed0ab2b44741cc8e65a37a1fde65e72d3606a8ecdf9ce0",
       "bytes": 312
     },
     {
@@ -400,6 +544,18 @@
       "bytes": 316
     },
     {
+      "path": "measurements/performance/mosaic-packing-large-matrix-v3-candidate.stderr.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/mosaic-packing-large-matrix-v3-candidate.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "measurements/performance/mosaic-packing-large-matrix-v3-candidate.stdout.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/mosaic-packing-large-matrix-v3-candidate.stdout.log",
+      "sha256": "734df06bfd089e93a7a37a3fdbe6884c58c81b489e3e22aaf6209ec9192b021f",
+      "bytes": 316
+    },
+    {
       "path": "measurements/performance/mosaic-packing-medium-matrix-v1-candidate.stderr.log",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/mosaic-packing-medium-matrix-v1-candidate.stderr.log",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -424,6 +580,18 @@
       "bytes": 318
     },
     {
+      "path": "measurements/performance/mosaic-packing-medium-matrix-v3-candidate.stderr.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/mosaic-packing-medium-matrix-v3-candidate.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "measurements/performance/mosaic-packing-medium-matrix-v3-candidate.stdout.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/mosaic-packing-medium-matrix-v3-candidate.stdout.log",
+      "sha256": "aedce7639528015528d093820ac34075b3893ed9cd6882940cb556bdda0a3995",
+      "bytes": 318
+    },
+    {
       "path": "measurements/performance/mosaic-packing-small-matrix-v1-candidate.stderr.log",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/mosaic-packing-small-matrix-v1-candidate.stderr.log",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -445,6 +613,18 @@
       "path": "measurements/performance/mosaic-packing-small-matrix-v2-candidate.stdout.log",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/mosaic-packing-small-matrix-v2-candidate.stdout.log",
       "sha256": "c3c1f5a98707f8534fd78b4854ce65d8937f4ea27237d3f9c856e60bb7a2ad8d",
+      "bytes": 315
+    },
+    {
+      "path": "measurements/performance/mosaic-packing-small-matrix-v3-candidate.stderr.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/mosaic-packing-small-matrix-v3-candidate.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "measurements/performance/mosaic-packing-small-matrix-v3-candidate.stdout.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/mosaic-packing-small-matrix-v3-candidate.stdout.log",
+      "sha256": "957d51072421fc35446659ceb8550800d9dc9592a320d4d6712db74f14777420",
       "bytes": 315
     },
     {
@@ -484,6 +664,18 @@
       "bytes": 310
     },
     {
+      "path": "measurements/performance/optimization-large-matrix-v3-candidate.stderr.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/optimization-large-matrix-v3-candidate.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "measurements/performance/optimization-large-matrix-v3-candidate.stdout.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/optimization-large-matrix-v3-candidate.stdout.log",
+      "sha256": "e99e527ab1c71028be4dfd7ccb52ec723835de515ab4e8b400363e378cb880fd",
+      "bytes": 310
+    },
+    {
       "path": "measurements/performance/optimization-medium-matrix-v1-candidate.stderr.log",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/optimization-medium-matrix-v1-candidate.stderr.log",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -508,6 +700,18 @@
       "bytes": 313
     },
     {
+      "path": "measurements/performance/optimization-medium-matrix-v3-candidate.stderr.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/optimization-medium-matrix-v3-candidate.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "measurements/performance/optimization-medium-matrix-v3-candidate.stdout.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/optimization-medium-matrix-v3-candidate.stdout.log",
+      "sha256": "33b4a4013d519fd199b5f142e9df86b627ce525ec9d2522c699aed4f771ec7a6",
+      "bytes": 313
+    },
+    {
       "path": "measurements/performance/optimization-small-matrix-v1-candidate.stderr.log",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/optimization-small-matrix-v1-candidate.stderr.log",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -529,6 +733,18 @@
       "path": "measurements/performance/optimization-small-matrix-v2-candidate.stdout.log",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/optimization-small-matrix-v2-candidate.stdout.log",
       "sha256": "f55e524d627f4ad5f8c45e68c0616194b875f3250ddb2acde81e284a4bb95ea6",
+      "bytes": 310
+    },
+    {
+      "path": "measurements/performance/optimization-small-matrix-v3-candidate.stderr.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/optimization-small-matrix-v3-candidate.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "measurements/performance/optimization-small-matrix-v3-candidate.stdout.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/optimization-small-matrix-v3-candidate.stdout.log",
+      "sha256": "5f7adad723227a3fc9c4616227e78594f37d23bed33471daba093d0fcce189dc",
       "bytes": 310
     },
     {
@@ -570,7 +786,7 @@
     {
       "path": "measurements/performance/probe-periodic-timing-Lua-5.3.json",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/probe-periodic-timing-Lua-5.3.json",
-      "sha256": "e40336d169e725794d9f0d71420f661ce0dfd547381d9deaec7e01b0ffbff68a",
+      "sha256": "c5c357532b84c52d3d3e233e0ce1ff5f4560a43d95a6efd5603a6915cecf22ad",
       "bytes": 2648
     },
     {
@@ -598,6 +814,18 @@
       "bytes": 304
     },
     {
+      "path": "measurements/performance/projection-large-matrix-v3-candidate.stderr.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/projection-large-matrix-v3-candidate.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "measurements/performance/projection-large-matrix-v3-candidate.stdout.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/projection-large-matrix-v3-candidate.stdout.log",
+      "sha256": "4a84dcc4e4e628a0bfa6007df8a93ad3a6dadbb7b3e3cb700414b2b04ace0728",
+      "bytes": 305
+    },
+    {
       "path": "measurements/performance/projection-medium-matrix-v1-candidate.stderr.log",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/projection-medium-matrix-v1-candidate.stderr.log",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -622,6 +850,18 @@
       "bytes": 307
     },
     {
+      "path": "measurements/performance/projection-medium-matrix-v3-candidate.stderr.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/projection-medium-matrix-v3-candidate.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "measurements/performance/projection-medium-matrix-v3-candidate.stdout.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/projection-medium-matrix-v3-candidate.stdout.log",
+      "sha256": "d7103ea8a5992deac70dfd2d9795e2a277ee826fcad1617243ebee4e1896e7b6",
+      "bytes": 307
+    },
+    {
       "path": "measurements/performance/projection-small-matrix-v1-candidate.stderr.log",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/projection-small-matrix-v1-candidate.stderr.log",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -643,6 +883,18 @@
       "path": "measurements/performance/projection-small-matrix-v2-candidate.stdout.log",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/projection-small-matrix-v2-candidate.stdout.log",
       "sha256": "f457e41c220974441cce70cf9a3c14867e24d1476a3f9ca9e244d2383d0ccf2e",
+      "bytes": 304
+    },
+    {
+      "path": "measurements/performance/projection-small-matrix-v3-candidate.stderr.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/projection-small-matrix-v3-candidate.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "measurements/performance/projection-small-matrix-v3-candidate.stdout.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/projection-small-matrix-v3-candidate.stdout.log",
+      "sha256": "ebf47ee014c93959cc6248237fc4400efc68fef002e0cb3f4d8563692e5ec4c6",
       "bytes": 304
     },
     {
@@ -934,6 +1186,120 @@
       "bytes": 27502
     },
     {
+      "path": "measurements/performance/repetitions-post-seed-fix/periodic-1-baseline.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/repetitions-post-seed-fix/periodic-1-baseline.json",
+      "sha256": "4e88b2168d3604ff2595b33de0a809d029cb8919a8e023ccdf54fccf53e3a34d",
+      "bytes": 2647
+    },
+    {
+      "path": "measurements/performance/repetitions-post-seed-fix/periodic-1-baseline.stderr.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/repetitions-post-seed-fix/periodic-1-baseline.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "measurements/performance/repetitions-post-seed-fix/periodic-1-baseline.stdout.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/repetitions-post-seed-fix/periodic-1-baseline.stdout.log",
+      "sha256": "a9b3dbb92f73efa9274f47e1de73e931864a649f52aa7536af55a68973641f90",
+      "bytes": 232
+    },
+    {
+      "path": "measurements/performance/repetitions-post-seed-fix/periodic-1-candidate.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/repetitions-post-seed-fix/periodic-1-candidate.json",
+      "sha256": "0390aaf7d134a12ec25d898d678a153a68f50962448e78a0a2202325ebdacd47",
+      "bytes": 2648
+    },
+    {
+      "path": "measurements/performance/repetitions-post-seed-fix/periodic-1-candidate.stderr.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/repetitions-post-seed-fix/periodic-1-candidate.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "measurements/performance/repetitions-post-seed-fix/periodic-1-candidate.stdout.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/repetitions-post-seed-fix/periodic-1-candidate.stdout.log",
+      "sha256": "b72540d031aba703a061242fbaad84db568b8efc0496a48de5c9781671a51857",
+      "bytes": 232
+    },
+    {
+      "path": "measurements/performance/repetitions-post-seed-fix/periodic-2-baseline.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/repetitions-post-seed-fix/periodic-2-baseline.json",
+      "sha256": "6842049e3db4a831f859b09c90903dc24b592826f88f6d5f588aea11aa2b6b2d",
+      "bytes": 2647
+    },
+    {
+      "path": "measurements/performance/repetitions-post-seed-fix/periodic-2-baseline.stderr.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/repetitions-post-seed-fix/periodic-2-baseline.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "measurements/performance/repetitions-post-seed-fix/periodic-2-baseline.stdout.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/repetitions-post-seed-fix/periodic-2-baseline.stdout.log",
+      "sha256": "6ce207f17e118a36e3f2052af6bf03dcbb113010c2e2b6740d4548117de44826",
+      "bytes": 232
+    },
+    {
+      "path": "measurements/performance/repetitions-post-seed-fix/periodic-2-candidate.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/repetitions-post-seed-fix/periodic-2-candidate.json",
+      "sha256": "4cae9b0de44d3f0d2ba514a8e117453168e99d471f9ff4a2e6f934942f27f372",
+      "bytes": 2645
+    },
+    {
+      "path": "measurements/performance/repetitions-post-seed-fix/periodic-2-candidate.stderr.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/repetitions-post-seed-fix/periodic-2-candidate.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "measurements/performance/repetitions-post-seed-fix/periodic-2-candidate.stdout.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/repetitions-post-seed-fix/periodic-2-candidate.stdout.log",
+      "sha256": "97d5836e273a8bd7716576360c10541100b4d039cd1e4116daca93118820a936",
+      "bytes": 232
+    },
+    {
+      "path": "measurements/performance/repetitions-post-seed-fix/periodic-3-baseline.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/repetitions-post-seed-fix/periodic-3-baseline.json",
+      "sha256": "1670d4a4b36c6288f8c7d05c12e2e1d6d2b402c9e276ced63ee43058960364e5",
+      "bytes": 2647
+    },
+    {
+      "path": "measurements/performance/repetitions-post-seed-fix/periodic-3-baseline.stderr.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/repetitions-post-seed-fix/periodic-3-baseline.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "measurements/performance/repetitions-post-seed-fix/periodic-3-baseline.stdout.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/repetitions-post-seed-fix/periodic-3-baseline.stdout.log",
+      "sha256": "29a99870f14793c8bdcdbcbb7b43b261ca9e7197eeda2a31793e4652b572544f",
+      "bytes": 232
+    },
+    {
+      "path": "measurements/performance/repetitions-post-seed-fix/periodic-3-candidate.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/repetitions-post-seed-fix/periodic-3-candidate.json",
+      "sha256": "c5c357532b84c52d3d3e233e0ce1ff5f4560a43d95a6efd5603a6915cecf22ad",
+      "bytes": 2648
+    },
+    {
+      "path": "measurements/performance/repetitions-post-seed-fix/periodic-3-candidate.stderr.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/repetitions-post-seed-fix/periodic-3-candidate.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "measurements/performance/repetitions-post-seed-fix/periodic-3-candidate.stdout.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/repetitions-post-seed-fix/periodic-3-candidate.stdout.log",
+      "sha256": "e5cfaa556873b23941f92ae2004a562de1465e3b4f51ce06085036e63b3e80e5",
+      "bytes": 232
+    },
+    {
+      "path": "measurements/performance/repetitions-post-seed-fix/summary.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/repetitions-post-seed-fix/summary.json",
+      "sha256": "985642f771c1f3d3c6f7cb77cc2a437595529297a6f13670a9adf3a0f68fe627",
+      "bytes": 27492
+    },
+    {
       "path": "measurements/performance/results/circle-packing-large-hex-preflight-Lua-5.3.json",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/circle-packing-large-hex-preflight-Lua-5.3.json",
       "sha256": "8629c2d726a893580f4fb0968d0d0fc73594adb990eef49c634153131d54ff3b",
@@ -950,6 +1316,12 @@
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/circle-packing-large-matrix-v2-candidate-Lua-5.3.json",
       "sha256": "44aedb7b3ff5808d2dad8c11e9d40cc7a858eb057220284d580367d589d62182",
       "bytes": 13822
+    },
+    {
+      "path": "measurements/performance/results/circle-packing-large-matrix-v3-candidate-Lua-5.3.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/circle-packing-large-matrix-v3-candidate-Lua-5.3.json",
+      "sha256": "cb8895478328613d76822f2007ee605f155c755fc577ab62cc44cc07765b2972",
+      "bytes": 13823
     },
     {
       "path": "measurements/performance/results/circle-packing-large-preflight3-Lua-5.3.json",
@@ -976,6 +1348,12 @@
       "bytes": 13800
     },
     {
+      "path": "measurements/performance/results/circle-packing-medium-matrix-v3-candidate-Lua-5.3.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/circle-packing-medium-matrix-v3-candidate-Lua-5.3.json",
+      "sha256": "f9085e7de6d93d639b8e8060bc44669d1bf2e274ecd658c54df377361e943344",
+      "bytes": 13800
+    },
+    {
       "path": "measurements/performance/results/circle-packing-small-matrix-v1-candidate-Lua-5.3.json",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/circle-packing-small-matrix-v1-candidate-Lua-5.3.json",
       "sha256": "249d04daaaf5437af5e6454ab39a3b2528aafaadb66afb01e8c887f001fa4812",
@@ -986,6 +1364,12 @@
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/circle-packing-small-matrix-v2-candidate-Lua-5.3.json",
       "sha256": "58b1ff5480b89b3b6525fbc3b5093844d05ff02e5e867c1240249dbc7c46ceb0",
       "bytes": 13760
+    },
+    {
+      "path": "measurements/performance/results/circle-packing-small-matrix-v3-candidate-Lua-5.3.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/circle-packing-small-matrix-v3-candidate-Lua-5.3.json",
+      "sha256": "af7a8f17854bcb3f0347fb98c12430dd5f144c79fffea131605434bc4b8b1cff",
+      "bytes": 13761
     },
     {
       "path": "measurements/performance/results/circle-packing-small-preflight-Lua-5.3.json",
@@ -1012,6 +1396,12 @@
       "bytes": 11973
     },
     {
+      "path": "measurements/performance/results/example-synthesis-large-matrix-v3-candidate-Lua-5.3.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/example-synthesis-large-matrix-v3-candidate-Lua-5.3.json",
+      "sha256": "5d1a611ba21372053bf827cfbb3777ed7e30eec3928f0e2542326faaf134e9ca",
+      "bytes": 11974
+    },
+    {
       "path": "measurements/performance/results/example-synthesis-medium-matrix-v1-candidate-Lua-5.3.json",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/example-synthesis-medium-matrix-v1-candidate-Lua-5.3.json",
       "sha256": "9fee67805fb446bc2b42c7ecb9232649d63657c657ffc39ba3734db9a7cdd167",
@@ -1024,6 +1414,12 @@
       "bytes": 11974
     },
     {
+      "path": "measurements/performance/results/example-synthesis-medium-matrix-v3-candidate-Lua-5.3.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/example-synthesis-medium-matrix-v3-candidate-Lua-5.3.json",
+      "sha256": "4bed3741815c5691c62a68736c43e89b31475346dea022d56979568dfe867811",
+      "bytes": 11970
+    },
+    {
       "path": "measurements/performance/results/example-synthesis-small-matrix-v1-candidate-Lua-5.3.json",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/example-synthesis-small-matrix-v1-candidate-Lua-5.3.json",
       "sha256": "4391acce2a84027c1b9ae5a8733f77428d1bb600c26a5327e4129bd39b467be3",
@@ -1034,6 +1430,12 @@
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/example-synthesis-small-matrix-v2-candidate-Lua-5.3.json",
       "sha256": "77d3a478c70dbb77caae9934e5efdf172c1cbc2fa93ae585c69b66145199a349",
       "bytes": 11955
+    },
+    {
+      "path": "measurements/performance/results/example-synthesis-small-matrix-v3-candidate-Lua-5.3.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/example-synthesis-small-matrix-v3-candidate-Lua-5.3.json",
+      "sha256": "e78db3d2e3e4675843f1cb99240439f11ea07d94fbd4aa167ea1efa352c8ff51",
+      "bytes": 11959
     },
     {
       "path": "measurements/performance/results/example-synthesis-small-preflight-candidate-Lua-5.3.json",
@@ -1054,6 +1456,12 @@
       "bytes": 12179
     },
     {
+      "path": "measurements/performance/results/floral-growth-large-matrix-v3-candidate-Lua-5.3.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/floral-growth-large-matrix-v3-candidate-Lua-5.3.json",
+      "sha256": "ed5fb60bec2ac53063201dffb340278f70ef6cf952d724b0b651348842316dd2",
+      "bytes": 12180
+    },
+    {
       "path": "measurements/performance/results/floral-growth-medium-matrix-v1-candidate-Lua-5.3.json",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/floral-growth-medium-matrix-v1-candidate-Lua-5.3.json",
       "sha256": "b55c4b938bceeac62248c73a8ad99d85bbe40e47f2c22ab17d689f0ab22d274d",
@@ -1066,6 +1474,12 @@
       "bytes": 12168
     },
     {
+      "path": "measurements/performance/results/floral-growth-medium-matrix-v3-candidate-Lua-5.3.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/floral-growth-medium-matrix-v3-candidate-Lua-5.3.json",
+      "sha256": "cde09319cda4ed6e211b20bc9dba42b03bbbadf1113c416e26f82d7f00ab8374",
+      "bytes": 12170
+    },
+    {
       "path": "measurements/performance/results/floral-growth-small-matrix-v1-candidate-Lua-5.3.json",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/floral-growth-small-matrix-v1-candidate-Lua-5.3.json",
       "sha256": "a92992472403073754e10a823f4d9a3939f36ec897427163ad53eeeaa4a6e612",
@@ -1076,6 +1490,12 @@
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/floral-growth-small-matrix-v2-candidate-Lua-5.3.json",
       "sha256": "0957a0c24475cd6ecb1adc64b4352b017a5efd1bd88a8d45f0b25ca84b55f5c6",
       "bytes": 12133
+    },
+    {
+      "path": "measurements/performance/results/floral-growth-small-matrix-v3-candidate-Lua-5.3.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/floral-growth-small-matrix-v3-candidate-Lua-5.3.json",
+      "sha256": "b0cb8d8e64b931280ae1da098a26d7b9b9cf30b682680a24e1ff34d9f903fa3c",
+      "bytes": 12134
     },
     {
       "path": "measurements/performance/results/floral-growth-small-preflight-candidate-Lua-5.3.json",
@@ -1102,6 +1522,12 @@
       "bytes": 12117
     },
     {
+      "path": "measurements/performance/results/knot-topology-large-matrix-v3-candidate-Lua-5.3.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/knot-topology-large-matrix-v3-candidate-Lua-5.3.json",
+      "sha256": "ace95c9c3da22b2ef211d50c588f7433c9ad872c8f28a6fdd6337a52eb51c1fd",
+      "bytes": 12117
+    },
+    {
       "path": "measurements/performance/results/knot-topology-large-scaled-preflight-candidate-Lua-5.3.json",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/knot-topology-large-scaled-preflight-candidate-Lua-5.3.json",
       "sha256": "afce7fe2294246dbbb62129d7a44c98e5a8ec075dab6dc9386d7b34ef96c3029",
@@ -1120,6 +1546,12 @@
       "bytes": 12110
     },
     {
+      "path": "measurements/performance/results/knot-topology-medium-matrix-v3-candidate-Lua-5.3.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/knot-topology-medium-matrix-v3-candidate-Lua-5.3.json",
+      "sha256": "e03cc92fad7615834120bf0ec30f41b35d0dc105578627d6efcc4507daff9c76",
+      "bytes": 12112
+    },
+    {
       "path": "measurements/performance/results/knot-topology-medium-scaled-preflight-candidate-Lua-5.3.json",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/knot-topology-medium-scaled-preflight-candidate-Lua-5.3.json",
       "sha256": "6ff0c8943b8f0d8d3b68b24964740c43adf5910a21d9519366a0e182735c34c9",
@@ -1136,6 +1568,12 @@
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/knot-topology-small-matrix-v2-candidate-Lua-5.3.json",
       "sha256": "ae741c3826131484ab704c9534a8b4040694e787400f87dc499c69274d629592",
       "bytes": 12097
+    },
+    {
+      "path": "measurements/performance/results/knot-topology-small-matrix-v3-candidate-Lua-5.3.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/knot-topology-small-matrix-v3-candidate-Lua-5.3.json",
+      "sha256": "24bff9c81ebbeb346950f63f4e5f8937d715a60d2846a6d97327cbea5493358b",
+      "bytes": 12096
     },
     {
       "path": "measurements/performance/results/knot-topology-small-preflight-candidate-Lua-5.3.json",
@@ -1162,6 +1600,12 @@
       "bytes": 36764
     },
     {
+      "path": "measurements/performance/results/mosaic-packing-large-matrix-v3-candidate-Lua-5.3.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/mosaic-packing-large-matrix-v3-candidate-Lua-5.3.json",
+      "sha256": "e2d75ff798ff0f35d526c092db99037f866519c106392d580beb96df57edc716",
+      "bytes": 36762
+    },
+    {
       "path": "measurements/performance/results/mosaic-packing-medium-matrix-v1-candidate-Lua-5.3.json",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/mosaic-packing-medium-matrix-v1-candidate-Lua-5.3.json",
       "sha256": "2ebfbf672e29d847f10512751cfab23d31bca1380007de80a1a1fa0f04085541",
@@ -1174,6 +1618,12 @@
       "bytes": 26633
     },
     {
+      "path": "measurements/performance/results/mosaic-packing-medium-matrix-v3-candidate-Lua-5.3.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/mosaic-packing-medium-matrix-v3-candidate-Lua-5.3.json",
+      "sha256": "609fcc479fa84374b289cafbddfa8a1313fdc2e3ce1a7c995e371914ed7c167d",
+      "bytes": 26635
+    },
+    {
       "path": "measurements/performance/results/mosaic-packing-small-matrix-v1-candidate-Lua-5.3.json",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/mosaic-packing-small-matrix-v1-candidate-Lua-5.3.json",
       "sha256": "80bd47b3238cccb4a5dac03ebae4f7a4b1c772330df9b8a6f20a44f96da82d39",
@@ -1184,6 +1634,12 @@
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/mosaic-packing-small-matrix-v2-candidate-Lua-5.3.json",
       "sha256": "6cbd4e4989df8c36fe9373d4ffbf291271239f490e8b292d49b1b0d8a6f720fc",
       "bytes": 16661
+    },
+    {
+      "path": "measurements/performance/results/mosaic-packing-small-matrix-v3-candidate-Lua-5.3.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/mosaic-packing-small-matrix-v3-candidate-Lua-5.3.json",
+      "sha256": "c80748204c95ebd7e81e608b7625a6e56782f2fa9814e0d9d1ac2b3419fdfd48",
+      "bytes": 16660
     },
     {
       "path": "measurements/performance/results/mosaic-packing-small-preflight-candidate-Lua-5.3.json",
@@ -1204,6 +1660,12 @@
       "bytes": 14093
     },
     {
+      "path": "measurements/performance/results/optimization-large-matrix-v3-candidate-Lua-5.3.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/optimization-large-matrix-v3-candidate-Lua-5.3.json",
+      "sha256": "d5be1e0afc2b2e6ae64b5de9b92634412673603cef0eb9faf00b95ca78184b98",
+      "bytes": 14093
+    },
+    {
       "path": "measurements/performance/results/optimization-medium-matrix-v1-candidate-Lua-5.3.json",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/optimization-medium-matrix-v1-candidate-Lua-5.3.json",
       "sha256": "a5e339569a737526eb14509d771909d82db15bfeab54bb24178e4f7e5771fb7b",
@@ -1216,6 +1678,12 @@
       "bytes": 14093
     },
     {
+      "path": "measurements/performance/results/optimization-medium-matrix-v3-candidate-Lua-5.3.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/optimization-medium-matrix-v3-candidate-Lua-5.3.json",
+      "sha256": "e6bb81e64c9015e3be783f2b2fcad66f214c50414b9fb4d6d66dd1bdfa5fdb31",
+      "bytes": 14094
+    },
+    {
       "path": "measurements/performance/results/optimization-small-matrix-v1-candidate-Lua-5.3.json",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/optimization-small-matrix-v1-candidate-Lua-5.3.json",
       "sha256": "8ad32ea3800f855a5b0476742d40ab17718be2470fb0667d1c45f10c8909ac97",
@@ -1226,6 +1694,12 @@
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/optimization-small-matrix-v2-candidate-Lua-5.3.json",
       "sha256": "5dddf7140bda9455ce178bfedda80bb707d97ac3d13c9eb1c5ef361581455828",
       "bytes": 14081
+    },
+    {
+      "path": "measurements/performance/results/optimization-small-matrix-v3-candidate-Lua-5.3.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/optimization-small-matrix-v3-candidate-Lua-5.3.json",
+      "sha256": "5bc10fa293bda09937075ef3dbaf91788dde71f469c23d4afe4df162ffcd891a",
+      "bytes": 14082
     },
     {
       "path": "measurements/performance/results/optimization-small-preflight-candidate-Lua-5.3.json",
@@ -1246,6 +1720,12 @@
       "bytes": 12048
     },
     {
+      "path": "measurements/performance/results/projection-large-matrix-v3-candidate-Lua-5.3.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/projection-large-matrix-v3-candidate-Lua-5.3.json",
+      "sha256": "24f88a368f8317b11392ac8436f01bc98b2beee853760097d2133a1530800390",
+      "bytes": 12048
+    },
+    {
       "path": "measurements/performance/results/projection-medium-matrix-v1-candidate-Lua-5.3.json",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/projection-medium-matrix-v1-candidate-Lua-5.3.json",
       "sha256": "d486830265f532939514239f9e07587481f511156c369a96ffcca1b1c6aba528",
@@ -1255,6 +1735,12 @@
       "path": "measurements/performance/results/projection-medium-matrix-v2-candidate-Lua-5.3.json",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/projection-medium-matrix-v2-candidate-Lua-5.3.json",
       "sha256": "7ce342d9910f49e5362a8e1c0a700f48b70d7f60d4a7212fd5430ce3f4fede3f",
+      "bytes": 12036
+    },
+    {
+      "path": "measurements/performance/results/projection-medium-matrix-v3-candidate-Lua-5.3.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/projection-medium-matrix-v3-candidate-Lua-5.3.json",
+      "sha256": "0d41ad3d13c74a2b938d3e1288b6198f42da60059208c069b6bb86b9ce51108d",
       "bytes": 12036
     },
     {
@@ -1268,6 +1754,12 @@
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/projection-small-matrix-v2-candidate-Lua-5.3.json",
       "sha256": "dead590b5f01d96c63a4637fb0b24849cb0cf886a967f814908f5061b702d32b",
       "bytes": 12026
+    },
+    {
+      "path": "measurements/performance/results/projection-small-matrix-v3-candidate-Lua-5.3.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/projection-small-matrix-v3-candidate-Lua-5.3.json",
+      "sha256": "98a18f387f2b7337bccfc86c67fc10b01288d9736cc3ddd771f92b925d5b15ac",
+      "bytes": 12025
     },
     {
       "path": "measurements/performance/results/projection-small-preflight-candidate-Lua-5.3.json",
@@ -1288,6 +1780,12 @@
       "bytes": 12114
     },
     {
+      "path": "measurements/performance/results/substitution-large-matrix-v3-candidate-Lua-5.3.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/substitution-large-matrix-v3-candidate-Lua-5.3.json",
+      "sha256": "fddab65830498d49272d240dfd19e371b7fc1900714fc4b2366bcf29df3ceb80",
+      "bytes": 12114
+    },
+    {
       "path": "measurements/performance/results/substitution-medium-matrix-v1-candidate-Lua-5.3.json",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/substitution-medium-matrix-v1-candidate-Lua-5.3.json",
       "sha256": "8827885074dea10bc800517d10b02f03672c2983a3536e6dbdf71a9e9c97ac56",
@@ -1300,6 +1798,12 @@
       "bytes": 12088
     },
     {
+      "path": "measurements/performance/results/substitution-medium-matrix-v3-candidate-Lua-5.3.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/substitution-medium-matrix-v3-candidate-Lua-5.3.json",
+      "sha256": "e9163a3e1d45b243d907352c76419535c62661042c2aad9a983fc1830608d0c9",
+      "bytes": 12090
+    },
+    {
       "path": "measurements/performance/results/substitution-small-matrix-v1-candidate-Lua-5.3.json",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/substitution-small-matrix-v1-candidate-Lua-5.3.json",
       "sha256": "bc4bd284d161fa444951135308a9bec30086af43312417464cf3e2f6119d3b66",
@@ -1310,6 +1814,12 @@
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/substitution-small-matrix-v2-candidate-Lua-5.3.json",
       "sha256": "29a210990f06213d05cef421f9a2451e3e7b03684411423680929a9fc229929a",
       "bytes": 12074
+    },
+    {
+      "path": "measurements/performance/results/substitution-small-matrix-v3-candidate-Lua-5.3.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/substitution-small-matrix-v3-candidate-Lua-5.3.json",
+      "sha256": "d7bf8b8e8ae115e2e95dbb99dda310fff0088358ed0333f80b14183213e846c9",
+      "bytes": 12075
     },
     {
       "path": "measurements/performance/results/substitution-small-preflight-candidate-Lua-5.3.json",
@@ -1330,6 +1840,12 @@
       "bytes": 13197
     },
     {
+      "path": "measurements/performance/results/text-shaping-large-matrix-v3-candidate-Lua-5.3.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/text-shaping-large-matrix-v3-candidate-Lua-5.3.json",
+      "sha256": "36e87f2ec39935b1686568ebef83739ab61e8dfc6bca25fa02f11f6664d4dd7d",
+      "bytes": 13196
+    },
+    {
       "path": "measurements/performance/results/text-shaping-large-text-wide-preflight-candidate-Lua-5.3.json",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/text-shaping-large-text-wide-preflight-candidate-Lua-5.3.json",
       "sha256": "66b46fba49f8c6c065369c58d3f2b1d2143ecb0867780102aae2c6c1a1091afb",
@@ -1348,6 +1864,12 @@
       "bytes": 13178
     },
     {
+      "path": "measurements/performance/results/text-shaping-medium-matrix-v3-candidate-Lua-5.3.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/text-shaping-medium-matrix-v3-candidate-Lua-5.3.json",
+      "sha256": "99df1bfaae243a9968ea71999d6825bc74dbe05121a2921585aa98aa02f9f67d",
+      "bytes": 13179
+    },
+    {
       "path": "measurements/performance/results/text-shaping-small-matrix-v1-candidate-Lua-5.3.json",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/text-shaping-small-matrix-v1-candidate-Lua-5.3.json",
       "sha256": "c0fe75e001b98cc2522dff8e23853d5f45eac6a74f9b79763e2a4b1f9703c4a2",
@@ -1358,6 +1880,12 @@
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/text-shaping-small-matrix-v2-candidate-Lua-5.3.json",
       "sha256": "25972228fa9e3b71349fb501a49f643a34abe87584d75a803354df339a10277d",
       "bytes": 13169
+    },
+    {
+      "path": "measurements/performance/results/text-shaping-small-matrix-v3-candidate-Lua-5.3.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/results/text-shaping-small-matrix-v3-candidate-Lua-5.3.json",
+      "sha256": "2cdf45998de6dbe3e5d3ba873aec85c4f0dfc4ab4db672538f3fae8b81c5b796",
+      "bytes": 13173
     },
     {
       "path": "measurements/performance/results/text-shaping-small-preflight-candidate-Lua-5.3.json",
@@ -1390,6 +1918,18 @@
       "bytes": 310
     },
     {
+      "path": "measurements/performance/substitution-large-matrix-v3-candidate.stderr.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/substitution-large-matrix-v3-candidate.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "measurements/performance/substitution-large-matrix-v3-candidate.stdout.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/substitution-large-matrix-v3-candidate.stdout.log",
+      "sha256": "760d0299c7a30f31712de7f2addce2b1cc87e957de7020a7aaf46ab6de6a4bf8",
+      "bytes": 310
+    },
+    {
       "path": "measurements/performance/substitution-medium-matrix-v1-candidate.stderr.log",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/substitution-medium-matrix-v1-candidate.stderr.log",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -1411,6 +1951,18 @@
       "path": "measurements/performance/substitution-medium-matrix-v2-candidate.stdout.log",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/substitution-medium-matrix-v2-candidate.stdout.log",
       "sha256": "193d090c5fccd7e4f40bf9fc258161a1cac6804d1fdc15fc214d750a12f391e6",
+      "bytes": 313
+    },
+    {
+      "path": "measurements/performance/substitution-medium-matrix-v3-candidate.stderr.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/substitution-medium-matrix-v3-candidate.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "measurements/performance/substitution-medium-matrix-v3-candidate.stdout.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/substitution-medium-matrix-v3-candidate.stdout.log",
+      "sha256": "9ce7b16f37178fe37d492dae1b04e31b56397211fbf8d2fbf9bd8bdad2697188",
       "bytes": 313
     },
     {
@@ -1438,6 +1990,18 @@
       "bytes": 309
     },
     {
+      "path": "measurements/performance/substitution-small-matrix-v3-candidate.stderr.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/substitution-small-matrix-v3-candidate.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "measurements/performance/substitution-small-matrix-v3-candidate.stdout.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/substitution-small-matrix-v3-candidate.stdout.log",
+      "sha256": "d62abf2189109eba2584e2b15de08df7b99441d03ce68a8b8885cc6c6dc05454",
+      "bytes": 309
+    },
+    {
       "path": "measurements/performance/substitution-small-preflight-candidate.stderr.log",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/substitution-small-preflight-candidate.stderr.log",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -1460,6 +2024,12 @@
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/summary-matrix-v2.json",
       "sha256": "966504ed22ab537ad0565d0f021becb60ada744fd1d551d02ca2ba126cd90942",
       "bytes": 648763
+    },
+    {
+      "path": "measurements/performance/summary-matrix-v3.json",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/summary-matrix-v3.json",
+      "sha256": "4c4d2392f6836f6af75d808ffb9123e5dfd3b22a4881f9c44be63f5be4c68ef5",
+      "bytes": 649081
     },
     {
       "path": "measurements/performance/summary-preflight.json",
@@ -1504,6 +2074,18 @@
       "bytes": 313
     },
     {
+      "path": "measurements/performance/text-shaping-large-matrix-v3-candidate.stderr.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/text-shaping-large-matrix-v3-candidate.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "measurements/performance/text-shaping-large-matrix-v3-candidate.stdout.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/text-shaping-large-matrix-v3-candidate.stdout.log",
+      "sha256": "b8c3821174bf0636766568d8c31e2aa0f5c8ae3e7abac3a1eca1574dc06b6715",
+      "bytes": 313
+    },
+    {
       "path": "measurements/performance/text-shaping-large-text-wide-preflight-candidate.stderr.log",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/text-shaping-large-text-wide-preflight-candidate.stderr.log",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -1540,6 +2122,18 @@
       "bytes": 313
     },
     {
+      "path": "measurements/performance/text-shaping-medium-matrix-v3-candidate.stderr.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/text-shaping-medium-matrix-v3-candidate.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "measurements/performance/text-shaping-medium-matrix-v3-candidate.stdout.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/text-shaping-medium-matrix-v3-candidate.stdout.log",
+      "sha256": "5b61aa414f522dd8e6072918ebbe113a1c6e44716c4b0d76fd327f32ee2752ec",
+      "bytes": 313
+    },
+    {
       "path": "measurements/performance/text-shaping-small-matrix-v1-candidate.stderr.log",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/text-shaping-small-matrix-v1-candidate.stderr.log",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -1561,6 +2155,18 @@
       "path": "measurements/performance/text-shaping-small-matrix-v2-candidate.stdout.log",
       "checkpoint_storage": "artifacts/receipts/34/measurements/performance/text-shaping-small-matrix-v2-candidate.stdout.log",
       "sha256": "d7faf94bad408627236b4ac68db7ab0f507c8bba55d648059a0b4afb80115b39",
+      "bytes": 310
+    },
+    {
+      "path": "measurements/performance/text-shaping-small-matrix-v3-candidate.stderr.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/text-shaping-small-matrix-v3-candidate.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "measurements/performance/text-shaping-small-matrix-v3-candidate.stdout.log",
+      "checkpoint_storage": "artifacts/receipts/34/measurements/performance/text-shaping-small-matrix-v3-candidate.stdout.log",
+      "sha256": "6a0005511d39e880542a4c7871d26263a40fa65926c04c900bf560ff1cd7c3cb",
       "bytes": 310
     },
     {
@@ -1620,8 +2226,14 @@
     {
       "path": "measurements/browser-performance/receipt.json",
       "checkpoint_storage": "artifacts/receipts/34/measurements/browser-performance/receipt.json",
-      "sha256": "ba11589b0a6a6c66260f67830c77684befff90205fec856fa014c58f2fa1bba5",
-      "bytes": 349756
+      "sha256": "9a0129e5306b21f93d03e6986925e67610221b219491549f5d243d9e7e6275c3",
+      "bytes": 349276
+    },
+    {
+      "path": "measurements/browser-performance/studio-cancel.png",
+      "checkpoint_storage": "execution-stage34/visuals/measurements/browser-performance/studio-cancel.png",
+      "sha256": "cdbd598d0b0c9005b1512710ba5a94049a3d541a83d271fdcbb303969bc57f55",
+      "bytes": 79557
     },
     {
       "path": "measurements/browser-studio-performance/receipt.json",

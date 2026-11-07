@@ -4,6 +4,17 @@ from clicheck import fingerprint
 from webpackage import package as webpackage
 from package import package
 ROOT=pathlib.Path(__file__).resolve().parents[1]
+def performance_inputs(native):
+ # Root-level PDFs make upload-artifact retain the build/ directory.
+ folder=native/'build/performance';manifest=folder/'workloads.json'
+ assert manifest.is_file(),('Native performance workload artifact missing',str(manifest))
+ data=json.loads(manifest.read_text(encoding='utf8'))
+ assert data['status']=='passed'and len(data['cases'])==27,'Incomplete native workload artifact'
+ for row in data['cases']:
+  path=folder/row['recipe_path'];assert path.resolve().is_relative_to(folder.resolve())
+  assert hashlib.sha256(path.read_bytes()).hexdigest()==row['recipe_sha256'],'Native performance recipe digest mismatch'
+ return folder
+
 def main():
  parser=argparse.ArgumentParser();parser.add_argument('--native',type=pathlib.Path,required=True);parser.add_argument('--playwright',required=True);parser.add_argument('--executable');args=parser.parse_args()
  digest=fingerprint();candidates=[]
@@ -12,7 +23,7 @@ def main():
   data=json.loads(p.read_text(encoding='utf8'))
   if data.get('source_digest')==digest and len(data.get('families',{}))==22:candidates.append(p)
  assert len(candidates)==1,('Current-checkout native CLI evidence not uniquely found',digest,candidates)
- native=candidates[0];web=webpackage();out=ROOT/'build/browser-check';out.mkdir(parents=True,exist_ok=True)
+ native=candidates[0];performance=performance_inputs(args.native);web=webpackage();out=ROOT/'build/browser-check';out.mkdir(parents=True,exist_ok=True)
  # Independently enumerate and hash precisely the CLI consumer's source inputs.
  paths=[*ROOT.glob('*.lua'),*ROOT.glob('examples/cli/*.recipe'),*ROOT.glob('examples/cli/*.json')]
  paths.extend(ROOT/'tools'/name for name in('pattern.py','pattern-driver.lua','clicheck.py','cli_failcheck.py'))
@@ -48,7 +59,7 @@ def main():
   if args.executable:editor_common+=['--executable',args.executable]
   subprocess.run(['node',str(ROOT/'tools/editorcheck.cjs'),*editor_common],cwd=ROOT,check=True,timeout=2400)
   subprocess.run([sys.executable,str(ROOT/'tools/editor_vectors.py'),str(ROOT/'build/editor-check')],cwd=ROOT,check=True,timeout=120)
-  subprocess.run(['node',str(ROOT/'tools/browser-performance.cjs'),*common,'--recipes',str(args.native/'performance')],cwd=ROOT,check=True,timeout=1800)
+  subprocess.run(['node',str(ROOT/'tools/browser-performance.cjs'),*common,'--recipes',str(performance)],cwd=ROOT,check=True,timeout=1800)
  finally:server.shutdown();server.server_close()
  print('Native-bound browser family/adversarial/sourcekit gates passed',digest)
 if __name__=='__main__':main()

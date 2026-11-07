@@ -1,5 +1,5 @@
 {
-  "status": "failed",
+  "status": "passed",
   "browser": "156.0.4314.58",
   "node": "v24.22.1",
   "workloads_sha256": "2fc30f1320430e604456516e4ea5422270813a9db25bbe7d69d473370e7812b9",
@@ -11,7 +11,7 @@
       "phases": [
         {
           "phase": "cold-generation",
-          "elapsed_ms": 6576.899999976158,
+          "elapsed_ms": 6128.800000011921,
           "semantic": {
             "block-5409672a9100e64be6504e75f70c6c0788b4e680753478355e5907762d426187.json": "5409672a9100e64be6504e75f70c6c0788b4e680753478355e5907762d426187",
             "block-7e7a6265b29daf65f33c66892b1d147d5136cf67feb5099c9604e6aebdab8bae.json": "7e7a6265b29daf65f33c66892b1d147d5136cf67feb5099c9604e6aebdab8bae",
@@ -90,7 +90,7 @@
             {
               "bytes": 10314,
               "name": "record.json",
-              "sha256": "0e8701ce4f69e80b9e1e5a2143e5af355e19c9e853a1b50b4d864e8a3a96ebdb"
+              "sha256": "8b024fa2b959d46133ccdf9dcff3d963bcec5301b3d1b959f898b209258521e4"
             },
             {
               "bytes": 401885,
@@ -104,13 +104,13 @@
             }
           ],
           "stats": {
-            "instructions": 255320000,
-            "lua_memory_bytes": 18800168,
+            "instructions": 255310000,
+            "lua_memory_bytes": 18801303,
             "profile": {
-              "hash_bytes": 9043774,
+              "hash_bytes": 9044636,
               "hash_calls": 338,
-              "hash_instructions": 0,
-              "instructions": 255320000
+              "hash_instructions": 10000,
+              "instructions": 255310000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -133,12 +133,12 @@
             "request_id": 1,
             "phase": "shared-core",
             "instructions": 250000000,
-            "lua_memory_bytes": 6701185
+            "lua_memory_bytes": 6700306
           }
         },
         {
           "phase": "warm-assets-generation",
-          "elapsed_ms": 6586.900000035763,
+          "elapsed_ms": 6018.199999988079,
           "semantic": {
             "block-5409672a9100e64be6504e75f70c6c0788b4e680753478355e5907762d426187.json": "5409672a9100e64be6504e75f70c6c0788b4e680753478355e5907762d426187",
             "block-7e7a6265b29daf65f33c66892b1d147d5136cf67feb5099c9604e6aebdab8bae.json": "7e7a6265b29daf65f33c66892b1d147d5136cf67feb5099c9604e6aebdab8bae",
@@ -217,7 +217,7 @@
             {
               "bytes": 10314,
               "name": "record.json",
-              "sha256": "0e8701ce4f69e80b9e1e5a2143e5af355e19c9e853a1b50b4d864e8a3a96ebdb"
+              "sha256": "8b024fa2b959d46133ccdf9dcff3d963bcec5301b3d1b959f898b209258521e4"
             },
             {
               "bytes": 401885,
@@ -232,9 +232,9 @@
           ],
           "stats": {
             "instructions": 255300000,
-            "lua_memory_bytes": 18800168,
+            "lua_memory_bytes": 18801303,
             "profile": {
-              "hash_bytes": 9043774,
+              "hash_bytes": 9044636,
               "hash_calls": 338,
               "hash_instructions": 0,
               "instructions": 255300000
@@ -260,12 +260,12 @@
             "request_id": 2,
             "phase": "shared-core",
             "instructions": 250000000,
-            "lua_memory_bytes": 6708004
+            "lua_memory_bytes": 6701949
           }
         },
         {
           "phase": "validated-instance-replay",
-          "elapsed_ms": 6746.5,
+          "elapsed_ms": 6738.100000023842,
           "semantic": {
             "block-5409672a9100e64be6504e75f70c6c0788b4e680753478355e5907762d426187.json": "5409672a9100e64be6504e75f70c6c0788b4e680753478355e5907762d426187",
             "block-7e7a6265b29daf65f33c66892b1d147d5136cf67feb5099c9604e6aebdab8bae.json": "7e7a6265b29daf65f33c66892b1d147d5136cf67feb5099c9604e6aebdab8bae",
@@ -344,7 +344,7 @@
             {
               "bytes": 18730,
               "name": "record.json",
-              "sha256": "d9a0727f43936fd98bfb9852cda370a9c05d8cfc743ab64ad3b7ec7feee78c6e"
+              "sha256": "dc3905adb1af18d5384f0417cdcd4f7b0506f15ae704e9a731503fa5ca585ddc"
             },
             {
               "bytes": 401885,
@@ -358,13 +358,13 @@
             }
           ],
           "stats": {
-            "instructions": 273150000,
-            "lua_memory_bytes": 18778016,
+            "instructions": 273160000,
+            "lua_memory_bytes": 18779151,
             "profile": {
-              "hash_bytes": 10090220,
+              "hash_bytes": 10091082,
               "hash_calls": 360,
-              "hash_instructions": 10000,
-              "instructions": 273150000
+              "hash_instructions": 0,
+              "instructions": 273160000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -387,17 +387,17 @@
             "request_id": 3,
             "phase": "shared-core",
             "instructions": 250000000,
-            "lua_memory_bytes": 10041461
+            "lua_memory_bytes": 10048206
           }
         }
       ],
-      "cache_roundtrip_ms": 43.60000002384186,
+      "cache_roundtrip_ms": 44.40000003576279,
       "cache_actual_bytes_equal": true,
       "heartbeat": {
         "interval_ms": 20,
-        "ticks": 996,
-        "clicks": 996,
-        "maximum_observed_gap_ms": 27.400000035762787
+        "ticks": 945,
+        "clicks": 945,
+        "maximum_observed_gap_ms": 24.599999964237213
       }
     },
     {
@@ -407,7 +407,7 @@
       "phases": [
         {
           "phase": "cold-generation",
-          "elapsed_ms": 16220.100000023842,
+          "elapsed_ms": 16851.19999998808,
           "semantic": {
             "block-18dfb40f20e59e10b624b250061fbe7063b90e12dbfe4139f037d757c6125d4a.json": "18dfb40f20e59e10b624b250061fbe7063b90e12dbfe4139f037d757c6125d4a",
             "block-1a8c408095734d16f2f7e60af2a1a831b501adcb0adfff14dc4028c33bac3a52.json": "1a8c408095734d16f2f7e60af2a1a831b501adcb0adfff14dc4028c33bac3a52",
@@ -564,7 +564,212 @@
             {
               "bytes": 10318,
               "name": "record.json",
-              "sha256": "e3e240204d8cb875e24752d7cb806907294db5cc161257dcebe7a29c629e2f53"
+              "sha256": "d92f95e30307392bc13341dbe4e03458ba9e62650ddd6aa9ea2cc4024ad032f8"
+            },
+            {
+              "bytes": 1114637,
+              "name": "scene.json",
+              "sha256": "ca4162328accf05f8534997bb4fa5b3ad315f263baee4512ee50623a6c099784"
+            },
+            {
+              "bytes": 866,
+              "name": "view.json",
+              "sha256": "fa34d8e56b07ac30edff92bde2e160454a0ac3979e8de180cbaf8366b7c34a29"
+            }
+          ],
+          "stats": {
+            "instructions": 698690000,
+            "lua_memory_bytes": 19166522,
+            "profile": {
+              "hash_bytes": 21363364,
+              "hash_calls": 1068,
+              "hash_instructions": 0,
+              "instructions": 698690000
+            },
+            "host_identity": {
+              "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
+              "instructions": 16000000000,
+              "memory": 268435456,
+              "watchdog_ms": 300000,
+              "hash_bytes": 536870912,
+              "hash_calls": 1000000
+            },
+            "host_digest": "37e5bbc775e40b3c0496eae930aaf84fd61b779839e383ccbe2eb22ace46b0ba"
+          },
+          "progress_count": 15,
+          "progress_first": {
+            "generation": 1,
+            "request_id": 1,
+            "phase": "inputs"
+          },
+          "progress_last": {
+            "generation": 1,
+            "request_id": 1,
+            "phase": "shared-core",
+            "instructions": 650000000,
+            "lua_memory_bytes": 13562476
+          }
+        },
+        {
+          "phase": "warm-assets-generation",
+          "elapsed_ms": 19165,
+          "semantic": {
+            "block-18dfb40f20e59e10b624b250061fbe7063b90e12dbfe4139f037d757c6125d4a.json": "18dfb40f20e59e10b624b250061fbe7063b90e12dbfe4139f037d757c6125d4a",
+            "block-1a8c408095734d16f2f7e60af2a1a831b501adcb0adfff14dc4028c33bac3a52.json": "1a8c408095734d16f2f7e60af2a1a831b501adcb0adfff14dc4028c33bac3a52",
+            "block-1aecb8721ccf6e856868fb3e59ac7a0d0aef3a0fdd1b16c95827504c3d5b1984.json": "1aecb8721ccf6e856868fb3e59ac7a0d0aef3a0fdd1b16c95827504c3d5b1984",
+            "block-2898e9cb537d99e2d7da124fc8a8ea819134c5f2751c22145763c74518391c2b.json": "2898e9cb537d99e2d7da124fc8a8ea819134c5f2751c22145763c74518391c2b",
+            "block-4e2e1d8d871fe7d51e53946551a201b592b1997536752124ac14ecc03ce11631.json": "4e2e1d8d871fe7d51e53946551a201b592b1997536752124ac14ecc03ce11631",
+            "block-5ae97d488b25cbe765eded758a59bf614c979ab4ed626c92cdb5b35feed19cae.json": "5ae97d488b25cbe765eded758a59bf614c979ab4ed626c92cdb5b35feed19cae",
+            "block-6828ca561837cc3a1c4b65a1ec34ac99949dfe91d4f9b0fd47466e21deb2de89.json": "6828ca561837cc3a1c4b65a1ec34ac99949dfe91d4f9b0fd47466e21deb2de89",
+            "block-6d01e6b13c6c10ac319a2f849a630b6a3bb0af0112326a7947516eea871978fb.json": "6d01e6b13c6c10ac319a2f849a630b6a3bb0af0112326a7947516eea871978fb",
+            "block-70fe83d0d2b4de1f0d9d9d2d47d1bdf70ea7d75972cfc1b1d6931227190c8944.json": "70fe83d0d2b4de1f0d9d9d2d47d1bdf70ea7d75972cfc1b1d6931227190c8944",
+            "block-8b8666ea561f9c6f633dd291700c10e3d9c3671df36bc4593536564e8fe81def.json": "8b8666ea561f9c6f633dd291700c10e3d9c3671df36bc4593536564e8fe81def",
+            "block-8e5277e925953f76d25d443750a26598ed0cb4bd6035043e78b631a7c803c784.json": "8e5277e925953f76d25d443750a26598ed0cb4bd6035043e78b631a7c803c784",
+            "block-91547a57e262121acaa790d6ce714d289aa6b938e18f44663f6d9e494bff8820.json": "91547a57e262121acaa790d6ce714d289aa6b938e18f44663f6d9e494bff8820",
+            "block-940a1fe9ce041b56a53fd81f5c93594a187d3afd08017afe9362e7a4878a7a6f.json": "940a1fe9ce041b56a53fd81f5c93594a187d3afd08017afe9362e7a4878a7a6f",
+            "block-a1ad76f0c7bfd33c7648f55fd0dbb666441e734239d19cc0b78fe40f0f754cf6.json": "a1ad76f0c7bfd33c7648f55fd0dbb666441e734239d19cc0b78fe40f0f754cf6",
+            "block-b0e9872de62520b726e1bb156d55f389098e264363519d3830757621d126a1d2.json": "b0e9872de62520b726e1bb156d55f389098e264363519d3830757621d126a1d2",
+            "block-b235acbf62c9b3ac1abbf4f48dce7c1368920b113d12b7732f82467c834bd02e.json": "b235acbf62c9b3ac1abbf4f48dce7c1368920b113d12b7732f82467c834bd02e",
+            "block-bbe04422ac43eb76751a309cb0c514d34b488fd3f738853bcc8e9e67ad094be0.json": "bbe04422ac43eb76751a309cb0c514d34b488fd3f738853bcc8e9e67ad094be0",
+            "block-e1bb6c1c2124a6d5304663a5e999df8a3f48356b702cdc6ab78953f4cd269fe5.json": "e1bb6c1c2124a6d5304663a5e999df8a3f48356b702cdc6ab78953f4cd269fe5",
+            "block-f344802615a95f02eb4532967ac0c9ce27800f6be6e06df5be8d09fe2ec0a229.json": "f344802615a95f02eb4532967ac0c9ce27800f6be6e06df5be8d09fe2ec0a229",
+            "block-f5a07184ce9e4e2d961e36affe58bbd8a393bd44136262f4fab516b1ad9612f9.json": "f5a07184ce9e4e2d961e36affe58bbd8a393bd44136262f4fab516b1ad9612f9",
+            "instance-format.json": "8d991f9336b7181b89e18377112bcc793d9fd8b7d7bb9c3291292f630aff378d",
+            "instance.json": "f5f14c5f8e94a638b61e80882b9a78f10a75c2806caecc1aded52fbcc230f802",
+            "pattern.pdf": "42a64dc70a4117608c1e61075034dec70659b4b057752429289e3568615cd301",
+            "pattern.svg": "8594f5a583154904ebd22417f24b27ad122a50a8265000281e526d311e81dc41",
+            "scene.json": "ca4162328accf05f8534997bb4fa5b3ad315f263baee4512ee50623a6c099784"
+          },
+          "outputs": [
+            {
+              "bytes": 29257,
+              "name": "block-18dfb40f20e59e10b624b250061fbe7063b90e12dbfe4139f037d757c6125d4a.json",
+              "sha256": "18dfb40f20e59e10b624b250061fbe7063b90e12dbfe4139f037d757c6125d4a"
+            },
+            {
+              "bytes": 9718,
+              "name": "block-1a8c408095734d16f2f7e60af2a1a831b501adcb0adfff14dc4028c33bac3a52.json",
+              "sha256": "1a8c408095734d16f2f7e60af2a1a831b501adcb0adfff14dc4028c33bac3a52"
+            },
+            {
+              "bytes": 39266,
+              "name": "block-1aecb8721ccf6e856868fb3e59ac7a0d0aef3a0fdd1b16c95827504c3d5b1984.json",
+              "sha256": "1aecb8721ccf6e856868fb3e59ac7a0d0aef3a0fdd1b16c95827504c3d5b1984"
+            },
+            {
+              "bytes": 34582,
+              "name": "block-2898e9cb537d99e2d7da124fc8a8ea819134c5f2751c22145763c74518391c2b.json",
+              "sha256": "2898e9cb537d99e2d7da124fc8a8ea819134c5f2751c22145763c74518391c2b"
+            },
+            {
+              "bytes": 28742,
+              "name": "block-4e2e1d8d871fe7d51e53946551a201b592b1997536752124ac14ecc03ce11631.json",
+              "sha256": "4e2e1d8d871fe7d51e53946551a201b592b1997536752124ac14ecc03ce11631"
+            },
+            {
+              "bytes": 34068,
+              "name": "block-5ae97d488b25cbe765eded758a59bf614c979ab4ed626c92cdb5b35feed19cae.json",
+              "sha256": "5ae97d488b25cbe765eded758a59bf614c979ab4ed626c92cdb5b35feed19cae"
+            },
+            {
+              "bytes": 62304,
+              "name": "block-6828ca561837cc3a1c4b65a1ec34ac99949dfe91d4f9b0fd47466e21deb2de89.json",
+              "sha256": "6828ca561837cc3a1c4b65a1ec34ac99949dfe91d4f9b0fd47466e21deb2de89"
+            },
+            {
+              "bytes": 37732,
+              "name": "block-6d01e6b13c6c10ac319a2f849a630b6a3bb0af0112326a7947516eea871978fb.json",
+              "sha256": "6d01e6b13c6c10ac319a2f849a630b6a3bb0af0112326a7947516eea871978fb"
+            },
+            {
+              "bytes": 155549,
+              "name": "block-70fe83d0d2b4de1f0d9d9d2d47d1bdf70ea7d75972cfc1b1d6931227190c8944.json",
+              "sha256": "70fe83d0d2b4de1f0d9d9d2d47d1bdf70ea7d75972cfc1b1d6931227190c8944"
+            },
+            {
+              "bytes": 31511,
+              "name": "block-8b8666ea561f9c6f633dd291700c10e3d9c3671df36bc4593536564e8fe81def.json",
+              "sha256": "8b8666ea561f9c6f633dd291700c10e3d9c3671df36bc4593536564e8fe81def"
+            },
+            {
+              "bytes": 33076,
+              "name": "block-8e5277e925953f76d25d443750a26598ed0cb4bd6035043e78b631a7c803c784.json",
+              "sha256": "8e5277e925953f76d25d443750a26598ed0cb4bd6035043e78b631a7c803c784"
+            },
+            {
+              "bytes": 38836,
+              "name": "block-91547a57e262121acaa790d6ce714d289aa6b938e18f44663f6d9e494bff8820.json",
+              "sha256": "91547a57e262121acaa790d6ce714d289aa6b938e18f44663f6d9e494bff8820"
+            },
+            {
+              "bytes": 26955,
+              "name": "block-940a1fe9ce041b56a53fd81f5c93594a187d3afd08017afe9362e7a4878a7a6f.json",
+              "sha256": "940a1fe9ce041b56a53fd81f5c93594a187d3afd08017afe9362e7a4878a7a6f"
+            },
+            {
+              "bytes": 35666,
+              "name": "block-a1ad76f0c7bfd33c7648f55fd0dbb666441e734239d19cc0b78fe40f0f754cf6.json",
+              "sha256": "a1ad76f0c7bfd33c7648f55fd0dbb666441e734239d19cc0b78fe40f0f754cf6"
+            },
+            {
+              "bytes": 53479,
+              "name": "block-b0e9872de62520b726e1bb156d55f389098e264363519d3830757621d126a1d2.json",
+              "sha256": "b0e9872de62520b726e1bb156d55f389098e264363519d3830757621d126a1d2"
+            },
+            {
+              "bytes": 39111,
+              "name": "block-b235acbf62c9b3ac1abbf4f48dce7c1368920b113d12b7732f82467c834bd02e.json",
+              "sha256": "b235acbf62c9b3ac1abbf4f48dce7c1368920b113d12b7732f82467c834bd02e"
+            },
+            {
+              "bytes": 37486,
+              "name": "block-bbe04422ac43eb76751a309cb0c514d34b488fd3f738853bcc8e9e67ad094be0.json",
+              "sha256": "bbe04422ac43eb76751a309cb0c514d34b488fd3f738853bcc8e9e67ad094be0"
+            },
+            {
+              "bytes": 69249,
+              "name": "block-e1bb6c1c2124a6d5304663a5e999df8a3f48356b702cdc6ab78953f4cd269fe5.json",
+              "sha256": "e1bb6c1c2124a6d5304663a5e999df8a3f48356b702cdc6ab78953f4cd269fe5"
+            },
+            {
+              "bytes": 17848,
+              "name": "block-f344802615a95f02eb4532967ac0c9ce27800f6be6e06df5be8d09fe2ec0a229.json",
+              "sha256": "f344802615a95f02eb4532967ac0c9ce27800f6be6e06df5be8d09fe2ec0a229"
+            },
+            {
+              "bytes": 34543,
+              "name": "block-f5a07184ce9e4e2d961e36affe58bbd8a393bd44136262f4fab516b1ad9612f9.json",
+              "sha256": "f5a07184ce9e4e2d961e36affe58bbd8a393bd44136262f4fab516b1ad9612f9"
+            },
+            {
+              "bytes": 206,
+              "name": "instance-format.json",
+              "sha256": "8d991f9336b7181b89e18377112bcc793d9fd8b7d7bb9c3291292f630aff378d"
+            },
+            {
+              "bytes": 75123,
+              "name": "instance.json",
+              "sha256": "f5f14c5f8e94a638b61e80882b9a78f10a75c2806caecc1aded52fbcc230f802"
+            },
+            {
+              "bytes": 883633,
+              "name": "pattern.pdf",
+              "sha256": "42a64dc70a4117608c1e61075034dec70659b4b057752429289e3568615cd301"
+            },
+            {
+              "bytes": 1024807,
+              "name": "pattern.svg",
+              "sha256": "8594f5a583154904ebd22417f24b27ad122a50a8265000281e526d311e81dc41"
+            },
+            {
+              "bytes": 3295,
+              "name": "recipe.json",
+              "sha256": "6a0677658d964e09d3316d4bdd8856c7457612547a0d77aa33da1ca44b45cfbb"
+            },
+            {
+              "bytes": 10318,
+              "name": "record.json",
+              "sha256": "d92f95e30307392bc13341dbe4e03458ba9e62650ddd6aa9ea2cc4024ad032f8"
             },
             {
               "bytes": 1114637,
@@ -579,11 +784,11 @@
           ],
           "stats": {
             "instructions": 698590000,
-            "lua_memory_bytes": 19165387,
+            "lua_memory_bytes": 19166522,
             "profile": {
-              "hash_bytes": 21362502,
+              "hash_bytes": 21363364,
               "hash_calls": 1068,
-              "hash_instructions": 0,
+              "hash_instructions": 20000,
               "instructions": 698590000
             },
             "host_identity": {
@@ -598,211 +803,6 @@
           },
           "progress_count": 15,
           "progress_first": {
-            "generation": 1,
-            "request_id": 1,
-            "phase": "inputs"
-          },
-          "progress_last": {
-            "generation": 1,
-            "request_id": 1,
-            "phase": "shared-core",
-            "instructions": 650000000,
-            "lua_memory_bytes": 13779255
-          }
-        },
-        {
-          "phase": "warm-assets-generation",
-          "elapsed_ms": 16989.100000023842,
-          "semantic": {
-            "block-18dfb40f20e59e10b624b250061fbe7063b90e12dbfe4139f037d757c6125d4a.json": "18dfb40f20e59e10b624b250061fbe7063b90e12dbfe4139f037d757c6125d4a",
-            "block-1a8c408095734d16f2f7e60af2a1a831b501adcb0adfff14dc4028c33bac3a52.json": "1a8c408095734d16f2f7e60af2a1a831b501adcb0adfff14dc4028c33bac3a52",
-            "block-1aecb8721ccf6e856868fb3e59ac7a0d0aef3a0fdd1b16c95827504c3d5b1984.json": "1aecb8721ccf6e856868fb3e59ac7a0d0aef3a0fdd1b16c95827504c3d5b1984",
-            "block-2898e9cb537d99e2d7da124fc8a8ea819134c5f2751c22145763c74518391c2b.json": "2898e9cb537d99e2d7da124fc8a8ea819134c5f2751c22145763c74518391c2b",
-            "block-4e2e1d8d871fe7d51e53946551a201b592b1997536752124ac14ecc03ce11631.json": "4e2e1d8d871fe7d51e53946551a201b592b1997536752124ac14ecc03ce11631",
-            "block-5ae97d488b25cbe765eded758a59bf614c979ab4ed626c92cdb5b35feed19cae.json": "5ae97d488b25cbe765eded758a59bf614c979ab4ed626c92cdb5b35feed19cae",
-            "block-6828ca561837cc3a1c4b65a1ec34ac99949dfe91d4f9b0fd47466e21deb2de89.json": "6828ca561837cc3a1c4b65a1ec34ac99949dfe91d4f9b0fd47466e21deb2de89",
-            "block-6d01e6b13c6c10ac319a2f849a630b6a3bb0af0112326a7947516eea871978fb.json": "6d01e6b13c6c10ac319a2f849a630b6a3bb0af0112326a7947516eea871978fb",
-            "block-70fe83d0d2b4de1f0d9d9d2d47d1bdf70ea7d75972cfc1b1d6931227190c8944.json": "70fe83d0d2b4de1f0d9d9d2d47d1bdf70ea7d75972cfc1b1d6931227190c8944",
-            "block-8b8666ea561f9c6f633dd291700c10e3d9c3671df36bc4593536564e8fe81def.json": "8b8666ea561f9c6f633dd291700c10e3d9c3671df36bc4593536564e8fe81def",
-            "block-8e5277e925953f76d25d443750a26598ed0cb4bd6035043e78b631a7c803c784.json": "8e5277e925953f76d25d443750a26598ed0cb4bd6035043e78b631a7c803c784",
-            "block-91547a57e262121acaa790d6ce714d289aa6b938e18f44663f6d9e494bff8820.json": "91547a57e262121acaa790d6ce714d289aa6b938e18f44663f6d9e494bff8820",
-            "block-940a1fe9ce041b56a53fd81f5c93594a187d3afd08017afe9362e7a4878a7a6f.json": "940a1fe9ce041b56a53fd81f5c93594a187d3afd08017afe9362e7a4878a7a6f",
-            "block-a1ad76f0c7bfd33c7648f55fd0dbb666441e734239d19cc0b78fe40f0f754cf6.json": "a1ad76f0c7bfd33c7648f55fd0dbb666441e734239d19cc0b78fe40f0f754cf6",
-            "block-b0e9872de62520b726e1bb156d55f389098e264363519d3830757621d126a1d2.json": "b0e9872de62520b726e1bb156d55f389098e264363519d3830757621d126a1d2",
-            "block-b235acbf62c9b3ac1abbf4f48dce7c1368920b113d12b7732f82467c834bd02e.json": "b235acbf62c9b3ac1abbf4f48dce7c1368920b113d12b7732f82467c834bd02e",
-            "block-bbe04422ac43eb76751a309cb0c514d34b488fd3f738853bcc8e9e67ad094be0.json": "bbe04422ac43eb76751a309cb0c514d34b488fd3f738853bcc8e9e67ad094be0",
-            "block-e1bb6c1c2124a6d5304663a5e999df8a3f48356b702cdc6ab78953f4cd269fe5.json": "e1bb6c1c2124a6d5304663a5e999df8a3f48356b702cdc6ab78953f4cd269fe5",
-            "block-f344802615a95f02eb4532967ac0c9ce27800f6be6e06df5be8d09fe2ec0a229.json": "f344802615a95f02eb4532967ac0c9ce27800f6be6e06df5be8d09fe2ec0a229",
-            "block-f5a07184ce9e4e2d961e36affe58bbd8a393bd44136262f4fab516b1ad9612f9.json": "f5a07184ce9e4e2d961e36affe58bbd8a393bd44136262f4fab516b1ad9612f9",
-            "instance-format.json": "8d991f9336b7181b89e18377112bcc793d9fd8b7d7bb9c3291292f630aff378d",
-            "instance.json": "f5f14c5f8e94a638b61e80882b9a78f10a75c2806caecc1aded52fbcc230f802",
-            "pattern.pdf": "42a64dc70a4117608c1e61075034dec70659b4b057752429289e3568615cd301",
-            "pattern.svg": "8594f5a583154904ebd22417f24b27ad122a50a8265000281e526d311e81dc41",
-            "scene.json": "ca4162328accf05f8534997bb4fa5b3ad315f263baee4512ee50623a6c099784"
-          },
-          "outputs": [
-            {
-              "bytes": 29257,
-              "name": "block-18dfb40f20e59e10b624b250061fbe7063b90e12dbfe4139f037d757c6125d4a.json",
-              "sha256": "18dfb40f20e59e10b624b250061fbe7063b90e12dbfe4139f037d757c6125d4a"
-            },
-            {
-              "bytes": 9718,
-              "name": "block-1a8c408095734d16f2f7e60af2a1a831b501adcb0adfff14dc4028c33bac3a52.json",
-              "sha256": "1a8c408095734d16f2f7e60af2a1a831b501adcb0adfff14dc4028c33bac3a52"
-            },
-            {
-              "bytes": 39266,
-              "name": "block-1aecb8721ccf6e856868fb3e59ac7a0d0aef3a0fdd1b16c95827504c3d5b1984.json",
-              "sha256": "1aecb8721ccf6e856868fb3e59ac7a0d0aef3a0fdd1b16c95827504c3d5b1984"
-            },
-            {
-              "bytes": 34582,
-              "name": "block-2898e9cb537d99e2d7da124fc8a8ea819134c5f2751c22145763c74518391c2b.json",
-              "sha256": "2898e9cb537d99e2d7da124fc8a8ea819134c5f2751c22145763c74518391c2b"
-            },
-            {
-              "bytes": 28742,
-              "name": "block-4e2e1d8d871fe7d51e53946551a201b592b1997536752124ac14ecc03ce11631.json",
-              "sha256": "4e2e1d8d871fe7d51e53946551a201b592b1997536752124ac14ecc03ce11631"
-            },
-            {
-              "bytes": 34068,
-              "name": "block-5ae97d488b25cbe765eded758a59bf614c979ab4ed626c92cdb5b35feed19cae.json",
-              "sha256": "5ae97d488b25cbe765eded758a59bf614c979ab4ed626c92cdb5b35feed19cae"
-            },
-            {
-              "bytes": 62304,
-              "name": "block-6828ca561837cc3a1c4b65a1ec34ac99949dfe91d4f9b0fd47466e21deb2de89.json",
-              "sha256": "6828ca561837cc3a1c4b65a1ec34ac99949dfe91d4f9b0fd47466e21deb2de89"
-            },
-            {
-              "bytes": 37732,
-              "name": "block-6d01e6b13c6c10ac319a2f849a630b6a3bb0af0112326a7947516eea871978fb.json",
-              "sha256": "6d01e6b13c6c10ac319a2f849a630b6a3bb0af0112326a7947516eea871978fb"
-            },
-            {
-              "bytes": 155549,
-              "name": "block-70fe83d0d2b4de1f0d9d9d2d47d1bdf70ea7d75972cfc1b1d6931227190c8944.json",
-              "sha256": "70fe83d0d2b4de1f0d9d9d2d47d1bdf70ea7d75972cfc1b1d6931227190c8944"
-            },
-            {
-              "bytes": 31511,
-              "name": "block-8b8666ea561f9c6f633dd291700c10e3d9c3671df36bc4593536564e8fe81def.json",
-              "sha256": "8b8666ea561f9c6f633dd291700c10e3d9c3671df36bc4593536564e8fe81def"
-            },
-            {
-              "bytes": 33076,
-              "name": "block-8e5277e925953f76d25d443750a26598ed0cb4bd6035043e78b631a7c803c784.json",
-              "sha256": "8e5277e925953f76d25d443750a26598ed0cb4bd6035043e78b631a7c803c784"
-            },
-            {
-              "bytes": 38836,
-              "name": "block-91547a57e262121acaa790d6ce714d289aa6b938e18f44663f6d9e494bff8820.json",
-              "sha256": "91547a57e262121acaa790d6ce714d289aa6b938e18f44663f6d9e494bff8820"
-            },
-            {
-              "bytes": 26955,
-              "name": "block-940a1fe9ce041b56a53fd81f5c93594a187d3afd08017afe9362e7a4878a7a6f.json",
-              "sha256": "940a1fe9ce041b56a53fd81f5c93594a187d3afd08017afe9362e7a4878a7a6f"
-            },
-            {
-              "bytes": 35666,
-              "name": "block-a1ad76f0c7bfd33c7648f55fd0dbb666441e734239d19cc0b78fe40f0f754cf6.json",
-              "sha256": "a1ad76f0c7bfd33c7648f55fd0dbb666441e734239d19cc0b78fe40f0f754cf6"
-            },
-            {
-              "bytes": 53479,
-              "name": "block-b0e9872de62520b726e1bb156d55f389098e264363519d3830757621d126a1d2.json",
-              "sha256": "b0e9872de62520b726e1bb156d55f389098e264363519d3830757621d126a1d2"
-            },
-            {
-              "bytes": 39111,
-              "name": "block-b235acbf62c9b3ac1abbf4f48dce7c1368920b113d12b7732f82467c834bd02e.json",
-              "sha256": "b235acbf62c9b3ac1abbf4f48dce7c1368920b113d12b7732f82467c834bd02e"
-            },
-            {
-              "bytes": 37486,
-              "name": "block-bbe04422ac43eb76751a309cb0c514d34b488fd3f738853bcc8e9e67ad094be0.json",
-              "sha256": "bbe04422ac43eb76751a309cb0c514d34b488fd3f738853bcc8e9e67ad094be0"
-            },
-            {
-              "bytes": 69249,
-              "name": "block-e1bb6c1c2124a6d5304663a5e999df8a3f48356b702cdc6ab78953f4cd269fe5.json",
-              "sha256": "e1bb6c1c2124a6d5304663a5e999df8a3f48356b702cdc6ab78953f4cd269fe5"
-            },
-            {
-              "bytes": 17848,
-              "name": "block-f344802615a95f02eb4532967ac0c9ce27800f6be6e06df5be8d09fe2ec0a229.json",
-              "sha256": "f344802615a95f02eb4532967ac0c9ce27800f6be6e06df5be8d09fe2ec0a229"
-            },
-            {
-              "bytes": 34543,
-              "name": "block-f5a07184ce9e4e2d961e36affe58bbd8a393bd44136262f4fab516b1ad9612f9.json",
-              "sha256": "f5a07184ce9e4e2d961e36affe58bbd8a393bd44136262f4fab516b1ad9612f9"
-            },
-            {
-              "bytes": 206,
-              "name": "instance-format.json",
-              "sha256": "8d991f9336b7181b89e18377112bcc793d9fd8b7d7bb9c3291292f630aff378d"
-            },
-            {
-              "bytes": 75123,
-              "name": "instance.json",
-              "sha256": "f5f14c5f8e94a638b61e80882b9a78f10a75c2806caecc1aded52fbcc230f802"
-            },
-            {
-              "bytes": 883633,
-              "name": "pattern.pdf",
-              "sha256": "42a64dc70a4117608c1e61075034dec70659b4b057752429289e3568615cd301"
-            },
-            {
-              "bytes": 1024807,
-              "name": "pattern.svg",
-              "sha256": "8594f5a583154904ebd22417f24b27ad122a50a8265000281e526d311e81dc41"
-            },
-            {
-              "bytes": 3295,
-              "name": "recipe.json",
-              "sha256": "6a0677658d964e09d3316d4bdd8856c7457612547a0d77aa33da1ca44b45cfbb"
-            },
-            {
-              "bytes": 10318,
-              "name": "record.json",
-              "sha256": "e3e240204d8cb875e24752d7cb806907294db5cc161257dcebe7a29c629e2f53"
-            },
-            {
-              "bytes": 1114637,
-              "name": "scene.json",
-              "sha256": "ca4162328accf05f8534997bb4fa5b3ad315f263baee4512ee50623a6c099784"
-            },
-            {
-              "bytes": 866,
-              "name": "view.json",
-              "sha256": "fa34d8e56b07ac30edff92bde2e160454a0ac3979e8de180cbaf8366b7c34a29"
-            }
-          ],
-          "stats": {
-            "instructions": 698630000,
-            "lua_memory_bytes": 19165387,
-            "profile": {
-              "hash_bytes": 21362502,
-              "hash_calls": 1068,
-              "hash_instructions": 10000,
-              "instructions": 698630000
-            },
-            "host_identity": {
-              "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
-              "instructions": 16000000000,
-              "memory": 268435456,
-              "watchdog_ms": 300000,
-              "hash_bytes": 536870912,
-              "hash_calls": 1000000
-            },
-            "host_digest": "37e5bbc775e40b3c0496eae930aaf84fd61b779839e383ccbe2eb22ace46b0ba"
-          },
-          "progress_count": 15,
-          "progress_first": {
             "generation": 2,
             "request_id": 2,
             "phase": "inputs"
@@ -812,12 +812,12 @@
             "request_id": 2,
             "phase": "shared-core",
             "instructions": 650000000,
-            "lua_memory_bytes": 13767727
+            "lua_memory_bytes": 13779662
           }
         },
         {
           "phase": "validated-instance-replay",
-          "elapsed_ms": 18256.69999998808,
+          "elapsed_ms": 17760.099999964237,
           "semantic": {
             "block-18dfb40f20e59e10b624b250061fbe7063b90e12dbfe4139f037d757c6125d4a.json": "18dfb40f20e59e10b624b250061fbe7063b90e12dbfe4139f037d757c6125d4a",
             "block-1a8c408095734d16f2f7e60af2a1a831b501adcb0adfff14dc4028c33bac3a52.json": "1a8c408095734d16f2f7e60af2a1a831b501adcb0adfff14dc4028c33bac3a52",
@@ -974,7 +974,7 @@
             {
               "bytes": 18733,
               "name": "record.json",
-              "sha256": "4ad03a7491bd32c044c30b92b4fc997ed98f72762d45611207a804751e548526"
+              "sha256": "02b6750d612248576ade8871bc99a7f934372c51de032ded92f661e134b8dc5f"
             },
             {
               "bytes": 1114637,
@@ -988,13 +988,13 @@
             }
           ],
           "stats": {
-            "instructions": 743270000,
-            "lua_memory_bytes": 19212550,
+            "instructions": 743300000,
+            "lua_memory_bytes": 19213685,
             "profile": {
-              "hash_bytes": 24141695,
+              "hash_bytes": 24142557,
               "hash_calls": 1116,
-              "hash_instructions": 0,
-              "instructions": 743270000
+              "hash_instructions": 30000,
+              "instructions": 743300000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -1017,17 +1017,17 @@
             "request_id": 3,
             "phase": "shared-core",
             "instructions": 700000000,
-            "lua_memory_bytes": 13179002
+            "lua_memory_bytes": 13167793
           }
         }
       ],
-      "cache_roundtrip_ms": 91.80000001192093,
+      "cache_roundtrip_ms": 85.90000003576279,
       "cache_actual_bytes_equal": true,
       "heartbeat": {
         "interval_ms": 20,
-        "ticks": 2574,
-        "clicks": 2574,
-        "maximum_observed_gap_ms": 38.69999998807907
+        "ticks": 2689,
+        "clicks": 2689,
+        "maximum_observed_gap_ms": 42.10000002384186
       }
     },
     {
@@ -1037,7 +1037,7 @@
       "phases": [
         {
           "phase": "cold-generation",
-          "elapsed_ms": 33599,
+          "elapsed_ms": 33181,
           "semantic": {
             "block-0db734856c2a1ea8fc9b7ea0db948009ac2c130e8971834d6d850e6f4b947fbb.json": "0db734856c2a1ea8fc9b7ea0db948009ac2c130e8971834d6d850e6f4b947fbb",
             "block-0f764dfcd37400944d37cb63cbed3a0032ce624e07d10133d2450fb283b313d5.json": "0f764dfcd37400944d37cb63cbed3a0032ce624e07d10133d2450fb283b313d5",
@@ -1278,7 +1278,7 @@
             {
               "bytes": 10319,
               "name": "record.json",
-              "sha256": "01d9f37e35fa54a7c81ca77165642755060240ae0adf549fb31e7c13b6ea5f8e"
+              "sha256": "7f23280585b2f9f884dc6083c08ac7555d40487543e5177008256afc6c45924c"
             },
             {
               "bytes": 2326374,
@@ -1292,13 +1292,13 @@
             }
           ],
           "stats": {
-            "instructions": 1467650000,
-            "lua_memory_bytes": 30316943,
+            "instructions": 1467620000,
+            "lua_memory_bytes": 30318078,
             "profile": {
-              "hash_bytes": 42742479,
+              "hash_bytes": 42743341,
               "hash_calls": 2143,
-              "hash_instructions": 0,
-              "instructions": 1467650000
+              "hash_instructions": 10000,
+              "instructions": 1467620000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -1321,12 +1321,12 @@
             "request_id": 1,
             "phase": "shared-core",
             "instructions": 1450000000,
-            "lua_memory_bytes": 32878085
+            "lua_memory_bytes": 32820784
           }
         },
         {
           "phase": "warm-assets-generation",
-          "elapsed_ms": 34533.69999998808,
+          "elapsed_ms": 33314.80000001192,
           "semantic": {
             "block-0db734856c2a1ea8fc9b7ea0db948009ac2c130e8971834d6d850e6f4b947fbb.json": "0db734856c2a1ea8fc9b7ea0db948009ac2c130e8971834d6d850e6f4b947fbb",
             "block-0f764dfcd37400944d37cb63cbed3a0032ce624e07d10133d2450fb283b313d5.json": "0f764dfcd37400944d37cb63cbed3a0032ce624e07d10133d2450fb283b313d5",
@@ -1567,7 +1567,7 @@
             {
               "bytes": 10319,
               "name": "record.json",
-              "sha256": "01d9f37e35fa54a7c81ca77165642755060240ae0adf549fb31e7c13b6ea5f8e"
+              "sha256": "7f23280585b2f9f884dc6083c08ac7555d40487543e5177008256afc6c45924c"
             },
             {
               "bytes": 2326374,
@@ -1581,13 +1581,13 @@
             }
           ],
           "stats": {
-            "instructions": 1467830000,
-            "lua_memory_bytes": 30316943,
+            "instructions": 1467620000,
+            "lua_memory_bytes": 30318078,
             "profile": {
-              "hash_bytes": 42742479,
+              "hash_bytes": 42743341,
               "hash_calls": 2143,
-              "hash_instructions": 10000,
-              "instructions": 1467830000
+              "hash_instructions": 20000,
+              "instructions": 1467620000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -1610,12 +1610,12 @@
             "request_id": 2,
             "phase": "shared-core",
             "instructions": 1450000000,
-            "lua_memory_bytes": 32917697
+            "lua_memory_bytes": 32876369
           }
         },
         {
           "phase": "validated-instance-replay",
-          "elapsed_ms": 37044.69999998808,
+          "elapsed_ms": 35150.69999998808,
           "semantic": {
             "block-0db734856c2a1ea8fc9b7ea0db948009ac2c130e8971834d6d850e6f4b947fbb.json": "0db734856c2a1ea8fc9b7ea0db948009ac2c130e8971834d6d850e6f4b947fbb",
             "block-0f764dfcd37400944d37cb63cbed3a0032ce624e07d10133d2450fb283b313d5.json": "0f764dfcd37400944d37cb63cbed3a0032ce624e07d10133d2450fb283b313d5",
@@ -1856,7 +1856,7 @@
             {
               "bytes": 18734,
               "name": "record.json",
-              "sha256": "8b13bdb64e4349eb5b14bd669ecd6366ca7cd7fe021336ce89ba0af35fb276ee"
+              "sha256": "dceb9fb71fc73aa01f1b281af95ddebaac635ba049559f01471694312e559d52"
             },
             {
               "bytes": 2326374,
@@ -1870,13 +1870,13 @@
             }
           ],
           "stats": {
-            "instructions": 1536480000,
-            "lua_memory_bytes": 30219170,
+            "instructions": 1536470000,
+            "lua_memory_bytes": 30220305,
             "profile": {
-              "hash_bytes": 48567797,
+              "hash_bytes": 48568659,
               "hash_calls": 2219,
-              "hash_instructions": 10000,
-              "instructions": 1536480000
+              "hash_instructions": 20000,
+              "instructions": 1536470000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -1899,17 +1899,17 @@
             "request_id": 3,
             "phase": "shared-core",
             "instructions": 1500000000,
-            "lua_memory_bytes": 31362370
+            "lua_memory_bytes": 31363857
           }
         }
       ],
-      "cache_roundtrip_ms": 198.9000000357628,
+      "cache_roundtrip_ms": 183.70000004768372,
       "cache_actual_bytes_equal": true,
       "heartbeat": {
         "interval_ms": 20,
-        "ticks": 5262,
-        "clicks": 5262,
-        "maximum_observed_gap_ms": 45.39999997615814
+        "ticks": 5085,
+        "clicks": 5085,
+        "maximum_observed_gap_ms": 52.39999997615814
       }
     },
     {
@@ -1919,7 +1919,7 @@
       "phases": [
         {
           "phase": "cold-generation",
-          "elapsed_ms": 714.6000000238419,
+          "elapsed_ms": 661.5,
           "semantic": {
             "instance.json": "616c7749d730585df57c6c55a56882fcfcb4f5c0c042115b347f5098715d2d7b",
             "pattern.pdf": "b1268ea4098a8ed45b0dad1534e1d10042ba63ec68b38ea1e28d49e73b927997",
@@ -1950,7 +1950,7 @@
             {
               "bytes": 10204,
               "name": "record.json",
-              "sha256": "0ffa7438d9fe69bc2998ceaa6c3dfd35f3f6c656764c09155d1cb1eecb44bf3c"
+              "sha256": "d2615f89bed9ea255a35e65eb9394d747c2f2194f27bc8fda8df00a389dbb084"
             },
             {
               "bytes": 5890,
@@ -1964,13 +1964,13 @@
             }
           ],
           "stats": {
-            "instructions": 21140000,
-            "lua_memory_bytes": 6331016,
+            "instructions": 21150000,
+            "lua_memory_bytes": 6321957,
             "profile": {
-              "hash_bytes": 1932229,
+              "hash_bytes": 1933091,
               "hash_calls": 197,
               "hash_instructions": 0,
-              "instructions": 21140000
+              "instructions": 21150000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -1996,7 +1996,7 @@
         },
         {
           "phase": "warm-assets-generation",
-          "elapsed_ms": 800,
+          "elapsed_ms": 605.6999999880791,
           "semantic": {
             "instance.json": "616c7749d730585df57c6c55a56882fcfcb4f5c0c042115b347f5098715d2d7b",
             "pattern.pdf": "b1268ea4098a8ed45b0dad1534e1d10042ba63ec68b38ea1e28d49e73b927997",
@@ -2027,7 +2027,7 @@
             {
               "bytes": 10204,
               "name": "record.json",
-              "sha256": "0ffa7438d9fe69bc2998ceaa6c3dfd35f3f6c656764c09155d1cb1eecb44bf3c"
+              "sha256": "d2615f89bed9ea255a35e65eb9394d747c2f2194f27bc8fda8df00a389dbb084"
             },
             {
               "bytes": 5890,
@@ -2041,13 +2041,13 @@
             }
           ],
           "stats": {
-            "instructions": 21140000,
-            "lua_memory_bytes": 6328888,
+            "instructions": 21150000,
+            "lua_memory_bytes": 6286210,
             "profile": {
-              "hash_bytes": 1932229,
+              "hash_bytes": 1933091,
               "hash_calls": 197,
               "hash_instructions": 0,
-              "instructions": 21140000
+              "instructions": 21150000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -2073,7 +2073,7 @@
         },
         {
           "phase": "validated-instance-replay",
-          "elapsed_ms": 786.3000000119209,
+          "elapsed_ms": 622.3000000119209,
           "semantic": {
             "instance.json": "616c7749d730585df57c6c55a56882fcfcb4f5c0c042115b347f5098715d2d7b",
             "pattern.pdf": "b1268ea4098a8ed45b0dad1534e1d10042ba63ec68b38ea1e28d49e73b927997",
@@ -2104,7 +2104,7 @@
             {
               "bytes": 18615,
               "name": "record.json",
-              "sha256": "fa1a1e8c18dfb77f9964f7f0d7cb38d90afd37b740bf2b30ab20efcd74eccbae"
+              "sha256": "35f0143f536c503cc7dd9844bdb083ee17433a724ace2ea2fb6b0e9007491af1"
             },
             {
               "bytes": 5890,
@@ -2118,13 +2118,13 @@
             }
           ],
           "stats": {
-            "instructions": 20150000,
-            "lua_memory_bytes": 7424440,
+            "instructions": 20140000,
+            "lua_memory_bytes": 7432131,
             "profile": {
-              "hash_bytes": 2002559,
+              "hash_bytes": 2003421,
               "hash_calls": 206,
               "hash_instructions": 0,
-              "instructions": 20150000
+              "instructions": 20140000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -2149,13 +2149,13 @@
           }
         }
       ],
-      "cache_roundtrip_ms": 5.399999976158142,
+      "cache_roundtrip_ms": 4.300000011920929,
       "cache_actual_bytes_equal": true,
       "heartbeat": {
         "interval_ms": 20,
-        "ticks": 115,
-        "clicks": 115,
-        "maximum_observed_gap_ms": 23.099999964237213
+        "ticks": 94,
+        "clicks": 94,
+        "maximum_observed_gap_ms": 21.799999952316284
       }
     },
     {
@@ -2165,7 +2165,7 @@
       "phases": [
         {
           "phase": "cold-generation",
-          "elapsed_ms": 2873.5,
+          "elapsed_ms": 2406.100000023842,
           "semantic": {
             "instance.json": "11c2c618dee10d190b90b0c25d5e22b17f8a2c181ceb82b558e8888f4547a0a1",
             "pattern.pdf": "72f262559b682bf46a0e24a930167092b5ebb33e4bc79ce5f6d2fc280f2abefe",
@@ -2196,7 +2196,7 @@
             {
               "bytes": 10207,
               "name": "record.json",
-              "sha256": "d3fa99a7d274df80f9764a7bb7702ea2b09237cab73cb17d61b2e689e052acb7"
+              "sha256": "2f4ca3257a347b5b146aab85af00a2b2ffab736ba40e351e510cc891c46b09a3"
             },
             {
               "bytes": 18272,
@@ -2210,13 +2210,13 @@
             }
           ],
           "stats": {
-            "instructions": 130650000,
-            "lua_memory_bytes": 7168970,
+            "instructions": 130660000,
+            "lua_memory_bytes": 7170105,
             "profile": {
-              "hash_bytes": 2119314,
+              "hash_bytes": 2120176,
               "hash_calls": 197,
               "hash_instructions": 0,
-              "instructions": 130650000
+              "instructions": 130660000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -2239,12 +2239,12 @@
             "request_id": 1,
             "phase": "shared-core",
             "instructions": 100000000,
-            "lua_memory_bytes": 8473526
+            "lua_memory_bytes": 8523645
           }
         },
         {
           "phase": "warm-assets-generation",
-          "elapsed_ms": 2811.2000000476837,
+          "elapsed_ms": 2432.899999976158,
           "semantic": {
             "instance.json": "11c2c618dee10d190b90b0c25d5e22b17f8a2c181ceb82b558e8888f4547a0a1",
             "pattern.pdf": "72f262559b682bf46a0e24a930167092b5ebb33e4bc79ce5f6d2fc280f2abefe",
@@ -2275,7 +2275,7 @@
             {
               "bytes": 10207,
               "name": "record.json",
-              "sha256": "d3fa99a7d274df80f9764a7bb7702ea2b09237cab73cb17d61b2e689e052acb7"
+              "sha256": "2f4ca3257a347b5b146aab85af00a2b2ffab736ba40e351e510cc891c46b09a3"
             },
             {
               "bytes": 18272,
@@ -2289,13 +2289,13 @@
             }
           ],
           "stats": {
-            "instructions": 130640000,
-            "lua_memory_bytes": 7168970,
+            "instructions": 130660000,
+            "lua_memory_bytes": 7170105,
             "profile": {
-              "hash_bytes": 2119314,
+              "hash_bytes": 2120176,
               "hash_calls": 197,
               "hash_instructions": 0,
-              "instructions": 130640000
+              "instructions": 130660000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -2318,12 +2318,12 @@
             "request_id": 2,
             "phase": "shared-core",
             "instructions": 100000000,
-            "lua_memory_bytes": 8549822
+            "lua_memory_bytes": 8520405
           }
         },
         {
           "phase": "validated-instance-replay",
-          "elapsed_ms": 2009.1000000238419,
+          "elapsed_ms": 1856.5,
           "semantic": {
             "instance.json": "11c2c618dee10d190b90b0c25d5e22b17f8a2c181ceb82b558e8888f4547a0a1",
             "pattern.pdf": "72f262559b682bf46a0e24a930167092b5ebb33e4bc79ce5f6d2fc280f2abefe",
@@ -2354,7 +2354,7 @@
             {
               "bytes": 18617,
               "name": "record.json",
-              "sha256": "b69b0a9833395d803ba667cccb2799eb920430ff71ed039c2185e4ea5401bedf"
+              "sha256": "7a22e91e2855990877a2235f02d75ebcd5b1687d5f17c6df508b9ab90bbe73cc"
             },
             {
               "bytes": 18272,
@@ -2368,13 +2368,13 @@
             }
           ],
           "stats": {
-            "instructions": 99360000,
-            "lua_memory_bytes": 4522438,
+            "instructions": 99350000,
+            "lua_memory_bytes": 4523573,
             "profile": {
-              "hash_bytes": 2236913,
+              "hash_bytes": 2237775,
               "hash_calls": 206,
               "hash_instructions": 0,
-              "instructions": 99360000
+              "instructions": 99350000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -2397,17 +2397,17 @@
             "request_id": 3,
             "phase": "shared-core",
             "instructions": 50000000,
-            "lua_memory_bytes": 6785209
+            "lua_memory_bytes": 6822823
           }
         }
       ],
-      "cache_roundtrip_ms": 9.899999976158142,
+      "cache_roundtrip_ms": 6.199999988079071,
       "cache_actual_bytes_equal": true,
       "heartbeat": {
         "interval_ms": 20,
-        "ticks": 384,
-        "clicks": 384,
-        "maximum_observed_gap_ms": 22.700000047683716
+        "ticks": 334,
+        "clicks": 334,
+        "maximum_observed_gap_ms": 21.400000035762787
       }
     },
     {
@@ -2417,7 +2417,7 @@
       "phases": [
         {
           "phase": "cold-generation",
-          "elapsed_ms": 14573.600000023842,
+          "elapsed_ms": 12948.199999988079,
           "semantic": {
             "instance.json": "f3c7e6c0aeed74bc84588e511bcb5472b34163bfdd911d122cf058e1daf01597",
             "pattern.pdf": "968501423dcb3bf319ecbd97ed1df1a4bc3e241ed8c47422519d02564e57dba5",
@@ -2448,7 +2448,7 @@
             {
               "bytes": 10208,
               "name": "record.json",
-              "sha256": "64311869ab09f84492fd030791d334256a0143a3e0d8e165685e88e421fcb0c7"
+              "sha256": "4d33d604340dffe913f48aac2aa122e75b809e7daf2114a6ca20b16ecceac023"
             },
             {
               "bytes": 50182,
@@ -2462,13 +2462,13 @@
             }
           ],
           "stats": {
-            "instructions": 872290000,
-            "lua_memory_bytes": 9225445,
+            "instructions": 872320000,
+            "lua_memory_bytes": 6414658,
             "profile": {
-              "hash_bytes": 2602052,
+              "hash_bytes": 2602914,
               "hash_calls": 197,
-              "hash_instructions": 0,
-              "instructions": 872290000
+              "hash_instructions": 10000,
+              "instructions": 872320000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -2491,12 +2491,12 @@
             "request_id": 1,
             "phase": "shared-core",
             "instructions": 850000000,
-            "lua_memory_bytes": 13612937
+            "lua_memory_bytes": 13393672
           }
         },
         {
           "phase": "warm-assets-generation",
-          "elapsed_ms": 13235.699999988079,
+          "elapsed_ms": 14071.800000011921,
           "semantic": {
             "instance.json": "f3c7e6c0aeed74bc84588e511bcb5472b34163bfdd911d122cf058e1daf01597",
             "pattern.pdf": "968501423dcb3bf319ecbd97ed1df1a4bc3e241ed8c47422519d02564e57dba5",
@@ -2527,7 +2527,7 @@
             {
               "bytes": 10208,
               "name": "record.json",
-              "sha256": "64311869ab09f84492fd030791d334256a0143a3e0d8e165685e88e421fcb0c7"
+              "sha256": "4d33d604340dffe913f48aac2aa122e75b809e7daf2114a6ca20b16ecceac023"
             },
             {
               "bytes": 50182,
@@ -2541,13 +2541,13 @@
             }
           ],
           "stats": {
-            "instructions": 872290000,
-            "lua_memory_bytes": 9225445,
+            "instructions": 872200000,
+            "lua_memory_bytes": 9226640,
             "profile": {
-              "hash_bytes": 2602052,
+              "hash_bytes": 2602914,
               "hash_calls": 197,
-              "hash_instructions": 10000,
-              "instructions": 872290000
+              "hash_instructions": 0,
+              "instructions": 872200000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -2570,12 +2570,12 @@
             "request_id": 2,
             "phase": "shared-core",
             "instructions": 850000000,
-            "lua_memory_bytes": 13172617
+            "lua_memory_bytes": 13700668
           }
         },
         {
           "phase": "validated-instance-replay",
-          "elapsed_ms": 10869,
+          "elapsed_ms": 10853.699999988079,
           "semantic": {
             "instance.json": "f3c7e6c0aeed74bc84588e511bcb5472b34163bfdd911d122cf058e1daf01597",
             "pattern.pdf": "968501423dcb3bf319ecbd97ed1df1a4bc3e241ed8c47422519d02564e57dba5",
@@ -2606,7 +2606,7 @@
             {
               "bytes": 18618,
               "name": "record.json",
-              "sha256": "7c0e6828535fae0557d2244b648f4e16079441e59e5897df90860c7a341a8424"
+              "sha256": "3e468687e22f9f793673108145f60592dadf8d4ae50954f29e66fa8b33d41b63"
             },
             {
               "bytes": 50182,
@@ -2620,13 +2620,13 @@
             }
           ],
           "stats": {
-            "instructions": 609690000,
-            "lua_memory_bytes": 7096298,
+            "instructions": 609710000,
+            "lua_memory_bytes": 9623161,
             "profile": {
-              "hash_bytes": 2841932,
+              "hash_bytes": 2842794,
               "hash_calls": 206,
-              "hash_instructions": 0,
-              "instructions": 609690000
+              "hash_instructions": 10000,
+              "instructions": 609710000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -2649,17 +2649,17 @@
             "request_id": 3,
             "phase": "shared-core",
             "instructions": 600000000,
-            "lua_memory_bytes": 7096933
+            "lua_memory_bytes": 7278070
           }
         }
       ],
-      "cache_roundtrip_ms": 9.100000023841858,
+      "cache_roundtrip_ms": 15.800000011920929,
       "cache_actual_bytes_equal": true,
       "heartbeat": {
         "interval_ms": 20,
-        "ticks": 1934,
-        "clicks": 1934,
-        "maximum_observed_gap_ms": 21.899999976158142
+        "ticks": 1894,
+        "clicks": 1894,
+        "maximum_observed_gap_ms": 21.599999964237213
       }
     },
     {
@@ -2669,7 +2669,7 @@
       "phases": [
         {
           "phase": "cold-generation",
-          "elapsed_ms": 1188.5999999642372,
+          "elapsed_ms": 1845.2000000476837,
           "semantic": {
             "instance.json": "8dff4b62a774794b35d86ebf1003f47e247306e5df0556ccb4fd976f224850be",
             "pattern.pdf": "572e505f8e226caebe159074eddbada7bba8022cc51d6977a511df91a90a77c0",
@@ -2700,7 +2700,7 @@
             {
               "bytes": 10795,
               "name": "record.json",
-              "sha256": "7048e5be7d8a7e4a14358b02fe5f4a20b756ee24ffe8f02e28a43ed8e2fcb3d7"
+              "sha256": "c78b3b39f340d717e28de8b1c903af8e145eacc944aa8b8a34c7c6343a25aa6c"
             },
             {
               "bytes": 57406,
@@ -2714,13 +2714,13 @@
             }
           ],
           "stats": {
-            "instructions": 38450000,
-            "lua_memory_bytes": 9227677,
+            "instructions": 38400000,
+            "lua_memory_bytes": 9228848,
             "profile": {
-              "hash_bytes": 2566245,
+              "hash_bytes": 2567107,
               "hash_calls": 204,
-              "hash_instructions": 10000,
-              "instructions": 38450000
+              "hash_instructions": 0,
+              "instructions": 38400000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -2746,7 +2746,7 @@
         },
         {
           "phase": "warm-assets-generation",
-          "elapsed_ms": 1217.199999988079,
+          "elapsed_ms": 1452.6000000238419,
           "semantic": {
             "instance.json": "8dff4b62a774794b35d86ebf1003f47e247306e5df0556ccb4fd976f224850be",
             "pattern.pdf": "572e505f8e226caebe159074eddbada7bba8022cc51d6977a511df91a90a77c0",
@@ -2777,7 +2777,7 @@
             {
               "bytes": 10795,
               "name": "record.json",
-              "sha256": "7048e5be7d8a7e4a14358b02fe5f4a20b756ee24ffe8f02e28a43ed8e2fcb3d7"
+              "sha256": "c78b3b39f340d717e28de8b1c903af8e145eacc944aa8b8a34c7c6343a25aa6c"
             },
             {
               "bytes": 57406,
@@ -2792,9 +2792,9 @@
           ],
           "stats": {
             "instructions": 38450000,
-            "lua_memory_bytes": 9227677,
+            "lua_memory_bytes": 9228848,
             "profile": {
-              "hash_bytes": 2566245,
+              "hash_bytes": 2567107,
               "hash_calls": 204,
               "hash_instructions": 0,
               "instructions": 38450000
@@ -2823,7 +2823,7 @@
         },
         {
           "phase": "validated-instance-replay",
-          "elapsed_ms": 1383.199999988079,
+          "elapsed_ms": 1762.300000011921,
           "semantic": {
             "instance.json": "8dff4b62a774794b35d86ebf1003f47e247306e5df0556ccb4fd976f224850be",
             "pattern.pdf": "572e505f8e226caebe159074eddbada7bba8022cc51d6977a511df91a90a77c0",
@@ -2854,7 +2854,7 @@
             {
               "bytes": 19209,
               "name": "record.json",
-              "sha256": "b8d01f1c92dc0cdc416200c5eb8778a68e383c9da2c12df4953bfb3b037a9dce"
+              "sha256": "7b45b1ea19a10ffd201213a4db58795c1a119394ab8cf1eb53967b1b7fde457a"
             },
             {
               "bytes": 57406,
@@ -2868,13 +2868,13 @@
             }
           ],
           "stats": {
-            "instructions": 43520000,
-            "lua_memory_bytes": 7182002,
+            "instructions": 43580000,
+            "lua_memory_bytes": 7183101,
             "profile": {
-              "hash_bytes": 2782542,
+              "hash_bytes": 2783404,
               "hash_calls": 213,
               "hash_instructions": 0,
-              "instructions": 43520000
+              "instructions": 43580000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -2899,13 +2899,13 @@
           }
         }
       ],
-      "cache_roundtrip_ms": 9.400000035762787,
+      "cache_roundtrip_ms": 9.5,
       "cache_actual_bytes_equal": true,
       "heartbeat": {
         "interval_ms": 20,
-        "ticks": 189,
-        "clicks": 189,
-        "maximum_observed_gap_ms": 21.600000023841858
+        "ticks": 253,
+        "clicks": 253,
+        "maximum_observed_gap_ms": 21.5
       }
     },
     {
@@ -2915,7 +2915,7 @@
       "phases": [
         {
           "phase": "cold-generation",
-          "elapsed_ms": 3981.800000011921,
+          "elapsed_ms": 5190.700000047684,
           "semantic": {
             "instance.json": "cf7a6437a75b28790ffcb0649561c8cc25558c8626fa15c0d3763c6f33997451",
             "pattern.pdf": "53b984e2dcadac716b3007adbabce18e256872ab0efe94f74a6878b401ba63fd",
@@ -2946,7 +2946,7 @@
             {
               "bytes": 10821,
               "name": "record.json",
-              "sha256": "74be6ed3462a291eb912345e23ffec1447cce257e4604b4d006b05d388168d95"
+              "sha256": "b94d17e4bf526b0227f7e0e6e915088b2185f7876fe745ab4b24ed459df11ff1"
             },
             {
               "bytes": 250654,
@@ -2960,13 +2960,13 @@
             }
           ],
           "stats": {
-            "instructions": 143840000,
-            "lua_memory_bytes": 14854557,
+            "instructions": 144030000,
+            "lua_memory_bytes": 14855692,
             "profile": {
-              "hash_bytes": 4879857,
+              "hash_bytes": 4880719,
               "hash_calls": 204,
               "hash_instructions": 0,
-              "instructions": 143840000
+              "instructions": 144030000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -2989,12 +2989,12 @@
             "request_id": 1,
             "phase": "shared-core",
             "instructions": 100000000,
-            "lua_memory_bytes": 20583603
+            "lua_memory_bytes": 20568258
           }
         },
         {
           "phase": "warm-assets-generation",
-          "elapsed_ms": 3973.199999988079,
+          "elapsed_ms": 5121.800000011921,
           "semantic": {
             "instance.json": "cf7a6437a75b28790ffcb0649561c8cc25558c8626fa15c0d3763c6f33997451",
             "pattern.pdf": "53b984e2dcadac716b3007adbabce18e256872ab0efe94f74a6878b401ba63fd",
@@ -3025,7 +3025,7 @@
             {
               "bytes": 10821,
               "name": "record.json",
-              "sha256": "74be6ed3462a291eb912345e23ffec1447cce257e4604b4d006b05d388168d95"
+              "sha256": "b94d17e4bf526b0227f7e0e6e915088b2185f7876fe745ab4b24ed459df11ff1"
             },
             {
               "bytes": 250654,
@@ -3039,13 +3039,13 @@
             }
           ],
           "stats": {
-            "instructions": 143750000,
-            "lua_memory_bytes": 14854557,
+            "instructions": 143780000,
+            "lua_memory_bytes": 14855692,
             "profile": {
-              "hash_bytes": 4879857,
+              "hash_bytes": 4880719,
               "hash_calls": 204,
               "hash_instructions": 0,
-              "instructions": 143750000
+              "instructions": 143780000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -3068,12 +3068,12 @@
             "request_id": 2,
             "phase": "shared-core",
             "instructions": 100000000,
-            "lua_memory_bytes": 20617299
+            "lua_memory_bytes": 20598178
           }
         },
         {
           "phase": "validated-instance-replay",
-          "elapsed_ms": 4508.100000023842,
+          "elapsed_ms": 5303.199999988079,
           "semantic": {
             "instance.json": "cf7a6437a75b28790ffcb0649561c8cc25558c8626fa15c0d3763c6f33997451",
             "pattern.pdf": "53b984e2dcadac716b3007adbabce18e256872ab0efe94f74a6878b401ba63fd",
@@ -3104,7 +3104,7 @@
             {
               "bytes": 19233,
               "name": "record.json",
-              "sha256": "d24fbf0c816e2e4f22de1cefb7b295fa7dfc3a058b0ef973489cd92176134e93"
+              "sha256": "b045f4356040988fb8b275209aafbc01f5cc86b6f325932a3255ff4b88b809e3"
             },
             {
               "bytes": 250654,
@@ -3118,13 +3118,13 @@
             }
           ],
           "stats": {
-            "instructions": 157510000,
-            "lua_memory_bytes": 27257105,
+            "instructions": 157530000,
+            "lua_memory_bytes": 15221440,
             "profile": {
-              "hash_bytes": 5622158,
+              "hash_bytes": 5623020,
               "hash_calls": 213,
               "hash_instructions": 0,
-              "instructions": 157510000
+              "instructions": 157530000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -3147,17 +3147,17 @@
             "request_id": 3,
             "phase": "shared-core",
             "instructions": 150000000,
-            "lua_memory_bytes": 16785348
+            "lua_memory_bytes": 20142531
           }
         }
       ],
-      "cache_roundtrip_ms": 25.600000023841858,
+      "cache_roundtrip_ms": 28.30000001192093,
       "cache_actual_bytes_equal": true,
       "heartbeat": {
         "interval_ms": 20,
-        "ticks": 623,
-        "clicks": 623,
-        "maximum_observed_gap_ms": 31.299999952316284
+        "ticks": 781,
+        "clicks": 781,
+        "maximum_observed_gap_ms": 21.799999952316284
       }
     },
     {
@@ -3167,7 +3167,7 @@
       "phases": [
         {
           "phase": "cold-generation",
-          "elapsed_ms": 19206.80000001192,
+          "elapsed_ms": 21372.30000001192,
           "semantic": {
             "instance.json": "6a938fedd9fa5cf394ecc51ed2bfb76643be1122e61316208bff37b9eac3b6db",
             "pattern.pdf": "62a619120fb85b82bc3ad26552a5131fc5b016310b396bdbd081d410dbd166e5",
@@ -3198,7 +3198,7 @@
             {
               "bytes": 10828,
               "name": "record.json",
-              "sha256": "4ec307f64d9a8ece68efe1ea2193427f276b898b8ef831d8e2ed366d4c87e627"
+              "sha256": "a765c324221889ba99b48cda914507b2fa68c6f03117f0d683c5b6bca422d809"
             },
             {
               "bytes": 1063566,
@@ -3212,13 +3212,13 @@
             }
           ],
           "stats": {
-            "instructions": 611410000,
-            "lua_memory_bytes": 21724103,
+            "instructions": 611850000,
+            "lua_memory_bytes": 21725238,
             "profile": {
-              "hash_bytes": 14476839,
+              "hash_bytes": 14477701,
               "hash_calls": 204,
               "hash_instructions": 0,
-              "instructions": 611410000
+              "instructions": 611850000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -3241,12 +3241,12 @@
             "request_id": 1,
             "phase": "shared-core",
             "instructions": 600000000,
-            "lua_memory_bytes": 81191787
+            "lua_memory_bytes": 80529829
           }
         },
         {
           "phase": "warm-assets-generation",
-          "elapsed_ms": 18189,
+          "elapsed_ms": 21938,
           "semantic": {
             "instance.json": "6a938fedd9fa5cf394ecc51ed2bfb76643be1122e61316208bff37b9eac3b6db",
             "pattern.pdf": "62a619120fb85b82bc3ad26552a5131fc5b016310b396bdbd081d410dbd166e5",
@@ -3277,7 +3277,7 @@
             {
               "bytes": 10828,
               "name": "record.json",
-              "sha256": "4ec307f64d9a8ece68efe1ea2193427f276b898b8ef831d8e2ed366d4c87e627"
+              "sha256": "a765c324221889ba99b48cda914507b2fa68c6f03117f0d683c5b6bca422d809"
             },
             {
               "bytes": 1063566,
@@ -3291,13 +3291,13 @@
             }
           ],
           "stats": {
-            "instructions": 613000000,
-            "lua_memory_bytes": 30725421,
+            "instructions": 611880000,
+            "lua_memory_bytes": 21725238,
             "profile": {
-              "hash_bytes": 14476839,
+              "hash_bytes": 14477701,
               "hash_calls": 204,
               "hash_instructions": 0,
-              "instructions": 613000000
+              "instructions": 611880000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -3320,12 +3320,12 @@
             "request_id": 2,
             "phase": "shared-core",
             "instructions": 600000000,
-            "lua_memory_bytes": 56388363
+            "lua_memory_bytes": 80487594
           }
         },
         {
           "phase": "validated-instance-replay",
-          "elapsed_ms": 18306,
+          "elapsed_ms": 25789.30000001192,
           "semantic": {
             "instance.json": "6a938fedd9fa5cf394ecc51ed2bfb76643be1122e61316208bff37b9eac3b6db",
             "pattern.pdf": "62a619120fb85b82bc3ad26552a5131fc5b016310b396bdbd081d410dbd166e5",
@@ -3356,7 +3356,7 @@
             {
               "bytes": 19238,
               "name": "record.json",
-              "sha256": "4ec14c78f5ec3a44fb3ead8f762d482ffb4c27cd4aff28d0b32904d77c74fb6a"
+              "sha256": "46db91033eac794d132e2ab5c5e6bf42a13e91beae99ad5af3663206ab8ca6d8"
             },
             {
               "bytes": 1063566,
@@ -3370,13 +3370,13 @@
             }
           ],
           "stats": {
-            "instructions": 631610000,
-            "lua_memory_bytes": 32171980,
+            "instructions": 633190000,
+            "lua_memory_bytes": 32173115,
             "profile": {
-              "hash_bytes": 17380839,
+              "hash_bytes": 17381701,
               "hash_calls": 213,
               "hash_instructions": 0,
-              "instructions": 631610000
+              "instructions": 633190000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -3399,17 +3399,17 @@
             "request_id": 3,
             "phase": "shared-core",
             "instructions": 600000000,
-            "lua_memory_bytes": 75646675
+            "lua_memory_bytes": 74647850
           }
         }
       ],
-      "cache_roundtrip_ms": 110.90000003576279,
+      "cache_roundtrip_ms": 137.69999998807907,
       "cache_actual_bytes_equal": true,
       "heartbeat": {
         "interval_ms": 20,
-        "ticks": 2787,
-        "clicks": 2787,
-        "maximum_observed_gap_ms": 37
+        "ticks": 3457,
+        "clicks": 3457,
+        "maximum_observed_gap_ms": 38.5
       }
     },
     {
@@ -3419,7 +3419,7 @@
       "phases": [
         {
           "phase": "cold-generation",
-          "elapsed_ms": 878.8000000119209,
+          "elapsed_ms": 1024.800000011921,
           "semantic": {
             "instance.json": "e011efeb6d07b92d731b7df96e7b792c121d387617fc2a015755dc54a71afae2",
             "pattern.pdf": "e66154d6df14025ad53352a612b8e3b6f33a46728e31c344a755cb3ab6e85b5b",
@@ -3450,7 +3450,7 @@
             {
               "bytes": 11105,
               "name": "record.json",
-              "sha256": "6c21081fb508ff531c697da493205ce0fd8bbdebebc2cd19c358a613ea702973"
+              "sha256": "f2359877a8e9bf96b14b129d55327067b6b10881cc9007295dd770b0b56e1a3e"
             },
             {
               "bytes": 27416,
@@ -3464,13 +3464,13 @@
             }
           ],
           "stats": {
-            "instructions": 29750000,
-            "lua_memory_bytes": 7108846,
+            "instructions": 29700000,
+            "lua_memory_bytes": 7109981,
             "profile": {
-              "hash_bytes": 2442138,
+              "hash_bytes": 2443000,
               "hash_calls": 200,
               "hash_instructions": 0,
-              "instructions": 29750000
+              "instructions": 29700000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -3496,7 +3496,7 @@
         },
         {
           "phase": "warm-assets-generation",
-          "elapsed_ms": 873.8999999761581,
+          "elapsed_ms": 1236.3999999761581,
           "semantic": {
             "instance.json": "e011efeb6d07b92d731b7df96e7b792c121d387617fc2a015755dc54a71afae2",
             "pattern.pdf": "e66154d6df14025ad53352a612b8e3b6f33a46728e31c344a755cb3ab6e85b5b",
@@ -3527,7 +3527,7 @@
             {
               "bytes": 11105,
               "name": "record.json",
-              "sha256": "6c21081fb508ff531c697da493205ce0fd8bbdebebc2cd19c358a613ea702973"
+              "sha256": "f2359877a8e9bf96b14b129d55327067b6b10881cc9007295dd770b0b56e1a3e"
             },
             {
               "bytes": 27416,
@@ -3541,13 +3541,13 @@
             }
           ],
           "stats": {
-            "instructions": 29760000,
-            "lua_memory_bytes": 7108846,
+            "instructions": 29670000,
+            "lua_memory_bytes": 6553515,
             "profile": {
-              "hash_bytes": 2442138,
+              "hash_bytes": 2443000,
               "hash_calls": 200,
               "hash_instructions": 0,
-              "instructions": 29760000
+              "instructions": 29670000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -3573,7 +3573,7 @@
         },
         {
           "phase": "validated-instance-replay",
-          "elapsed_ms": 1040.5,
+          "elapsed_ms": 1606.300000011921,
           "semantic": {
             "instance.json": "e011efeb6d07b92d731b7df96e7b792c121d387617fc2a015755dc54a71afae2",
             "pattern.pdf": "e66154d6df14025ad53352a612b8e3b6f33a46728e31c344a755cb3ab6e85b5b",
@@ -3604,7 +3604,7 @@
             {
               "bytes": 19519,
               "name": "record.json",
-              "sha256": "2c0c15d1c3e314b7c40160d4838f6b185377e816419edd23fa6d8f9bd6cae856"
+              "sha256": "49fac6e98512bfc748760b73611b790bf9b089f5eb5fbe94fad15fe885541e7f"
             },
             {
               "bytes": 27416,
@@ -3618,13 +3618,13 @@
             }
           ],
           "stats": {
-            "instructions": 36000000,
-            "lua_memory_bytes": 9818379,
+            "instructions": 35950000,
+            "lua_memory_bytes": 9819514,
             "profile": {
-              "hash_bytes": 2678059,
+              "hash_bytes": 2678921,
               "hash_calls": 207,
               "hash_instructions": 0,
-              "instructions": 36000000
+              "instructions": 35950000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -3649,13 +3649,13 @@
           }
         }
       ],
-      "cache_roundtrip_ms": 8.099999964237213,
+      "cache_roundtrip_ms": 13.5,
       "cache_actual_bytes_equal": true,
       "heartbeat": {
         "interval_ms": 20,
-        "ticks": 139,
-        "clicks": 139,
-        "maximum_observed_gap_ms": 21.700000047683716
+        "ticks": 193,
+        "clicks": 193,
+        "maximum_observed_gap_ms": 21.30000001192093
       }
     },
     {
@@ -3665,7 +3665,7 @@
       "phases": [
         {
           "phase": "cold-generation",
-          "elapsed_ms": 2470.199999988079,
+          "elapsed_ms": 3482,
           "semantic": {
             "instance.json": "edff903f9bddf49579f0bc65423a301671449ce5abe2345f0fbb7c56f249dde0",
             "pattern.pdf": "4db961be225375d5d0e8227f63caaa084f8d09f5e077c5d2b8cff5787149fb9f",
@@ -3696,7 +3696,7 @@
             {
               "bytes": 11112,
               "name": "record.json",
-              "sha256": "2c17df9821ec68956a03d74eaefb9262ad02ba8103548458c188d97e75f123bb"
+              "sha256": "a97057851db931c2d77dbe92eff87af60eb8e58decb30c307773a6163eef4709"
             },
             {
               "bytes": 99559,
@@ -3710,13 +3710,13 @@
             }
           ],
           "stats": {
-            "instructions": 96310000,
-            "lua_memory_bytes": 26468668,
+            "instructions": 96190000,
+            "lua_memory_bytes": 26469803,
             "profile": {
-              "hash_bytes": 4049821,
+              "hash_bytes": 4050683,
               "hash_calls": 200,
               "hash_instructions": 0,
-              "instructions": 96310000
+              "instructions": 96190000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -3739,12 +3739,12 @@
             "request_id": 1,
             "phase": "shared-core",
             "instructions": 50000000,
-            "lua_memory_bytes": 12722491
+            "lua_memory_bytes": 12703658
           }
         },
         {
           "phase": "warm-assets-generation",
-          "elapsed_ms": 2825.800000011921,
+          "elapsed_ms": 3576.2999999523163,
           "semantic": {
             "instance.json": "edff903f9bddf49579f0bc65423a301671449ce5abe2345f0fbb7c56f249dde0",
             "pattern.pdf": "4db961be225375d5d0e8227f63caaa084f8d09f5e077c5d2b8cff5787149fb9f",
@@ -3775,7 +3775,7 @@
             {
               "bytes": 11112,
               "name": "record.json",
-              "sha256": "2c17df9821ec68956a03d74eaefb9262ad02ba8103548458c188d97e75f123bb"
+              "sha256": "a97057851db931c2d77dbe92eff87af60eb8e58decb30c307773a6163eef4709"
             },
             {
               "bytes": 99559,
@@ -3789,13 +3789,13 @@
             }
           ],
           "stats": {
-            "instructions": 96150000,
-            "lua_memory_bytes": 26468668,
+            "instructions": 96710000,
+            "lua_memory_bytes": 26469803,
             "profile": {
-              "hash_bytes": 4049821,
+              "hash_bytes": 4050683,
               "hash_calls": 200,
-              "hash_instructions": 0,
-              "instructions": 96150000
+              "hash_instructions": 10000,
+              "instructions": 96710000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -3818,12 +3818,12 @@
             "request_id": 2,
             "phase": "shared-core",
             "instructions": 50000000,
-            "lua_memory_bytes": 12719936
+            "lua_memory_bytes": 12582154
           }
         },
         {
           "phase": "validated-instance-replay",
-          "elapsed_ms": 3736.5,
+          "elapsed_ms": 4235.699999988079,
           "semantic": {
             "instance.json": "edff903f9bddf49579f0bc65423a301671449ce5abe2345f0fbb7c56f249dde0",
             "pattern.pdf": "4db961be225375d5d0e8227f63caaa084f8d09f5e077c5d2b8cff5787149fb9f",
@@ -3854,7 +3854,7 @@
             {
               "bytes": 19526,
               "name": "record.json",
-              "sha256": "011aa12deef52003fd2496fe084f9fa9d48a9778e1c05f7e290df1f0583b656f"
+              "sha256": "5290dd9d83a28be1dc408e4ffb0b0307b4d0d119c69812d916270986da343ec9"
             },
             {
               "bytes": 99559,
@@ -3868,13 +3868,13 @@
             }
           ],
           "stats": {
-            "instructions": 114590000,
-            "lua_memory_bytes": 14661349,
+            "instructions": 114420000,
+            "lua_memory_bytes": 14662484,
             "profile": {
-              "hash_bytes": 4790637,
+              "hash_bytes": 4791499,
               "hash_calls": 207,
               "hash_instructions": 0,
-              "instructions": 114590000
+              "instructions": 114420000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -3897,16 +3897,16 @@
             "request_id": 3,
             "phase": "shared-core",
             "instructions": 100000000,
-            "lua_memory_bytes": 15795493
+            "lua_memory_bytes": 15757214
           }
         }
       ],
-      "cache_roundtrip_ms": 18.100000023841858,
+      "cache_roundtrip_ms": 25.700000047683716,
       "cache_actual_bytes_equal": true,
       "heartbeat": {
         "interval_ms": 20,
-        "ticks": 452,
-        "clicks": 452,
+        "ticks": 565,
+        "clicks": 565,
         "maximum_observed_gap_ms": 21.30000001192093
       }
     },
@@ -3917,7 +3917,7 @@
       "phases": [
         {
           "phase": "cold-generation",
-          "elapsed_ms": 11294.899999976158,
+          "elapsed_ms": 13626.100000023842,
           "semantic": {
             "instance.json": "ec144082a500170e170eccd23d682d2b38ea5d163a1995199f53fbfe0b548bc6",
             "pattern.pdf": "0be659021ce6c8e8b115dbc2d99b2f46694f9a00477560ee40d0ecdce20ce225",
@@ -3948,7 +3948,7 @@
             {
               "bytes": 11122,
               "name": "record.json",
-              "sha256": "51917d4bdf588f373ccd72befb7156305467af79a4b7ecef91ade12cd368ff5d"
+              "sha256": "1d1c35a2579fa79bcd27874fc9412da78925ba3057492b33941a10f892063449"
             },
             {
               "bytes": 380934,
@@ -3962,13 +3962,13 @@
             }
           ],
           "stats": {
-            "instructions": 359050000,
-            "lua_memory_bytes": 20373357,
+            "instructions": 359220000,
+            "lua_memory_bytes": 12159534,
             "profile": {
-              "hash_bytes": 10386481,
+              "hash_bytes": 10387343,
               "hash_calls": 200,
               "hash_instructions": 0,
-              "instructions": 359050000
+              "instructions": 359220000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -3991,12 +3991,12 @@
             "request_id": 1,
             "phase": "shared-core",
             "instructions": 350000000,
-            "lua_memory_bytes": 22235198
+            "lua_memory_bytes": 22970901
           }
         },
         {
           "phase": "warm-assets-generation",
-          "elapsed_ms": 10496.799999952316,
+          "elapsed_ms": 11080.199999988079,
           "semantic": {
             "instance.json": "ec144082a500170e170eccd23d682d2b38ea5d163a1995199f53fbfe0b548bc6",
             "pattern.pdf": "0be659021ce6c8e8b115dbc2d99b2f46694f9a00477560ee40d0ecdce20ce225",
@@ -4027,7 +4027,7 @@
             {
               "bytes": 11122,
               "name": "record.json",
-              "sha256": "51917d4bdf588f373ccd72befb7156305467af79a4b7ecef91ade12cd368ff5d"
+              "sha256": "1d1c35a2579fa79bcd27874fc9412da78925ba3057492b33941a10f892063449"
             },
             {
               "bytes": 380934,
@@ -4041,13 +4041,13 @@
             }
           ],
           "stats": {
-            "instructions": 360810000,
-            "lua_memory_bytes": 12158399,
+            "instructions": 358850000,
+            "lua_memory_bytes": 12159534,
             "profile": {
-              "hash_bytes": 10386481,
+              "hash_bytes": 10387343,
               "hash_calls": 200,
               "hash_instructions": 0,
-              "instructions": 360810000
+              "instructions": 358850000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -4070,12 +4070,12 @@
             "request_id": 2,
             "phase": "shared-core",
             "instructions": 350000000,
-            "lua_memory_bytes": 22543131
+            "lua_memory_bytes": 23081621
           }
         },
         {
           "phase": "validated-instance-replay",
-          "elapsed_ms": 12744.600000023842,
+          "elapsed_ms": 13700.099999964237,
           "semantic": {
             "instance.json": "ec144082a500170e170eccd23d682d2b38ea5d163a1995199f53fbfe0b548bc6",
             "pattern.pdf": "0be659021ce6c8e8b115dbc2d99b2f46694f9a00477560ee40d0ecdce20ce225",
@@ -4106,7 +4106,7 @@
             {
               "bytes": 19536,
               "name": "record.json",
-              "sha256": "668a9bda09e23884733ce372d5c279f07c3ea106fdf694e9c54a336d24c443bb"
+              "sha256": "f5a4a102904a9aeb9f78376db0c8fd6dca052e7dc4723a0b19d7c8f65551874f"
             },
             {
               "bytes": 380934,
@@ -4120,13 +4120,13 @@
             }
           ],
           "stats": {
-            "instructions": 425260000,
-            "lua_memory_bytes": 22522998,
+            "instructions": 425450000,
+            "lua_memory_bytes": 22524133,
             "profile": {
-              "hash_bytes": 13123569,
+              "hash_bytes": 13124431,
               "hash_calls": 207,
               "hash_instructions": 0,
-              "instructions": 425260000
+              "instructions": 425450000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -4149,17 +4149,17 @@
             "request_id": 3,
             "phase": "shared-core",
             "instructions": 400000000,
-            "lua_memory_bytes": 32551283
+            "lua_memory_bytes": 32499030
           }
         }
       ],
-      "cache_roundtrip_ms": 59.799999952316284,
+      "cache_roundtrip_ms": 62.60000002384186,
       "cache_actual_bytes_equal": true,
       "heartbeat": {
         "interval_ms": 20,
-        "ticks": 1728,
-        "clicks": 1728,
-        "maximum_observed_gap_ms": 25.299999952316284
+        "ticks": 1921,
+        "clicks": 1921,
+        "maximum_observed_gap_ms": 23.899999976158142
       }
     },
     {
@@ -4169,7 +4169,7 @@
       "phases": [
         {
           "phase": "cold-generation",
-          "elapsed_ms": 2390.699999988079,
+          "elapsed_ms": 2772.800000011921,
           "semantic": {
             "instance.json": "159f98f62aae8163570e74e0a6a3fdb3f3f5d8f18e5a1fc64221b89268fd0dee",
             "pattern.pdf": "aad5138edc391fd8dd5d5548b6eb477ce36ba5f6ada2116501becc53d8f4404e",
@@ -4200,7 +4200,7 @@
             {
               "bytes": 11865,
               "name": "record.json",
-              "sha256": "cd24be2e8b9273616250ab0a10c436973eb88f0c150c62d5bd5cdc711324257b"
+              "sha256": "7cdc8a47d80edd1b249e15ed12954f5a44e0e45781a22b68e490e58c16602aa1"
             },
             {
               "bytes": 43604,
@@ -4214,13 +4214,13 @@
             }
           ],
           "stats": {
-            "instructions": 89550000,
-            "lua_memory_bytes": 22663929,
+            "instructions": 89490000,
+            "lua_memory_bytes": 22665064,
             "profile": {
-              "hash_bytes": 3912857,
+              "hash_bytes": 3913719,
               "hash_calls": 200,
-              "hash_instructions": 10000,
-              "instructions": 89550000
+              "hash_instructions": 20000,
+              "instructions": 89490000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -4243,12 +4243,12 @@
             "request_id": 1,
             "phase": "shared-core",
             "instructions": 50000000,
-            "lua_memory_bytes": 11375970
+            "lua_memory_bytes": 12007435
           }
         },
         {
           "phase": "warm-assets-generation",
-          "elapsed_ms": 2319.300000011921,
+          "elapsed_ms": 2805.899999976158,
           "semantic": {
             "instance.json": "159f98f62aae8163570e74e0a6a3fdb3f3f5d8f18e5a1fc64221b89268fd0dee",
             "pattern.pdf": "aad5138edc391fd8dd5d5548b6eb477ce36ba5f6ada2116501becc53d8f4404e",
@@ -4279,7 +4279,7 @@
             {
               "bytes": 11865,
               "name": "record.json",
-              "sha256": "cd24be2e8b9273616250ab0a10c436973eb88f0c150c62d5bd5cdc711324257b"
+              "sha256": "7cdc8a47d80edd1b249e15ed12954f5a44e0e45781a22b68e490e58c16602aa1"
             },
             {
               "bytes": 43604,
@@ -4293,13 +4293,13 @@
             }
           ],
           "stats": {
-            "instructions": 89360000,
-            "lua_memory_bytes": 22663929,
+            "instructions": 89410000,
+            "lua_memory_bytes": 22665064,
             "profile": {
-              "hash_bytes": 3912857,
+              "hash_bytes": 3913719,
               "hash_calls": 200,
               "hash_instructions": 0,
-              "instructions": 89360000
+              "instructions": 89410000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -4322,12 +4322,12 @@
             "request_id": 2,
             "phase": "shared-core",
             "instructions": 50000000,
-            "lua_memory_bytes": 11887956
+            "lua_memory_bytes": 11510353
           }
         },
         {
           "phase": "validated-instance-replay",
-          "elapsed_ms": 2752.300000011921,
+          "elapsed_ms": 3210.699999988079,
           "semantic": {
             "instance.json": "159f98f62aae8163570e74e0a6a3fdb3f3f5d8f18e5a1fc64221b89268fd0dee",
             "pattern.pdf": "aad5138edc391fd8dd5d5548b6eb477ce36ba5f6ada2116501becc53d8f4404e",
@@ -4358,7 +4358,7 @@
             {
               "bytes": 20279,
               "name": "record.json",
-              "sha256": "198b4e5fe73b710df6b7beaaa5dc96b82e5022b997a38e850dbee9dec187ea56"
+              "sha256": "eedd3a56fbd2c3dc28c31104ee056f609cf2439ebb40a3c2331f0202255ef12a"
             },
             {
               "bytes": 43604,
@@ -4372,13 +4372,13 @@
             }
           ],
           "stats": {
-            "instructions": 106020000,
-            "lua_memory_bytes": 9886167,
+            "instructions": 106200000,
+            "lua_memory_bytes": 9887302,
             "profile": {
-              "hash_bytes": 4707351,
+              "hash_bytes": 4708213,
               "hash_calls": 207,
-              "hash_instructions": 0,
-              "instructions": 106020000
+              "hash_instructions": 10000,
+              "instructions": 106200000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -4401,17 +4401,17 @@
             "request_id": 3,
             "phase": "shared-core",
             "instructions": 100000000,
-            "lua_memory_bytes": 8550213
+            "lua_memory_bytes": 15346249
           }
         }
       ],
-      "cache_roundtrip_ms": 17.099999964237213,
+      "cache_roundtrip_ms": 17.399999976158142,
       "cache_actual_bytes_equal": true,
       "heartbeat": {
         "interval_ms": 20,
-        "ticks": 373,
-        "clicks": 373,
-        "maximum_observed_gap_ms": 21.400000035762787
+        "ticks": 439,
+        "clicks": 439,
+        "maximum_observed_gap_ms": 23.30000001192093
       }
     },
     {
@@ -4421,7 +4421,7 @@
       "phases": [
         {
           "phase": "cold-generation",
-          "elapsed_ms": 4003.7999999523163,
+          "elapsed_ms": 4885.599999964237,
           "semantic": {
             "instance.json": "02f0d73f1fe2b8cc5b1c55be611e2a4890e9243c2ec58d59e8ebdd4ba70ce12a",
             "pattern.pdf": "c7ae536b4eaf1bb25398c86b474e9739d88d6f878a0b1e1d4c3c73696b060430",
@@ -4452,7 +4452,7 @@
             {
               "bytes": 11871,
               "name": "record.json",
-              "sha256": "2b3dbdc2417d6f30bc41458eb4ba00770056e7f33f9a6009ce99079d317a5dcd"
+              "sha256": "3941a8deb086fceae6fa7b398c6d4201bce52ac2393bc195313372ec91e11254"
             },
             {
               "bytes": 103698,
@@ -4466,13 +4466,13 @@
             }
           ],
           "stats": {
-            "instructions": 156540000,
-            "lua_memory_bytes": 9497523,
+            "instructions": 156470000,
+            "lua_memory_bytes": 9498658,
             "profile": {
-              "hash_bytes": 5671663,
+              "hash_bytes": 5672525,
               "hash_calls": 200,
               "hash_instructions": 0,
-              "instructions": 156540000
+              "instructions": 156470000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -4495,12 +4495,12 @@
             "request_id": 1,
             "phase": "shared-core",
             "instructions": 150000000,
-            "lua_memory_bytes": 12093392
+            "lua_memory_bytes": 12117647
           }
         },
         {
           "phase": "warm-assets-generation",
-          "elapsed_ms": 4008.699999988079,
+          "elapsed_ms": 4324,
           "semantic": {
             "instance.json": "02f0d73f1fe2b8cc5b1c55be611e2a4890e9243c2ec58d59e8ebdd4ba70ce12a",
             "pattern.pdf": "c7ae536b4eaf1bb25398c86b474e9739d88d6f878a0b1e1d4c3c73696b060430",
@@ -4531,7 +4531,7 @@
             {
               "bytes": 11871,
               "name": "record.json",
-              "sha256": "2b3dbdc2417d6f30bc41458eb4ba00770056e7f33f9a6009ce99079d317a5dcd"
+              "sha256": "3941a8deb086fceae6fa7b398c6d4201bce52ac2393bc195313372ec91e11254"
             },
             {
               "bytes": 103698,
@@ -4545,13 +4545,13 @@
             }
           ],
           "stats": {
-            "instructions": 156520000,
-            "lua_memory_bytes": 9497523,
+            "instructions": 156500000,
+            "lua_memory_bytes": 9498658,
             "profile": {
-              "hash_bytes": 5671663,
+              "hash_bytes": 5672525,
               "hash_calls": 200,
               "hash_instructions": 0,
-              "instructions": 156520000
+              "instructions": 156500000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -4574,12 +4574,12 @@
             "request_id": 2,
             "phase": "shared-core",
             "instructions": 150000000,
-            "lua_memory_bytes": 12096664
+            "lua_memory_bytes": 12102807
           }
         },
         {
           "phase": "validated-instance-replay",
-          "elapsed_ms": 5221,
+          "elapsed_ms": 5613.899999976158,
           "semantic": {
             "instance.json": "02f0d73f1fe2b8cc5b1c55be611e2a4890e9243c2ec58d59e8ebdd4ba70ce12a",
             "pattern.pdf": "c7ae536b4eaf1bb25398c86b474e9739d88d6f878a0b1e1d4c3c73696b060430",
@@ -4610,7 +4610,7 @@
             {
               "bytes": 20285,
               "name": "record.json",
-              "sha256": "170772e610d4a02fe41af018695baa60a08409d71dec11e0675339695376bd40"
+              "sha256": "6de6850aeac0739f2a7bd9cad86bcea41af3f65643c8c0ce665adbe1c91eb0f3"
             },
             {
               "bytes": 103698,
@@ -4624,13 +4624,13 @@
             }
           ],
           "stats": {
-            "instructions": 187160000,
-            "lua_memory_bytes": 10183320,
+            "instructions": 186950000,
+            "lua_memory_bytes": 10184455,
             "profile": {
-              "hash_bytes": 7054669,
+              "hash_bytes": 7055531,
               "hash_calls": 207,
-              "hash_instructions": 10000,
-              "instructions": 187160000
+              "hash_instructions": 0,
+              "instructions": 186950000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -4653,17 +4653,17 @@
             "request_id": 3,
             "phase": "shared-core",
             "instructions": 150000000,
-            "lua_memory_bytes": 16787789
+            "lua_memory_bytes": 17034808
           }
         }
       ],
-      "cache_roundtrip_ms": 29,
+      "cache_roundtrip_ms": 25.600000023841858,
       "cache_actual_bytes_equal": true,
       "heartbeat": {
         "interval_ms": 20,
-        "ticks": 662,
-        "clicks": 662,
-        "maximum_observed_gap_ms": 21.5
+        "ticks": 741,
+        "clicks": 741,
+        "maximum_observed_gap_ms": 21.399999976158142
       }
     },
     {
@@ -4673,7 +4673,7 @@
       "phases": [
         {
           "phase": "cold-generation",
-          "elapsed_ms": 11176.5,
+          "elapsed_ms": 10779.5,
           "semantic": {
             "instance.json": "9b17ae330f346c5bd5fccd64c80449ca18af2563cbd4ee055b625ed567087e40",
             "pattern.pdf": "ed45f11df96adf83a000b945fc283891845ea483ac891be2e77c99921623e8f0",
@@ -4704,7 +4704,7 @@
             {
               "bytes": 11878,
               "name": "record.json",
-              "sha256": "91a48106f3c1ef22d77f628d3b45fd8b862d0f396f50f8170080a2d7735b0d0a"
+              "sha256": "12a27d55938658fcb86b3346e7149ffd9760971a16a73a0c349285025c76686a"
             },
             {
               "bytes": 370167,
@@ -4718,13 +4718,13 @@
             }
           ],
           "stats": {
-            "instructions": 385820000,
-            "lua_memory_bytes": 12395167,
+            "instructions": 385740000,
+            "lua_memory_bytes": 12396302,
             "profile": {
-              "hash_bytes": 11774825,
+              "hash_bytes": 11775687,
               "hash_calls": 200,
-              "hash_instructions": 0,
-              "instructions": 385820000
+              "hash_instructions": 10000,
+              "instructions": 385740000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -4747,12 +4747,12 @@
             "request_id": 1,
             "phase": "shared-core",
             "instructions": 350000000,
-            "lua_memory_bytes": 33385992
+            "lua_memory_bytes": 33642789
           }
         },
         {
           "phase": "warm-assets-generation",
-          "elapsed_ms": 10570.799999952316,
+          "elapsed_ms": 11739,
           "semantic": {
             "instance.json": "9b17ae330f346c5bd5fccd64c80449ca18af2563cbd4ee055b625ed567087e40",
             "pattern.pdf": "ed45f11df96adf83a000b945fc283891845ea483ac891be2e77c99921623e8f0",
@@ -4783,7 +4783,7 @@
             {
               "bytes": 11878,
               "name": "record.json",
-              "sha256": "91a48106f3c1ef22d77f628d3b45fd8b862d0f396f50f8170080a2d7735b0d0a"
+              "sha256": "12a27d55938658fcb86b3346e7149ffd9760971a16a73a0c349285025c76686a"
             },
             {
               "bytes": 370167,
@@ -4797,13 +4797,13 @@
             }
           ],
           "stats": {
-            "instructions": 386390000,
-            "lua_memory_bytes": 12395167,
+            "instructions": 385230000,
+            "lua_memory_bytes": 12396302,
             "profile": {
-              "hash_bytes": 11774825,
+              "hash_bytes": 11775687,
               "hash_calls": 200,
               "hash_instructions": 0,
-              "instructions": 386390000
+              "instructions": 385230000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -4826,12 +4826,12 @@
             "request_id": 2,
             "phase": "shared-core",
             "instructions": 350000000,
-            "lua_memory_bytes": 30152019
+            "lua_memory_bytes": 35516509
           }
         },
         {
           "phase": "validated-instance-replay",
-          "elapsed_ms": 11746.399999976158,
+          "elapsed_ms": 14105.599999964237,
           "semantic": {
             "instance.json": "9b17ae330f346c5bd5fccd64c80449ca18af2563cbd4ee055b625ed567087e40",
             "pattern.pdf": "ed45f11df96adf83a000b945fc283891845ea483ac891be2e77c99921623e8f0",
@@ -4862,7 +4862,7 @@
             {
               "bytes": 20292,
               "name": "record.json",
-              "sha256": "ae9724a921c2ea6d4ce5c64d0ce8e02626e36b09b1b1379733900c2b52350957"
+              "sha256": "cc384b33606cef3fc17ce4c798ba88e0c9205c789eaa121dba4d55f0ee983c60"
             },
             {
               "bytes": 370167,
@@ -4876,13 +4876,13 @@
             }
           ],
           "stats": {
-            "instructions": 463040000,
-            "lua_memory_bytes": 23047476,
+            "instructions": 462270000,
+            "lua_memory_bytes": 23048611,
             "profile": {
-              "hash_bytes": 15088944,
+              "hash_bytes": 15089806,
               "hash_calls": 207,
-              "hash_instructions": 0,
-              "instructions": 463040000
+              "hash_instructions": 10000,
+              "instructions": 462270000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -4905,17 +4905,17 @@
             "request_id": 3,
             "phase": "shared-core",
             "instructions": 450000000,
-            "lua_memory_bytes": 41863739
+            "lua_memory_bytes": 42380052
           }
         }
       ],
-      "cache_roundtrip_ms": 52.90000003576279,
+      "cache_roundtrip_ms": 85,
       "cache_actual_bytes_equal": true,
       "heartbeat": {
         "interval_ms": 20,
-        "ticks": 1675,
-        "clicks": 1675,
-        "maximum_observed_gap_ms": 25.80000001192093
+        "ticks": 1832,
+        "clicks": 1832,
+        "maximum_observed_gap_ms": 34
       }
     },
     {
@@ -4925,7 +4925,7 @@
       "phases": [
         {
           "phase": "cold-generation",
-          "elapsed_ms": 2750.900000035763,
+          "elapsed_ms": 3231.899999976158,
           "semantic": {
             "instance.json": "56c427e2ea5acec4fa70ab77a06bdee199dc8783a699c835d0002d7df775c9d6",
             "pattern.pdf": "a07ba6127d07f39df4c0acd5e50568ad772d9b57c9b05fa67713b4c86ac1ae5f",
@@ -4956,7 +4956,7 @@
             {
               "bytes": 11264,
               "name": "record.json",
-              "sha256": "2da6372d0fe70a984d042c0724223e1f609eba42a0665bd741d561603f579601"
+              "sha256": "7fa57795948fb8f4bb1679135a5c58bb0dd136a90eb7ad7eb3c27b6262f40a92"
             },
             {
               "bytes": 46101,
@@ -4970,13 +4970,13 @@
             }
           ],
           "stats": {
-            "instructions": 108440000,
-            "lua_memory_bytes": 18594151,
+            "instructions": 108430000,
+            "lua_memory_bytes": 18595286,
             "profile": {
-              "hash_bytes": 3436929,
+              "hash_bytes": 3437791,
               "hash_calls": 213,
               "hash_instructions": 0,
-              "instructions": 108440000
+              "instructions": 108430000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -4999,12 +4999,12 @@
             "request_id": 1,
             "phase": "shared-core",
             "instructions": 100000000,
-            "lua_memory_bytes": 13413815
+            "lua_memory_bytes": 13417470
           }
         },
         {
           "phase": "warm-assets-generation",
-          "elapsed_ms": 2657.100000023842,
+          "elapsed_ms": 3484.699999988079,
           "semantic": {
             "instance.json": "56c427e2ea5acec4fa70ab77a06bdee199dc8783a699c835d0002d7df775c9d6",
             "pattern.pdf": "a07ba6127d07f39df4c0acd5e50568ad772d9b57c9b05fa67713b4c86ac1ae5f",
@@ -5035,7 +5035,7 @@
             {
               "bytes": 11264,
               "name": "record.json",
-              "sha256": "2da6372d0fe70a984d042c0724223e1f609eba42a0665bd741d561603f579601"
+              "sha256": "7fa57795948fb8f4bb1679135a5c58bb0dd136a90eb7ad7eb3c27b6262f40a92"
             },
             {
               "bytes": 46101,
@@ -5049,13 +5049,13 @@
             }
           ],
           "stats": {
-            "instructions": 108420000,
-            "lua_memory_bytes": 18594223,
+            "instructions": 108480000,
+            "lua_memory_bytes": 18595334,
             "profile": {
-              "hash_bytes": 3436929,
+              "hash_bytes": 3437791,
               "hash_calls": 213,
               "hash_instructions": 0,
-              "instructions": 108420000
+              "instructions": 108480000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -5078,12 +5078,12 @@
             "request_id": 2,
             "phase": "shared-core",
             "instructions": 100000000,
-            "lua_memory_bytes": 13415023
+            "lua_memory_bytes": 13403862
           }
         },
         {
           "phase": "validated-instance-replay",
-          "elapsed_ms": 3063.7000000476837,
+          "elapsed_ms": 3439.699999988079,
           "semantic": {
             "instance.json": "56c427e2ea5acec4fa70ab77a06bdee199dc8783a699c835d0002d7df775c9d6",
             "pattern.pdf": "a07ba6127d07f39df4c0acd5e50568ad772d9b57c9b05fa67713b4c86ac1ae5f",
@@ -5114,7 +5114,7 @@
             {
               "bytes": 19676,
               "name": "record.json",
-              "sha256": "1d054ce9e60c4aabd6a9e7a067b0f37de910f7be14db5b15b7f81405a99e6cc2"
+              "sha256": "8ac4bb34037eeb5c6d4cef84e56ac3d0759aa5df38bb759757dad2b003a467f6"
             },
             {
               "bytes": 46101,
@@ -5128,13 +5128,13 @@
             }
           ],
           "stats": {
-            "instructions": 107910000,
-            "lua_memory_bytes": 9299259,
+            "instructions": 107840000,
+            "lua_memory_bytes": 9300406,
             "profile": {
-              "hash_bytes": 4030520,
+              "hash_bytes": 4031382,
               "hash_calls": 216,
               "hash_instructions": 0,
-              "instructions": 107910000
+              "instructions": 107840000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -5157,17 +5157,17 @@
             "request_id": 3,
             "phase": "shared-core",
             "instructions": 100000000,
-            "lua_memory_bytes": 13889911
+            "lua_memory_bytes": 16678667
           }
         }
       ],
-      "cache_roundtrip_ms": 18.099999964237213,
+      "cache_roundtrip_ms": 14.399999976158142,
       "cache_actual_bytes_equal": true,
       "heartbeat": {
         "interval_ms": 20,
-        "ticks": 423,
-        "clicks": 423,
-        "maximum_observed_gap_ms": 22
+        "ticks": 508,
+        "clicks": 508,
+        "maximum_observed_gap_ms": 22.19999998807907
       }
     },
     {
@@ -5177,7 +5177,7 @@
       "phases": [
         {
           "phase": "cold-generation",
-          "elapsed_ms": 4400.200000047684,
+          "elapsed_ms": 4324.900000035763,
           "semantic": {
             "instance.json": "75f681ede203a18d338058402af21fc3f6d888c61e8d2fa8aeca9ee31db72668",
             "pattern.pdf": "1c24596bc0e13fd5e54d2d4fa382d18113bde836045e38fecb60de7bfb236c69",
@@ -5208,7 +5208,7 @@
             {
               "bytes": 11294,
               "name": "record.json",
-              "sha256": "581b7d76c47c28b18c0d26088307cd91ce7c837ad33360af420497d11f14b9b5"
+              "sha256": "3598635faa05fd187be9955081ce68b01aa17f1d74d98cd33a213093b79c05bb"
             },
             {
               "bytes": 53552,
@@ -5222,13 +5222,13 @@
             }
           ],
           "stats": {
-            "instructions": 178020000,
-            "lua_memory_bytes": 7168803,
+            "instructions": 178090000,
+            "lua_memory_bytes": 7169878,
             "profile": {
-              "hash_bytes": 3521171,
+              "hash_bytes": 3522033,
               "hash_calls": 213,
-              "hash_instructions": 0,
-              "instructions": 178020000
+              "hash_instructions": 10000,
+              "instructions": 178090000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -5251,12 +5251,12 @@
             "request_id": 1,
             "phase": "shared-core",
             "instructions": 150000000,
-            "lua_memory_bytes": 15997555
+            "lua_memory_bytes": 15653981
           }
         },
         {
           "phase": "warm-assets-generation",
-          "elapsed_ms": 4003.899999976158,
+          "elapsed_ms": 4409.199999988079,
           "semantic": {
             "instance.json": "75f681ede203a18d338058402af21fc3f6d888c61e8d2fa8aeca9ee31db72668",
             "pattern.pdf": "1c24596bc0e13fd5e54d2d4fa382d18113bde836045e38fecb60de7bfb236c69",
@@ -5287,7 +5287,7 @@
             {
               "bytes": 11294,
               "name": "record.json",
-              "sha256": "581b7d76c47c28b18c0d26088307cd91ce7c837ad33360af420497d11f14b9b5"
+              "sha256": "3598635faa05fd187be9955081ce68b01aa17f1d74d98cd33a213093b79c05bb"
             },
             {
               "bytes": 53552,
@@ -5301,13 +5301,13 @@
             }
           ],
           "stats": {
-            "instructions": 178110000,
-            "lua_memory_bytes": 7168803,
+            "instructions": 178240000,
+            "lua_memory_bytes": 20534255,
             "profile": {
-              "hash_bytes": 3521171,
+              "hash_bytes": 3522033,
               "hash_calls": 213,
               "hash_instructions": 0,
-              "instructions": 178110000
+              "instructions": 178240000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -5330,12 +5330,12 @@
             "request_id": 2,
             "phase": "shared-core",
             "instructions": 150000000,
-            "lua_memory_bytes": 16020068
+            "lua_memory_bytes": 15812631
           }
         },
         {
           "phase": "validated-instance-replay",
-          "elapsed_ms": 2961.399999976158,
+          "elapsed_ms": 3527.399999976158,
           "semantic": {
             "instance.json": "75f681ede203a18d338058402af21fc3f6d888c61e8d2fa8aeca9ee31db72668",
             "pattern.pdf": "1c24596bc0e13fd5e54d2d4fa382d18113bde836045e38fecb60de7bfb236c69",
@@ -5366,7 +5366,7 @@
             {
               "bytes": 19706,
               "name": "record.json",
-              "sha256": "6ececd2898d44a6f997e255444bc5cae972b53f14e31c38efe7fe2347e400356"
+              "sha256": "646dc49ce705d1d00ff613d315bc1e3553c8ba8a111999946048baf08c1d9407"
             },
             {
               "bytes": 53552,
@@ -5380,13 +5380,13 @@
             }
           ],
           "stats": {
-            "instructions": 107970000,
-            "lua_memory_bytes": 21117088,
+            "instructions": 107940000,
+            "lua_memory_bytes": 21118223,
             "profile": {
-              "hash_bytes": 4133582,
+              "hash_bytes": 4134444,
               "hash_calls": 216,
               "hash_instructions": 0,
-              "instructions": 107970000
+              "instructions": 107940000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -5409,17 +5409,17 @@
             "request_id": 3,
             "phase": "shared-core",
             "instructions": 100000000,
-            "lua_memory_bytes": 14547653
+            "lua_memory_bytes": 14597913
           }
         }
       ],
-      "cache_roundtrip_ms": 11.599999964237213,
+      "cache_roundtrip_ms": 12.700000047683716,
       "cache_actual_bytes_equal": true,
       "heartbeat": {
         "interval_ms": 20,
-        "ticks": 568,
-        "clicks": 568,
-        "maximum_observed_gap_ms": 21.69999998807907
+        "ticks": 613,
+        "clicks": 613,
+        "maximum_observed_gap_ms": 22
       }
     },
     {
@@ -5429,7 +5429,7 @@
       "phases": [
         {
           "phase": "cold-generation",
-          "elapsed_ms": 6970.699999988079,
+          "elapsed_ms": 8575.599999964237,
           "semantic": {
             "instance.json": "dae6fb79d489065f808768bdaa72bc09bd080415393b7b1fa71dbdeb67de380e",
             "pattern.pdf": "4257360c173801639b576031b590a370f45185fce7d6c09721eefc87642c5e72",
@@ -5460,7 +5460,7 @@
             {
               "bytes": 11292,
               "name": "record.json",
-              "sha256": "0ebcf774e7c98231e2f6c5df58ee57061ca7be40552a4b6e8abc6ab206aee954"
+              "sha256": "4f88833dc653c52efe5816c51015e31dbb36610a683af6d2b28ef08a3c23f511"
             },
             {
               "bytes": 57083,
@@ -5474,13 +5474,13 @@
             }
           ],
           "stats": {
-            "instructions": 364160000,
-            "lua_memory_bytes": 21117748,
+            "instructions": 364090000,
+            "lua_memory_bytes": 21118931,
             "profile": {
-              "hash_bytes": 3576854,
+              "hash_bytes": 3577716,
               "hash_calls": 213,
               "hash_instructions": 0,
-              "instructions": 364160000
+              "instructions": 364090000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -5503,12 +5503,12 @@
             "request_id": 1,
             "phase": "shared-core",
             "instructions": 350000000,
-            "lua_memory_bytes": 16108169
+            "lua_memory_bytes": 16355684
           }
         },
         {
           "phase": "warm-assets-generation",
-          "elapsed_ms": 6995.699999988079,
+          "elapsed_ms": 7811.900000035763,
           "semantic": {
             "instance.json": "dae6fb79d489065f808768bdaa72bc09bd080415393b7b1fa71dbdeb67de380e",
             "pattern.pdf": "4257360c173801639b576031b590a370f45185fce7d6c09721eefc87642c5e72",
@@ -5539,7 +5539,7 @@
             {
               "bytes": 11292,
               "name": "record.json",
-              "sha256": "0ebcf774e7c98231e2f6c5df58ee57061ca7be40552a4b6e8abc6ab206aee954"
+              "sha256": "4f88833dc653c52efe5816c51015e31dbb36610a683af6d2b28ef08a3c23f511"
             },
             {
               "bytes": 57083,
@@ -5553,13 +5553,13 @@
             }
           ],
           "stats": {
-            "instructions": 364170000,
-            "lua_memory_bytes": 21117796,
+            "instructions": 363960000,
+            "lua_memory_bytes": 21118931,
             "profile": {
-              "hash_bytes": 3576854,
+              "hash_bytes": 3577716,
               "hash_calls": 213,
               "hash_instructions": 0,
-              "instructions": 364170000
+              "instructions": 363960000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -5582,12 +5582,12 @@
             "request_id": 2,
             "phase": "shared-core",
             "instructions": 350000000,
-            "lua_memory_bytes": 16110065
+            "lua_memory_bytes": 16402484
           }
         },
         {
           "phase": "validated-instance-replay",
-          "elapsed_ms": 3298.300000011921,
+          "elapsed_ms": 3482.599999964237,
           "semantic": {
             "instance.json": "dae6fb79d489065f808768bdaa72bc09bd080415393b7b1fa71dbdeb67de380e",
             "pattern.pdf": "4257360c173801639b576031b590a370f45185fce7d6c09721eefc87642c5e72",
@@ -5618,7 +5618,7 @@
             {
               "bytes": 19703,
               "name": "record.json",
-              "sha256": "954c3b35b4b6322dbfa71c314f5adf91378b2f26013a6a86170043c9408d9206"
+              "sha256": "05a8281b56ef3cc354da6c7db51ff8694db3014542894fc49af3890f03dbf2e5"
             },
             {
               "bytes": 57083,
@@ -5633,9 +5633,9 @@
           ],
           "stats": {
             "instructions": 109960000,
-            "lua_memory_bytes": 7502552,
+            "lua_memory_bytes": 7503639,
             "profile": {
-              "hash_bytes": 4204711,
+              "hash_bytes": 4205573,
               "hash_calls": 216,
               "hash_instructions": 0,
               "instructions": 109960000
@@ -5661,17 +5661,17 @@
             "request_id": 3,
             "phase": "shared-core",
             "instructions": 100000000,
-            "lua_memory_bytes": 19551337
+            "lua_memory_bytes": 19454623
           }
         }
       ],
-      "cache_roundtrip_ms": 17.299999952316284,
+      "cache_roundtrip_ms": 13.199999988079071,
       "cache_actual_bytes_equal": true,
       "heartbeat": {
         "interval_ms": 20,
-        "ticks": 863,
-        "clicks": 863,
-        "maximum_observed_gap_ms": 21.80000001192093
+        "ticks": 993,
+        "clicks": 993,
+        "maximum_observed_gap_ms": 23.100000023841858
       }
     },
     {
@@ -5681,7 +5681,7 @@
       "phases": [
         {
           "phase": "cold-generation",
-          "elapsed_ms": 503.7000000476837,
+          "elapsed_ms": 560.3000000119209,
           "semantic": {
             "instance.json": "740b923b901203b0baea32d7d26fbede3e75ae0293a86bb42c62b6c90246427d",
             "pattern.pdf": "4feed0d329ed710097fd40b1afe0d2ab754092a3f81b95616c36892b2238ec04",
@@ -5712,7 +5712,7 @@
             {
               "bytes": 11881,
               "name": "record.json",
-              "sha256": "f6eeac09178540a63e49ae7362e957330a6a729a3cdd1ff7119a00eab61c3446"
+              "sha256": "565594ee885d97ca3fc051b90562271d53b6611b26bad6718f3b2e4b30847aa0"
             },
             {
               "bytes": 8568,
@@ -5727,11 +5727,11 @@
           ],
           "stats": {
             "instructions": 13520000,
-            "lua_memory_bytes": 4816679,
+            "lua_memory_bytes": 4817862,
             "profile": {
-              "hash_bytes": 1972080,
+              "hash_bytes": 1972942,
               "hash_calls": 208,
-              "hash_instructions": 0,
+              "hash_instructions": 10000,
               "instructions": 13520000
             },
             "host_identity": {
@@ -5758,7 +5758,7 @@
         },
         {
           "phase": "warm-assets-generation",
-          "elapsed_ms": 502.5,
+          "elapsed_ms": 543.1999999880791,
           "semantic": {
             "instance.json": "740b923b901203b0baea32d7d26fbede3e75ae0293a86bb42c62b6c90246427d",
             "pattern.pdf": "4feed0d329ed710097fd40b1afe0d2ab754092a3f81b95616c36892b2238ec04",
@@ -5789,7 +5789,7 @@
             {
               "bytes": 11881,
               "name": "record.json",
-              "sha256": "f6eeac09178540a63e49ae7362e957330a6a729a3cdd1ff7119a00eab61c3446"
+              "sha256": "565594ee885d97ca3fc051b90562271d53b6611b26bad6718f3b2e4b30847aa0"
             },
             {
               "bytes": 8568,
@@ -5803,13 +5803,13 @@
             }
           ],
           "stats": {
-            "instructions": 13540000,
-            "lua_memory_bytes": 5094808,
+            "instructions": 13520000,
+            "lua_memory_bytes": 4818006,
             "profile": {
-              "hash_bytes": 1972080,
+              "hash_bytes": 1972942,
               "hash_calls": 208,
               "hash_instructions": 0,
-              "instructions": 13540000
+              "instructions": 13520000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -5835,7 +5835,7 @@
         },
         {
           "phase": "validated-instance-replay",
-          "elapsed_ms": 546.1000000238419,
+          "elapsed_ms": 648.1000000238419,
           "semantic": {
             "instance.json": "740b923b901203b0baea32d7d26fbede3e75ae0293a86bb42c62b6c90246427d",
             "pattern.pdf": "4feed0d329ed710097fd40b1afe0d2ab754092a3f81b95616c36892b2238ec04",
@@ -5866,7 +5866,7 @@
             {
               "bytes": 20294,
               "name": "record.json",
-              "sha256": "ef66e2d6e98297589c00d81adb91d2dd78e6ada892d9dbc5ead3b96f9e7b4703"
+              "sha256": "af726989aedbb86edd6bb8315358fc96cdeff7f31808b8fbaa866789d49cb85c"
             },
             {
               "bytes": 8568,
@@ -5880,13 +5880,13 @@
             }
           ],
           "stats": {
-            "instructions": 14190000,
-            "lua_memory_bytes": 7074263,
+            "instructions": 14160000,
+            "lua_memory_bytes": 7137023,
             "profile": {
-              "hash_bytes": 2050303,
+              "hash_bytes": 2051165,
               "hash_calls": 214,
               "hash_instructions": 0,
-              "instructions": 14190000
+              "instructions": 14160000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -5911,13 +5911,13 @@
           }
         }
       ],
-      "cache_roundtrip_ms": 5.199999988079071,
+      "cache_roundtrip_ms": 5.5,
       "cache_actual_bytes_equal": true,
       "heartbeat": {
         "interval_ms": 20,
-        "ticks": 77,
-        "clicks": 77,
-        "maximum_observed_gap_ms": 21.80000001192093
+        "ticks": 87,
+        "clicks": 87,
+        "maximum_observed_gap_ms": 22.100000023841858
       }
     },
     {
@@ -5927,7 +5927,7 @@
       "phases": [
         {
           "phase": "cold-generation",
-          "elapsed_ms": 1545.300000011921,
+          "elapsed_ms": 1740,
           "semantic": {
             "instance.json": "76c26dc49a9dea99e7ccf1a1c78b9d7b8998d7a8919d6f36ccde616aca162561",
             "pattern.pdf": "1a4b9c76130844679dce25000904b76b66c1f6349181d79f3bdfae1d8fe26c35",
@@ -5958,7 +5958,7 @@
             {
               "bytes": 15199,
               "name": "record.json",
-              "sha256": "d6a37963c99cd7fe046a0d2fac16b9127e717c3e934820e3f25bf30c68a95e44"
+              "sha256": "9c96de81949ad58f35b2d84599c0b2474ccf2c6ee16ff14310959445ced1a9a0"
             },
             {
               "bytes": 32395,
@@ -5972,13 +5972,13 @@
             }
           ],
           "stats": {
-            "instructions": 66950000,
-            "lua_memory_bytes": 9813691,
+            "instructions": 66940000,
+            "lua_memory_bytes": 9814826,
             "profile": {
-              "hash_bytes": 2288106,
+              "hash_bytes": 2288968,
               "hash_calls": 208,
               "hash_instructions": 0,
-              "instructions": 66950000
+              "instructions": 66940000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -6001,12 +6001,12 @@
             "request_id": 1,
             "phase": "shared-core",
             "instructions": 50000000,
-            "lua_memory_bytes": 9290593
+            "lua_memory_bytes": 9245208
           }
         },
         {
           "phase": "warm-assets-generation",
-          "elapsed_ms": 1546.7000000476837,
+          "elapsed_ms": 1752.800000011921,
           "semantic": {
             "instance.json": "76c26dc49a9dea99e7ccf1a1c78b9d7b8998d7a8919d6f36ccde616aca162561",
             "pattern.pdf": "1a4b9c76130844679dce25000904b76b66c1f6349181d79f3bdfae1d8fe26c35",
@@ -6037,7 +6037,7 @@
             {
               "bytes": 15199,
               "name": "record.json",
-              "sha256": "d6a37963c99cd7fe046a0d2fac16b9127e717c3e934820e3f25bf30c68a95e44"
+              "sha256": "9c96de81949ad58f35b2d84599c0b2474ccf2c6ee16ff14310959445ced1a9a0"
             },
             {
               "bytes": 32395,
@@ -6051,13 +6051,13 @@
             }
           ],
           "stats": {
-            "instructions": 66960000,
-            "lua_memory_bytes": 9813787,
+            "instructions": 66970000,
+            "lua_memory_bytes": 9814826,
             "profile": {
-              "hash_bytes": 2288106,
+              "hash_bytes": 2288968,
               "hash_calls": 208,
               "hash_instructions": 0,
-              "instructions": 66960000
+              "instructions": 66970000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -6080,12 +6080,12 @@
             "request_id": 2,
             "phase": "shared-core",
             "instructions": 50000000,
-            "lua_memory_bytes": 9224253
+            "lua_memory_bytes": 9296920
           }
         },
         {
           "phase": "validated-instance-replay",
-          "elapsed_ms": 1024.5,
+          "elapsed_ms": 1328.1000000238419,
           "semantic": {
             "instance.json": "76c26dc49a9dea99e7ccf1a1c78b9d7b8998d7a8919d6f36ccde616aca162561",
             "pattern.pdf": "1a4b9c76130844679dce25000904b76b66c1f6349181d79f3bdfae1d8fe26c35",
@@ -6116,7 +6116,7 @@
             {
               "bytes": 23610,
               "name": "record.json",
-              "sha256": "dedd0f5f8b921effd72ca36db16b830985f8a00a9401902118b60323b805be44"
+              "sha256": "656aa37eac2ffe4c62cb00857796d9defbec45b5bb1af8478a28eea3e6bb091e"
             },
             {
               "bytes": 32395,
@@ -6130,13 +6130,13 @@
             }
           ],
           "stats": {
-            "instructions": 32170000,
-            "lua_memory_bytes": 7689382,
+            "instructions": 32160000,
+            "lua_memory_bytes": 7110424,
             "profile": {
-              "hash_bytes": 2445357,
+              "hash_bytes": 2446219,
               "hash_calls": 214,
               "hash_instructions": 0,
-              "instructions": 32170000
+              "instructions": 32160000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -6161,13 +6161,13 @@
           }
         }
       ],
-      "cache_roundtrip_ms": 7,
+      "cache_roundtrip_ms": 8.100000023841858,
       "cache_actual_bytes_equal": true,
       "heartbeat": {
         "interval_ms": 20,
-        "ticks": 206,
-        "clicks": 206,
-        "maximum_observed_gap_ms": 21.5
+        "ticks": 241,
+        "clicks": 241,
+        "maximum_observed_gap_ms": 21.19999998807907
       }
     },
     {
@@ -6177,7 +6177,7 @@
       "phases": [
         {
           "phase": "cold-generation",
-          "elapsed_ms": 3669.599999964237,
+          "elapsed_ms": 4204.600000023842,
           "semantic": {
             "instance.json": "bf611e94e9d706b14a8125a8415f9c91999bacdea59371bc3ebb065d0dc1c486",
             "pattern.pdf": "97f18d13d296ab5eed5f338b2b4304c63cde9fa6f1de389cc4dfba2bd1616a4e",
@@ -6208,7 +6208,7 @@
             {
               "bytes": 18578,
               "name": "record.json",
-              "sha256": "0d0f6f19eb2791a7e892cf40b2f27e12acb53d472ef47b56334e84b528067a0b"
+              "sha256": "dfe02806766f6238fc7c69ec425f9a7cccc05fbe86f4175c108f33de1784bb31"
             },
             {
               "bytes": 61598,
@@ -6222,13 +6222,13 @@
             }
           ],
           "stats": {
-            "instructions": 182290000,
-            "lua_memory_bytes": 9394582,
+            "instructions": 182210000,
+            "lua_memory_bytes": 9395717,
             "profile": {
-              "hash_bytes": 2673488,
+              "hash_bytes": 2674350,
               "hash_calls": 208,
               "hash_instructions": 0,
-              "instructions": 182290000
+              "instructions": 182210000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -6251,12 +6251,12 @@
             "request_id": 1,
             "phase": "shared-core",
             "instructions": 150000000,
-            "lua_memory_bytes": 9258333
+            "lua_memory_bytes": 9183344
           }
         },
         {
           "phase": "warm-assets-generation",
-          "elapsed_ms": 3699.600000023842,
+          "elapsed_ms": 4710.799999952316,
           "semantic": {
             "instance.json": "bf611e94e9d706b14a8125a8415f9c91999bacdea59371bc3ebb065d0dc1c486",
             "pattern.pdf": "97f18d13d296ab5eed5f338b2b4304c63cde9fa6f1de389cc4dfba2bd1616a4e",
@@ -6287,7 +6287,7 @@
             {
               "bytes": 18578,
               "name": "record.json",
-              "sha256": "0d0f6f19eb2791a7e892cf40b2f27e12acb53d472ef47b56334e84b528067a0b"
+              "sha256": "dfe02806766f6238fc7c69ec425f9a7cccc05fbe86f4175c108f33de1784bb31"
             },
             {
               "bytes": 61598,
@@ -6301,13 +6301,13 @@
             }
           ],
           "stats": {
-            "instructions": 182170000,
-            "lua_memory_bytes": 9394618,
+            "instructions": 182180000,
+            "lua_memory_bytes": 9592325,
             "profile": {
-              "hash_bytes": 2673488,
+              "hash_bytes": 2674350,
               "hash_calls": 208,
               "hash_instructions": 0,
-              "instructions": 182170000
+              "instructions": 182180000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -6330,12 +6330,12 @@
             "request_id": 2,
             "phase": "shared-core",
             "instructions": 150000000,
-            "lua_memory_bytes": 9203881
+            "lua_memory_bytes": 9211880
           }
         },
         {
           "phase": "validated-instance-replay",
-          "elapsed_ms": 2327.100000023842,
+          "elapsed_ms": 3073.5,
           "semantic": {
             "instance.json": "bf611e94e9d706b14a8125a8415f9c91999bacdea59371bc3ebb065d0dc1c486",
             "pattern.pdf": "97f18d13d296ab5eed5f338b2b4304c63cde9fa6f1de389cc4dfba2bd1616a4e",
@@ -6366,7 +6366,7 @@
             {
               "bytes": 26989,
               "name": "record.json",
-              "sha256": "0d4603a26ea09aadac016603beedd8d6d8cfadc35cdaf31c40a4fe606ef0ba74"
+              "sha256": "9e50f72a09a91b484140d7b06071976470cebd48208c2b99d4fb5dbc8fcf397f"
             },
             {
               "bytes": 61598,
@@ -6380,13 +6380,13 @@
             }
           ],
           "stats": {
-            "instructions": 69260000,
-            "lua_memory_bytes": 6747090,
+            "instructions": 69170000,
+            "lua_memory_bytes": 6747609,
             "profile": {
-              "hash_bytes": 2925357,
+              "hash_bytes": 2926219,
               "hash_calls": 214,
               "hash_instructions": 0,
-              "instructions": 69260000
+              "instructions": 69170000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -6409,17 +6409,17 @@
             "request_id": 3,
             "phase": "shared-core",
             "instructions": 50000000,
-            "lua_memory_bytes": 9252715
+            "lua_memory_bytes": 9340487
           }
         }
       ],
-      "cache_roundtrip_ms": 9.100000023841858,
+      "cache_roundtrip_ms": 10.800000011920929,
       "cache_actual_bytes_equal": true,
       "heartbeat": {
         "interval_ms": 20,
-        "ticks": 485,
-        "clicks": 485,
-        "maximum_observed_gap_ms": 21.80000001192093
+        "ticks": 599,
+        "clicks": 599,
+        "maximum_observed_gap_ms": 27
       }
     },
     {
@@ -6429,7 +6429,7 @@
       "phases": [
         {
           "phase": "cold-generation",
-          "elapsed_ms": 11622.900000035763,
+          "elapsed_ms": 12883.5,
           "semantic": {
             "instance.json": "881a4bfd7f6da56c0d0bd77050d787d7466f1f6d52bd387cb061b28f02e5c679",
             "pattern.pdf": "ccd809ce5acd69659c19f89e9a53ebb83d8b7031c0e1e39cdcc40187ec8c1eb6",
@@ -6460,7 +6460,7 @@
             {
               "bytes": 10669,
               "name": "record.json",
-              "sha256": "cac1426259305f42eef00c5eb48a099ec348fa148d47705e6146839b5da81fbe"
+              "sha256": "51611543bcb2b717dd8c0261782cf294189c140aeda6743ce07866c6794aac7e"
             },
             {
               "bytes": 127570,
@@ -6474,13 +6474,13 @@
             }
           ],
           "stats": {
-            "instructions": 523940000,
-            "lua_memory_bytes": 9770520,
+            "instructions": 524090000,
+            "lua_memory_bytes": 9771607,
             "profile": {
-              "hash_bytes": 4210883,
+              "hash_bytes": 4211745,
               "hash_calls": 211,
-              "hash_instructions": 10000,
-              "instructions": 523940000
+              "hash_instructions": 0,
+              "instructions": 524090000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -6503,12 +6503,12 @@
             "request_id": 1,
             "phase": "shared-core",
             "instructions": 500000000,
-            "lua_memory_bytes": 26139314
+            "lua_memory_bytes": 32926758
           }
         },
         {
           "phase": "warm-assets-generation",
-          "elapsed_ms": 11602.099999964237,
+          "elapsed_ms": 13333.699999988079,
           "semantic": {
             "instance.json": "881a4bfd7f6da56c0d0bd77050d787d7466f1f6d52bd387cb061b28f02e5c679",
             "pattern.pdf": "ccd809ce5acd69659c19f89e9a53ebb83d8b7031c0e1e39cdcc40187ec8c1eb6",
@@ -6539,7 +6539,7 @@
             {
               "bytes": 10669,
               "name": "record.json",
-              "sha256": "cac1426259305f42eef00c5eb48a099ec348fa148d47705e6146839b5da81fbe"
+              "sha256": "51611543bcb2b717dd8c0261782cf294189c140aeda6743ce07866c6794aac7e"
             },
             {
               "bytes": 127570,
@@ -6553,13 +6553,13 @@
             }
           ],
           "stats": {
-            "instructions": 523880000,
-            "lua_memory_bytes": 15315091,
+            "instructions": 523980000,
+            "lua_memory_bytes": 9771607,
             "profile": {
-              "hash_bytes": 4210883,
+              "hash_bytes": 4211745,
               "hash_calls": 211,
               "hash_instructions": 0,
-              "instructions": 523880000
+              "instructions": 523980000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -6582,12 +6582,12 @@
             "request_id": 2,
             "phase": "shared-core",
             "instructions": 500000000,
-            "lua_memory_bytes": 16758941
+            "lua_memory_bytes": 33276118
           }
         },
         {
           "phase": "validated-instance-replay",
-          "elapsed_ms": 11506.100000023842,
+          "elapsed_ms": 12394.399999976158,
           "semantic": {
             "instance.json": "881a4bfd7f6da56c0d0bd77050d787d7466f1f6d52bd387cb061b28f02e5c679",
             "pattern.pdf": "ccd809ce5acd69659c19f89e9a53ebb83d8b7031c0e1e39cdcc40187ec8c1eb6",
@@ -6618,7 +6618,7 @@
             {
               "bytes": 19083,
               "name": "record.json",
-              "sha256": "3c3a0294199a5cc01db0e8b70d110a2d24b7d28eff6c5fc1de1c36c986084d12"
+              "sha256": "15fd10520725467425f4af15e78dbfe04306f8198d1409e2b8df5274b851348f"
             },
             {
               "bytes": 127570,
@@ -6632,13 +6632,13 @@
             }
           ],
           "stats": {
-            "instructions": 465300000,
-            "lua_memory_bytes": 15027872,
+            "instructions": 465340000,
+            "lua_memory_bytes": 9989566,
             "profile": {
-              "hash_bytes": 4542794,
+              "hash_bytes": 4543656,
               "hash_calls": 218,
               "hash_instructions": 0,
-              "instructions": 465300000
+              "instructions": 465340000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -6661,17 +6661,17 @@
             "request_id": 3,
             "phase": "shared-core",
             "instructions": 450000000,
-            "lua_memory_bytes": 15146213
+            "lua_memory_bytes": 26059046
           }
         }
       ],
-      "cache_roundtrip_ms": 18.399999976158142,
+      "cache_roundtrip_ms": 26.100000023841858,
       "cache_actual_bytes_equal": true,
       "heartbeat": {
         "interval_ms": 20,
-        "ticks": 1736,
-        "clicks": 1736,
-        "maximum_observed_gap_ms": 21.69999998807907
+        "ticks": 1931,
+        "clicks": 1931,
+        "maximum_observed_gap_ms": 22
       }
     },
     {
@@ -6681,7 +6681,7 @@
       "phases": [
         {
           "phase": "cold-generation",
-          "elapsed_ms": 14184,
+          "elapsed_ms": 15863.100000023842,
           "semantic": {
             "instance.json": "c557cde44f601de9fa080bd4771631d60ec0fa793a192475846781322aca264a",
             "pattern.pdf": "5f6b6289abdc588f35ea25bf1aebe36886c7d6b4ac65bafeffe712e014dc19d9",
@@ -6712,7 +6712,7 @@
             {
               "bytes": 10669,
               "name": "record.json",
-              "sha256": "df3ef0be19708739bbe659a71b0efa035c2546f1787a1744ecadca41353719be"
+              "sha256": "d6b6b6bc1e527148018cc91fc3bfeff96f26667fc98b8c48d6ebf533b3965288"
             },
             {
               "bytes": 159922,
@@ -6726,13 +6726,13 @@
             }
           ],
           "stats": {
-            "instructions": 623090000,
-            "lua_memory_bytes": 10275729,
+            "instructions": 622960000,
+            "lua_memory_bytes": 10276272,
             "profile": {
-              "hash_bytes": 5088177,
+              "hash_bytes": 5089039,
               "hash_calls": 211,
               "hash_instructions": 0,
-              "instructions": 623090000
+              "instructions": 622960000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -6755,12 +6755,12 @@
             "request_id": 1,
             "phase": "shared-core",
             "instructions": 600000000,
-            "lua_memory_bytes": 24381708
+            "lua_memory_bytes": 29233712
           }
         },
         {
           "phase": "warm-assets-generation",
-          "elapsed_ms": 16003.199999988079,
+          "elapsed_ms": 15461.599999964237,
           "semantic": {
             "instance.json": "c557cde44f601de9fa080bd4771631d60ec0fa793a192475846781322aca264a",
             "pattern.pdf": "5f6b6289abdc588f35ea25bf1aebe36886c7d6b4ac65bafeffe712e014dc19d9",
@@ -6791,7 +6791,7 @@
             {
               "bytes": 10669,
               "name": "record.json",
-              "sha256": "df3ef0be19708739bbe659a71b0efa035c2546f1787a1744ecadca41353719be"
+              "sha256": "d6b6b6bc1e527148018cc91fc3bfeff96f26667fc98b8c48d6ebf533b3965288"
             },
             {
               "bytes": 159922,
@@ -6805,13 +6805,13 @@
             }
           ],
           "stats": {
-            "instructions": 622990000,
-            "lua_memory_bytes": 10275729,
+            "instructions": 622960000,
+            "lua_memory_bytes": 15822195,
             "profile": {
-              "hash_bytes": 5088177,
+              "hash_bytes": 5089039,
               "hash_calls": 211,
               "hash_instructions": 0,
-              "instructions": 622990000
+              "instructions": 622960000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -6834,12 +6834,12 @@
             "request_id": 2,
             "phase": "shared-core",
             "instructions": 600000000,
-            "lua_memory_bytes": 24874486
+            "lua_memory_bytes": 22381551
           }
         },
         {
           "phase": "validated-instance-replay",
-          "elapsed_ms": 13628.599999964237,
+          "elapsed_ms": 13840.600000023842,
           "semantic": {
             "instance.json": "c557cde44f601de9fa080bd4771631d60ec0fa793a192475846781322aca264a",
             "pattern.pdf": "5f6b6289abdc588f35ea25bf1aebe36886c7d6b4ac65bafeffe712e014dc19d9",
@@ -6870,7 +6870,7 @@
             {
               "bytes": 19083,
               "name": "record.json",
-              "sha256": "cc27f3e5ed7ca386efd81a865663339b48547d6911be63fa08ca8f39d32fcbb8"
+              "sha256": "1e81616cfbd2f81df2cb726330a6fc2eb23b9e0000a2ec85bd0c03e7ca3c8059"
             },
             {
               "bytes": 159922,
@@ -6884,13 +6884,13 @@
             }
           ],
           "stats": {
-            "instructions": 532840000,
-            "lua_memory_bytes": 11375600,
+            "instructions": 532910000,
+            "lua_memory_bytes": 11376819,
             "profile": {
-              "hash_bytes": 5610828,
+              "hash_bytes": 5611690,
               "hash_calls": 218,
-              "hash_instructions": 0,
-              "instructions": 532840000
+              "hash_instructions": 10000,
+              "instructions": 532910000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -6913,17 +6913,17 @@
             "request_id": 3,
             "phase": "shared-core",
             "instructions": 500000000,
-            "lua_memory_bytes": 26865026
+            "lua_memory_bytes": 19009905
           }
         }
       ],
-      "cache_roundtrip_ms": 27.5,
+      "cache_roundtrip_ms": 31.19999998807907,
       "cache_actual_bytes_equal": true,
       "heartbeat": {
         "interval_ms": 20,
-        "ticks": 2191,
-        "clicks": 2191,
-        "maximum_observed_gap_ms": 28.30000001192093
+        "ticks": 2258,
+        "clicks": 2258,
+        "maximum_observed_gap_ms": 21.5
       }
     },
     {
@@ -6933,7 +6933,7 @@
       "phases": [
         {
           "phase": "cold-generation",
-          "elapsed_ms": 35295.69999998808,
+          "elapsed_ms": 40833.30000001192,
           "semantic": {
             "instance.json": "513e8230be0a16829c99d9cdad6d0dc54ee272cc3efb044b885436f27cc16e04",
             "pattern.pdf": "2c442d34abb85e1832e12a20fdba8016e9a3d74fa8ef5338359da588acb2710f",
@@ -6964,7 +6964,7 @@
             {
               "bytes": 10675,
               "name": "record.json",
-              "sha256": "e5c260be5d589e6062e0d3a21eddda216ac5ba4dc217b1fe2664c5c2ddade42e"
+              "sha256": "773dfe4aa12c65b6f5b8c117708e265327a56a471a11777f74520f1145729973"
             },
             {
               "bytes": 257699,
@@ -6978,13 +6978,13 @@
             }
           ],
           "stats": {
-            "instructions": 2061270000,
-            "lua_memory_bytes": 17005170,
+            "instructions": 2061290000,
+            "lua_memory_bytes": 17006305,
             "profile": {
-              "hash_bytes": 8752290,
+              "hash_bytes": 8753152,
               "hash_calls": 211,
               "hash_instructions": 0,
-              "instructions": 2061270000
+              "instructions": 2061290000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -7007,12 +7007,12 @@
             "request_id": 1,
             "phase": "shared-core",
             "instructions": 2050000000,
-            "lua_memory_bytes": 45636159
+            "lua_memory_bytes": 43752720
           }
         },
         {
           "phase": "warm-assets-generation",
-          "elapsed_ms": 36505.90000003576,
+          "elapsed_ms": 42128.39999997616,
           "semantic": {
             "instance.json": "513e8230be0a16829c99d9cdad6d0dc54ee272cc3efb044b885436f27cc16e04",
             "pattern.pdf": "2c442d34abb85e1832e12a20fdba8016e9a3d74fa8ef5338359da588acb2710f",
@@ -7043,7 +7043,7 @@
             {
               "bytes": 10675,
               "name": "record.json",
-              "sha256": "e5c260be5d589e6062e0d3a21eddda216ac5ba4dc217b1fe2664c5c2ddade42e"
+              "sha256": "773dfe4aa12c65b6f5b8c117708e265327a56a471a11777f74520f1145729973"
             },
             {
               "bytes": 257699,
@@ -7057,13 +7057,13 @@
             }
           ],
           "stats": {
-            "instructions": 2061170000,
-            "lua_memory_bytes": 32627193,
+            "instructions": 2061240000,
+            "lua_memory_bytes": 17006305,
             "profile": {
-              "hash_bytes": 8752290,
+              "hash_bytes": 8753152,
               "hash_calls": 211,
               "hash_instructions": 0,
-              "instructions": 2061170000
+              "instructions": 2061240000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -7086,12 +7086,12 @@
             "request_id": 2,
             "phase": "shared-core",
             "instructions": 2050000000,
-            "lua_memory_bytes": 54787302
+            "lua_memory_bytes": 43860397
           }
         },
         {
           "phase": "validated-instance-replay",
-          "elapsed_ms": 26279,
+          "elapsed_ms": 29678.5,
           "semantic": {
             "instance.json": "513e8230be0a16829c99d9cdad6d0dc54ee272cc3efb044b885436f27cc16e04",
             "pattern.pdf": "2c442d34abb85e1832e12a20fdba8016e9a3d74fa8ef5338359da588acb2710f",
@@ -7122,7 +7122,7 @@
             {
               "bytes": 19088,
               "name": "record.json",
-              "sha256": "5d306433935ade6851f60381a55642676b2201971c4b85dbfdc8948b71b4f05f"
+              "sha256": "1dcf8ed313d039c92ebec003b583027c1c208d70c7b62de4f75aa4bee0815e4d"
             },
             {
               "bytes": 257699,
@@ -7136,13 +7136,13 @@
             }
           ],
           "stats": {
-            "instructions": 1322670000,
-            "lua_memory_bytes": 17805118,
+            "instructions": 1322930000,
+            "lua_memory_bytes": 19379165,
             "profile": {
-              "hash_bytes": 10246514,
+              "hash_bytes": 10247376,
               "hash_calls": 218,
               "hash_instructions": 0,
-              "instructions": 1322670000
+              "instructions": 1322930000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -7165,17 +7165,17 @@
             "request_id": 3,
             "phase": "shared-core",
             "instructions": 1300000000,
-            "lua_memory_bytes": 52985842
+            "lua_memory_bytes": 58151057
           }
         }
       ],
-      "cache_roundtrip_ms": 60.09999996423721,
+      "cache_roundtrip_ms": 61.200000047683716,
       "cache_actual_bytes_equal": true,
       "heartbeat": {
         "interval_ms": 20,
-        "ticks": 4905,
-        "clicks": 4905,
-        "maximum_observed_gap_ms": 29
+        "ticks": 5632,
+        "clicks": 5632,
+        "maximum_observed_gap_ms": 36.69999998807907
       }
     },
     {
@@ -7185,7 +7185,7 @@
       "phases": [
         {
           "phase": "cold-generation",
-          "elapsed_ms": 691.5999999642372,
+          "elapsed_ms": 1084.7000000476837,
           "semantic": {
             "instance.json": "6873620e1dcbd898574e310a7f9c1c1e526a323e775c5918701908cd572d43bd",
             "pattern.pdf": "a5347dba48e8acea6ae74f8cf36fc6fb68b6e7ae1053f68cfd728facf568477e",
@@ -7216,7 +7216,7 @@
             {
               "bytes": 10178,
               "name": "record.json",
-              "sha256": "bff31063d1785ea1dfd51fca6ec6b05a91e417c240a84a1047aba3b693a3907e"
+              "sha256": "481c8666d1fcfcc9be08d10cbf23ef6405ee58e7185ecd7b13f37619cffb90e4"
             },
             {
               "bytes": 4345,
@@ -7230,13 +7230,13 @@
             }
           ],
           "stats": {
-            "instructions": 23660000,
-            "lua_memory_bytes": 6397327,
+            "instructions": 23690000,
+            "lua_memory_bytes": 5822719,
             "profile": {
-              "hash_bytes": 2019549,
+              "hash_bytes": 2020411,
               "hash_calls": 205,
               "hash_instructions": 0,
-              "instructions": 23660000
+              "instructions": 23690000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -7262,7 +7262,7 @@
         },
         {
           "phase": "warm-assets-generation",
-          "elapsed_ms": 698,
+          "elapsed_ms": 766.3999999761581,
           "semantic": {
             "instance.json": "6873620e1dcbd898574e310a7f9c1c1e526a323e775c5918701908cd572d43bd",
             "pattern.pdf": "a5347dba48e8acea6ae74f8cf36fc6fb68b6e7ae1053f68cfd728facf568477e",
@@ -7293,7 +7293,7 @@
             {
               "bytes": 10178,
               "name": "record.json",
-              "sha256": "bff31063d1785ea1dfd51fca6ec6b05a91e417c240a84a1047aba3b693a3907e"
+              "sha256": "481c8666d1fcfcc9be08d10cbf23ef6405ee58e7185ecd7b13f37619cffb90e4"
             },
             {
               "bytes": 4345,
@@ -7307,13 +7307,13 @@
             }
           ],
           "stats": {
-            "instructions": 23660000,
-            "lua_memory_bytes": 6397327,
+            "instructions": 23670000,
+            "lua_memory_bytes": 5823023,
             "profile": {
-              "hash_bytes": 2019549,
+              "hash_bytes": 2020411,
               "hash_calls": 205,
               "hash_instructions": 0,
-              "instructions": 23660000
+              "instructions": 23670000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -7339,7 +7339,7 @@
         },
         {
           "phase": "validated-instance-replay",
-          "elapsed_ms": 574.1999999880791,
+          "elapsed_ms": 745.2999999523163,
           "semantic": {
             "instance.json": "6873620e1dcbd898574e310a7f9c1c1e526a323e775c5918701908cd572d43bd",
             "pattern.pdf": "a5347dba48e8acea6ae74f8cf36fc6fb68b6e7ae1053f68cfd728facf568477e",
@@ -7370,7 +7370,7 @@
             {
               "bytes": 18590,
               "name": "record.json",
-              "sha256": "1359d49977e3e65a4bf97e5b36356ff2e7bad7f838ef9b4a1e6fa6c58c85b3f1"
+              "sha256": "928678d0f523fd139d59f06b6ada530c1db54fb40aae036dc45563a950b20f97"
             },
             {
               "bytes": 4345,
@@ -7384,13 +7384,13 @@
             }
           ],
           "stats": {
-            "instructions": 15550000,
-            "lua_memory_bytes": 6150816,
+            "instructions": 15560000,
+            "lua_memory_bytes": 6151903,
             "profile": {
-              "hash_bytes": 2121892,
+              "hash_bytes": 2122754,
               "hash_calls": 213,
               "hash_instructions": 0,
-              "instructions": 15550000
+              "instructions": 15560000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -7415,13 +7415,13 @@
           }
         }
       ],
-      "cache_roundtrip_ms": 4.899999976158142,
+      "cache_roundtrip_ms": 6.5,
       "cache_actual_bytes_equal": true,
       "heartbeat": {
         "interval_ms": 20,
-        "ticks": 98,
-        "clicks": 98,
-        "maximum_observed_gap_ms": 21.80000001192093
+        "ticks": 130,
+        "clicks": 130,
+        "maximum_observed_gap_ms": 24.100000023841858
       }
     },
     {
@@ -7431,7 +7431,7 @@
       "phases": [
         {
           "phase": "cold-generation",
-          "elapsed_ms": 1697.5,
+          "elapsed_ms": 2067.199999988079,
           "semantic": {
             "instance.json": "f80f79928d641698d128fdf15d058209498cc56b7088a23327a9c80ede1e3d3d",
             "pattern.pdf": "ef88321bc3a1486c3004ff6e4ee388739583b85f1d90385dff493f53cc04d9ce",
@@ -7462,7 +7462,7 @@
             {
               "bytes": 10182,
               "name": "record.json",
-              "sha256": "db1d1034b9f25c7b895ff884497b4f3a91b5401b77934ef5d3767d380c5218c0"
+              "sha256": "a8203773bc590d6214f7691f0da0b59984c94b4e6ee6f5da692710dcdb415afd"
             },
             {
               "bytes": 10008,
@@ -7476,13 +7476,13 @@
             }
           ],
           "stats": {
-            "instructions": 73300000,
-            "lua_memory_bytes": 9793325,
+            "instructions": 73370000,
+            "lua_memory_bytes": 9794484,
             "profile": {
-              "hash_bytes": 2470148,
+              "hash_bytes": 2471010,
               "hash_calls": 205,
               "hash_instructions": 0,
-              "instructions": 73300000
+              "instructions": 73370000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -7505,12 +7505,12 @@
             "request_id": 1,
             "phase": "shared-core",
             "instructions": 50000000,
-            "lua_memory_bytes": 5635473
+            "lua_memory_bytes": 5548036
           }
         },
         {
           "phase": "warm-assets-generation",
-          "elapsed_ms": 1677.9000000357628,
+          "elapsed_ms": 1922.4000000357628,
           "semantic": {
             "instance.json": "f80f79928d641698d128fdf15d058209498cc56b7088a23327a9c80ede1e3d3d",
             "pattern.pdf": "ef88321bc3a1486c3004ff6e4ee388739583b85f1d90385dff493f53cc04d9ce",
@@ -7541,7 +7541,7 @@
             {
               "bytes": 10182,
               "name": "record.json",
-              "sha256": "db1d1034b9f25c7b895ff884497b4f3a91b5401b77934ef5d3767d380c5218c0"
+              "sha256": "a8203773bc590d6214f7691f0da0b59984c94b4e6ee6f5da692710dcdb415afd"
             },
             {
               "bytes": 10008,
@@ -7555,13 +7555,13 @@
             }
           ],
           "stats": {
-            "instructions": 73410000,
-            "lua_memory_bytes": 9793421,
+            "instructions": 73360000,
+            "lua_memory_bytes": 9794556,
             "profile": {
-              "hash_bytes": 2470148,
+              "hash_bytes": 2471010,
               "hash_calls": 205,
               "hash_instructions": 0,
-              "instructions": 73410000
+              "instructions": 73360000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -7584,12 +7584,12 @@
             "request_id": 2,
             "phase": "shared-core",
             "instructions": 50000000,
-            "lua_memory_bytes": 5517181
+            "lua_memory_bytes": 5535852
           }
         },
         {
           "phase": "validated-instance-replay",
-          "elapsed_ms": 1086.699999988079,
+          "elapsed_ms": 1219.300000011921,
           "semantic": {
             "instance.json": "f80f79928d641698d128fdf15d058209498cc56b7088a23327a9c80ede1e3d3d",
             "pattern.pdf": "ef88321bc3a1486c3004ff6e4ee388739583b85f1d90385dff493f53cc04d9ce",
@@ -7620,7 +7620,7 @@
             {
               "bytes": 18593,
               "name": "record.json",
-              "sha256": "c611469a489fed3bf1deaa684889896640771b2d6482150ed78cd930d09e2c6f"
+              "sha256": "8c36c0740028405359720f9213ed102e478dc7463dc90c7ec9972d58640c488f"
             },
             {
               "bytes": 10008,
@@ -7634,13 +7634,13 @@
             }
           ],
           "stats": {
-            "instructions": 30180000,
-            "lua_memory_bytes": 10205971,
+            "instructions": 30130000,
+            "lua_memory_bytes": 10207106,
             "profile": {
-              "hash_bytes": 2741849,
+              "hash_bytes": 2742711,
               "hash_calls": 213,
-              "hash_instructions": 10000,
-              "instructions": 30180000
+              "hash_instructions": 0,
+              "instructions": 30130000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -7665,13 +7665,13 @@
           }
         }
       ],
-      "cache_roundtrip_ms": 7.399999976158142,
+      "cache_roundtrip_ms": 6.800000011920929,
       "cache_actual_bytes_equal": true,
       "heartbeat": {
         "interval_ms": 20,
-        "ticks": 223,
-        "clicks": 223,
-        "maximum_observed_gap_ms": 22.599999964237213
+        "ticks": 260,
+        "clicks": 260,
+        "maximum_observed_gap_ms": 21.5
       }
     },
     {
@@ -7681,7 +7681,7 @@
       "phases": [
         {
           "phase": "cold-generation",
-          "elapsed_ms": 5088,
+          "elapsed_ms": 5822.400000035763,
           "semantic": {
             "instance.json": "66f995156061d521b590b14e9b78ac7aae373cf7bd6df983ca4db4097ae27aab",
             "pattern.pdf": "d2034a1f6e25541c4aad231db0cff09377d1ec234fc73242565a87e45095163c",
@@ -7712,86 +7712,7 @@
             {
               "bytes": 10184,
               "name": "record.json",
-              "sha256": "82a8dadcd8809ac2d94fc22a0b92318f49ff1d1c13606e620c5c197bb2c09d5d"
-            },
-            {
-              "bytes": 20981,
-              "name": "scene.json",
-              "sha256": "f121afce06767dc94b6e3e1d54870e65f6a1287286156ab591b5d03da5b5a933"
-            },
-            {
-              "bytes": 793,
-              "name": "view.json",
-              "sha256": "89dfc571185cda542575b787138fa2436788c1181aa88afc2e058c7fcc3e1a57"
-            }
-          ],
-          "stats": {
-            "instructions": 232850000,
-            "lua_memory_bytes": 11212603,
-            "profile": {
-              "hash_bytes": 3945195,
-              "hash_calls": 205,
-              "hash_instructions": 0,
-              "instructions": 232850000
-            },
-            "host_identity": {
-              "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
-              "instructions": 16000000000,
-              "memory": 268435456,
-              "watchdog_ms": 300000,
-              "hash_bytes": 536870912,
-              "hash_calls": 1000000
-            },
-            "host_digest": "37e5bbc775e40b3c0496eae930aaf84fd61b779839e383ccbe2eb22ace46b0ba"
-          },
-          "progress_count": 6,
-          "progress_first": {
-            "generation": 1,
-            "request_id": 1,
-            "phase": "inputs"
-          },
-          "progress_last": {
-            "generation": 1,
-            "request_id": 1,
-            "phase": "shared-core",
-            "instructions": 200000000,
-            "lua_memory_bytes": 11337228
-          }
-        },
-        {
-          "phase": "warm-assets-generation",
-          "elapsed_ms": 5799.900000035763,
-          "semantic": {
-            "instance.json": "66f995156061d521b590b14e9b78ac7aae373cf7bd6df983ca4db4097ae27aab",
-            "pattern.pdf": "d2034a1f6e25541c4aad231db0cff09377d1ec234fc73242565a87e45095163c",
-            "pattern.svg": "0e4fa006763c12288029a572424f4b4f980d66651bc12d84bb71dde29e8ddef1",
-            "scene.json": "f121afce06767dc94b6e3e1d54870e65f6a1287286156ab591b5d03da5b5a933"
-          },
-          "outputs": [
-            {
-              "bytes": 397188,
-              "name": "instance.json",
-              "sha256": "66f995156061d521b590b14e9b78ac7aae373cf7bd6df983ca4db4097ae27aab"
-            },
-            {
-              "bytes": 19227,
-              "name": "pattern.pdf",
-              "sha256": "d2034a1f6e25541c4aad231db0cff09377d1ec234fc73242565a87e45095163c"
-            },
-            {
-              "bytes": 18593,
-              "name": "pattern.svg",
-              "sha256": "0e4fa006763c12288029a572424f4b4f980d66651bc12d84bb71dde29e8ddef1"
-            },
-            {
-              "bytes": 4813,
-              "name": "recipe.json",
-              "sha256": "0a8c056adb3b214f5720f746cd9c17516613456d4d1ab9b094de104e2a4fa402"
-            },
-            {
-              "bytes": 10184,
-              "name": "record.json",
-              "sha256": "82a8dadcd8809ac2d94fc22a0b92318f49ff1d1c13606e620c5c197bb2c09d5d"
+              "sha256": "91eaf52a238ad704e1daa1798f26fa3e93930fae76e5b921239c29d6103a9a39"
             },
             {
               "bytes": 20981,
@@ -7806,9 +7727,9 @@
           ],
           "stats": {
             "instructions": 232730000,
-            "lua_memory_bytes": 11212603,
+            "lua_memory_bytes": 20217376,
             "profile": {
-              "hash_bytes": 3945195,
+              "hash_bytes": 3946057,
               "hash_calls": 205,
               "hash_instructions": 0,
               "instructions": 232730000
@@ -7825,6 +7746,85 @@
           },
           "progress_count": 6,
           "progress_first": {
+            "generation": 1,
+            "request_id": 1,
+            "phase": "inputs"
+          },
+          "progress_last": {
+            "generation": 1,
+            "request_id": 1,
+            "phase": "shared-core",
+            "instructions": 200000000,
+            "lua_memory_bytes": 11333715
+          }
+        },
+        {
+          "phase": "warm-assets-generation",
+          "elapsed_ms": 6025.699999988079,
+          "semantic": {
+            "instance.json": "66f995156061d521b590b14e9b78ac7aae373cf7bd6df983ca4db4097ae27aab",
+            "pattern.pdf": "d2034a1f6e25541c4aad231db0cff09377d1ec234fc73242565a87e45095163c",
+            "pattern.svg": "0e4fa006763c12288029a572424f4b4f980d66651bc12d84bb71dde29e8ddef1",
+            "scene.json": "f121afce06767dc94b6e3e1d54870e65f6a1287286156ab591b5d03da5b5a933"
+          },
+          "outputs": [
+            {
+              "bytes": 397188,
+              "name": "instance.json",
+              "sha256": "66f995156061d521b590b14e9b78ac7aae373cf7bd6df983ca4db4097ae27aab"
+            },
+            {
+              "bytes": 19227,
+              "name": "pattern.pdf",
+              "sha256": "d2034a1f6e25541c4aad231db0cff09377d1ec234fc73242565a87e45095163c"
+            },
+            {
+              "bytes": 18593,
+              "name": "pattern.svg",
+              "sha256": "0e4fa006763c12288029a572424f4b4f980d66651bc12d84bb71dde29e8ddef1"
+            },
+            {
+              "bytes": 4813,
+              "name": "recipe.json",
+              "sha256": "0a8c056adb3b214f5720f746cd9c17516613456d4d1ab9b094de104e2a4fa402"
+            },
+            {
+              "bytes": 10184,
+              "name": "record.json",
+              "sha256": "91eaf52a238ad704e1daa1798f26fa3e93930fae76e5b921239c29d6103a9a39"
+            },
+            {
+              "bytes": 20981,
+              "name": "scene.json",
+              "sha256": "f121afce06767dc94b6e3e1d54870e65f6a1287286156ab591b5d03da5b5a933"
+            },
+            {
+              "bytes": 793,
+              "name": "view.json",
+              "sha256": "89dfc571185cda542575b787138fa2436788c1181aa88afc2e058c7fcc3e1a57"
+            }
+          ],
+          "stats": {
+            "instructions": 232630000,
+            "lua_memory_bytes": 11213690,
+            "profile": {
+              "hash_bytes": 3946057,
+              "hash_calls": 205,
+              "hash_instructions": 0,
+              "instructions": 232630000
+            },
+            "host_identity": {
+              "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
+              "instructions": 16000000000,
+              "memory": 268435456,
+              "watchdog_ms": 300000,
+              "hash_bytes": 536870912,
+              "hash_calls": 1000000
+            },
+            "host_digest": "37e5bbc775e40b3c0496eae930aaf84fd61b779839e383ccbe2eb22ace46b0ba"
+          },
+          "progress_count": 6,
+          "progress_first": {
             "generation": 2,
             "request_id": 2,
             "phase": "inputs"
@@ -7834,12 +7834,12 @@
             "request_id": 2,
             "phase": "shared-core",
             "instructions": 200000000,
-            "lua_memory_bytes": 11349908
+            "lua_memory_bytes": 11363107
           }
         },
         {
           "phase": "validated-instance-replay",
-          "elapsed_ms": 2658.400000035763,
+          "elapsed_ms": 3211,
           "semantic": {
             "instance.json": "66f995156061d521b590b14e9b78ac7aae373cf7bd6df983ca4db4097ae27aab",
             "pattern.pdf": "d2034a1f6e25541c4aad231db0cff09377d1ec234fc73242565a87e45095163c",
@@ -7870,7 +7870,7 @@
             {
               "bytes": 18593,
               "name": "record.json",
-              "sha256": "dfe66d14f2fd6046c35f8069fe6b9313676047fbed000f07929fcbb9c6c40c81"
+              "sha256": "cda6c40cf6d29f204b0c91d72de61111e4a3e3e7e604aa9e16bb9f234818dfae"
             },
             {
               "bytes": 20981,
@@ -7884,13 +7884,13 @@
             }
           ],
           "stats": {
-            "instructions": 77590000,
-            "lua_memory_bytes": 20914336,
+            "instructions": 77830000,
+            "lua_memory_bytes": 20915567,
             "profile": {
-              "hash_bytes": 4785856,
+              "hash_bytes": 4786718,
               "hash_calls": 213,
               "hash_instructions": 0,
-              "instructions": 77590000
+              "instructions": 77830000
             },
             "host_identity": {
               "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
@@ -7913,17 +7913,17 @@
             "request_id": 3,
             "phase": "shared-core",
             "instructions": 50000000,
-            "lua_memory_bytes": 13572270
+            "lua_memory_bytes": 13534321
           }
         }
       ],
-      "cache_roundtrip_ms": 13.599999964237213,
+      "cache_roundtrip_ms": 16.100000023841858,
       "cache_actual_bytes_equal": true,
       "heartbeat": {
         "interval_ms": 20,
-        "ticks": 677,
-        "clicks": 677,
-        "maximum_observed_gap_ms": 21.69999998807907
+        "ticks": 753,
+        "clicks": 753,
+        "maximum_observed_gap_ms": 21.5
       }
     }
   ],
@@ -7935,7 +7935,7 @@
       "progress_observed": 1,
       "code": "cancelled",
       "accepted_outputs": 0,
-      "elapsed_ms": 133.0999999642372
+      "elapsed_ms": 161.19999998807907
     },
     {
       "id": "floral-growth-large",
@@ -7944,7 +7944,7 @@
       "progress_observed": 3,
       "code": "cancelled",
       "accepted_outputs": 0,
-      "elapsed_ms": 1222.800000011921
+      "elapsed_ms": 1426.6000000238419
     },
     {
       "id": "floral-growth-large",
@@ -8001,7 +8001,7 @@
       "progress_observed": 1,
       "code": "cancelled",
       "accepted_outputs": 0,
-      "elapsed_ms": 115.39999997615814
+      "elapsed_ms": 138.80000001192093
     },
     {
       "id": "knot-topology-large",
@@ -8010,7 +8010,7 @@
       "progress_observed": 3,
       "code": "cancelled",
       "accepted_outputs": 0,
-      "elapsed_ms": 1642.300000011921
+      "elapsed_ms": 1559.199999988079
     },
     {
       "id": "knot-topology-large",
@@ -8067,7 +8067,7 @@
       "progress_observed": 1,
       "code": "cancelled",
       "accepted_outputs": 0,
-      "elapsed_ms": 170.30000001192093
+      "elapsed_ms": 154
     },
     {
       "id": "circle-packing-large",
@@ -8076,7 +8076,7 @@
       "progress_observed": 3,
       "code": "cancelled",
       "accepted_outputs": 0,
-      "elapsed_ms": 1584.199999988079
+      "elapsed_ms": 1406.5
     },
     {
       "id": "circle-packing-large",
@@ -8133,7 +8133,7 @@
       "progress_observed": 1,
       "code": "cancelled",
       "accepted_outputs": 0,
-      "elapsed_ms": 119.80000001192093
+      "elapsed_ms": 147
     },
     {
       "id": "substitution-large",
@@ -8142,7 +8142,7 @@
       "progress_observed": 3,
       "code": "cancelled",
       "accepted_outputs": 0,
-      "elapsed_ms": 1507.199999988079
+      "elapsed_ms": 1576.5
     },
     {
       "id": "substitution-large",
@@ -8199,7 +8199,7 @@
       "progress_observed": 1,
       "code": "cancelled",
       "accepted_outputs": 0,
-      "elapsed_ms": 147.19999998807907
+      "elapsed_ms": 149.69999998807907
     },
     {
       "id": "projection-large",
@@ -8208,7 +8208,7 @@
       "progress_observed": 3,
       "code": "cancelled",
       "accepted_outputs": 0,
-      "elapsed_ms": 1406.9000000357628
+      "elapsed_ms": 1454.699999988079
     },
     {
       "id": "projection-large",
@@ -8265,7 +8265,7 @@
       "progress_observed": 1,
       "code": "cancelled",
       "accepted_outputs": 0,
-      "elapsed_ms": 139
+      "elapsed_ms": 142.39999997615814
     },
     {
       "id": "optimization-large",
@@ -8274,7 +8274,7 @@
       "progress_observed": 3,
       "code": "cancelled",
       "accepted_outputs": 0,
-      "elapsed_ms": 1448.300000011921
+      "elapsed_ms": 1345.300000011921
     },
     {
       "id": "optimization-large",
@@ -8331,7 +8331,7 @@
       "progress_observed": 1,
       "code": "cancelled",
       "accepted_outputs": 0,
-      "elapsed_ms": 160.30000001192093
+      "elapsed_ms": 163.80000001192093
     },
     {
       "id": "mosaic-packing-large",
@@ -8340,7 +8340,7 @@
       "progress_observed": 3,
       "code": "cancelled",
       "accepted_outputs": 0,
-      "elapsed_ms": 1136.300000011921
+      "elapsed_ms": 1156.6000000238419
     },
     {
       "id": "mosaic-packing-large",
@@ -8397,7 +8397,7 @@
       "progress_observed": 1,
       "code": "cancelled",
       "accepted_outputs": 0,
-      "elapsed_ms": 116.59999996423721
+      "elapsed_ms": 147.39999997615814
     },
     {
       "id": "text-shaping-large",
@@ -8406,7 +8406,7 @@
       "progress_observed": 3,
       "code": "cancelled",
       "accepted_outputs": 0,
-      "elapsed_ms": 1698.9000000357628
+      "elapsed_ms": 1810.8999999761581
     },
     {
       "id": "text-shaping-large",
@@ -8463,7 +8463,7 @@
       "progress_observed": 1,
       "code": "cancelled",
       "accepted_outputs": 0,
-      "elapsed_ms": 144.30000001192093
+      "elapsed_ms": 113.80000001192093
     },
     {
       "id": "example-synthesis-large",
@@ -8472,7 +8472,7 @@
       "progress_observed": 3,
       "code": "cancelled",
       "accepted_outputs": 0,
-      "elapsed_ms": 1662.2999999523163
+      "elapsed_ms": 1495.3999999761581
     },
     {
       "id": "example-synthesis-large",
@@ -8524,7 +8524,27 @@
     }
   ],
   "scope": "Actual shared Wasmoon Lua5.4 worker with pinned host SHA. Fresh worker for each generate/replay; warm means verified assets/client reused, not a persistent solver session. JavaScript heap and worker Lua memory are distinct. Heartbeats measure this browser main thread, not a mobile or Pi device.",
-  "runner_sha256": "f27078db7cf0ab0c2902abc34a92a54c51e561317cd6dd294ba161b71f4925ea",
-  "source_digest": "ef12bf867f38dbe4c141e29ae3267e8fd7d36b0c753bf99cc9ab5c1e35ab8c63",
-  "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#cancel')\u001b[22m\n\u001b[2m    - locator resolved to <button hidden=\"\" id=\"cancel\">Cancel</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    57 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is not visible\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n    at main (C:\\Users\\EN33948\\Documents\\Codex\\2026-11-02\\goal-execute-the-attached-pattern-platform-2\\work\\stage34\\tools\\browser-performance.cjs:76:64)"
+  "runner_sha256": "bdea8fc70b8e368ec5ab5b7590cbc29b755bd53d97da3c977ac7eff8a4538375",
+  "mode": "full_matrix",
+  "hardware_runtime": {
+    "platform": "win32",
+    "release": "10.0.22631",
+    "arch": "x64",
+    "logical_cpus": 12,
+    "reported_cpu": "AMD Ryzen 5 PRO 5675U with Radeon Graphics     ",
+    "os_visible_ram_bytes": 15886311424,
+    "power_thermal_background_activity": "uncontrolled",
+    "whole_process_memory_limit": "not claimed"
+  },
+  "source_digest": "8165b08b2b64e3aeb29fa950a2aa156c940a47f0084ab8129ac0cd6b31b960aa",
+  "studio": {
+    "status": "passed",
+    "family": "botanical-grown",
+    "edit_during_pending_ms": 17,
+    "cancel_during_pending_ms": 40,
+    "accepted_outputs": 0,
+    "native_host_design_seed_synchronized": true,
+    "seed": "102",
+    "state": "Cancelled · previous work preserved"
+  }
 }
