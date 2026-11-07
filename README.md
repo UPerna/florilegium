@@ -1,8 +1,8 @@
 # florilegium
 
-See the [verified compatibility baseline](docs/project/BASELINE.md) for current build evidence, reproducible commands and sample provenance. Tracked root PDFs are historical snapshots; the baseline links fresh generated PDFs for the tested revision and identifies outdated sample prose.
+Florilegium generates botanical ornament, geometric patterns, tiles, lettering and other vector artwork for a page or a book. Its command line, both TeX adapters and local browser studio use the same Lua generators. Start with the [quickstart](docs/QUICKSTART.md), then browse the [generated Pattern Atlas](docs/GALLERY.md) or the [compatibility and license notes](docs/COMPATIBILITY.md).
 
-The experimental common platform now has [shared vector scene rendering](docs/architecture/SCENES.md). Run `texlua tools/scenecheck.lua` then `python3 tools/scene_oracle.py` to generate and independently check six PDF/SVG fixture pairs. This is a positioned-outline text profile; full family migration and shaping retain their numbered gates.
+The [five shared contracts](docs/architecture/CONTRACTS.md) separate construction, view and vector output. See the [family development guide](docs/ADDING-A-FAMILY.md) and [source and fidelity notes](docs/research/SOURCES.md) for how the 22 public profiles are built and checked. Tracked root PDFs are historical snapshots. The [verified compatibility baseline](docs/project/BASELINE.md) identifies their provenance.
 
 [Document planning and views](docs/architecture/DOCUMENTS.md) add explicit physical page frames, fixed-world tile crops, continuation halos and checked constraints. Run `texlua tools/plannercheck.lua` then `python3 tools/planner_oracle.py` for the standalone/two-page and adaptive floral acceptance fixtures.
 
@@ -15,7 +15,7 @@ hand-authored primitives with randomized parameters, painted in Lua, placed by a
 layout whose "fill the unused space" part borrows a 1998 idea from the ornament literature.
 It gets a similar look.
 
-## What it is
+## Original floral workflows
 
 Procedurally generated Delft-blue floral page margins for LuaLaTeX and XeLaTeX.
 Every petal, leaf and stem is a parametric curve computed in Lua and painted like a

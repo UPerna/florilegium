@@ -92,6 +92,8 @@ jobs:
             python3 tools/perf_bench.py --label native-ci &&
             python3 tools/clicheck.py &&
             python3 tools/export_review.py &&
+            python3 tools/make-gallery.py &&
+            python3 tools/check-gallery.py build/pattern-atlas &&
             texlua tools/layoutcheck.lua &&
             texlua tools/spacecheck.lua &&
             texlua tools/initialcheck.lua &&
@@ -101,7 +103,9 @@ jobs:
             texlua tools/animcheck.lua 1 6
       - name: make public export examples readable
         if: always()
-        run: if test -d build/export-review; then sudo chmod -R a+rX build/export-review; fi
+        run: |
+          if test -d build/export-review; then sudo chmod -R a+rX build/export-review; fi
+          if test -d build/pattern-atlas; then sudo chmod -R a+rX build/pattern-atlas; fi
       - uses: actions/upload-artifact@v4
         with:
           name: florilegium-pdfs
@@ -146,6 +150,7 @@ jobs:
             build/floral-editor-seed/
             build/cli/
             build/export-review/
+            build/pattern-atlas/
 
   patterns-luatex:
     runs-on: ubuntu-latest
@@ -278,6 +283,8 @@ jobs:
         run: python3 tools/browser_ci.py --native build/native-browser-reference --playwright "$RUNNER_TEMP/florilegium-browser/node_modules/playwright"
       - name: real SVG transparency and protected areas
         run: PATTERN_PLAYWRIGHT="$RUNNER_TEMP/florilegium-browser/node_modules/playwright" node tools/export_review.cjs build/native-browser-reference/build/export-review build/export-review-browser
+      - name: open the generated atlas and verify its links and images
+        run: python3 tools/check-gallery.py build/native-browser-reference/build/pattern-atlas --playwright "$RUNNER_TEMP/florilegium-browser/node_modules/playwright"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -287,6 +294,7 @@ jobs:
             build/editor-check/
             build/browser-performance/
             build/export-review-browser/
+            build/gallery-browser/
             build/adversarial/
             build/web/assets.json
           if-no-files-found: error

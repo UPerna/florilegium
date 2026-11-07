@@ -1,6 +1,6 @@
 # Local pattern studio
 
-Build the browser files with `python3 tools/webpackage.py`, serve `build/web` with a local static HTTP server, and open its printed address. The editor loads its own verified assets; it has no runtime CDN, model API, or geometry service. The separate `runtime.html` page remains the internal runtime-verification harness. Website deployment remains reserved for stage 39.
+Build the browser files with `python3 tools/webpackage.py`, serve `build/web` with a local static HTTP server, and open its address. The editor loads its own verified assets; it has no runtime CDN, model API, or geometry service. The separate `runtime.html` page remains the internal runtime-verification harness. See the [quickstart](QUICKSTART.md) for a local server command.
 
 Choose a starting recipe from the actual family registry. **Generate structure** runs its Lua generator and validators in a cancellable worker. **Apply settings** validates the native recipe and reuses an existing validated instance for style/crop changes. A structural change leaves the previous preview visible, disables its export buttons, and asks for explicit generation. Mathematical assumptions and the build record appear with the result. Finite-patch validation does not establish an infinite tiling theorem.
 

@@ -5,7 +5,7 @@ the repository root. They exercise real floral, graph and tiling builds, malform
 inputs, independent golden vectors, dependency mutations and actual filesystem
 faults. `make check` and the required CI PDF job run them without replacing the
 existing regressions. Lua 5.3/int64/binary64 is the first supported core profile;
-local checks also run Lua 5.4 with that numeric profile. Browser parity remains 31.
+local checks also run Lua 5.4 with that numeric profile. The [browser runtime](BROWSER-RUNTIME.md) describes the shared implementation and named comparison tolerances.
 
 ## Recipe and strict input
 
