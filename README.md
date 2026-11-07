@@ -1,12 +1,32 @@
-# florilegium
+# Florilegium
 
-Florilegium generates botanical ornament, geometric patterns, tiles, lettering and other vector artwork for a page or a book. Its command line, both TeX adapters and local browser studio use the same Lua generators. Start with the [quickstart](docs/QUICKSTART.md), then browse the [generated Pattern Atlas](docs/GALLERY.md) or the [compatibility and license notes](docs/COMPATIBILITY.md).
+Florilegium generates botanical ornaments, geometric patterns, tiles, and lettering for pages and books. The command line, LuaLaTeX and XeLaTeX adapters, and browser studio share the same Lua generators. The Pattern Atlas contains canonical examples and presentation variants for all 22 public profiles, with recipes and replay bundles. [Pattern Atlas guide](docs/GALLERY.md) · [Capability and evidence ledger](docs/research/COVERAGE.csv)
 
-The [five shared contracts](docs/architecture/CONTRACTS.md) separate construction, view and vector output. See the [family development guide](docs/ADDING-A-FAMILY.md) and [source and fidelity notes](docs/research/SOURCES.md) for how the 22 public profiles are built and checked. Tracked root PDFs are historical snapshots. The [verified compatibility baseline](docs/project/BASELINE.md) identifies their provenance.
+## Get started
 
-[Document planning and views](docs/architecture/DOCUMENTS.md) add explicit physical page frames, fixed-world tile crops, continuation halos and checked constraints. Run `texlua tools/plannercheck.lua` then `python3 tools/planner_oracle.py` for the standalone/two-page and adaptive floral acceptance fixtures.
+Download and extract the verified candidate from build 67. It contains `florilegium-source.zip`, `florilegium-browser.zip`, `florilegium-atlas.zip`, and SHA-256 manifests. This download corresponds to commit `49d2fd911cc58398e3c748095031e3ca1ee62cc8`. [Verified candidate download](https://github.com/UPerna/florilegium/actions/runs/42343792080/artifacts/13564570460) · [Build and verification guide](docs/RELEASE-CANDIDATE.md)
 
-The [release candidate guide](docs/RELEASE-CANDIDATE.md) explains clean installation, component archives and their checksums.
+**Browser studio.** Extract the browser ZIP and run this from the directory containing `florilegium-browser`. Python 3.11 or later is sufficient for this route.
+
+```sh
+python3 -m http.server 8000 --bind 127.0.0.1 --directory florilegium-browser
+```
+
+Open `http://127.0.0.1:8000/`, choose a recipe, and select **Generate structure**. Export PDF or SVG, or save a workspace to keep the result and your edits. [Studio guide](docs/browser-editor.md)
+
+**Command line and TeX.** Extract the source ZIP and run these commands from the source directory with Python 3.11 or later and TeX Live installed. The CLI uses `texlua`. The book example uses the TeX engine selected below.
+
+```sh
+python3 tools/pattern.py generate examples/cli/celtic.recipe --output "build/first-pattern"
+python3 tools/build.py examples/patterns/book.tex --engine lua --output-dir "build/lua-book"
+python3 tools/build.py examples/patterns/book.tex --engine xe --output-dir "build/xe-book"
+```
+
+Open `pattern.pdf` or `pattern.svg` in `build/first-pattern` and keep the full output directory for replay. The book builds produce `book.pdf` in their respective output directories. [Quickstart and replay](docs/QUICKSTART.md) · [Tested environments and licenses](docs/COMPATIBILITY.md)
+
+**Atlas.** Extract the atlas ZIP and open `index.html` to browse the examples and download their recipes and replay files. The root PDFs tracked in Git are historical snapshots of the original floral examples. [Baseline provenance](docs/project/BASELINE.md)
+
+For contributors, the five shared contracts separate construction, document views, and vector output. The planning guide covers physical page frames, fixed-world crops, continuation halos, and constraints. [Contracts](docs/architecture/CONTRACTS.md) · [Document planning](docs/architecture/DOCUMENTS.md) · [Adding a family](docs/ADDING-A-FAMILY.md) · [Source and fidelity notes](docs/research/SOURCES.md)
 
 ## Origin
 
@@ -399,10 +419,10 @@ docker build -t florilegium-tex tools
 make RUN=tools/in-docker
 ```
 
-For a ready-to-copy starting point, use [examples/book.tex](examples/book.tex).
-`make source-package` creates `build/florilegium-v1.4-source.zip`, with the source,
-examples, previews, license and a SHA-256 manifest. Extract it and build the template
-with its own `tools/build.py`. `python3 tools/packagecheck.py` verifies that workflow.
+Use [examples/book.tex](examples/book.tex) as a template for the original floral workflow.
+`make source-package` creates the legacy source kit at `build/florilegium-v1.4-source.zip`.
+`python3 tools/packagecheck.py` checks that kit and its template build. The release
+candidate bundles source, browser, and atlas as separate archives. [Candidate guide](docs/RELEASE-CANDIDATE.md)
 
 For LuaLaTeX on [Overleaf](https://www.overleaf.com), copy `florilegium.sty`, the root
 `.def` and `.lua` files and a document, then select LuaLaTeX. The portable Xe workflow
