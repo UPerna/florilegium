@@ -3,6 +3,7 @@ import argparse,functools,hashlib,http.server,json,pathlib,subprocess,sys,tempfi
 from clicheck import fingerprint
 from webpackage import package as webpackage
 from package import package
+from release_bind import bind_browser
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 def performance_inputs(native):
  # Root-level PDFs make upload-artifact retain the build/ directory.
@@ -16,7 +17,7 @@ def performance_inputs(native):
  return folder
 
 def main():
- parser=argparse.ArgumentParser();parser.add_argument('--native',type=pathlib.Path,required=True);parser.add_argument('--playwright',required=True);parser.add_argument('--executable');args=parser.parse_args()
+ parser=argparse.ArgumentParser();parser.add_argument('--native',type=pathlib.Path,required=True);parser.add_argument('--playwright',required=True);parser.add_argument('--executable');parser.add_argument('--release',type=pathlib.Path);parser.add_argument('--release-clean-proof',type=pathlib.Path);args=parser.parse_args()
  digest=fingerprint();candidates=[]
  for p in args.native.rglob('receipt.json'):
   if 'cli' not in p.parts:continue
@@ -45,7 +46,11 @@ def main():
   assert extracted==canonical,'Extracted source kit browser assets differ'
  binding={'status':'passed','native_cli_source_digest':digest,'native_receipt_sha256':hashlib.sha256(native.read_bytes()).hexdigest(),'source_kit_sha256':archive_hash,'source_kit_browser_files_equal':canonical}
  (out/'native-and-kit-binding.json').write_text(json.dumps(binding,indent=2)+'\n',encoding='utf8')
- handler=functools.partial(http.server.SimpleHTTPRequestHandler,directory=str(web))
+ assert bool(args.release)==bool(args.release_clean_proof),'Release archive and extracted native proof must be paired'
+ served=web
+ if args.release:
+  served=bind_browser(ROOT,args.release,args.release_clean_proof,canonical,ROOT/'build/release-browser-test',ROOT/'build/release-browser-binding.json')
+ handler=functools.partial(http.server.SimpleHTTPRequestHandler,directory=str(served))
  server=http.server.ThreadingHTTPServer(('127.0.0.1',0),handler);thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
  try:
   common=['--url',f'http://127.0.0.1:{server.server_port}/runtime.html','--playwright',args.playwright]

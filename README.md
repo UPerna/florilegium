@@ -6,6 +6,8 @@ The [five shared contracts](docs/architecture/CONTRACTS.md) separate constructio
 
 [Document planning and views](docs/architecture/DOCUMENTS.md) add explicit physical page frames, fixed-world tile crops, continuation halos and checked constraints. Run `texlua tools/plannercheck.lua` then `python3 tools/planner_oracle.py` for the standalone/two-page and adaptive floral acceptance fixtures.
 
+The [release candidate guide](docs/RELEASE-CANDIDATE.md) explains clean installation, component archives and their checksums.
+
 ## Origin
 
 The [Reddit post](https://www.reddit.com/r/LaTeX/comments/1xixznw/how_do_you_make_these_flowers_in_latex/)

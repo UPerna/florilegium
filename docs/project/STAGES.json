@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_stage": "36",
+  "current_stage": "37",
   "prompt_sha256": "8D25740D944FC98943FD005737BD825215CFCF6F894218790E140EDE8EE3F09E",
   "stages": [
     {
@@ -2264,44 +2264,165 @@
     {
       "id": "36",
       "title": "complete gallery, documentation and reproducible examples",
-      "status": "in_progress",
+      "status": "passed",
       "prerequisites": "35",
       "acceptance_items": [
         "a newcomer follows the documented paths successfully, links/assets exist, source recipes reproduce examples, and the gallery's metadata binds to tested code. Documentation states practical limits without burying required missing work in a backlog. Use plain language and avoid inflated universal or mathematical claims."
       ],
-      "observed_results": [
-        "Accepted stage 35 at 96390d9 with all five native/browser gates. 829 prior issued evidence hashes preserved. The ledger has 46 mandatory rows with resolvable evidence and six separate optional extensions. Gallery and guides are in verification."
-      ],
+      "observed_results": {
+        "canonical_presentation_pairs": 22,
+        "rendered_images": 48,
+        "native_manifest_entries": 835,
+        "browser_viewports": [
+          {
+            "width": 1440,
+            "height": 1000
+          },
+          {
+            "width": 412,
+            "height": 915
+          }
+        ],
+        "all_mandatory_capabilities": 46,
+        "optional_research_extensions": 6,
+        "reviewed_pdf_sheets": 6,
+        "quickstart_links": 80,
+        "same_host_exact_quickstart_replay": true,
+        "native_tex_engines": 2,
+        "browser_editor_workflows": 13,
+        "protected_prior_evidence_hashes": 829,
+        "preserved_binary_assets": 26,
+        "source_git_blobs": 1507
+      },
       "evidence_paths": [
         "artifacts/receipts/36/browser-gallery-local.json",
         "artifacts/receipts/36/checkpoint-import.json",
+        "artifacts/receipts/36/ci-final.json",
+        "artifacts/receipts/36/ci-progress.json",
         "artifacts/receipts/36/coverage-reconciliation.json",
         "artifacts/receipts/36/gallery-local.json",
+        "artifacts/receipts/36/kit-evidence-scope.json",
+        "artifacts/receipts/36/native-adversarial-partial.json",
+        "artifacts/receipts/36/native-adversarial-verification.json",
+        "artifacts/receipts/36/native-atlas-package.json",
+        "artifacts/receipts/36/native-atlas-verification-partial.json",
+        "artifacts/receipts/36/native-atlas-verification.json",
+        "artifacts/receipts/36/native-browser-performance-verification.json",
+        "artifacts/receipts/36/native-dual-verification-stage36.json",
+        "artifacts/receipts/36/native-export-verification-partial.json",
+        "artifacts/receipts/36/native-export-verification.json",
+        "artifacts/receipts/36/native-pdfs-job-identity.json",
+        "artifacts/receipts/36/native-pdfs-job.log",
+        "artifacts/receipts/36/native-performance-verification.json",
         "artifacts/receipts/36/pdf-gallery-local.json",
+        "artifacts/receipts/36/pr-final.json",
+        "artifacts/receipts/36/publication.json",
         "artifacts/receipts/36/quickstart-local.json",
+        "artifacts/receipts/36/run-api-final.json",
+        "artifacts/receipts/36/run-api-progress.json",
         "artifacts/receipts/36/source-reference.json",
-        "artifacts/receipts/36/visual-review.json"
+        "artifacts/receipts/36/stage36-browser-artifact.json",
+        "artifacts/receipts/36/stage36-browser-verification.json",
+        "artifacts/receipts/36/stage36-common-artifact.json",
+        "artifacts/receipts/36/stage36-common-native-verification.json",
+        "artifacts/receipts/36/stage36-dual-artifact.json",
+        "artifacts/receipts/36/stage36-editor-verification.json",
+        "artifacts/receipts/36/stage36-inherited-native-verification.json",
+        "artifacts/receipts/36/stage36-pdfs-artifact.json",
+        "artifacts/receipts/36/stage36-portable-artifact.json",
+        "artifacts/receipts/36/stage36-portable-verification.json",
+        "artifacts/receipts/36/stage36-source-archive.json",
+        "artifacts/receipts/36/supplemental-sha-latency.json",
+        "artifacts/receipts/36/visual-review.json",
+        "artifacts/receipts/36/acceptance.json"
       ],
-      "tested_code_revision": null,
-      "local_commit": null,
-      "verified_remote_revision": null,
-      "next_action": "Stage 36: finish the generated Pattern Atlas and verify it locally. The shared Lua renderer reuses the 22 accepted instances; check every presentation PDF/SVG and 48 browser images, book/spread/hybrid assets, complete replay bundles, guide links, and all 46 mandatory evidence rows. Then publish the exact verified candidate with a stale-head lease, verify full Git tree/modes/binaries and all five current native/browser jobs and actual artifacts. Preserve 829 prior evidence hashes. After stage 36 acceptance, immediately begin stage 37. PDF authoring marker for this 22-PDF presentation batch already ran successfully.",
-      "source_base_revision": "96390d9afce26246dcf6da878e33fcb95b2c1b28"
+      "tested_code_revision": "8c1e33e289898de93c4f9f7c8733edd62a0a79d2",
+      "local_commit": "8c1e33e289898de93c4f9f7c8733edd62a0a79d2",
+      "verified_remote_revision": "8c1e33e289898de93c4f9f7c8733edd62a0a79d2",
+      "next_action": "Begin stage 37 in a fresh isolated checkout at 8c1e33e289898de93c4f9f7c8733edd62a0a79d2. Read Prompt 37, instructions and prerequisite records. Produce a reproducible source/browser/gallery release candidate with complete dependency/license/mode/hash records. Verify source-only reconstruction from a fresh path containing spaces, including CLI all22 examples, both native TeX adapters and browser import/export. Check current official dependency/action support and pin versions under the project policy; preserve every inherited release-required gate. Verify candidate own revision and actual artifacts, then continue stage 38 challenger review and stage 39 authorized branch/PR handover automatically. No merge, public tag/release or production deployment is authorized.",
+      "source_base_revision": "96390d9afce26246dcf6da878e33fcb95b2c1b28",
+      "latest_native": {
+        "stage": "36",
+        "revision": "8c1e33e289898de93c4f9f7c8733edd62a0a79d2",
+        "tree": "227d1a68edf61a8dc8d09f70d40883978bd3521a",
+        "run": 42337399300,
+        "run_number": 66,
+        "workflow_status": "completed",
+        "workflow_conclusion": "success",
+        "jobs": [
+          {
+            "id": 128297317797,
+            "name": "pdfs",
+            "status": "completed",
+            "conclusion": "success",
+            "run_id": 42337399300
+          },
+          {
+            "id": 128297318113,
+            "name": "patterns-dual",
+            "status": "completed",
+            "conclusion": "success",
+            "run_id": 42337399300
+          },
+          {
+            "id": 128297318153,
+            "name": "portable",
+            "status": "completed",
+            "conclusion": "success",
+            "run_id": 42337399300
+          },
+          {
+            "id": 128297318312,
+            "name": "patterns-luatex",
+            "status": "completed",
+            "conclusion": "success",
+            "run_id": 42337399300
+          },
+          {
+            "id": 128297319060,
+            "name": "gallery",
+            "status": "completed",
+            "conclusion": "skipped",
+            "run_id": 42337399300
+          },
+          {
+            "id": 128310966950,
+            "name": "browser",
+            "status": "completed",
+            "conclusion": "success",
+            "run_id": 42337399300
+          }
+        ],
+        "required": [
+          "pdfs",
+          "portable",
+          "patterns-luatex",
+          "patterns-dual",
+          "browser"
+        ],
+        "accepted": true,
+        "mandatory_remaining": []
+      }
     },
     {
       "id": "37",
       "title": "clean installation, CI and release packaging",
-      "status": "pending",
+      "status": "in_progress",
       "prerequisites": "36",
       "acceptance_items": [
         "manifests verify after extraction, source-only reconstruction succeeds, candidate outputs match the declared comparison standard, and CI evidence belongs to the candidate revision. Any untested operating system/browser is listed accurately. Do not publish a release package that only works because of files left in the original checkout."
       ],
-      "observed_results": null,
-      "evidence_paths": null,
+      "observed_results": [
+        "Stage 36 accepted; 868 prior evidence hashes verified."
+      ],
+      "evidence_paths": [
+        "artifacts/receipts/37/checkpoint-import.json"
+      ],
       "tested_code_revision": null,
       "local_commit": null,
       "verified_remote_revision": null,
-      "next_action": "Wait for prerequisite gate; read full stage instructions and repository guidance."
+      "next_action": "Begin stage 37 in a fresh isolated checkout at 8c1e33e289898de93c4f9f7c8733edd62a0a79d2. Read Prompt 37, instructions and prerequisite records. Produce a reproducible source/browser/gallery release candidate with complete dependency/license/mode/hash records. Verify source-only reconstruction from a fresh path containing spaces, including CLI all22 examples, both native TeX adapters and browser import/export. Check current official dependency/action support and pin versions under the project policy; preserve every inherited release-required gate. Verify candidate own revision and actual artifacts, then continue stage 38 challenger review and stage 39 authorized branch/PR handover automatically. No merge, public tag/release or production deployment is authorized.",
+      "source_base_revision": "8c1e33e289898de93c4f9f7c8733edd62a0a79d2"
     },
     {
       "id": "38",

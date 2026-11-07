@@ -14,6 +14,6 @@ For the same supported runtime and source, retained-instance replay checks exact
 | --- | --- |
 | Florilegium code and independently authored examples | [MIT](../LICENSE). The method bibliography does not grant rights to third-party artwork or code. |
 | Hat substitution tables | [HatViz BSD 3-Clause notice](research/licenses/HATVIZ-BSD-3-Clause.txt), with pinned source and scope in [the Hat design note](architecture/HAT_AND_BOUNDED.md). |
-| JSON and browser components | dkjson 2.11 MIT notice in [its source](../pattern_json.lua); [Wasmoon MIT](../web/vendor/wasmoon-1.16.0/LICENSE), [Lua notice](../web/vendor/wasmoon-1.16.0/LUA-LICENSE.txt), and [hash-wasm MIT](../web/vendor/hash-wasm-4.12.0/LICENSE). |
+| JSON and browser components | dkjson 2.11 MIT notice in [its source](../pattern_json.lua); [Wasmoon MIT](../web/vendor/wasmoon-1.16.0/LICENSE), [Lua notice](../web/vendor/wasmoon-1.16.0/LUA-LICENSE.txt), and [hash-wasm MIT](../web/vendor/hash-wasm-4.12.0/LICENSE) and [SHA-256 C notice](../web/vendor/hash-wasm-4.12.0/SHA256-C-LICENSE.txt). |
 | Font data and derivative outlines | [Pattern Micrography](fonts/README-PatternMicrography.md) and [Pattern Scene Fixture](fonts/README-PatternSceneFixture.md) retain [GUST Font License](fonts/GUST-FONT-LICENSE.md) and [LPPL 1.3c](fonts/LPPL-1.3c.md) notices. |
 | Reference papers and demonstrations | [Sources and fidelity boundaries](research/SOURCES.md), [versioned bibliography](research/BIBLIOGRAPHY.json). Independently authored fixtures are kept separate from reference material. |

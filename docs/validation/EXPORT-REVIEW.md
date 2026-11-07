@@ -25,7 +25,7 @@ You can regenerate the derived views from a complete all-families batch with `te
 
 | What was checked | Interpretation |
 | --- | --- |
-| Canvas and stroke units | SVG has centimetre dimensions and an explicit viewport. PDF page dimensions agree. The examples use the same canvas, trim, crop and bleed bounds, with no extra bleed area. |
+| Canvas and stroke units | SVG has centimeter dimensions and an explicit viewport. PDF page dimensions agree. The examples use the same canvas, trim, crop and bleed bounds, with no extra bleed area. |
 | Paths, clipping and alpha | Both serializers consume the same lowered drawing. PDF clip operators and SVG clip references were inspected. The browser checks transparent interiors of protected areas, preserving the alpha mask through monochrome conversion. The review also checks white-background PDF pixels inside those areas. A fully painted tile can legitimately have no clear pixels. |
 | Color, line treatment and assets | Monochrome PDF uses gray paint operators; SVG retains the geometry with neutral paint. Positive widths, caps and joins were checked. Reusable vector symbols are resolved through the scene's resources before export. No embedded raster was found in the reviewed vector exports. Input images or sampled brightness fields can guide generation without becoming output bitmaps. |
 | Text | Micrography renders glyph shapes and carries an ordered logical text layer. PDF extraction agrees through the color, diagnostic and monochrome treatments. SVG retains embedded OpenType data and logical labels. Outline artwork in other profiles does not imply searchable text. |

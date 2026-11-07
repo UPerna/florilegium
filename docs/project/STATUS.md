@@ -1,5 +1,5 @@
 # Florilegium execution status
 
-Stages 00–35 passed. Stage 36 in progress.
+Stages 00–36 passed. Stage 37 in progress.
 
-Stage 36: finish the generated Pattern Atlas and verify it locally. The shared Lua renderer reuses the 22 accepted instances; check every presentation PDF/SVG and 48 browser images, book/spread/hybrid assets, complete replay bundles, guide links, and all 46 mandatory evidence rows. Then publish the exact verified candidate with a stale-head lease, verify full Git tree/modes/binaries and all five current native/browser jobs and actual artifacts. Preserve 829 prior evidence hashes. After stage 36 acceptance, immediately begin stage 37. PDF authoring marker for this 22-PDF presentation batch already ran successfully.
+Begin stage 37 in a fresh isolated checkout at 8c1e33e289898de93c4f9f7c8733edd62a0a79d2. Read Prompt 37, instructions and prerequisite records. Produce a reproducible source/browser/gallery release candidate with complete dependency/license/mode/hash records. Verify source-only reconstruction from a fresh path containing spaces, including CLI all22 examples, both native TeX adapters and browser import/export. Check current official dependency/action support and pin versions under the project policy; preserve every inherited release-required gate. Verify candidate own revision and actual artifacts, then continue stage 38 challenger review and stage 39 authorized branch/PR handover automatically. No merge, public tag/release or production deployment is authorized.
