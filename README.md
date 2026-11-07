@@ -8,32 +8,32 @@ Florilegium generates vector patterns for pages and books. Make a Penrose tiling
 
 ## Pattern catalog
 
-Each link opens a working recipe. The Pattern Atlas pairs every recipe with a canonical example and a presentation variant, and includes PDF, SVG, and complete replay files. [Atlas guide](docs/GALLERY.md) · [Source methods and supported scope](docs/research/SOURCES.md)
+Each preview shows the canonical output of its linked recipe. The Pattern Atlas also includes presentation variants, full-size PDF and SVG files, and complete replay bundles. [Atlas guide](docs/GALLERY.md) · [Source methods and supported scope](docs/research/SOURCES.md)
 
-| Category | Pattern | What the example makes |
-| --- | --- | --- |
-| Tilings | [Periodic repeat](examples/cli/periodic.recipe) | A repeating patch with a protected opening in a fixed page frame |
-| Tilings | [Chair substitution](examples/cli/substitution.recipe) | A finite chair patch that records each tile's place in the substitution hierarchy |
-| Tilings | [Penrose P3](examples/cli/penrose.recipe) | Thin and thick rhombs constructed from a pentagrid |
-| Tilings | [Ammann–Beenker](examples/cli/beenker.recipe) | Squares and rhombs constructed from a tetragrid |
-| Tilings | [Hat](examples/cli/hat.recipe) | A finite Hat cluster with prototype labels and an outline |
-| Tilings | [Spectre](examples/cli/spectre.recipe) | A finite Spectre patch with matching curved seams |
-| Tilings | [Marked square completion](examples/cli/completion.recipe) | A bounded square-grid solve with matching edge marks |
-| Tilings | [Escherization](examples/cli/escher.recipe) | A periodic design rendered from a saved, verified solution |
-| Linework | [Celtic knotwork](examples/cli/celtic.recipe) | A strand design with validated over and under crossings |
-| Linework | [Classical Islamic ornament](examples/cli/islamic.recipe) | Star linework inferred from polygons in contact |
-| Linework | [Freeform Islamic ornament](examples/cli/freeform.recipe) | Mixed star orders on a finite circle-packing scaffold |
-| Linework | [Gothic tracery](examples/cli/tracery.recipe) | A two-dimensional construction of arches and foils |
-| Linework | [Spatial Gothic ogees](examples/cli/gothic-spatial.recipe) | A projected view of a 3D curve network, with the network saved separately |
-| Surface and stroke | [Mosaic](examples/cli/mosaic.recipe) | Field-guided tile placement with visible grout and a recorded partial packing |
-| Surface and stroke | [Hatching and stippling](examples/cli/stroke.recipe) | Field-guided hatching from a family that also supports stippling and example-driven strokes |
-| Surface and stroke | [Tone-guided maze](examples/cli/maze.recipe) | A finite maze whose tone field controls spacing and stroke weight |
-| Surface and stroke | [DecoBrush](examples/cli/decobrush.recipe) | A decorative brush synthesized from an exemplar library |
-| Text and page ornament | [Micrography](examples/cli/micrography.recipe) | Text arranged as vector linework with searchable reading order |
-| Text and page ornament | [Inline ornament](examples/cli/inline.recipe) | A divider placed at a specified physical size |
-| Botanical | [Asymmetric garden](examples/cli/botanical-panel.recipe) | An adaptive botanical panel with an opening reserved for content |
-| Botanical | [Authored floral margin](examples/cli/botanical-authored.recipe) | The original hand-placed floral composition with seeded variations |
-| Botanical | [Grown floral margin](examples/cli/botanical-grown.recipe) | A seeded floral composition that grows into the available page area |
+| Category | Pattern | What the example makes | Preview |
+| --- | --- | --- | --- |
+| Tilings | [Periodic repeat](examples/cli/periodic.recipe) | A repeating patch with a protected opening in a fixed page frame | <img src="gallery/readme/periodic.png" alt="Periodic repeat preview" width="240"> |
+| Tilings | [Chair substitution](examples/cli/substitution.recipe) | A finite chair patch that records each tile's place in the substitution hierarchy | <img src="gallery/readme/substitution.png" alt="Chair substitution preview" width="240"> |
+| Tilings | [Penrose P3](examples/cli/penrose.recipe) | Thin and thick rhombs constructed from a pentagrid | <img src="gallery/readme/penrose.png" alt="Penrose P3 preview" width="240"> |
+| Tilings | [Ammann–Beenker](examples/cli/beenker.recipe) | Squares and rhombs constructed from a tetragrid | <img src="gallery/readme/beenker.png" alt="Ammann–Beenker preview" width="240"> |
+| Tilings | [Hat](examples/cli/hat.recipe) | A finite Hat cluster with prototype labels and an outline | <img src="gallery/readme/hat.png" alt="Hat preview" width="240"> |
+| Tilings | [Spectre](examples/cli/spectre.recipe) | A finite Spectre patch with matching curved seams | <img src="gallery/readme/spectre.png" alt="Spectre preview" width="240"> |
+| Tilings | [Marked square completion](examples/cli/completion.recipe) | A bounded square-grid solve with matching edge marks | <img src="gallery/readme/completion.png" alt="Marked square completion preview" width="240"> |
+| Tilings | [Escherization](examples/cli/escher.recipe) | A periodic design rendered from a saved, verified solution | <img src="gallery/readme/escher.png" alt="Escherization preview" width="240"> |
+| Linework | [Celtic knotwork](examples/cli/celtic.recipe) | A strand design with validated over and under crossings | <img src="gallery/readme/celtic.png" alt="Celtic knotwork preview" width="240"> |
+| Linework | [Classical Islamic ornament](examples/cli/islamic.recipe) | Star linework inferred from polygons in contact | <img src="gallery/readme/islamic.png" alt="Classical Islamic ornament preview" width="240"> |
+| Linework | [Freeform Islamic ornament](examples/cli/freeform.recipe) | Mixed star orders on a finite circle-packing scaffold | <img src="gallery/readme/freeform.png" alt="Freeform Islamic ornament preview" width="240"> |
+| Linework | [Gothic tracery](examples/cli/tracery.recipe) | A two-dimensional construction of arches and foils | <img src="gallery/readme/tracery.png" alt="Gothic tracery preview" width="240"> |
+| Linework | [Spatial Gothic ogees](examples/cli/gothic-spatial.recipe) | A projected view of a 3D curve network, with the network saved separately | <img src="gallery/readme/gothic-spatial.png" alt="Spatial Gothic ogees preview" width="240"> |
+| Surface and stroke | [Mosaic](examples/cli/mosaic.recipe) | Field-guided tile placement with visible grout and a recorded partial packing | <img src="gallery/readme/mosaic.png" alt="Mosaic preview" width="240"> |
+| Surface and stroke | [Hatching and stippling](examples/cli/stroke.recipe) | Field-guided hatching from a family that also supports stippling and example-driven strokes | <img src="gallery/readme/stroke.png" alt="Hatching and stippling preview" width="240"> |
+| Surface and stroke | [Tone-guided maze](examples/cli/maze.recipe) | A finite maze whose tone field controls spacing and stroke weight | <img src="gallery/readme/maze.png" alt="Tone-guided maze preview" width="240"> |
+| Surface and stroke | [DecoBrush](examples/cli/decobrush.recipe) | A decorative brush synthesized from an exemplar library | <img src="gallery/readme/decobrush.png" alt="DecoBrush preview" width="240"> |
+| Text and page ornament | [Micrography](examples/cli/micrography.recipe) | Text arranged as vector linework with searchable reading order | <img src="gallery/readme/micrography.png" alt="Micrography preview" width="240"> |
+| Text and page ornament | [Inline ornament](examples/cli/inline.recipe) | A divider placed at a specified physical size | <img src="gallery/readme/inline.png" alt="Inline ornament preview" width="240"> |
+| Botanical | [Asymmetric garden](examples/cli/botanical-panel.recipe) | An adaptive botanical panel with an opening reserved for content | <img src="gallery/readme/botanical-panel.png" alt="Asymmetric garden preview" width="240"> |
+| Botanical | [Authored floral margin](examples/cli/botanical-authored.recipe) | The original hand-placed floral composition with seeded variations | <img src="gallery/readme/botanical-authored.png" alt="Authored floral margin preview" width="240"> |
+| Botanical | [Grown floral margin](examples/cli/botanical-grown.recipe) | A seeded floral composition that grows into the available page area | <img src="gallery/readme/botanical-grown.png" alt="Grown floral margin preview" width="240"> |
 
 ## Get started
 
