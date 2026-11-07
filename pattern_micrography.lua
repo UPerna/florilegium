@@ -341,6 +341,8 @@ function M.register(reg)
     if q.size<q.min_size then stop("legibility",{status="size_below_minimum",size=q.size,minimum=q.min_size}) end
     assert(H.value("micrography/font-resource",q.font)==font_resource_digest,"micrography-font-resource-integrity")
     local groups,clusters=shape(q.text,q.font)
+    -- Text semantics count against the caller's object budget before solving.
+    c:consume("objects",#clusters)
     local field=F.solve(q.panel,q.size,q.omega,q.fixed,12,q.iterations,function(n) c:consume("operations",n) end)
     local text,positions,lines,solver=layout(q,field,groups,clusters)
     local identity=P.plain(q)

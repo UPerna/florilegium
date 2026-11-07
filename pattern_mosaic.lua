@@ -139,6 +139,8 @@ function M.register(reg)
   local d=M.definition()
   reg:register(d,{validate_inputs=function(s) request(s);return true end,generate=function(s,c)
     local q=request(s)
+    -- Charge requested sites before either solving or accepting a witness.
+    c:consume("objects",q.count)
     local solver,centers
     if s.inputs.witness then
       centers=P.plain(s.inputs.witness)

@@ -64,6 +64,7 @@ local function generate(d,s,c)
   local q=input(s)
   local width=(#q.guide-1)*q.subdivisions+1
   assert(width*q.rows<=5000,"deco-grid-budget")
+  c:consume("objects",width*q.rows)
   c:consume("operations",width*q.rows*64)
   local f,why=Field.synthesize(q.guide,q.library,{subdivisions=q.subdivisions,rows=q.rows,
     iterations=24,outside=1,match={min_steps=1,max_steps=6,min_stretch=.75,max_stretch=1.3,seam_weight=1},

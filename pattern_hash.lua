@@ -14,7 +14,7 @@ local K={
   0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2}
 local mask=0xffffffff
 local function r(x,n) return ((x>>n)|(x<<(32-n)))&mask end
-function M.sha256(bytes)
+local function compute_sha256(bytes)
   assert(type(bytes)=="string" and #bytes<=64*1024*1024,"SHA-256 input must be bytes within 64 MiB")
   local len=#bytes;local bits=len*8
   bytes=bytes.."\128"..string.rep("\0",(55-len)%64)..string.pack(">I8",bits)
@@ -34,6 +34,41 @@ function M.sha256(bytes)
     for i,v in ipairs({a,b,c,d,e,f,g,j}) do h[i]=(h[i]+v)&mask end
   end
   local out={};for i,v in ipairs(h) do out[i]=string.format("%08x",v) end;return table.concat(out)
+end
+-- Operational reuse only: Lua strings are immutable byte sequences. Keys are
+-- the complete input bytes, never caller-owned tables, rounded coordinates or
+-- an unverified supplied digest. This cache does not select pattern instances
+-- or renderings. Its fixed limits include oversized-input bypass and FIFO
+-- eviction; the original64MiB hashing contract and compression code are intact.
+local CACHE_BYTES,CACHE_ENTRIES,CACHE_ENTRY=4*1024*1024,256,2*1024*1024
+local cache,slots={},{}
+local head,tail,count,held=1,1,0,0
+local hits,misses,evictions,bypasses=0,0,0,0
+local function evict()
+  local bytes=slots[head];slots[head]=nil;head=head%CACHE_ENTRIES+1
+  cache[bytes]=nil;count=count-1;held=held-#bytes;evictions=evictions+1
+end
+function M.sha256(bytes)
+  assert(type(bytes)=='string'and #bytes<=64*1024*1024,'SHA-256 input must be bytes within 64 MiB')
+  local value=cache[bytes]
+  if value then hits=hits+1;return value end
+  misses=misses+1;value=compute_sha256(bytes)
+  if #bytes>CACHE_ENTRY then bypasses=bypasses+1;return value end
+  while count>=CACHE_ENTRIES or held+#bytes>CACHE_BYTES do evict()end
+  cache[bytes]=value;slots[tail]=bytes;tail=tail%CACHE_ENTRIES+1
+  count=count+1;held=held+#bytes
+  return value
+end
+-- Diagnostics/reset are for operational measurements. Never hash these
+-- counters into recipes, instances, scenes or Build-record semantics. A host
+-- SHA override (the pinned browser bridge) remains a separate implementation.
+function M.sha256_cache_stats()
+  return {implementation='pure-lua-sha256-byte-fifo-v1',entries=count,payload_bytes=held,
+    maximum_entries=CACHE_ENTRIES,maximum_payload_bytes=CACHE_BYTES,maximum_entry_bytes=CACHE_ENTRY,
+    hits=hits,misses=misses,evictions=evictions,oversized_bypasses=bypasses}
+end
+function M.clear_sha256_cache()
+  cache,slots={},{};head,tail,count,held=1,1,0,0;hits,misses,evictions,bypasses=0,0,0,0
 end
 local function frame(s) return tostring(#s)..":"..s end
 function M.bytes(domain,bytes)

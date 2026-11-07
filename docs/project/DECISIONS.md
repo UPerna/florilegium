@@ -46,3 +46,16 @@ Wasmoon1.16.0 preserves required int64/binary64; actual Fengari-web0.1.4 fails t
 ## Stage 32 — native-backed local studio (CI pending)
 
 Keep all geometry in the shared Lua worker. Native planner-preserving edit intents distinguish structural regeneration from checked stored-instance view/style revisions. Output profiles recolor actual native paint, including encoded symbols; recipe admission limits remain separate from larger bounded instance transport. Browser autosave and history use IndexedDB transactions; portable workspaces verify saved output against native replay. Expose only implemented controls and exports. Keep runtime verification separate from editor UI and preserve the prior native/browser suites. Local receipts cover actual tasks, failure recovery and independent vector inspection; exact published-head native/browser CI remains mandatory.
+
+
+## Stage33 checking and stored-construction repairs
+
+Explicit continuous-leaf schemas preserve the existing32epsilon/1e-10 native/browser bound; semantic labels, indices and unknown fields remain exact. Production Lua source transport uses fixed-width decimal escapes, preserving original bytes. Micrography validation reconstructs bounded field, boundary labeling, mesh and full layout; continuous field samples admit the same bound across tested hosts. Independently implemented Python energy/geometry checks detect controlled corruptions. No independent-human/swarm review or universal geometry claim. Source-kit historical raw-log omission is explicit, with complete recovery archives preserved; release packaging37 must retain clear evidence locations.
+
+
+## Stage34 working performance decisions
+
+Profile before optimizing: the measured pure-Lua SHA hot path justifies a private complete-byte FIFO capped at4MiB/256entries/2MiB perentry. Retain original compression and64MiB admission. Keep operational reuse separate from structural/render/solver caches and preserve the browser binary-safe host SHA override. Use compensated validator summation for the actual60-spoke false rejection without changing circles/solver/tolerances. Charge requested mosaic sites, shaped text graphemes and exemplar grid samples before solves after actual zero-object tests exposed missing accounting. Keep inadmissible unit-grid knots, tall nonmonotone text panels and unmatched high-valence PIC ornaments as explicit failures. Benchmarks use public recipes, fresh runtimes and exact input/source guards; local Lupa is not native TeX. Full27case rerun, browser run and exact-head CI remain mandatory. See PERFORMANCE-34.md and receipts34.
+
+
+Stage34 actual studio probe exposed seed edits leaving legacy_geometry.seed stale. The native editor synchronizes the two known legacy family host packets with the validated design seed. Both actual authored/grown generation and exact replay are exercised by a12check native regression; focused Edge pending-edit/cancel checks pass. Earlier27case/54bounds browser successes remain inside the honestly failed full receipt; exact-headCI must repeat the complete suite. Earlier local performance source manifests are retained verbatim, not relabelled after this edit-path repair.

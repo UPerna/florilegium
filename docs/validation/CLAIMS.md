@@ -76,3 +76,16 @@ A final stage32 input/recovery audit also rejected the partial-status candidate 
 ## Stage32 accepted; stage33 adversarial verification in progress
 
 Stage32 passed at b4b6bed11e73298191f844574b41d4bc56935e39, run42254490411, all5requiredjobs,13editorworkflows/15vectorcases and88issued evidence hashes. This supersedes earlier stage32 pending notes while retaining their rejected candidates. Stage33 has confirmed and repaired checking/source-transport/Micrography validation defects; see ADVERSARIAL-33.md and receipts33 for actual before/after scope. Stage33 publication, current nativeCI and artifact acceptance remain mandatory and pending. No release/merge/deployment occurred.
+
+
+## Stage33 accepted
+
+Stage33 passed at e883cf50e2367274d5aa1f0d41b62ff29690930a, build62 run42299628203: all5requiredjobs,34actual browser adversarial cases,22native/browser families with own exact replay,13editorworkflows/15vectorcases,40native four-family adversarial checks/8corruptions, independent actual-artifact arithmetic rerun,54numeric-label/5coordinate/3nonfinite comparator controls. Repaired raw Lua transport, semantic numeric checking, Micrography field/mesh/labels/layout validation and cross-runtime field-sample false rejection. All44native CLI exports remain byte-identical to visually accepted28. Verified912Gitblobs,26binaryassets,260prior issued hashes and898kit files. Kit includes254priorJSONreceipts; six historical raw logs remain verified in full canonical recovery archive/bundle/checkpoint. Full release packaging remains37. See receipts33 acceptance (37issued evidence hashes) and ADVERSARIAL-33.md. This supersedes that report's candidate/native pending status without altering issued evidence.
+
+
+## Stage34 in progress
+
+Actual Lua53/54 tests pass1245 bounded-hash checks,15 packing/analytic/corruption checks and54 cancellation/object/operation/byte-exhaustion checks. These do not establish native TeX or browser performance. An earlier27case matrix had26passes and one nonmonotone tall text rejection; exact rejected input is retained. A wider large-text preflight passes. The entire matrix is being rerun after actual resource-accounting repairs; repeated before/after profiling, actual browser responsiveness/cancellation/cache evidence, inherited structural/export/editor gates, current nativeCI, full publication verification and stage acceptance are still pending. No39publication/deployment claim.
+
+
+Stage34 local27case native matrix and3alternating before/after pairs passed before the later floral edit-path repair. Local browser27cases/54bounds passed, but its full attempt failed at actual studio cancellation after changing the floral seed. The cause was a stale native host seed, now synchronized by pattern_editor.lua. Focused Edge editing/cancellation passes with seed102 and zero accepted cancelled outputs; native authored/grown generation/replay checks12pass in both Lua53and54. Full exact-head native/browserCI remains mandatory and pending. Working receipts explicitly distinguish these source versions and the focused probe from a full-suite pass.

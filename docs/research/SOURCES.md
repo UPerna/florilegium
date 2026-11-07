@@ -146,3 +146,11 @@ The editor reuses the existing native family/planner algorithms. Official API re
 ## Stage33 checking paths (retrieved 2026-11-06)
 
 Lua5.4 Reference Manual, section3.1 Lexical Conventions: https://www.lua.org/manual/5.4/manual.html#3.1 . Long literals normalize newline forms and discard an immediate first newline; quoted literals support up to three decimal escape digits. Production worker now uses fixed-width decimal escapes for controls, quote and backslash. Actual production tests compare original raw UTF8 SHA256s after Lua transport. Existing family primary-source methods and numerical bounds are unchanged; strengthened Micrography validation reconstructs its admitted finite field/layout, with independent Python energy/geometry checking.
+
+
+## Stage34 performance and numerical accumulation (retrieved2026-11-07)
+
+- Lua5.4 Reference Manual section2.1: immutable binary-safe strings justify complete-byte hash keys; sections collectgarbage and debug.sethook define allocation snapshots and instruction sampling. https://www.lua.org/manual/5.4/manual.html
+- Lupa official README, Restricting Lua Memory Usage: max_memory/get_memory_used cover Lua allocations, not Python or whole-process memory. Local package2.8, actual Lua53/54. https://github.com/scoder/lupa
+- David Goldberg1991, What Every Computer Scientist Should Know About Floating-Point Arithmetic, Theorem8 Kahan Summation; authorized edited reprint in Oracle Numerical Computation Guide. Compensated validator accumulation retains existing tolerances and is independently checked against math.fsum and analytic fan radii. https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html
+- Playwright1.62.1 official API, Browser.version and Page.evaluate: actual browser identity and in-page timing/heartbeat measurements. https://playwright.dev/docs/api/class-browser#browser-version and https://playwright.dev/docs/api/class-page#page-evaluate

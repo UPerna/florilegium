@@ -84,6 +84,12 @@ jobs:
             texlua tools/check-editor-prepare.lua &&
             texlua tools/adversarialcheck.lua &&
             python3 tools/adversarial_oracle.py &&
+            texlua tools/check-hash-cache.lua &&
+            texlua tools/check-packing-scale.lua &&
+            texlua tools/perf_prepare.lua &&
+            texlua tools/check-floral-editor-seed.lua &&
+            texlua tools/check-performance-bounds.lua &&
+            python3 tools/perf_bench.py --label native-ci &&
             python3 tools/clicheck.py &&
             texlua tools/layoutcheck.lua &&
             texlua tools/spacecheck.lua &&
@@ -129,6 +135,11 @@ jobs:
             build/editor-revision/
             build/editor-prepare/
             build/adversarial/
+            build/hash-cache/
+            build/packing-scale/
+            build/performance/
+            build/performance-bounds/
+            build/floral-editor-seed/
             build/cli/
 
   patterns-luatex:
@@ -267,6 +278,7 @@ jobs:
           path: |
             build/browser-check/
             build/editor-check/
+            build/browser-performance/
             build/adversarial/
             build/web/assets.json
           if-no-files-found: error

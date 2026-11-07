@@ -266,12 +266,19 @@ function M.validate(record)
       and math.abs(clearance-record.minimum_nonedge_clearance)<=epsilon,"packing-nonedge-contact-or-overlap")
   end
   local N=require("pattern_predicates")
-  local sums={}
+  -- Compensated accumulation preserves the existing strict certificate bound
+  -- when a high-valence wheel's normalized angles are added. The ordinary
+  -- sum falsely rejected an admitted60-fan (1.78e-14 versus8.88e-15 with
+  -- compensated addition); circles, solver and tolerances are unchanged.
+  local sums,correction={},{}
   for _,f in ipairs(d.faces) do
     assert(N.orient2d(circles[f[1]].center,circles[f[2]].center,circles[f[3]].center)>0,"packing-embedding-orientation")
     for i=1,3 do
       local a,b,c=f[i],f[i%3+1],f[(i+1)%3+1]
-      sums[a]=(sums[a] or 0)+angle(circles[a].radius,circles[b].radius,circles[c].radius)
+      local value=angle(circles[a].radius,circles[b].radius,circles[c].radius)
+      local adjusted=value-(correction[a]or 0)
+      local total=(sums[a]or 0)+adjusted
+      correction[a]=(total-(sums[a]or 0))-adjusted;sums[a]=total
     end
   end
   local residual=0

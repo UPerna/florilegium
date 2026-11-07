@@ -27,7 +27,15 @@ function M.apply(recipe,edit)
  if edit.parameters then merge(q.design.parameters,edit.parameters)end
  if edit.inputs then merge(q.design.inputs,edit.inputs)end
  if edit.style then merge(q.design.style,edit.style)end
- if edit.seed~=nil then q.design.seed=edit.seed end
+ if edit.seed~=nil then
+  q.design.seed=edit.seed
+  if q.definition.id=='botanical/legacy-authored'or q.definition.id=='botanical/legacy-grown'then
+   -- The legacy generator consumes this validated native host packet. Keep
+   -- its seed synchronized with the edited design; never reuse old growth.
+   local geometry=assert(q.design.extensions and q.design.extensions.legacy_geometry,'Floral seed editing requires actual native host geometry')
+   geometry.seed=edit.seed
+  end
+ end
  if edit.page_size then
   assert(type(edit.page_size)=='table'and #edit.page_size==2,'page size needs width/height in cm')
   for _,n in ipairs(edit.page_size)do assert(type(n)=='number'and n==n and n>=.1 and n<=60,'editor media size must be0.1..60cm')end

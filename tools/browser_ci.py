@@ -48,6 +48,7 @@ def main():
   if args.executable:editor_common+=['--executable',args.executable]
   subprocess.run(['node',str(ROOT/'tools/editorcheck.cjs'),*editor_common],cwd=ROOT,check=True,timeout=2400)
   subprocess.run([sys.executable,str(ROOT/'tools/editor_vectors.py'),str(ROOT/'build/editor-check')],cwd=ROOT,check=True,timeout=120)
+  subprocess.run(['node',str(ROOT/'tools/browser-performance.cjs'),*common,'--recipes',str(args.native/'performance')],cwd=ROOT,check=True,timeout=1800)
  finally:server.shutdown();server.server_close()
  print('Native-bound browser family/adversarial/sourcekit gates passed',digest)
 if __name__=='__main__':main()
